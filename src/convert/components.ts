@@ -46,10 +46,17 @@ function classRecipe(classes: string): Recipe {
 	const result: Recipe = { '': {} };
 	for (const cls of classes.split(/\s+/)) {
 		const { variants, base } = utility(cls);
+		// Guards such as not-disabled: narrow a state without being one (not-disabled:hover is the hover).
+		const state = canonical(variants.replace(/(?:^|(?<=:))not-[\w-]+(?:\[[^\]]*\])?:/g, '').replace(/:$/, ''));
+		// A cut shape draws its fill and line from parameters: [--ds-shape-fill:var(--ds-color-...)].
+		const shape = base.match(/^\[--ds-shape-(fill|stroke):(var\(--ds-color-[\w-]+\))\]$/);
+		if (shape) {
+			(result[state] ??= {})[shape[1] === 'fill' ? 'background-color' : 'border-color'] = shape[2];
+			continue;
+		}
 		const m = base.match(/^(bg|text|border|outline|ring)-(.+)$/);
 		const name = m && tokens().theme[m[2]];
 		if (!m || !name) continue;
-		const state = canonical(variants.replace(/:$/, ''));
 		(result[state] ??= {})[PROPERTY[m[1]]] = `var(--ds-color-${name})`;
 	}
 	return result;

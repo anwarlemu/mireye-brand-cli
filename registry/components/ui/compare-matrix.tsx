@@ -382,9 +382,9 @@ export function CompareMatrix({
                         }}
                         className={cn("self-start", !canRemove && "invisible")}
                       >
-                        {/* The design's text key; `link` until the system's Button carries a `text` variant. */}
+                        {/* The design's text key: Button's ghost variant, with no arrow. */}
                         <Button
-                          variant="link"
+                          variant="ghost"
                           aria-label={`Remove ${s.name} from compare`}
                           onClick={() => remove(s, i)}
                         >
@@ -399,7 +399,7 @@ export function CompareMatrix({
                 <th ref={addHeader} scope="col" data-col="add" className="snap-start border-b border-line px-1.5 pb-2.5 align-bottom text-left font-normal">
                   <span ref={addRef} className="block">
                     {addSlot ?? (
-                      <Button variant="link" onClick={add}>
+                      <Button variant="ghost" onClick={add}>
                         Add site
                       </Button>
                     )}

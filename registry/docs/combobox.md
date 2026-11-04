@@ -3,8 +3,8 @@ name: combobox
 title: Combobox
 type: ui
 surface: site
-description: "A pill trigger for one value, or a field with 24px corners for multiple lilac pill chips, opening a searchable menu with 16px corners: 36px rows with 12px corners and a filled purple check circle at the end."
-use_for: "Use instead of Select when there are more than about ten choices or people know what they are looking for (an agent, a contact, webhook events). Wrap ComboboxTrigger (or ComboboxChips with ComboboxChip and ComboboxChipsInput for several values) and ComboboxContent with ComboboxInput, ComboboxList, ComboboxItem rows and ComboboxEmpty in a Combobox with value and onValueChange (multiple for several). Pass items so the closed field can show labels. To let people add a new value, render an extra item for the search text from useCombobox()."
-never: [A combobox for five or fewer choices (use Select or a radio group), Animating the highlight between rows, A list without an empty state, Chips in the purple]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): the select trigger (Any State), the command menu and the lilac handle chip"
+description: "A searchable choice: the select's trigger, and a list in the field's frame with a 36px search row (the parcel glyph) and 28px rows whose typed part is full Forest. The highlighted row is a Fog plate with the small cut; chosen rows are full Forest with a solid diamond. Rows can carry a short detail (a state). ComboboxChips holds several values as square Fog chips."
+use_for: "Use to pick a place or record by name from a long list (a county, a parcel, a saved site), or several values (map layers) with ComboboxChips. Pass `detail` for the state or acreage, and `searching` on ComboboxInput while the parent's search runs (the Dial turns)."
+never: ["A spinner other than the Dial", "Rounded chips or rows", "Animating rows as the highlight moves (it follows the keys)"]
+source: "The design's search field with floating results (not in Figma yet), drawn with the field (442:107)"
 ---

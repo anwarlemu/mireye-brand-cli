@@ -2,14 +2,16 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-// The console's search keys (console-search.tsx): a key is a 20px lilac cap with 6px corners and the Line/S hairline,
-// 12px medium secondary ink in Inter; glyphs inside are 12px. In a tooltip (on the ink) it turns translucent white.
+// A key, as Mireye writes data: a square 20px cap with no cut (small things are square), a 1px Stone line on white and
+// the key in 12px DM Mono in 80% Forest; glyphs inside are 12px. In a tooltip (on Forest) the line turns Haze and the
+// text white. Keys are labels, never pressable.
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
   return (
     <kbd
       data-slot="kbd"
       className={cn(
-        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-xs bg-subtle px-1.5 font-sans text-caption leading-none font-medium text-fg-secondary shadow-line select-none in-data-[slot=tooltip-content]:bg-white/15 in-data-[slot=tooltip-content]:text-white in-data-[slot=tooltip-content]:shadow-none [&_svg:not([class*='size-'])]:size-3",
+        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 border border-line bg-surface px-1 font-mono text-caption leading-none font-normal text-fg-secondary select-none",
+        "in-data-[slot=tooltip-content]:border-fg-inverse-muted in-data-[slot=tooltip-content]:bg-transparent in-data-[slot=tooltip-content]:text-fg-inverse [&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       {...props}

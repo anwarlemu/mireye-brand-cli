@@ -7,11 +7,10 @@ import { Controller, FormProvider, useFormContext, useFormState, type Controller
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-// A react-hook-form form laid out as the console's (Figma 427:2715, Create Agent Identity, Login, Vault). Each FormItem
-// is a field: its 14px regular ink label on a 24px line, 4px above the control; fields sit 12px apart in the form. A
-// FormDescription is 14px muted 8px under the control; a FormMessage is the 12px red line 4px under it ("(is not
-// available)"). A field
-// that fails keeps its label ink: only the control (aria-invalid, the red edge) and the message turn red.
+// A react-hook-form form in Mireye's field layout (Figma "UI · Inputs", 442:107, at the product scale). Each FormItem is
+// a field: its 12px label in 80% Forest, 8px above the control. A FormDescription is 12px in 72% Forest 8px under the
+// control ("Within 40 to 120 ac"); a FormMessage is a 12px brick line 8px under it. A field that fails keeps its label:
+// only the control's line (aria-invalid) and the message turn brick. Stack FormItems 16px apart.
 const Form = FormProvider;
 
 type FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = { name: TName };
@@ -47,7 +46,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div data-slot="form-item" className={cn("grid min-w-0 gap-1", className)} {...props} />
+      <div data-slot="form-item" className={cn("grid min-w-0 gap-2", className)} {...props} />
     </FormItemContext.Provider>
   );
 }
@@ -65,7 +64,7 @@ function FormControl(props: React.ComponentProps<typeof chakra.div>) {
 
 function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
   const { formDescriptionId } = useFormField();
-  return <p data-slot="form-description" id={formDescriptionId} className={cn("m-0 mt-1 font-sans text-body leading-line-body text-fg-muted", className)} {...props} />;
+  return <p data-slot="form-description" id={formDescriptionId} className={cn("m-0 font-sans text-caption leading-line-caption text-fg-muted", className)} {...props} />;
 }
 
 function FormMessage({ className, children, ...props }: React.ComponentProps<"p">) {

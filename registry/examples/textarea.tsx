@@ -3,20 +3,20 @@ import { Textarea } from "@/components/ui/textarea";
 
 export function Preview() {
   return (
-    <div className="grid w-full max-w-100.5 gap-1">
-      <Label htmlFor="description">Agent description</Label>
-      <Textarea id="description" placeholder="Agent Description" />
+    <div className="grid w-full max-w-96 gap-2">
+      <Label htmlFor="site-notes">Site notes</Label>
+      <Textarea id="site-notes" placeholder="What should the agent look for?" />
     </div>
   );
 }
 
 export function States() {
   return (
-    <div className="grid w-full max-w-100.5 gap-3">
-      <Textarea aria-label="Note" defaultValue="Answers billing questions for Acme and forwards anything about refunds to the finance agent." />
-      <Textarea aria-label="Invalid note" defaultValue="" placeholder="Required" aria-invalid />
-      <Textarea aria-label="Read-only" readOnly defaultValue="Created by the Inkbox CLI on Jul 27, 2026." />
-      <Textarea aria-label="Disabled" disabled placeholder="Disabled" />
+    <div className="grid w-full max-w-96 gap-4">
+      <Textarea aria-label="Notes" defaultValue="Flat, cleared land within 2 miles of a 345 kV line. Avoid the floodplain along the river." />
+      <Textarea aria-label="Locked notes" defaultValue="Criteria are locked while the scan runs." readOnly />
+      <Textarea aria-label="Disabled notes" placeholder="Notes" disabled />
+      <Textarea aria-label="Invalid notes" defaultValue="?" aria-invalid />
     </div>
   );
 }

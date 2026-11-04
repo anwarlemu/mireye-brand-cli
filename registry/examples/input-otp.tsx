@@ -10,8 +10,8 @@ export function Preview() {
   const [done, setDone] = React.useState(false);
   return (
     <div className="grid gap-2">
-      <Label htmlFor="login-code">Login code</Label>
-      <InputOTP id="login-code" maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={code} onChange={(v) => { setCode(v); setDone(false); }} onComplete={() => setDone(true)}>
+      <Label htmlFor="signin-code">Sign-in code</Label>
+      <InputOTP id="signin-code" maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={code} onChange={(v) => { setCode(v); setDone(false); }} onComplete={() => setDone(true)}>
         <InputOTPGroup>
           <InputOTPSlot index={0} />
           <InputOTPSlot index={1} />
@@ -25,7 +25,7 @@ export function Preview() {
         </InputOTPGroup>
       </InputOTP>
       <p className="text-caption text-fg-muted" aria-live="polite">
-        {done ? "Code entered. Checking it now." : "Enter the 6-digit code we sent to robert@acme.com."}
+        {done ? "Code entered. Checking it now." : "Enter the 6-digit code we sent to your Acme email."}
       </p>
     </div>
   );

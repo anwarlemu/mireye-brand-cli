@@ -5,10 +5,11 @@ import { MinusIcon } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/lib/utils";
 
-// A one-time code field, written for the console's look (extrapolated from Figma "Form- Input"): joined 40px slots in
-// the field's lilac-gray edge with fully rounded outer corners, 16px medium ink characters, and the active slot in the purple edge
-// with the soft focus ring and a blinking 1px caret; disabled, the slots sit on the lilac with muted characters. One real input lies over the slots, so typing, deleting, pasting
-// a whole code, autofill from SMS and arrow keys all work as in any field. `pattern` limits each character.
+// A one-time code field in Mireye's field language: one 36px square per character, each Input's frame with the compact
+// 6px cut (white, 1px Stone line), 8px apart, the characters 16px in DM Mono so codes read as data. The slot the next
+// character goes into turns its line Forest and shows a blinking 1px Forest caret; an invalid code turns every line
+// brick; disabled slots sit on Mist with Slate characters. One real input lies over the slots, so typing, deleting,
+// pasting a whole code, autofill from SMS and arrow keys all work as in any field. `pattern` limits each character.
 const REGEXP_ONLY_DIGITS = "^\\d+$";
 const REGEXP_ONLY_CHARS = "^[a-zA-Z]+$";
 const REGEXP_ONLY_DIGITS_AND_CHARS = "^[a-zA-Z0-9]+$";
@@ -131,7 +132,7 @@ function InputOTP({ maxLength, value: valueProp, defaultValue = "", onChange, on
 }
 
 function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="input-otp-group" className={cn("flex items-center rounded-pill", className)} {...props} />;
+  return <div data-slot="input-otp-group" className={cn("flex items-center gap-2", className)} {...props} />;
 }
 
 function InputOTPSlot({ index, className, ...props }: React.ComponentProps<"div"> & { index: number }) {
@@ -144,7 +145,9 @@ function InputOTPSlot({ index, className, ...props }: React.ComponentProps<"div"
       aria-invalid={invalid || undefined}
       data-disabled={disabled || undefined}
       className={cn(
-        "relative -ml-px flex size-10 items-center justify-center border border-line-field bg-surface font-sans text-body-lg leading-none font-medium text-fg transition-[border-color,box-shadow] duration-fast ease-out first:ml-0 first:rounded-l-pill last:rounded-r-pill aria-invalid:border-danger data-active:z-10 data-active:border-line-brand data-active:shadow-focus aria-invalid:data-active:shadow-none data-disabled:bg-subtle data-disabled:text-fg-muted motion-reduce:transition-none",
+        "ds-cut-frame relative flex size-9 items-center justify-center font-mono text-h3 leading-none font-normal text-fg [--ds-cut:var(--ds-cut-md)]",
+        "[--ds-shape-stroke:var(--ds-color-border-default)] [--ds-shape-fill:var(--ds-color-bg-default)] data-active:[--ds-shape-stroke:var(--ds-color-border-strong)]",
+        "aria-invalid:[--ds-shape-stroke:var(--ds-color-status-danger)] data-disabled:text-fg-subtle data-disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)]",
         className,
       )}
       {...props}
@@ -152,7 +155,7 @@ function InputOTPSlot({ index, className, ...props }: React.ComponentProps<"div"
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-5 w-px animate-caret-blink bg-fg" />
+          <div className="h-4 w-px animate-caret-blink bg-fg motion-reduce:animate-none" />
         </div>
       )}
     </div>
@@ -161,8 +164,8 @@ function InputOTPSlot({ index, className, ...props }: React.ComponentProps<"div"
 
 function InputOTPSeparator(props: React.ComponentProps<"div">) {
   return (
-    <div data-slot="input-otp-separator" role="separator" className="flex items-center text-fg-faint" {...props}>
-      <MinusIcon weight="bold" className="size-4" />
+    <div data-slot="input-otp-separator" role="separator" className="flex items-center text-line" {...props}>
+      <MinusIcon className="size-4" />
     </div>
   );
 }

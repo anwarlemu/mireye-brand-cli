@@ -2,260 +2,44 @@
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { AppleLogoIcon, ArrowsLeftRightIcon, CheckCircleIcon, EnvelopeSimpleIcon, GlobeIcon, InfoIcon, PhoneIcon, PlusIcon, XCircleIcon } from "@phosphor-icons/react/ssr";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Spinner } from "@/components/ui/spinner";
-import { Switch } from "@/components/ui/switch";
+import { Range } from "@/components/ui/range";
 import { Textarea } from "@/components/ui/textarea";
 
-type Values = { handle: string; displayName: string; description: string; phone: boolean; imessage: boolean; a2a: boolean; tls: "edge" | "passthrough" };
+type Values = { name: string; county: string; size: string; voltage: string; use: "industrial" | "agricultural"; floodplain: boolean; notes: string };
 
-const TAKEN = ["acme", "support", "acme-support"];
-
-// The local example checks immediately. Real availability checks should use the API without delaying typing.
-async function isAvailable(handle: string) {
-  return !TAKEN.includes(handle);
-}
-
-const CHANNELS = [
-  { name: "phone", label: "Phone Number", icon: PhoneIcon },
-  { name: "imessage", label: "iMessage", icon: AppleLogoIcon },
-] as const;
-
+// Site criteria: what the agent searches for. An empty submit shows each field's message; a valid one saves.
 export function Preview() {
-  const form = useForm<Values>({ mode: "onSubmit", reValidateMode: "onChange", defaultValues: { handle: "", displayName: "", description: "", phone: false, imessage: false, a2a: false, tls: "edge" } });
-  const [check, setCheck] = React.useState<"idle" | "checking" | "free" | "taken">("idle");
-  const [created, setCreated] = React.useState<string | null>(null);
-  const handle = form.watch("handle");
-
-  // Start validation immediately; discard stale results if the handle changes.
-  React.useEffect(() => {
-    if (!/^[a-z0-9-]{3,}$/.test(handle)) return setCheck("idle");
-    let live = true;
-    setCheck("checking");
-    void isAvailable(handle).then((ok) => live && setCheck(ok ? "free" : "taken"));
-    return () => {
-      live = false;
-    };
-  }, [handle]);
+  const form = useForm<Values>({
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: { name: "", county: "", size: "41.2", voltage: "", use: "industrial", floodplain: true, notes: "" },
+  });
+  const [saved, setSaved] = React.useState<string | null>(null);
+  const size = Number.parseFloat(form.watch("size"));
 
   async function onSubmit(values: Values) {
-    if (!(await isAvailable(values.handle))) {
-      form.setError("handle", { message: "(is not available)" });
-      return;
-    }
-    setCreated(values.handle);
+    // A local example: a real form would save the criteria to the API here.
+    setSaved(values.name);
   }
 
-  const submitting = form.formState.isSubmitting;
-  if (created)
-    return (
-      <div className="mx-auto grid w-full max-w-121.5 justify-items-center gap-3 py-6 text-center">
-        <CheckCircleIcon weight="fill" className="size-10 text-success" />
-        <p className="text-h3 leading-heading text-fg">@{created} is ready!</p>
-        <Button variant="secondary" onClick={() => { form.reset(); setCreated(null); }}>
-          Create another
-        </Button>
-      </div>
-    );
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mx-auto grid w-full max-w-121.5 gap-6">
-        <fieldset disabled={submitting} className="m-0 grid gap-6 border-0 p-0 disabled:opacity-60">
-          <div className="flex gap-5">
-            <button type="button" aria-label="Add a picture" className="flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-pill bg-subtle text-fg outline-none transition-[background-color,box-shadow] duration-fast ease-out hover:bg-subtle-hover focus-visible:shadow-focus active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none motion-reduce:transition-none">
-              <PlusIcon className="size-7" />
-            </button>
-            <div className="grid min-w-0 flex-1 gap-3">
-              <FormField
-                control={form.control}
-                name="handle"
-                rules={{
-                  required: "Choose a handle for the agent.",
-                  pattern: { value: /^[a-z0-9-]{3,}$/, message: "Use at least 3 lowercase letters, numbers or hyphens." },
-                  validate: () => check !== "taken" || "(is not available)",
-                }}
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel className="sr-only">Agent handle</FormLabel>
-                    <InputGroup>
-                      <FormControl>
-                        <InputGroupInput placeholder="Agent handle" autoComplete="off" spellCheck={false} {...field} aria-invalid={!!fieldState.error || check === "taken"} />
-                      </FormControl>
-                      <InputGroupAddon align="inline-end">
-                        {check === "checking" && <Spinner aria-label="Checking the handle" className="text-fg-faint" />}
-                        {check === "free" && <CheckCircleIcon weight="fill" className="text-success" aria-label="Available" />}
-                        {check === "taken" && <XCircleIcon weight="fill" className="text-danger-strong" aria-label="Not available" />}
-                      </InputGroupAddon>
-                    </InputGroup>
-                    {handle && check !== "idle" && check !== "checking" ? (
-                      <p className="flex flex-wrap items-center gap-2 text-caption leading-body text-fg-secondary">
-                        Will be displayed as <span className="rounded-pill bg-subtle px-2 py-0.5 text-fg">@{handle}</span>
-                        {check === "taken" && <span className="text-danger">(is not available)</span>}
-                      </p>
-                    ) : null}
-                    {check !== "taken" && <FormMessage />}
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="displayName"
-                rules={{ maxLength: { value: 40, message: "Keep the display name under 40 characters." } }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="sr-only">Agent display name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Agent display name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="sr-only">Agent description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Agent Description" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-2.5">
-            <p className="text-body leading-body text-fg">Channels</p>
-            <div className="grid gap-3 rounded-control bg-subtle p-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="flex size-7 items-center justify-center rounded-pill bg-pink text-rose">
-                  <EnvelopeSimpleIcon weight="fill" className="size-5.5" />
-                </span>
-                <span className="flex-1 text-body-lg font-medium text-fg">Email</span>
-                <Badge variant="success" size="lg">
-                  <CheckCircleIcon weight="fill" />
-                  Included
-                </Badge>
-              </div>
-              <InputGroup>
-                <InputGroupInput aria-label="Mailbox" value={handle || "acme-support"} readOnly />
-                <InputGroupAddon align="inline-end" variant="segment">
-                  @inboxmail.com
-                </InputGroupAddon>
-              </InputGroup>
-            </div>
-            {CHANNELS.map(({ name, label, icon: Icon }) => (
-              <FormField
-                key={name}
-                control={form.control}
-                name={name}
-                render={({ field }) => (
-                  <FormItem className="flex h-13 items-center gap-2.5 rounded-pill bg-subtle px-3.5">
-                    <span className="flex size-7 items-center justify-center rounded-pill bg-pink text-rose">
-                      <Icon weight="fill" className="size-5.5" />
-                    </span>
-                    <FormLabel className="flex-1 text-body-lg font-medium">{label}</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} onBlur={field.onBlur} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            ))}
-            <FormField
-              control={form.control}
-              name="a2a"
-              render={({ field }) => (
-                <FormItem className="flex h-13 items-center gap-2.5 rounded-pill bg-subtle px-3.5">
-                  <ArrowsLeftRightIcon className="size-6 text-icon-secondary" aria-hidden />
-                  <FormLabel className="flex-1 text-body-lg font-medium">
-                    Agent2Agent <Badge variant="pink">BETA</Badge>
-                  </FormLabel>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} onBlur={field.onBlur} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <p className="text-body leading-body text-fg">Your agent will be reachable at:</p>
-            <p className="flex h-10 items-center gap-2.5 rounded-pill bg-subtle px-2.5 text-body text-fg">
-              <span className="flex size-7 items-center justify-center rounded-pill bg-pink text-rose">
-                <GlobeIcon weight="fill" className="size-5.5" />
-              </span>
-              {handle || "acme-support"}.inkboxwire.com
-            </p>
-          </div>
-
-          <FormField
-            control={form.control}
-            name="tls"
-            render={({ field }) => (
-              <FormItem className="gap-2">
-                <FormLabel className="gap-1.5">
-                  Tunnel TLS mode <InfoIcon weight="fill" aria-hidden className="size-4.5 text-fg-label" />
-                </FormLabel>
-                <FormControl>
-                  <RadioGroup value={field.value} onValueChange={field.onChange}>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="edge" id="tls-edge" />
-                      <Label htmlFor="tls-edge">Edge (default)</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="passthrough" id="tls-passthrough" />
-                      <Label htmlFor="tls-passthrough">Passthrough</Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormDescription>Edge ends TLS at Inkbox; passthrough sends it to your agent untouched.</FormDescription>
-              </FormItem>
-            )}
-          />
-        </fieldset>
-
-        <Button type="submit" className="w-full" disabled={submitting || check === "checking"}>
-          {submitting ? (
-            <>
-              <Spinner aria-hidden className="size-5" />
-              Creating Agent Identity...
-            </>
-          ) : (
-            "Create Agent Identity"
-          )}
-        </Button>
-      </form>
-    </Form>
-  );
-}
-
-export function Login() {
-  const form = useForm<{ email: string; password: string }>({ defaultValues: { email: "", password: "" } });
-  const [done, setDone] = React.useState(false);
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(() => setDone(true))} noValidate className="mx-auto grid w-full max-w-86 gap-3">
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mx-auto grid w-full max-w-110 gap-4">
         <FormField
           control={form.control}
-          name="email"
-          rules={{ required: "Enter your email address.", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address." } }}
+          name="name"
+          rules={{ required: "Name the site so the team can find it." }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email address</FormLabel>
+              <FormLabel>Site name</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="your@email.com" autoComplete="email" {...field} />
+                <Input placeholder="e.g. Acme data center, phase 2" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -263,25 +47,110 @@ export function Login() {
         />
         <FormField
           control={form.control}
-          name="password"
-          rules={{ required: "Enter your password.", minLength: { value: 8, message: "Passwords have at least 8 characters." } }}
+          name="county"
+          rules={{ required: "Choose where to search." }}
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between gap-3">
-                <FormLabel>Password</FormLabel>
-                <a href="#forgot" className="text-body leading-body text-fg-brand underline-offset-4 hover:underline">Forgot password?</a>
-              </div>
+              <FormLabel>County</FormLabel>
               <FormControl>
-                <Input type="password" autoComplete="current-password" {...field} />
+                <Input placeholder="Search any U.S. county" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-1 w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? <Spinner aria-hidden className="size-5" /> : null}
-          {done ? "Logged in" : "Log in"}
-        </Button>
+        <FormField
+          control={form.control}
+          name="size"
+          rules={{
+            required: "Give a minimum size.",
+            validate: (v) => (Number.parseFloat(v) >= 40 && Number.parseFloat(v) <= 120) || "Use a size from 40 to 120 ac.",
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Parcel size</FormLabel>
+              <FormControl>
+                <Input inputMode="decimal" unit="ac" {...field} />
+              </FormControl>
+              <Range
+                min={40}
+                max={120}
+                step={0.1}
+                value={Number.isNaN(size) ? 40 : size}
+                onValueChange={(v) => form.setValue("size", String(v), { shouldValidate: form.formState.isSubmitted })}
+                aria-label="Parcel size"
+                helper="Within 40 to 120 ac"
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="voltage"
+          rules={{ pattern: { value: /^\d*$/, message: "Use whole kilovolts." } }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Minimum line voltage</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. 138" inputMode="numeric" unit="kV" {...field} />
+              </FormControl>
+              <FormDescription>Leave empty to include every line.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="use"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Zoning</FormLabel>
+              <FormControl>
+                <RadioGroup value={field.value} onValueChange={(v) => field.onChange(v)} className="grid-cols-2">
+                  <RadioGroupItem value="industrial">Industrial</RadioGroupItem>
+                  <RadioGroupItem value="agricultural">Agricultural</RadioGroupItem>
+                </RadioGroup>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="floodplain"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={(c) => field.onChange(c === true)}>
+                  Exclude floodplain
+                </Checkbox>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes for the agent</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Anything else the site needs" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <div className="flex flex-wrap items-center gap-4 pt-2">
+          <Button type="submit" arrow loading={form.formState.isSubmitting}>
+            Save criteria
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => { form.reset(); setSaved(null); }}>
+            Reset
+          </Button>
+          <p role="status" className="m-0 text-caption leading-line-caption text-fg-muted">
+            {saved ? `Saved ${saved}.` : ""}
+          </p>
+        </div>
       </form>
     </Form>
   );

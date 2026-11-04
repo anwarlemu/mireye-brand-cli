@@ -1,69 +1,53 @@
-import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet, FieldTitle } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
 export function Preview() {
   return (
-    <form className="mx-auto w-full max-w-86">
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="login-email">Email address</FieldLabel>
-          <Input id="login-email" type="email" placeholder="your@email.com" autoComplete="email" />
-        </Field>
-        <Field>
-          <div className="flex items-center justify-between gap-3">
-            <FieldLabel htmlFor="login-password">Password</FieldLabel>
-            <a href="#forgot" className="text-body leading-body text-fg-brand underline-offset-4 hover:underline">
-              Forgot password?
-            </a>
-          </div>
-          <Input id="login-password" type="password" autoComplete="current-password" />
-        </Field>
-        <Button type="submit" className="w-full">Log in</Button>
-        <FieldSeparator>or</FieldSeparator>
-        <Button variant="secondary" className="w-full">Continue with Google</Button>
-      </FieldGroup>
-    </form>
-  );
-}
-
-export function Description() {
-  return (
-    <Field className="max-w-162.5">
-      <FieldLabel htmlFor="vault-key">Vault key</FieldLabel>
-      <FieldDescription>Enter a vault key or generate a random one. You&apos;ll need this to unlock the vault.</FieldDescription>
-      <Input id="vault-key" type="password" defaultValue="correct-horse-battery" />
-    </Field>
+    <FieldGroup className="max-w-96">
+      <Field>
+        <FieldLabel htmlFor="f-size">Parcel size</FieldLabel>
+        <Input id="f-size" defaultValue="41.2" inputMode="decimal" unit="ac" />
+        <FieldDescription>Within 40 to 120 ac</FieldDescription>
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="f-location">Location</FieldLabel>
+        <Input id="f-location" placeholder="Search any U.S. location" />
+      </Field>
+    </FieldGroup>
   );
 }
 
 export function Invalid() {
   return (
-    <Field data-invalid="true" className="max-w-100">
-      <FieldLabel htmlFor="handle">Agent handle</FieldLabel>
-      <Input id="handle" defaultValue="acme-support" aria-invalid aria-describedby="handle-error" />
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-caption leading-body text-fg">
-        Will be displayed as
-        <span className="rounded-pill bg-subtle px-1.5 py-0.5">@acme-support</span>
-        <FieldError id="handle-error">(is not available)</FieldError>
-      </div>
+    <Field data-invalid className="max-w-96">
+      <FieldLabel htmlFor="f-voltage">Minimum voltage</FieldLabel>
+      <Input id="f-voltage" defaultValue="1200" unit="kV" aria-invalid aria-describedby="f-voltage-error" />
+      <FieldError id="f-voltage-error">No transmission line in this county carries more than 500 kV.</FieldError>
     </Field>
   );
 }
 
 export function Horizontal() {
   return (
-    <FieldGroup className="max-w-120">
+    <FieldGroup className="max-w-96">
       <Field orientation="horizontal">
-        <FieldContent>
-          <FieldTitle>Retention</FieldTitle>
-          <FieldDescription>Days to keep delivered messages before they are deleted.</FieldDescription>
-        </FieldContent>
-        <Input aria-label="Retention in days" type="number" defaultValue={30} className="w-24" />
+        <Switch id="f-terrain" defaultChecked />
+        <FieldLabel htmlFor="f-terrain">Terrain</FieldLabel>
       </Field>
-      <Field orientation="responsive">
-        <FieldLabel htmlFor="display-name">Display name</FieldLabel>
-        <Input id="display-name" placeholder="Agent display name" className="@md/field-group:w-64" />
+      <Field orientation="horizontal">
+        <Checkbox id="f-flood" />
+        <FieldContent>
+          <FieldLabel htmlFor="f-flood">Exclude floodplain</FieldLabel>
+          <FieldDescription>Drops parcels in FEMA zones A and AE.</FieldDescription>
+        </FieldContent>
+      </Field>
+      <FieldSeparator>or</FieldSeparator>
+      <Field orientation="horizontal">
+        <Checkbox id="f-wet" defaultChecked />
+        <FieldLabel htmlFor="f-wet">Exclude wetlands</FieldLabel>
       </Field>
     </FieldGroup>
   );
@@ -71,20 +55,29 @@ export function Horizontal() {
 
 export function Fieldset() {
   return (
-    <FieldSet className="max-w-120">
-      <FieldLegend>Webhook destination</FieldLegend>
-      <FieldDescription>Inkbox signs every delivery with the key for this agent identity.</FieldDescription>
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="webhook-url">Endpoint URL</FieldLabel>
-          <Input id="webhook-url" type="url" placeholder="https://example.com/inkbox" />
-        </Field>
-        <Field data-invalid="true">
-          <FieldLabel htmlFor="webhook-secret">Signing secret</FieldLabel>
-          <Input id="webhook-secret" aria-invalid defaultValue="short" />
-          <FieldError errors={[{ message: "Use at least 32 characters." }, { message: "Include letters and numbers." }]} />
-        </Field>
-      </FieldGroup>
+    <FieldSet className="max-w-96">
+      <FieldLegend>Land use</FieldLegend>
+      <FieldDescription>The zoning the site must already have.</FieldDescription>
+      <RadioGroup defaultValue="industrial">
+        <FieldLabel htmlFor="z-industrial">
+          <Field orientation="horizontal">
+            <RadioGroupItem value="industrial" id="z-industrial" />
+            <FieldContent>
+              <FieldTitle>Industrial</FieldTitle>
+              <FieldDescription>I-1 and I-2, ready to build.</FieldDescription>
+            </FieldContent>
+          </Field>
+        </FieldLabel>
+        <FieldLabel htmlFor="z-agricultural">
+          <Field orientation="horizontal">
+            <RadioGroupItem value="agricultural" id="z-agricultural" />
+            <FieldContent>
+              <FieldTitle>Agricultural</FieldTitle>
+              <FieldDescription>Needs a conditional use permit.</FieldDescription>
+            </FieldContent>
+          </Field>
+        </FieldLabel>
+      </RadioGroup>
     </FieldSet>
   );
 }

@@ -1,10 +1,10 @@
 ---
 name: native-select
-title: Native Select
+title: Native select
 type: ui
 surface: site
-description: "The browser's own select dressed as the console's: a white 40px pill with the Shadow/S ring and a bold 16px caret."
-use_for: "Use when the platform's own picker is better: on phones, for long lists such as countries or states, or in forms that must work without script. Otherwise use Select. Use NativeSelectOptGroup to group options."
-never: [A field edge instead of the Shadow/S ring, A custom arrow image, A native select styled differently from Select on the same form]
-source: "Figma 427:2715: the Any State and Shared selects in Create Agent Identity"
+description: "The browser's own select dressed as Mireye's: the field's frame (36px, the cut) with the value 16px in and the brand arrow's head turned down at the right."
+use_for: "Use where the platform picker is better: phones, very long lists, forms without script. Otherwise use Select."
+never: ["A native select for a choice that needs search", "A custom chevron other than the brand arrow"]
+source: "Drawn from Figma \"UI · Inputs\" (442:107)"
 ---

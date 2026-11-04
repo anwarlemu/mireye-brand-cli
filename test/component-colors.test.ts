@@ -37,8 +37,8 @@ describe('component color application', () => {
     expect(out).toContain(':root { --accent: #ff0033; --ink: #123456; }');
     expect(out).toContain('background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg)');
     expect(out).toContain('.btn-primary:hover { background: var(--ds-color-action-primary-hover); }');
-    expect(out).toContain('.btn-primary:active { background: var(--ds-color-action-primary-hover); }');
-    expect(out).toContain('border: 1px solid var(--ds-color-border-field)');
+    expect(out).toContain('.btn-primary:active { background: var(--ds-color-action-primary); }');
+    expect(out).toContain('border: 1px solid var(--ds-color-border-strong)');
     expect(out).toContain('.input:focus-visible { border-color: var(--ds-color-border-strong); }');
     for (const line of original.split('\n').filter((s) => /chart|unknown|gradient/.test(s))) expect(out).toContain(line);
     expect(apply('page.css', out)).toBe(out);
@@ -56,7 +56,7 @@ describe('component color application', () => {
 <svg><rect className="bg-red-500" fill="#ff0033" /></svg>
 </>; }\nconst palette = { color: '#ff0033', backgroundColor: '#123456' };`;
     const out = apply('page.tsx', source);
-    expect(out).toContain('onClick={save} className="px-4 bg-primary text-on-primary hover:bg-primary-hover active:bg-primary-hover"');
+    expect(out).toContain('onClick={save} className="px-4 bg-primary text-on-primary hover:bg-primary-hover active:bg-primary"');
     expect(out).toContain('variant="destructive" className="bg-danger text-white hover:bg-danger-strong"');
     expect(out).toContain('variant="success" className="border-success bg-surface text-success"');
     expect(out).toContain('rounded-full bg-surface text-fg border-line focus-visible:border-line-strong aria-invalid:border-danger placeholder:text-fg-subtle');

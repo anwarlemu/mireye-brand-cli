@@ -101,20 +101,20 @@ export async function checkInteractions(page, base) {
     // Textarea takes text.
     await open(page, base, 'textarea');
     const area = page.locator('textarea').first();
-    await area.fill('Forward receipts to the finance agent.');
-    assert.equal(await area.inputValue(), 'Forward receipts to the finance agent.');
+    await area.fill('Avoid parcels in the floodplain.');
+    assert.equal(await area.inputValue(), 'Avoid parcels in the floodplain.');
 
     // Clearing a multi-select is one update, including the values submitted by the form.
     await open(page, base, 'combobox', 'Multiple');
     assert.equal(await page.locator('[data-slot="combobox-chip"]').count(), 2);
     await page.getByRole('button', { name: 'Clear', exact: true }).click();
     assert.equal(await page.locator('[data-slot="combobox-chip"]').count(), 0, 'combobox: Clear removes all chips');
-    assert.equal(await page.locator('input[type="hidden"][name="events"]').count(), 0, 'combobox: Clear resets submitted values');
-    await page.locator('#events').fill('call.started');
-    await page.getByRole('option', { name: 'call.started', exact: true }).click();
+    assert.equal(await page.locator('input[type="hidden"][name="layers"]').count(), 0, 'combobox: Clear resets submitted values');
+    await page.locator('#layers').fill('wetlands');
+    await page.getByRole('option', { name: 'Wetlands', exact: true }).click();
     assert.equal(await page.locator('[data-slot="combobox-chip"]').count(), 1, 'combobox: selection works after Clear');
     await page.keyboard.press('Escape');
-    await page.locator('#events').focus();
+    await page.locator('#layers').focus();
     await page.keyboard.press('Backspace');
     assert.equal(await page.locator('[data-slot="combobox-chip"]').count(), 0, 'combobox: Backspace removes the last chip');
 
@@ -137,7 +137,7 @@ export async function checkInteractions(page, base) {
 
     // Form: an empty submit shows its error; the handle is checked as it is typed.
     await open(page, base, 'form');
-    await page.getByRole('button', { name: /create agent identity/i }).click();
+    await page.getByRole('button', { name: /save criteria/i }).click();
     assert.ok(await page.locator('[data-slot="form-message"]').count(), 'form: empty submit shows an error');
 
     // Data table: a head sorts, the filter narrows, a row checkbox selects.

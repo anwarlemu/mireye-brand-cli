@@ -6,41 +6,38 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
 export function Preview() {
-  const [limit, setLimit] = React.useState([250]);
+  const [value, setValue] = React.useState([30]);
   return (
-    <div className="grid w-full max-w-100 gap-3">
-      <div className="flex items-center justify-between">
-        <Label id="limit-label">Daily send limit</Label>
-        <span className="text-body text-fg-muted">{limit[0]} emails</span>
+    <div className="grid w-full max-w-96 gap-3">
+      <div className="flex items-baseline justify-between">
+        <Label id="radius-label">Search radius</Label>
+        <span className="font-mono text-caption text-fg">{value[0]} mi</span>
       </div>
-      <Slider aria-labelledby="limit-label" value={limit} onValueChange={setLimit} max={1000} step={50} />
+      <Slider value={value} onValueChange={setValue} min={5} max={100} aria-labelledby="radius-label" />
     </div>
   );
 }
 
 export function Range() {
-  const [hours, setHours] = React.useState([9, 17]);
+  const [value, setValue] = React.useState([40, 120]);
   return (
-    <div className="grid w-full max-w-100 gap-3">
-      <div className="flex items-center justify-between">
-        <Label id="hours-label">Calling hours</Label>
-        <span className="text-body text-fg-muted">
-          {hours[0]}:00 to {hours[1]}:00
+    <div className="grid w-full max-w-96 gap-3">
+      <div className="flex items-baseline justify-between">
+        <Label id="acres-label">Parcel size</Label>
+        <span className="font-mono text-caption text-fg">
+          {value[0]} to {value[1]} ac
         </span>
       </div>
-      <Slider aria-labelledby="hours-label" value={hours} onValueChange={setHours} min={0} max={24} step={1} minStepsBetweenThumbs={1} />
+      <Slider value={value} onValueChange={setValue} min={0} max={200} aria-labelledby="acres-label" aria-label={["Minimum size", "Maximum size"]} />
     </div>
   );
 }
 
 export function States() {
   return (
-    <div className="grid w-full max-w-100 gap-6">
-      <Slider aria-label="Disabled" defaultValue={[40]} disabled />
-      <div className="flex h-40 gap-8">
-        <Slider aria-label="Vertical" defaultValue={[60]} orientation="vertical" />
-        <Slider aria-label="Vertical range" defaultValue={[20, 70]} orientation="vertical" />
-      </div>
+    <div className="flex w-full max-w-96 items-center gap-8">
+      <Slider defaultValue={[60]} disabled aria-label="Locked radius" />
+      <Slider defaultValue={[40]} orientation="vertical" aria-label="Opacity" className="h-32" />
     </div>
   );
 }

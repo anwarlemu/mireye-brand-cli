@@ -3,8 +3,8 @@ name: kbd
 title: Kbd
 type: ui
 surface: site
-description: "A 20px lilac key cap with 6px corners and 12px medium text, as in the console's search."
-use_for: "Use to show a keyboard shortcut in a menu, a tooltip or help text (Kbd for one key, KbdGroup for a combination). Write the keys as people see them on the keyboard (⌘, Shift, K)."
-never: [A shortcut written in caps tracking, A dark key cap on white, Long words inside a key]
-source: "The Inkbox console's search keys (console-search.tsx Kbd: 20px, radius xs, bg-subtle, Line/S, caption medium)"
+description: "A key: a square 20px cap with a 1px Stone line on white and the key in 12px DM Mono in 80% Forest. On Forest (a tooltip) its line turns Haze and its text white."
+use_for: "Use to show a keyboard shortcut beside an action or in a tooltip, and inside a field for a search key. Group keys with KbdGroup."
+never: ["A pressable key", "Rounded or shadowed caps", "Sans keys"]
+source: "Not in Figma; drawn in the brand's data face"
 ---

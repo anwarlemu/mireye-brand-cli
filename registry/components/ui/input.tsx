@@ -5,16 +5,71 @@ import { Input as ChakraInput } from "@chakra-ui/react";
 
 import { cn } from "@/lib/utils";
 
-// The console's field (its Chakra Input and Figma "Form- Input"): a 40px pill, the lilac-gray edge on white, 14px ink
-// text and a lighter purple placeholder, 16px in from the edge. The edge darkens under the pointer; focus takes the
-// purple edge and the soft ring; aria-invalid takes the red edge with no ring (Not Available). A read-only or disabled
-// field sits on the lilac with muted text (the email local part in a channel card). For a search field put a 16px
-// magnifier at its start with an InputGroup; keep type="text".
-const FIELD =
-  "h-10 w-full min-w-0 rounded-pill border border-line-field bg-surface px-4 font-sans text-body leading-tight text-fg outline-none transition-[border-color,box-shadow] duration-fast ease-out placeholder:text-fg-subtle hover:border-line-strong selection:bg-ring-tint focus-visible:border-line-brand focus-visible:shadow-focus aria-invalid:border-danger aria-invalid:focus-visible:shadow-none read-only:bg-subtle read-only:text-fg-muted disabled:cursor-not-allowed disabled:bg-subtle disabled:text-fg-muted motion-reduce:transition-none file:mr-3 file:border-0 file:bg-transparent file:font-sans file:text-body file:font-medium file:text-fg";
+// Mireye's field (Figma "UI · Inputs", 442:107) at the product scale: 36px tall (Figma's 72px), white inside a 1px
+// Stone line with the 8px cut corner, 13px Forest text and a Slate placeholder 16px in. Focus turns the line Forest,
+// at once, and draws no ring: the line is the focus. aria-invalid turns it brick. Read-only sits on Fog and disabled
+// on Mist, both with Slate text. Nothing changes on hover.
+// An <input> has no ::before or ::after, so the cut is drawn on the input itself: clip-path cuts the corner and a
+// 135° gradient paints the 1px diagonal on the same line ds-cut-frame uses (the stroke's outer edge at x + y = cut −
+// 0.2071px, its inner edge at cut + 1.2071px), so the field matches a framed key or card exactly.
+// `unit` puts a unit after the value, as in Figma ("ac"): the field becomes a frame around a borderless input and the
+// unit, and a click anywhere in it focuses the input. Pass a UnitSelect as `unit` to let the reader change it.
+const FRAME_VARS =
+  "[--ds-shape-stroke:var(--ds-color-border-default)] [--ds-shape-fill:var(--ds-color-bg-default)] aria-invalid:[--ds-shape-stroke:var(--ds-color-status-danger)]";
+const FIELD = cn(
+  "h-9 w-full min-w-0 border border-(--ds-shape-stroke) px-4 font-sans text-body leading-tight text-fg caret-fg outline-none",
+  FRAME_VARS,
+  "[clip-path:polygon(calc(var(--ds-cut)_-_0.2071px)_0,100%_0,100%_100%,0_100%,0_calc(var(--ds-cut)_-_0.2071px))]",
+  "[background:linear-gradient(135deg,transparent_calc((var(--ds-cut)_-_0.2071px)_*_0.7071),var(--ds-shape-stroke)_0_calc((var(--ds-cut)_+_1.2071px)_*_0.7071),var(--ds-shape-fill)_0)_border-box]",
+  "placeholder:text-fg-subtle selection:bg-subtle-hover",
+  "focus:[--ds-shape-stroke:var(--ds-color-border-strong)] aria-invalid:focus:[--ds-shape-stroke:var(--ds-color-status-danger)]",
+  "[&:is(input,textarea):read-only:not(:disabled)]:[--ds-shape-fill:var(--ds-color-bg-subtle)] [&:is(input,textarea):read-only]:text-fg-subtle disabled:cursor-not-allowed disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] disabled:text-fg-subtle",
+  "file:mr-3 file:h-full file:border-0 file:bg-transparent file:font-sans file:text-body file:font-medium file:text-fg",
+);
 
-function Input({ className, type = "text", size, ...props }: React.ComponentProps<"input">) {
-  return <ChakraInput unstyled type={type} htmlSize={size} data-slot="input" className={cn(FIELD, className)} {...props} />;
+/** The same frame for an element that can draw on ::before and ::after (a group, a trigger): ds-cut-frame. */
+const FRAME = cn(
+  "ds-cut-frame",
+  FRAME_VARS,
+  "has-[input:focus,textarea:focus,[data-slot=input-group-control]:focus]:[--ds-shape-stroke:var(--ds-color-border-strong)]",
+  "has-[[aria-invalid=true]]:[--ds-shape-stroke:var(--ds-color-status-danger)]",
+  "has-[input:disabled,textarea:disabled]:cursor-not-allowed has-[input:disabled,textarea:disabled]:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] has-[[data-slot=input]:read-only:not(:disabled),[data-slot=input-group-control]:read-only:not(:disabled)]:[--ds-shape-fill:var(--ds-color-bg-subtle)]",
+);
+
+type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
+  size?: number;
+  /** A unit after the value ("ac", "kV"), or a UnitSelect. `className` then styles the frame. */
+  unit?: React.ReactNode;
+};
+
+function Input({ className, type = "text", size, unit, ...props }: InputProps) {
+  if (unit == null) return <ChakraInput unstyled type={type} htmlSize={size} data-slot="input" className={cn(FIELD, className)} {...props} />;
+  return (
+    <div
+      data-slot="input-frame"
+      className={cn(FRAME, "flex h-9 w-full min-w-0 cursor-text items-center gap-3 px-4", className)}
+      // A click on the padding or the unit focuses the input, except on a control of the unit's own (a UnitSelect).
+      onMouseDown={(e) => {
+        const input = e.currentTarget.querySelector("input");
+        if (input && e.target !== input && !(e.target as Element).closest("button, [role=listbox]")) {
+          e.preventDefault();
+          input.focus();
+        }
+      }}
+    >
+      <ChakraInput
+        unstyled
+        type={type}
+        htmlSize={size}
+        data-slot="input"
+        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 pl-px font-sans text-body leading-tight text-fg caret-fg outline-none placeholder:text-fg-subtle selection:bg-subtle-hover read-only:text-fg-subtle disabled:cursor-not-allowed disabled:text-fg-subtle"
+        {...props}
+      />
+      <span data-slot="input-unit" className="shrink-0 font-sans text-body leading-tight text-fg">
+        {unit}
+      </span>
+    </div>
+  );
 }
 
-export { Input, FIELD as inputClassName };
+export { Input, FIELD as inputClassName, FRAME as fieldFrameClassName };

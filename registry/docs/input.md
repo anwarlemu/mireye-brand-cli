@@ -3,8 +3,8 @@ name: input
 title: Input
 type: ui
 surface: site
-description: "The 40px pill field with the lilac-gray edge, 16px of padding and a light purple placeholder; the edge darkens under the pointer and turns purple with the soft ring on focus."
-use_for: "Use for one line of text: a handle, an email, a key. Pair it with Label (or Field) above it. Set aria-invalid when the value is rejected and say why below it; set readOnly for a value the person cannot change (it sits on the lilac with muted text). For search, put a 16px magnifier at the start with Input Group and keep type text."
-never: [A placeholder used as the only label, A square or 8px-cornered field, A gray field background for an editable value, type="search" (its clear button and styling differ by browser)]
-source: "The Inkbox console's Input theme; Figma 427:2715: Form- Input in Create Agent Identity, Login and Vault"
+description: "Mireye's field: 36px, white inside a 1px Stone line with the 8px cut corner, 13px Forest text and a Slate placeholder 16px in. Focus turns the line Forest (no ring); invalid turns it brick; read-only is Fog, disabled Mist. `unit` puts a unit after the value (ac, kV) or a Unit Select."
+use_for: "Use for one line of text or a number: a site name, a parcel number, a size. Put a Label 8px above it (or use Field). Pass `unit` when the value has one, and a Unit Select when the reader can change it. Set aria-invalid when the value is rejected and say why below it. For search, use Input Group with the parcel glyph."
+never: ["A placeholder as the only label", "Rounded corners or a shadow", "A focus ring around the field (the line turns Forest instead)", "A hover effect on the field", "A unit typed into the value"]
+source: "Figma \"UI · Inputs\" (442:107): Default, Focused, Filled and Search rows"
 ---
