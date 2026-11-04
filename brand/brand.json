@@ -4,7 +4,7 @@
 	"source": "github:anwarlemu/mireye-brand-cli#release",
 	"reviewModel": "claude-opus-5-5",
 	"reviewThreshold": 7,
-	"registryUrl": "https://mireye-ds.vercel.app",
+	"registryUrl": "https://mireye-ds.agencidev.com",
 	"site": "https://mireye.com",
 	"surfaces": [
 		"site"

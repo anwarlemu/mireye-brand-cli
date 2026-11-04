@@ -2,7 +2,7 @@
 
 Components, design tokens and a CLI for building Mireye pages and interfaces.
 
-Reference: https://mireye-ds.vercel.app
+Reference: https://mireye-ds.agencidev.com
 
 ## Consistent CLI workflow
 
@@ -46,7 +46,7 @@ npx mireye-ds guide
 ```
 
 `init` does not convert existing components. The bare command does; see "Update an existing interface" below.
-Requires Node.js 20 or later. Read [the agent guide](https://mireye-ds.vercel.app/agents.md) with any coding agent.
+Requires Node.js 20 or later. Read [the agent guide](https://mireye-ds.agencidev.com/agents.md) with any coding agent.
 The same guide is installed at `.ds/agent-guide.md`. Agents that do not auto-load project instructions should read it explicitly.
 
 ## Add components
@@ -71,8 +71,8 @@ npx mireye-ds tokens border
 Include this with the page requirements:
 
 ```text
-Build this page using the Mireye design system at https://mireye-ds.vercel.app.
-Read https://mireye-ds.vercel.app/agents.md first.
+Build this page using the Mireye design system at https://mireye-ds.agencidev.com.
+Read https://mireye-ds.agencidev.com/agents.md first.
 Run npx mireye-ds show <name> --json for exact exports, usage rules, examples and source.
 Add existing components with the CLI. Use design tokens for custom layout and styling.
 Connect every control to its intended behavior. Include validation, loading, empty and error states where needed.
