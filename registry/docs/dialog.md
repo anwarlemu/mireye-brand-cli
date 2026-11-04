@@ -3,8 +3,8 @@ name: dialog
 title: Dialog
 type: ui
 surface: site
-description: "A centered white panel with 16px corners over the blurred page under the ink at 32 percent; it fills the screen on phones."
-use_for: "Use for a short task that needs the person's full attention (Create Agent Identity) or a result they must read before moving on (the new API key). Put the title in DialogHeader, the content in DialogBody and the one action at the end of the body as a full-width Button with no glyph: variant=\"secondary\" to create or confirm, variant=\"destructive\" to delete. Leave out a Cancel key: the close key and Escape dismiss it."
-never: [A dark scrim, A dialog that opens another dialog, A drop shadow under the panel, Scaling from zero, A Cancel key beside the action, A glyph on the action]
-source: "The Inkbox console's BaseModal and Chakra modal theme (src/components/modals/base-modal.tsx, src/theme/index.ts); Figma 427:2715 Modal - Create Agent"
+description: "A white panel with the 8px cut corner and a 1px Stone line, no shadow, on the page under Forest at 40 percent; a 16px regular title, a square 32px close key, 20px sides; full screen on phones."
+use_for: "Use for a short task that must be finished or dismissed before going back to the page (create a site, name an export). Put the fields in DialogBody and the main action last."
+never: [A dialog for a destructive confirmation (use Alert Dialog), Rounded corners, a shadow or a blurred scrim, Dialogs on top of dialogs, A scale from less than 98 percent]
+source: "Not in Figma. Drawn in Mireye's grammar: the white cut frame of Figma UI · Inputs (442:107) at the card's 8px cut, and the brand's 40 percent Forest scrim token"
 ---

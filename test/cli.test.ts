@@ -537,7 +537,7 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
       const installed = readFileSync(join(dir, 'components/ui/dropdown-menu.tsx'), 'utf8');
       expect(installed).toBe(readFileSync(join(ROOT, 'registry/components/ui/dropdown-menu.tsx'), 'utf8').replaceAll('@/lib/utils', `@/lib/${brand().bin}-utils`));
       expect(installed).toContain('usePortalContainer');
-      expect(installed).toContain('shadow-floating');
+      expect(installed).toContain('ds-cut-frame');
       expect(existsSync(join(dir, 'lib/surface.tsx'))).toBe(true);
       expect(readFileSync(join(dir, `lib/${brand().bin}-utils.ts`), 'utf8')).toContain('"floating"');
       expect(readFileSync(join(dir, 'app/_mireye-ds/brand.css'), 'utf8')).toContain('--ds-shadow-floating');

@@ -3,7 +3,7 @@ import { cn, svgBox, svgSize } from "@/lib/utils";
 
 /** Arrow from the Figma buttons: 1.5px stroke, square caps. 20px on every UI board; the 16px
  * version comes from the identity boards (3.3).
- * `head` draws the arrowhead alone, centred in the box: turned 90° it is the chevron of the
+ * `head` draws the arrowhead alone, centered in the box: turned 90° it is the chevron of the
  * UnitSelect, so the system keeps one arrow shape instead of adding a chevron icon. */
 export function ArrowRightIcon({
   size = 20,

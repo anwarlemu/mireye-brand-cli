@@ -1,36 +1,29 @@
-import { ArrowsClockwiseIcon, GearSixIcon, InfoIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
+import { CrosshairIcon, InfoIcon, MinusIcon, PlusIcon, RulerIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+const TOOLS = [
+  { label: "Zoom in", icon: PlusIcon },
+  { label: "Zoom out", icon: MinusIcon },
+  { label: "Measure distance", icon: RulerIcon },
+  { label: "Center on site", icon: CrosshairIcon },
+];
 
 export function Preview() {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Edit mailbox">
-              <PencilSimpleIcon weight="fill" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Edit mailbox</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Refresh">
-              <ArrowsClockwiseIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Refresh</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Mailbox settings">
-              <GearSixIcon weight="fill" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Mailbox settings</TooltipContent>
-        </Tooltip>
+        {TOOLS.map(({ label, icon: Icon }) => (
+          <Tooltip key={label}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={label}>
+                <Icon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+          </Tooltip>
+        ))}
       </div>
     </TooltipProvider>
   );
@@ -40,12 +33,12 @@ export function Info() {
   return (
     <div className="flex min-h-40 items-start justify-center pt-14">
       <p className="flex items-center gap-1.5 text-body text-fg">
-        Tunnel TLS mode
+        Spare capacity
         <Tooltip defaultOpen>
-          <TooltipTrigger className="rounded-pill text-fg-label outline-none focus-visible:outline-2 focus-visible:outline-focus-ring" aria-label="About TLS modes">
-            <InfoIcon weight="fill" className="size-4.5" />
+          <TooltipTrigger className="text-fg-secondary outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong" aria-label="About spare capacity">
+            <InfoIcon className="size-4" />
           </TooltipTrigger>
-          <TooltipContent side="top">Edge ends TLS at Inkbox. Passthrough sends it to your agent.</TooltipContent>
+          <TooltipContent side="top">From the utility's last interconnection study, in MW.</TooltipContent>
         </Tooltip>
       </p>
     </div>

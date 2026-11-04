@@ -3,8 +3,8 @@ name: tooltip
 title: Tooltip
 type: ui
 surface: site
-description: "A short ink label with 13px white text, 16px corners and a small arrow, at most 320px wide, that only fades."
-use_for: "Use to explain an icon button or an info glyph in a few words (Tunnel, Connection, TLS). Wrap a toolbar or page in TooltipProvider so neighboring tooltips open at once after the first."
-never: [Essential information only in a tooltip, Interactive content inside a tooltip, Sentences longer than one line or two, A white tooltip]
-source: "The Inkbox console's Chakra tooltip theme and its Tooltip (400ms delay, 300ms skip delay, 6px gutter, 100ms fade)"
+description: "Mireye's map tag as a label: a Forest tag with the 6px cut corner, no arrow, 12px white text, at least 28px tall and at most 256px wide; it only fades."
+use_for: "Use to name an icon key in a few words (Zoom in, Measure distance) or explain a term (spare capacity). Wrap a toolbar or page in TooltipProvider so neighboring tooltips open at once after the first."
+never: [Essential information only in a tooltip, Interactive content inside a tooltip, More than a line or two, A white tooltip or one with an arrow]
+source: "Figma Tooltip (443:418) on the map boards (443:234, 443:395): the Forest map tag with the 10px cut, here at the product scale"
 ---

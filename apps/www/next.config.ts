@@ -9,7 +9,9 @@ const config: NextConfig = {
   outputFileTracingRoot: root,
   // Opaque-origin preview frames can load the same public, fingerprinted font files as the docs.
   async headers() {
-    return [{ source: "/_next/static/media/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] }];
+    const open = [{ key: "Access-Control-Allow-Origin", value: "*" }];
+    // Gilroy is served from /fonts (the brand's own files), so the frames need the same header there.
+    return [{ source: "/_next/static/media/:path*", headers: open }, { source: "/fonts/:path*", headers: open }];
   },
   // The repo has its own agent instructions; dev must not write AGENTS.md and CLAUDE.md here.
   agentRules: false,

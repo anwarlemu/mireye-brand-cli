@@ -3,8 +3,8 @@ name: drawer
 title: Drawer
 type: ui
 surface: site
-description: "A panel pulled up from the bottom edge with a handle, dragged away with a flick or a pull."
-use_for: "Use on phones for a task or a choice from the bottom of the screen (choose a phone line, confirm a key). Pair it with Dialog on larger screens when the same task is needed. Set direction for other edges."
-never: [A drawer without its handle, Dragging that fights scrolling content (mark scroll areas data-drawer-no-drag), A drawer on desktop for long forms]
-source: "The Inkbox console's Chakra drawer theme (panel, title, scrim), with the handle extrapolated from Figma 427:2715"
+description: "A square white panel pulled from an edge with a 1px Stone line on its inner edge, a square Stone handle, and a drag that follows the finger; it slides on the drawer curve."
+use_for: "Use on phones for a choice or short task that comes from the bottom of the screen (choose a basemap). People can drag or flick it away."
+never: [Rounded corners or a shadow, Long forms, A drawer that cannot be dismissed by dragging, Bouncing on release]
+source: "Not in Figma. Drawn in Mireye's grammar: the sheet"
 ---

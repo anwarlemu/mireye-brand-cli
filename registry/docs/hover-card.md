@@ -3,8 +3,8 @@ name: hover-card
 title: Hover Card
 type: ui
 surface: site
-description: "A raised white preview card with 16px corners that opens after a short pause on a link or handle."
-use_for: "Use to preview what a link or an agent handle points to (the agent's addresses, its channels) for people with a pointer. Keep the same information reachable by clicking: hover cards do not open on touch."
-never: [Actions that exist only inside the card, A card that opens instantly on hover, Long content]
-source: "The Inkbox console's Chakra popover theme and popup motion, with the avatar tile from Figma 427:2715"
+description: "The popover's panel (white, 6px cut corner, 1px Stone line, no shadow) shown after a 400ms dwell on a link, with a short preview of what it points to."
+use_for: "Use to preview a linked thing in running text (a substation's voltage, owner and distance) without leaving the page. The link still works on click."
+never: [The only place a fact appears, Actions or fields inside the card, Rounded corners or a shadow, Opening without a dwell]
+source: "Not in Figma. Drawn in Mireye's grammar: the popover's panel"
 ---

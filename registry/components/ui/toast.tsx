@@ -5,14 +5,17 @@ import { Toast as ToastPrimitive } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
 import { XIcon } from "@phosphor-icons/react/ssr";
 
+import { Diamond } from "@/components/ui/diamond";
+
 import { cn } from "@/lib/utils";
 
-// The Radix toast (shadcn's older toast API; prefer Sonner for new work). Same look as the Sonner toasts (extrapolated
-// from the Inkbox console, Figma 427:2715): a white panel with 16px corners, the floating shadow and 16px of padding, a
-// 14px medium ink title over a 14px muted description, an outline action key and the console's toast close key (a 32px squircle, a bold 16px X in the faint purple that
-// takes the lilac under the pointer). `destructive`
-// edges it in red with a red title. It slides in from the right edge it lives on (160ms, the drawer curve) and fades
-// out faster; a swipe to the right drags it with the finger and lets it go.
+// The Radix toast (shadcn's older toast API; prefer Sonner for new work). Same look as the Sonner toasts (Figma has none;
+// this is Mireye's grammar): a white panel with the 8px cut corner and a 1px Stone line, no shadow, 16px of padding, a
+// 6px Forest diamond before a 13px medium Forest title over a 13px line in the secondary ink, a square 32px white
+// framed action key and the toast close key (a square 24px key with a 16px X, Fog under the pointer, Mist while
+// pressed). `destructive` draws the line, the diamond and the title in brick. It slides in from the right edge it lives
+// on (300ms, the drawer curve) and fades out faster (120ms); a swipe to the right drags it with the finger and lets it
+// go.
 const ToastProvider = ToastPrimitive.Provider;
 
 function ToastViewport({ className, ...props }: React.ComponentProps<typeof ToastPrimitive.Viewport>) {
@@ -26,12 +29,12 @@ function ToastViewport({ className, ...props }: React.ComponentProps<typeof Toas
 }
 
 const toastVariants = cva(
-  "group/toast pointer-events-auto relative flex w-full items-start justify-between gap-3 overflow-hidden rounded-panel bg-surface p-4 pr-10 font-sans text-fg shadow-floating data-[state=closed]:animate-fade-out data-[state=open]:animate-sheet-in-right data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[translate] data-[swipe=cancel]:duration-200 data-[swipe=cancel]:ease-out data-[swipe=end]:translate-x-(--radix-toast-swipe-end-x) data-[swipe=end]:animate-fade-out data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x) data-[swipe=move]:transition-none motion-reduce:data-[swipe=cancel]:transition-none",
+  "group/toast ds-cut-frame pointer-events-auto flex w-full items-start justify-between gap-3 overflow-hidden p-4 pr-10 font-sans text-fg [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong data-[state=closed]:animate-fade-out data-[state=open]:animate-sheet-in-right data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[translate] data-[swipe=cancel]:duration-200 data-[swipe=cancel]:ease-out data-[swipe=end]:translate-x-(--radix-toast-swipe-end-x) data-[swipe=end]:animate-fade-out data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x) data-[swipe=move]:transition-none motion-reduce:data-[swipe=cancel]:transition-none",
   {
     variants: {
       variant: {
         default: "",
-        destructive: "border border-danger [&_[data-slot=toast-title]]:text-danger-strong",
+        destructive: "[--ds-shape-stroke:var(--ds-color-status-danger)] [&_[data-slot=toast-title]]:text-danger-strong [&_[data-slot=toast-mark]]:text-danger",
       },
     },
     defaultVariants: { variant: "default" },
@@ -47,7 +50,7 @@ function ToastAction({ className, ...props }: React.ComponentProps<typeof ToastP
     <ToastPrimitive.Action
       data-slot="toast-action"
       className={cn(
-        "inline-flex h-8 shrink-0 items-center justify-center self-center rounded-pill border border-line-field bg-surface px-2.5 font-sans text-body leading-tight font-medium text-fg-brand outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:pointer-events-none disabled:opacity-50 group-data-[variant=destructive]/toast:text-danger-strong motion-reduce:transition-none",
+        "inline-flex h-8 shrink-0 items-center justify-center self-center border border-line bg-surface px-3 font-sans text-body leading-tight font-medium text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:pointer-events-none disabled:bg-subtle-hover disabled:text-fg-subtle group-data-[variant=destructive]/toast:text-danger-strong motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -60,20 +63,20 @@ function ToastClose({ className, ...props }: React.ComponentProps<typeof ToastPr
     <ToastPrimitive.Close
       data-slot="toast-close"
       aria-label="Close"
-      className={cn("absolute top-2.5 right-2 inline-flex size-8 items-center justify-center rounded-control text-fg-faint outline-none transition-colors duration-fast ease-out hover:bg-subtle hover:text-fg-muted active:bg-subtle-hover active:transition-none focus-visible:shadow-focus motion-reduce:transition-none", className)}
+      className={cn("absolute top-2 right-2 inline-flex size-6 items-center justify-center text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong motion-reduce:transition-none", className)}
       {...props}
     >
-      <XIcon weight="bold" className="size-4" />
+      <XIcon className="size-4" />
     </ToastPrimitive.Close>
   );
 }
 
 function ToastTitle({ className, ...props }: React.ComponentProps<typeof ToastPrimitive.Title>) {
-  return <ToastPrimitive.Title data-slot="toast-title" className={cn("text-body leading-body font-medium text-fg", className)} {...props} />;
+  return <ToastPrimitive.Title data-slot="toast-title" className={cn("text-body leading-tight font-medium text-fg", className)} {...props} />;
 }
 
 function ToastDescription({ className, ...props }: React.ComponentProps<typeof ToastPrimitive.Description>) {
-  return <ToastPrimitive.Description data-slot="toast-description" className={cn("text-body leading-body text-fg-muted", className)} {...props} />;
+  return <ToastPrimitive.Description data-slot="toast-description" className={cn("text-body leading-body text-fg-secondary", className)} {...props} />;
 }
 
 type ToastProps = React.ComponentProps<typeof Toast>;
@@ -139,7 +142,10 @@ function Toaster() {
     <ToastProvider swipeDirection="right">
       {toasts.map(({ id, title, description, action, ...props }) => (
         <Toast key={id} {...props}>
-          <div className="grid min-w-0 gap-0.5">
+          <span data-slot="toast-mark" className="flex h-4.5 shrink-0 items-center text-fg">
+            <Diamond size={10} />
+          </span>
+          <div className="grid min-w-0 flex-1 gap-1">
             {title && <ToastTitle>{title}</ToastTitle>}
             {description && <ToastDescription>{description}</ToastDescription>}
           </div>

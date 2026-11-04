@@ -77,18 +77,19 @@ const theme = [
 	'\t--ease-in-out: var(--ds-easing-in-out);',
 	'\t--ease-drawer: var(--ds-easing-drawer);',
 ];
-// Motion (Emil Kowalski's rules, at the console's values): popups (menus, lists, popovers, hover cards) grow out of
-// their trigger from 0.98 with a fade at the slow step and leave at the fast one; dialogs stay centered and open from
-// 0.96 at the moderate step, leaving to 0.97 at the fast one; tooltips and scrims only fade,
-// sheets and drawers travel their own size on the drawer curve, exits are shorter than entrances, and nothing starts
-// from scale(0) or eases in. With reduced motion every entrance and exit is a fade only.
+// Motion (Emil Kowalski's rules, kept quiet for the brand): popups (menus, popovers, hover cards) grow out of their
+// trigger from 0.98 with a fade in 150ms and leave in 120ms; dialogs stay centered and open from 0.98 with a fade in
+// 180ms, leaving in 120ms; tooltips and scrims only fade (150ms in, 120ms out). Every entrance is under 200ms on the
+// strong ease-out. Sheets and drawers travel their own size on the drawer curve (300ms in, 200ms out). Exits are
+// shorter than entrances, and nothing starts from scale(0) or eases in. With reduced motion every entrance and exit is
+// a fade only. The 120ms and 180ms steps are the brand's fast and base steps scaled, so they follow the tokens.
 const motion = `@theme {
-	--animate-pop-in: ds-pop-in var(--ds-duration-slow) var(--ds-easing-out);
-	--animate-pop-out: ds-pop-out var(--ds-duration-fast) var(--ds-easing-out) forwards;
+	--animate-pop-in: ds-pop-in var(--ds-duration-fast) var(--ds-easing-out);
+	--animate-pop-out: ds-pop-out calc(var(--ds-duration-fast) * 0.8) var(--ds-easing-out) forwards;
 	--animate-fade-in: ds-fade-in var(--ds-duration-fast) var(--ds-easing-out);
-	--animate-fade-out: ds-fade-out var(--ds-duration-fast) var(--ds-easing-out) forwards;
-	--animate-dialog-in: ds-dialog-in var(--ds-duration-moderate) var(--ds-easing-out);
-	--animate-dialog-out: ds-dialog-out var(--ds-duration-fast) var(--ds-easing-out) forwards;
+	--animate-fade-out: ds-fade-out calc(var(--ds-duration-fast) * 0.8) var(--ds-easing-out) forwards;
+	--animate-dialog-in: ds-dialog-in calc(var(--ds-duration-base) * 0.9) var(--ds-easing-out);
+	--animate-dialog-out: ds-dialog-out calc(var(--ds-duration-fast) * 0.8) var(--ds-easing-out) forwards;
 	--animate-sheet-in-right: ds-sheet-in-right var(--ds-duration-slow) var(--ds-easing-drawer);
 	--animate-sheet-out-right: ds-sheet-out-right var(--ds-duration-base) var(--ds-easing-drawer) forwards;
 	--animate-sheet-in-left: ds-sheet-in-left var(--ds-duration-slow) var(--ds-easing-drawer);
@@ -97,7 +98,7 @@ const motion = `@theme {
 	--animate-sheet-out-top: ds-sheet-out-top var(--ds-duration-base) var(--ds-easing-drawer) forwards;
 	--animate-sheet-in-bottom: ds-sheet-in-bottom var(--ds-duration-slow) var(--ds-easing-drawer);
 	--animate-sheet-out-bottom: ds-sheet-out-bottom var(--ds-duration-base) var(--ds-easing-drawer) forwards;
-	--animate-content-in: ds-content-in var(--ds-duration-base) var(--ds-easing-out);
+	--animate-content-in: ds-content-in var(--ds-duration-fast) var(--ds-easing-out);
 	--animate-accordion-down: ds-accordion-down var(--ds-duration-base) var(--ds-easing-out);
 	--animate-accordion-up: ds-accordion-up var(--ds-duration-fast) var(--ds-easing-out);
 	--animate-collapsible-down: ds-collapsible-down var(--ds-duration-base) var(--ds-easing-out);
@@ -137,14 +138,14 @@ const motion = `@theme {
 	@keyframes ds-dialog-in {
 		from {
 			opacity: 0;
-			transform: scale(0.96);
+			transform: scale(0.98);
 		}
 	}
 
 	@keyframes ds-dialog-out {
 		to {
 			opacity: 0;
-			transform: scale(0.97);
+			transform: scale(0.98);
 		}
 	}
 

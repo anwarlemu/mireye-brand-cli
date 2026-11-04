@@ -33,9 +33,9 @@ export async function checkOverlays(page, base) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
 
-    await dialogLike(page, base, 'dialog', 'Create Agent');
-    await dialogLike(page, base, 'sheet', 'Edit mailbox');
-    await dialogLike(page, base, 'drawer', 'Choose a line');
+    await dialogLike(page, base, 'dialog', 'New site');
+    await dialogLike(page, base, 'sheet', 'Edit requirements');
+    await dialogLike(page, base, 'drawer', 'Choose a basemap');
     await dialogLike(page, base, 'alert-dialog', /delete|revoke|remove/i, 'alertdialog');
 
     // An alert dialog does not close from a click outside it.
@@ -122,7 +122,7 @@ export async function checkOverlays(page, base) {
     await open(page, base, 'command');
     const input = page.locator('[cmdk-input]').first();
     const before = await page.locator('[cmdk-item]').count();
-    await input.fill('vault');
+    await input.fill('parcel');
     await page.waitForTimeout(150);
     const after = await page.locator('[cmdk-item]').count();
     assert.ok(after > 0 && after < before, `command: filtering narrows ${before} items to ${after}`);
