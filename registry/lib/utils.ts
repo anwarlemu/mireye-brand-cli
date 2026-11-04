@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { type ClassValue, clsx } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
@@ -25,4 +26,13 @@ const twMerge = extendTailwindMerge<"brand-font-size">({
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Sizes an SVG from its Figma size. Figma draws Mireye at a 1920px presentation scale; the product runs at 0.6 of it,
+ * so a mark, icon or loader given its Figma size in px renders at the product scale. A width or height class still wins.
+ */
+export const svgBox = "w-(--ds-svg-w) h-(--ds-svg-h)";
+export function svgSize(w: number, h = w, style?: React.CSSProperties): React.CSSProperties {
+  return { "--ds-svg-w": `calc(${w}px * var(--ds-scale, 0.6))`, "--ds-svg-h": `calc(${h}px * var(--ds-scale, 0.6))`, ...style } as React.CSSProperties;
 }
