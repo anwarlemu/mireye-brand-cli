@@ -27,7 +27,8 @@ try {
   await page.getByRole('heading', { name: 'Button', exact: true, level: 1 }).waitFor();
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(300);
-  assert.equal(await nav.evaluate(n => n.getBoundingClientRect().width), 288, 'the rail is 288px');
+  const rail = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ds-layout-rail')) * parseFloat(getComputedStyle(document.documentElement).fontSize));
+  assert.equal(await nav.evaluate(n => n.getBoundingClientRect().width), rail, `the rail is the brand's ${rail}px`);
   const items = await nav.locator('a[data-item]').evaluateAll(links => links.map(link => ({ name: link.dataset.item, title: link.textContent.trim() })));
   assert.ok(items.length >= 68, `every component is listed (${items.length})`);
   const timings = [];
