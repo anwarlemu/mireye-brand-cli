@@ -1,7 +1,6 @@
 "use client";
 
-
-import { ChatCircleTextIcon, EnvelopeSimpleIcon, LockKeyIcon, PhoneIcon, ArrowsLeftRightIcon, WebhooksLogoIcon } from "@phosphor-icons/react/ssr";
+import { BookOpenTextIcon, ChartLineIcon, LightningIcon, MapTrifoldIcon, PlugsIcon, StackIcon } from "@phosphor-icons/react/ssr";
 
 import {
   NavigationMenu,
@@ -13,55 +12,55 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-const CHANNELS = [
-  { title: "Email", body: "A mailbox for every agent, on inkboxmail.com or your domain.", icon: EnvelopeSimpleIcon },
-  { title: "Phone", body: "Calls and texts on a number the agent owns.", icon: PhoneIcon },
-  { title: "iMessage", body: "Shared or dedicated lines that also handle calls.", icon: ChatCircleTextIcon },
-  { title: "Agent2Agent", body: "Publish an Agent Card and take tasks from other agents.", icon: ArrowsLeftRightIcon },
+const TOOLS = [
+  { title: "Site search", body: "Find parcels that fit a project by acreage, slope and zoning.", icon: MapTrifoldIcon },
+  { title: "Grid access", body: "Distance to substations and lines by kV, with spare capacity.", icon: LightningIcon },
+  { title: "Interconnection", body: "Queue positions and study results for each point of interconnection.", icon: PlugsIcon },
+  { title: "Fit score", body: "How well a site meets your requirements, and why.", icon: ChartLineIcon },
 ];
 
 function Menu({ defaultValue }: { defaultValue?: string }) {
   return (
     <NavigationMenu defaultValue={defaultValue}>
       <NavigationMenuList>
-        <NavigationMenuItem value="channels">
-          <NavigationMenuTrigger>Channels</NavigationMenuTrigger>
+        <NavigationMenuItem value="tools">
+          <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[min(34rem,calc(100vw-2rem))] gap-1 sm:grid-cols-2">
-              {CHANNELS.map(({ title, body, icon: Icon }) => (
+            <ul className="grid w-[min(34rem,calc(100vw-2rem))] sm:grid-cols-2">
+              {TOOLS.map(({ title, body, icon: Icon }) => (
                 <li key={title}>
-                  <NavigationMenuLink href={`#${title.toLowerCase()}`}>
-                    <span className="flex items-center gap-2.5 font-medium">
-                      <Icon weight="fill" />
+                  <NavigationMenuLink href={`#${title.toLowerCase().replace(/ /g, "-")}`}>
+                    <span className="flex items-center gap-2 font-medium">
+                      <Icon />
                       {title}
                     </span>
-                    <span className="text-fg-muted">{body}</span>
+                    <span className="text-fg-secondary">{body}</span>
                   </NavigationMenuLink>
                 </li>
               ))}
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem value="shared">
-          <NavigationMenuTrigger>Shared</NavigationMenuTrigger>
+        <NavigationMenuItem value="data">
+          <NavigationMenuTrigger>Data</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[min(16rem,calc(100vw-2rem))] gap-1">
+            <ul className="grid w-[min(16rem,calc(100vw-2rem))]">
               <li>
-                <NavigationMenuLink href="#vault">
-                  <span className="flex items-center gap-2.5 font-medium">
-                    <LockKeyIcon weight="fill" />
-                    Vault
+                <NavigationMenuLink href="#layers">
+                  <span className="flex items-center gap-2 font-medium">
+                    <StackIcon />
+                    Layers
                   </span>
-                  <span className="text-fg-muted">Zero-knowledge secrets for your agents.</span>
+                  <span className="text-fg-secondary">Parcels, floodplain, wetlands and land cover.</span>
                 </NavigationMenuLink>
               </li>
               <li>
-                <NavigationMenuLink href="#webhooks">
-                  <span className="flex items-center gap-2.5 font-medium">
-                    <WebhooksLogoIcon weight="fill" />
-                    Webhooks
+                <NavigationMenuLink href="#sources">
+                  <span className="flex items-center gap-2 font-medium">
+                    <BookOpenTextIcon />
+                    Sources
                   </span>
-                  <span className="text-fg-muted">Event payloads, signed and delivered.</span>
+                  <span className="text-fg-secondary">Where each value comes from, and when it was read.</span>
                 </NavigationMenuLink>
               </li>
             </ul>
@@ -88,7 +87,7 @@ export function Preview() {
 export function Open() {
   return (
     <div className="flex min-h-80 items-start justify-center">
-      <Menu defaultValue="channels" />
+      <Menu defaultValue="tools" />
     </div>
   );
 }

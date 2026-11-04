@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BuildingsIcon, DotsThreeIcon, GearSixIcon, KeyIcon, PencilSimpleIcon, QuestionIcon, SignOutIcon, TrashIcon, UsersThreeIcon } from "@phosphor-icons/react/ssr";
+import { CopyIcon, DotsThreeIcon, DownloadSimpleIcon, MapPinIcon, PencilSimpleIcon, ShareNetworkIcon, StackIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,46 +21,43 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-function AccountItems() {
+function SiteItems() {
   return (
     <>
-      <DropdownMenuLabel>Acme</DropdownMenuLabel>
+      <DropdownMenuLabel>Site 14, Weld County</DropdownMenuLabel>
       <DropdownMenuGroup>
         <DropdownMenuItem>
-          <BuildingsIcon weight="fill" />
-          My Organisation
-          <DropdownMenuShortcut>⇧⌘O</DropdownMenuShortcut>
+          <MapPinIcon />
+          Show on map
+          <DropdownMenuShortcut>M</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <KeyIcon weight="fill" />
-          API Keys
-          <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+          <CopyIcon />
+          Copy coordinates
+          <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <UsersThreeIcon weight="fill" />
-            Invite people
+            <DownloadSimpleIcon />
+            Export as
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuItem>By email</DropdownMenuItem>
-            <DropdownMenuItem>Copy invite link</DropdownMenuItem>
+            <DropdownMenuItem>GeoJSON</DropdownMenuItem>
+            <DropdownMenuItem>Shapefile</DropdownMenuItem>
+            <DropdownMenuItem>CSV</DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuItem>
-          <GearSixIcon weight="fill" />
-          Settings
+          <ShareNetworkIcon />
+          Share with Acme
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem>
-        <QuestionIcon weight="fill" />
-        Help
-      </DropdownMenuItem>
-      <DropdownMenuItem disabled>Billing (admins only)</DropdownMenuItem>
+      <DropdownMenuItem disabled>Request survey (admins only)</DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem variant="destructive">
-        <SignOutIcon weight="fill" />
-        Log out
+        <TrashIcon />
+        Remove site
       </DropdownMenuItem>
     </>
   );
@@ -71,25 +68,29 @@ export function Preview() {
     <div className="flex justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Account</Button>
+          <Button variant="outline">Site actions</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-60">
-          <AccountItems />
+          <SiteItems />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );
 }
 
+// Opened once the trigger is on the page, so the panel is placed under it (a menu open on the first render has no
+// trigger to measure yet).
 export function Open() {
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => setOpen(true), []);
   return (
-    <div className="flex min-h-110 items-start justify-center">
-      <DropdownMenu defaultOpen>
+    <div className="flex min-h-100 items-start justify-center">
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Account</Button>
+          <Button variant="outline">Site actions</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-60">
-          <AccountItems />
+          <SiteItems />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -101,23 +102,23 @@ export function RowActions() {
     <div className="flex justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Actions for @acme">
-            <DotsThreeIcon weight="bold" />
+          <Button variant="ghost" size="icon" aria-label="Actions for parcel 0412-07">
+            <DotsThreeIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem>
-            <PencilSimpleIcon weight="fill" />
-            Edit agent
+            <PencilSimpleIcon />
+            Rename parcel
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <KeyIcon weight="fill" />
-            Rotate API key
+            <StackIcon />
+            Merge with neighbor
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive">
-            <TrashIcon weight="fill" />
-            Delete agent
+            <TrashIcon />
+            Remove parcel
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -126,30 +127,30 @@ export function RowActions() {
 }
 
 export function Options() {
-  const [channels, setChannels] = React.useState({ email: true, phone: true, imessage: false });
-  const [mode, setMode] = React.useState("edge");
+  const [layers, setLayers] = React.useState({ parcels: true, substations: true, floodplain: false });
+  const [unit, setUnit] = React.useState("acres");
   return (
     <div className="flex justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Filter</Button>
+          <Button variant="outline">Map layers</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Channels</DropdownMenuLabel>
-          <DropdownMenuCheckboxItem checked={channels.email} onCheckedChange={(v) => setChannels((c) => ({ ...c, email: v === true }))}>
-            Email
+          <DropdownMenuLabel>Layers</DropdownMenuLabel>
+          <DropdownMenuCheckboxItem checked={layers.parcels} onCheckedChange={(v) => setLayers((l) => ({ ...l, parcels: v === true }))}>
+            Parcels
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem checked={channels.phone} onCheckedChange={(v) => setChannels((c) => ({ ...c, phone: v === true }))}>
-            Phone
+          <DropdownMenuCheckboxItem checked={layers.substations} onCheckedChange={(v) => setLayers((l) => ({ ...l, substations: v === true }))}>
+            Substations
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem checked={channels.imessage} onCheckedChange={(v) => setChannels((c) => ({ ...c, imessage: v === true }))}>
-            iMessage
+          <DropdownMenuCheckboxItem checked={layers.floodplain} onCheckedChange={(v) => setLayers((l) => ({ ...l, floodplain: v === true }))}>
+            Floodplain
           </DropdownMenuCheckboxItem>
           <DropdownMenuSeparator />
-          <DropdownMenuLabel>Tunnel TLS mode</DropdownMenuLabel>
-          <DropdownMenuRadioGroup value={mode} onValueChange={setMode}>
-            <DropdownMenuRadioItem value="edge">Edge (default)</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="passthrough">Passthrough</DropdownMenuRadioItem>
+          <DropdownMenuLabel>Area in</DropdownMenuLabel>
+          <DropdownMenuRadioGroup value={unit} onValueChange={setUnit}>
+            <DropdownMenuRadioItem value="acres">Acres</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="hectares">Hectares</DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -8,14 +8,14 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/ssr";
 import { usePortalContainer } from "@/lib/surface";
 import { cn } from "@/lib/utils";
 
-// A command menu, extrapolated from the console (Figma 427:2715): a white panel with 16px corners; the search row is
-// 48px with a 20px magnifying glass in muted purple and 14px ink text over the rail's hairline; groups open with 13px
-// headings in the brand purple, and items are drawn as the console's menu rows: at least 36px with 12px sides and 12px
-// corners, a 16px glyph in the label's color 12px from the 14px regular label, 4px apart, and the deeper lilac under
-// the selected row with no fade; shortcuts are 12px muted. CommandDialog puts it in the console's dialog
-// (16px corners, the blurred ink-tinted page) and opens without motion: it is summoned by keyboard many times a day.
+// A command menu. Figma has none, so it is drawn in Mireye's grammar: a white panel with the 8px cut corner and a 1px
+// Stone line, no shadow; the search row is 44px with a 16px magnifying glass in the secondary ink and 13px Forest text
+// over the Mist rule; groups open with 12px headings in the secondary ink, and items are the menu's rows: square, at
+// least 32px with 12px sides, a 16px glyph 8px from the 13px regular label, touching each other, Fog under the selected
+// row and Mist while pressed, with no fade; shortcuts are 12px muted. CommandDialog puts it on the page under Forest at
+// 40 percent and opens without motion: it is summoned by keyboard many times a day.
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
-  return <CommandPrimitive data-slot="command" data-ds-motion="instant" className={cn("flex size-full flex-col overflow-hidden rounded-panel bg-surface text-fg", className)} {...props} />;
+  return <CommandPrimitive data-slot="command" data-ds-motion="instant" className={cn("ds-cut-frame flex size-full flex-col p-px text-fg [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]", className)} {...props} />;
 }
 
 function CommandDialog({
@@ -30,15 +30,15 @@ function CommandDialog({
   return (
     <DialogPrimitive.Root data-slot="command-dialog" {...props}>
       <DialogPrimitive.Portal container={container}>
-        <DialogPrimitive.Overlay data-ds-motion="instant" className="fixed inset-0 z-50 bg-scrim backdrop-blur-[var(--ds-blur-scrim)]" />
+        <DialogPrimitive.Overlay data-ds-motion="instant" className="fixed inset-0 z-50 bg-scrim" />
         <DialogPrimitive.Content
           data-ds-motion="instant"
-          className={cn("fixed top-[18dvh] left-1/2 z-50 w-[calc(100%-2rem)] max-w-140 -translate-x-1/2 overflow-hidden rounded-panel bg-surface p-1.5 text-fg outline-none", className)}
+          className={cn("fixed top-[18dvh] left-1/2 z-50 w-[calc(100%-2rem)] max-w-140 -translate-x-1/2 text-fg outline-none", className)}
           aria-describedby={undefined}
         >
           <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">{description}</DialogPrimitive.Description>
-          <Command className="rounded-panel [&_[data-slot=command-list]]:max-h-96">{children}</Command>
+          <Command className="[&_[data-slot=command-list]]:max-h-96">{children}</Command>
           {showCloseButton && <DialogPrimitive.Close className="sr-only">Close</DialogPrimitive.Close>}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
@@ -48,11 +48,11 @@ function CommandDialog({
 
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div data-slot="command-input-wrapper" className="flex h-12 shrink-0 items-center gap-2.5 border-b border-line-subtle px-3.5">
-      <MagnifyingGlassIcon aria-hidden className="size-5.5 shrink-0 text-fg-muted" />
+    <div data-slot="command-input-wrapper" className="flex h-11 shrink-0 items-center gap-2 border-b border-line-subtle px-4">
+      <MagnifyingGlassIcon aria-hidden className="size-4 shrink-0 text-fg-secondary" />
       <CommandPrimitive.Input
         data-slot="command-input"
-        className={cn("h-full w-full min-w-0 bg-transparent font-sans text-body leading-tight text-fg outline-none placeholder:text-fg-subtle disabled:cursor-not-allowed disabled:opacity-50", className)}
+        className={cn("h-full w-full min-w-0 bg-transparent font-sans text-body leading-tight text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-subtle", className)}
         {...props}
       />
     </div>
@@ -64,21 +64,21 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
 }
 
 function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
-  return <CommandPrimitive.Empty data-slot="command-empty" className={cn("py-8 text-center text-body text-fg-muted", className)} {...props} />;
+  return <CommandPrimitive.Empty data-slot="command-empty" className={cn("py-8 text-center text-body text-fg-secondary", className)} {...props} />;
 }
 
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
       data-slot="command-group"
-      className={cn("overflow-hidden text-fg [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-caption [&_[cmdk-group-heading]]:leading-line-caption [&_[cmdk-group-heading]]:text-fg-brand [&_[cmdk-item]+[cmdk-item]]:mt-1", className)}
+      className={cn("overflow-hidden text-fg [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-caption [&_[cmdk-group-heading]]:leading-tight [&_[cmdk-group-heading]]:text-fg-secondary", className)}
       {...props}
     />
   );
 }
 
 function CommandSeparator({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Separator>) {
-  return <CommandPrimitive.Separator data-slot="command-separator" className={cn("my-2 h-px border-0 bg-line-subtle", className)} {...props} />;
+  return <CommandPrimitive.Separator data-slot="command-separator" className={cn("-mx-1 my-1 h-px border-0 bg-line-subtle", className)} {...props} />;
 }
 
 function CommandItem({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
@@ -86,7 +86,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        "relative flex min-h-9 cursor-default items-center gap-3 rounded-control px-3 py-2 font-sans text-body leading-line-body font-normal text-fg outline-none select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-subtle-hover [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex min-h-8 cursor-default items-center gap-2 px-3 py-1.5 font-sans text-body leading-tight font-normal text-fg outline-none select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:text-fg-subtle data-[selected=true]:bg-subtle data-[selected=true]:active:bg-subtle-hover [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-']):not([data-slot])]:size-4",
         className,
       )}
       {...props}
@@ -95,7 +95,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
 }
 
 function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) {
-  return <span data-slot="command-shortcut" className={cn("ml-auto pl-4 font-sans text-caption text-fg-muted", className)} {...props} />;
+  return <span data-slot="command-shortcut" className={cn("ml-auto pl-4 font-sans text-caption leading-tight text-fg-muted", className)} {...props} />;
 }
 
 export { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut };

@@ -3,12 +3,14 @@
 import * as React from "react";
 import { CaretDownIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react/ssr";
 
+import { Diamond } from "@/components/ui/diamond";
 import { cn } from "@/lib/utils";
 
-// A month grid (extrapolated from the Inkbox console, Figma 427:2715: its 8px keys, the lilac wash and the purple
-// action). The caption is 14px medium ink between two ghost caret keys; weekdays are 12px muted; days are 36px keys with
-// 8px corners and 14px ink. Today is purple and medium; a selected day is the purple key with white text; the days
-// inside a range sit on a lilac band between its two purple ends; days of the next and last month are faint. Arrow keys
+// A month grid. Figma has none, so it is drawn in Mireye's grammar: the caption is 13px medium Forest between two square
+// 32px caret keys; weekdays are 12px muted; days are square 36px keys with 13px Forest numerals (tabular), Fog under the
+// pointer and Mist while pressed. Today carries a small Forest diamond under its numeral (Mireye's node); a selected
+// day is a Forest key with white text (the diamond turns white); the days inside a range sit on a Fog band between its
+// two Forest ends; days of the next and last month are Slate, and disabled ones Slate and struck through. Arrow keys
 // move a day or a week, Home and End go to the week's ends, Page Up and Page Down change the month (with Shift, the
 // year), Enter or Space selects. Changing month is instant: it happens many times in a row.
 
@@ -265,7 +267,7 @@ function Calendar(props: CalendarProps) {
 }
 
 const NAV_BUTTON =
-  "inline-flex size-8 items-center justify-center rounded-pill text-icon-secondary outline-none transition-[background-color,color] duration-150 ease-out hover:bg-subtle active:bg-subtle hover:text-fg active:brightness-95 active:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring motion-reduce:transition-none [&_svg]:size-4";
+  "inline-flex size-8 items-center justify-center text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none [&_svg]:size-4";
 
 function CaptionSelect({ label, value, options, onChange }: { label: string; value: number; options: { value: number; label: string }[]; onChange: (value: number) => void }) {
   return (
@@ -274,7 +276,7 @@ function CaptionSelect({ label, value, options, onChange }: { label: string; val
         aria-label={label}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-8 appearance-none rounded-pill bg-surface pr-7 pl-2.5 font-sans text-body leading-tight font-medium text-fg shadow-s outline-none focus-visible:shadow-focus"
+        className="h-8 appearance-none border border-line bg-surface pr-7 pl-2.5 font-sans text-body leading-tight font-medium text-fg outline-none focus-visible:border-line-strong"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -289,7 +291,7 @@ function CaptionSelect({ label, value, options, onChange }: { label: string; val
 
 type DayButtonProps = Omit<React.ComponentProps<"button">, "children"> & { date: Date; label: string; today?: boolean; outside?: boolean; selected?: boolean; middle?: boolean };
 
-/** One day: a 36px key with 8px corners. Exported so an app can render a day its own way inside the same grid. */
+/** One day: a square 36px key. Exported so an app can render a day its own way inside the same grid. */
 function CalendarDayButton({ date, label, today, outside, selected, middle, disabled, className, ...props }: DayButtonProps) {
   return (
     <button
@@ -305,16 +307,17 @@ function CalendarDayButton({ date, label, today, outside, selected, middle, disa
       aria-current={today ? "date" : undefined}
       disabled={disabled}
       className={cn(
-        "relative mx-auto flex size-9 items-center justify-center rounded-pill font-sans text-body leading-tight text-fg tabular-nums outline-none transition-[background-color,color] duration-150 ease-out hover:bg-subtle active:bg-subtle active:brightness-95 active:transition-none focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus-ring disabled:pointer-events-none disabled:text-fg-faint disabled:line-through motion-reduce:transition-none",
-        today && "font-medium text-fg-brand",
-        outside && "text-fg-faint",
-        middle && "rounded-none bg-transparent text-fg hover:bg-subtle-hover",
-        selected && "bg-primary text-on-primary hover:bg-primary-hover",
+        "relative mx-auto flex size-9 items-center justify-center font-sans text-body leading-tight text-fg tabular-nums outline-none transition-[background-color,color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:z-10 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-line-strong disabled:pointer-events-none disabled:text-fg-subtle disabled:line-through motion-reduce:transition-none",
+        today && "font-medium",
+        outside && "text-fg-subtle",
+        middle && "bg-transparent text-fg hover:bg-subtle-hover",
+        selected && "bg-inverse text-fg-inverse hover:bg-primary-hover active:bg-inverse",
         className,
       )}
       {...props}
     >
       {date.getDate()}
+      {today && <Diamond size={8} className="absolute bottom-1 left-1/2 -translate-x-1/2" />}
     </button>
   );
 }

@@ -7,13 +7,13 @@ import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Site navigation with panels, extrapolated from the console's nav rows (Figma 427:2715: Agent Workspace, Manage
-// Agents): triggers and links are 38px rows with fully rounded corners, 12px of side padding and a 14px regular ink label, the
-// lilac under the pointer and under an open trigger; the trigger's bold 16px caret turns over when open (160ms,
-// ease-out). The panel opens below in the console's menu panel (white, no edge, 16px corners, the floating shadow, 4px
-// of padding) that grows out of the trigger from 98 percent with a fade (160ms in, 100ms out), with no animated resizing
-// (centered under the menu on phones, at its start from 768px); links inside are rows with 12px corners, a 14px title
-// and a 14px muted line, and the deeper lilac under the pointer with no fade.
+// Site navigation with panels. Figma has none, so it is drawn in Mireye's grammar: triggers and links are square 36px
+// keys with 12px sides and a 13px regular Forest label, Fog under the pointer and while open, Mist while pressed, and
+// the trigger's 16px caret stays still (icons never move on hover, and Radix opens these panels on hover). The panel
+// opens 6px below in the dropdown menu's frame (white, the 6px cut corner, a 1px Stone line, no shadow, 4px inside
+// it) and grows out of the trigger from 98 percent with a fade (150ms in, 120ms out), with no animated resizing
+// (centered under the menu on phones, at its start from 768px). Moving between panels crossfades them (150ms). Links
+// inside are square rows with a 13px medium title over a 13px secondary line, Fog under the pointer.
 function NavigationMenu({ className, children, viewport = true, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.Root> & { viewport?: boolean }) {
   return (
     <NavigationMenuPrimitive.Root data-slot="navigation-menu" data-viewport={viewport} className={cn("group/navigation-menu relative flex max-w-max flex-1 items-center justify-center", className)} {...props}>
@@ -32,14 +32,14 @@ function NavigationMenuItem({ className, ...props }: React.ComponentProps<typeof
 }
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9.5 w-max items-center justify-center gap-1.5 rounded-pill px-3 font-sans text-body leading-tight text-fg outline-none active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none transition-colors duration-150 ease-out hover:bg-subtle active:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-subtle data-[state=open]:bg-subtle motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-5.5",
+  "group inline-flex h-9 w-max items-center justify-center gap-2 px-3 font-sans text-body leading-tight font-normal text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle data-[active]:bg-subtle data-[state=open]:bg-subtle active:bg-subtle-hover data-[state=open]:active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:pointer-events-none disabled:text-fg-subtle motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-4",
 );
 
 function NavigationMenuTrigger({ className, children, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.Trigger>) {
   return (
     <NavigationMenuPrimitive.Trigger data-slot="navigation-menu-trigger" className={cn(navigationMenuTriggerStyle(), className)} {...props}>
       {children}
-      <CaretDownIcon aria-hidden weight="bold" className="size-4 text-fg-muted transition-transform duration-slow ease-out group-data-[state=open]:rotate-180 motion-reduce:transition-none" />
+      <CaretDownIcon aria-hidden className="size-4 text-fg-secondary" />
     </NavigationMenuPrimitive.Trigger>
   );
 }
@@ -50,7 +50,7 @@ function NavigationMenuContent({ className, ...props }: React.ComponentProps<typ
       data-slot="navigation-menu-content"
       className={cn(
         "top-0 left-0 w-full p-1 md:absolute md:w-auto",
-        "group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-panel group-data-[viewport=false]/navigation-menu:bg-surface group-data-[viewport=false]/navigation-menu:shadow-floating group-data-[viewport=false]/navigation-menu:origin-top-left group-data-[viewport=false]/navigation-menu:data-[state=closed]:animate-pop-out group-data-[viewport=false]/navigation-menu:data-[state=open]:animate-pop-in",
+        "group-data-[viewport=false]/navigation-menu:ds-cut-frame group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:[--ds-cut:var(--ds-cut-md)] group-data-[viewport=false]/navigation-menu:[--ds-shape-fill:var(--ds-color-bg-default)] group-data-[viewport=false]/navigation-menu:[--ds-shape-stroke:var(--ds-color-border-default)] group-data-[viewport=false]/navigation-menu:origin-top-left group-data-[viewport=false]/navigation-menu:data-[state=closed]:animate-pop-out group-data-[viewport=false]/navigation-menu:data-[state=open]:animate-pop-in",
         "data-[motion^=from-]:animate-fade-in data-[motion^=to-]:animate-fade-out",
         className,
       )}
@@ -65,7 +65,7 @@ function NavigationMenuViewport({ className, ...props }: React.ComponentProps<ty
       <NavigationMenuPrimitive.Viewport
         data-slot="navigation-menu-viewport"
         className={cn(
-          "relative mt-1.5 h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) max-w-[calc(100vw-2rem)] origin-top md:origin-top-left overflow-hidden rounded-panel bg-surface text-fg shadow-floating data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in motion-reduce:transition-none",
+          "ds-cut-frame relative mt-1.5 h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) max-w-[calc(100vw-2rem)] origin-top overflow-hidden text-fg [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in md:origin-top-left",
           className,
         )}
         {...props}
@@ -79,7 +79,7 @@ function NavigationMenuLink({ className, ...props }: React.ComponentProps<typeof
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "flex flex-col gap-0.5 rounded-control p-3 text-body leading-tight text-fg outline-none hover:bg-subtle-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring data-[active=true]:bg-subtle-hover [&_svg:not([class*='size-'])]:size-5.5 [&_svg:not([class*='text-'])]:text-icon-default",
+        "flex flex-col gap-1 p-3 text-body leading-tight text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong data-[active=true]:bg-subtle motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-fg-secondary",
         className,
       )}
       {...props}
@@ -94,7 +94,7 @@ function NavigationMenuIndicator({ className, ...props }: React.ComponentProps<t
       className={cn("top-full z-10 flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-fade-out data-[state=visible]:animate-fade-in", className)}
       {...props}
     >
-      <div className="relative top-[60%] size-2.5 rotate-45 rounded-tl-xs bg-surface shadow-floating" />
+      <div className="relative top-[60%] size-2.5 rotate-45 border-t border-l border-line bg-surface" />
     </NavigationMenuPrimitive.Indicator>
   );
 }

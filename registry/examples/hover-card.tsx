@@ -1,38 +1,41 @@
-import { EnvelopeSimpleIcon, PhoneIcon } from "@phosphor-icons/react/ssr";
+import { LightningIcon, MapPinIcon } from "@phosphor-icons/react/ssr";
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
-function AgentCard() {
+function SubstationCard() {
   return (
-    <div className="flex gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-pill bg-avatar text-body-lg font-medium text-white">A</span>
-      <div className="grid min-w-0 gap-1">
-        <p className="text-body font-medium text-fg">@acme</p>
-        <p className="text-body text-fg-muted">Support agent for Acme. Created Jul 27, 2026.</p>
-        <p className="mt-1 flex items-center gap-2 text-body text-fg">
-          <EnvelopeSimpleIcon weight="fill" className="size-4.5 text-icon-secondary" /> acme@inkboxmail.com
-        </p>
+    <div className="grid gap-3">
+      <div className="grid gap-1">
+        <p className="text-body font-medium text-fg">Ault substation</p>
+        <p className="text-body text-fg-secondary">230 kV, owned by Acme Transmission. About 40 MW of spare capacity in the last study.</p>
+      </div>
+      <div className="grid gap-1.5 border-t border-line-subtle pt-3">
         <p className="flex items-center gap-2 text-body text-fg">
-          <PhoneIcon weight="fill" className="size-4.5 text-icon-secondary" /> +1 650 474 9720
+          <LightningIcon className="size-4 text-fg-secondary" /> 2.1 mi from Site 14
+        </p>
+        <p className="flex items-center gap-2 font-mono text-caption text-fg-secondary">
+          <MapPinIcon className="size-4" /> 40.5853, −104.7322
         </p>
       </div>
     </div>
   );
 }
 
+const LINK = "text-fg underline decoration-line underline-offset-4 transition-[text-decoration-color] duration-150 ease-out hover:decoration-line-strong";
+
 export function Preview() {
   return (
-    <p className="text-body text-fg">
-      Messages to{" "}
+    <p className="max-w-96 text-body text-fg">
+      Site 14 ties in at the{" "}
       <HoverCard>
-        <HoverCardTrigger href="#agent" className="text-rose underline-offset-4 hover:underline">
-          @acme
+        <HoverCardTrigger href="#ault" className={LINK}>
+          Ault substation
         </HoverCardTrigger>
         <HoverCardContent>
-          <AgentCard />
+          <SubstationCard />
         </HoverCardContent>
       </HoverCard>{" "}
-      are answered within a minute.
+      along an existing county road.
     </p>
   );
 }
@@ -41,11 +44,11 @@ export function Open() {
   return (
     <div className="flex min-h-60 items-start justify-center">
       <HoverCard defaultOpen>
-        <HoverCardTrigger href="#agent" className="text-rose underline-offset-4 hover:underline">
-          @acme
+        <HoverCardTrigger href="#ault" className={LINK}>
+          Ault substation
         </HoverCardTrigger>
         <HoverCardContent>
-          <AgentCard />
+          <SubstationCard />
         </HoverCardContent>
       </HoverCard>
     </div>

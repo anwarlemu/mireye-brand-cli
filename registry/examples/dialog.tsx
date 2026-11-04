@@ -9,23 +9,23 @@ export function Preview() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Create Agent</Button>
+        <Button>New site</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Agent Identity</DialogTitle>
-          <DialogDescription className="sr-only">Choose a handle and a display name for the new agent.</DialogDescription>
+          <DialogTitle>New site</DialogTitle>
+          <DialogDescription>Name the site and set the acreage the project needs.</DialogDescription>
         </DialogHeader>
         <DialogBody className="grid gap-3">
           <div className="grid gap-1">
-            <Label htmlFor="handle">Agent handle</Label>
-            <Input id="handle" placeholder="acme-support" />
+            <Label htmlFor="site">Site name</Label>
+            <Input id="site" placeholder="North Ault solar" />
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="display">Agent display name</Label>
-            <Input id="display" placeholder="Acme support" />
+            <Label htmlFor="acres">Acres needed</Label>
+            <Input id="acres" inputMode="numeric" placeholder="200" />
           </div>
-          <Button variant="secondary" className="mt-3 w-full">Create Agent Identity</Button>
+          <Button className="mt-2 w-full">Create site</Button>
         </DialogBody>
       </DialogContent>
     </Dialog>

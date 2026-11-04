@@ -3,8 +3,8 @@ name: navigation-menu
 title: Navigation Menu
 type: ui
 surface: site
-description: "Nav-row triggers and links with panels that open in a raised white viewport."
-use_for: "Use for a site's top navigation with grouped destinations (Product, Docs). Put NavigationMenuLink rows with a title and a muted line inside each NavigationMenuContent. Pass viewport={false} to open each panel under its own trigger. navigationMenuTriggerStyle styles a plain link as a trigger; call it from a client component."
-never: [Actions in a navigation menu, A navigation menu inside the console's rail (use Sidebar), Panels taller than the screen]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): the rail's nav rows; the panel follows the console's Chakra menu theme"
+description: "Square 36px nav keys with a still caret, Fog under the pointer and while open, and a panel in the dropdown menu's frame (white, 6px cut corner, 1px Stone line, no shadow) with square link rows."
+use_for: "Use for a site's top navigation when a section has several pages worth describing (Tools: site search, grid access, interconnection, fit score). Plain links sit beside the triggers with navigationMenuTriggerStyle."
+never: [A caret that turns or moves on hover, More than two columns of links, Rounded keys or a shadow on the panel, Actions in a navigation panel]
+source: "Not in Figma. Drawn in Mireye's grammar: the dropdown menu's panel and rows"
 ---

@@ -1,46 +1,50 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
 
+import { CheckIcon } from "@/components/icons/check";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
-const LINES = [
-  { id: "shared", title: "Shared", body: "Assigned when someone connects to this agent." },
-  { id: "dedicated", title: "Dedicated", body: "A number only this agent uses." },
+const BASEMAPS = [
+  { id: "survey", title: "Survey", body: "Parcel lines and survey nodes on the canvas ground." },
+  { id: "aerial", title: "Aerial", body: "Recent imagery, dimmed so parcels and tags read first." },
 ];
 
-function ChooseLine({ onChoose }: { onChoose?: () => void }) {
-  const [line, setLine] = React.useState("shared");
+function ChooseBasemap({ onChoose }: { onChoose?: () => void }) {
+  const [basemap, setBasemap] = React.useState("survey");
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>iMessage line</DrawerTitle>
-        <DrawerDescription>Choose how recipients connect to @acme.</DrawerDescription>
+        <DrawerTitle>Basemap</DrawerTitle>
+        <DrawerDescription>Choose what the map shows under Site 14.</DrawerDescription>
       </DrawerHeader>
-      <div role="radiogroup" aria-label="iMessage line" className="grid gap-2 px-6">
-        {LINES.map((l) => (
+      <div role="radiogroup" aria-label="Basemap" className="grid gap-2 px-5">
+        {BASEMAPS.map((b) => (
           <button
-            key={l.id}
+            key={b.id}
             type="button"
             role="radio"
-            aria-checked={line === l.id}
-            onClick={() => setLine(l.id)}
-            className="flex items-start gap-3 rounded-control bg-subtle p-3.5 text-left outline-none transition-colors duration-150 ease-out hover:bg-subtle-hover focus-visible:outline-2 focus-visible:outline-focus-ring aria-checked:bg-surface aria-checked:shadow-s motion-reduce:transition-none"
+            aria-checked={basemap === b.id}
+            onClick={() => setBasemap(b.id)}
+            className="flex items-center gap-3 border border-line bg-surface p-3 text-left outline-none transition-[background-color,border-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong aria-checked:border-line-strong motion-reduce:transition-none"
           >
-            <span className="grid flex-1 gap-0.5">
-              <span className="text-body font-medium text-fg">{l.title}</span>
-              <span className="text-body text-fg-muted">{l.body}</span>
+            <span className="grid flex-1 gap-1">
+              <span className="text-body font-medium text-fg">{b.title}</span>
+              <span className="text-body text-fg-secondary">{b.body}</span>
             </span>
-            {line === l.id && <CheckCircleIcon weight="fill" className="size-5.5 text-success" />}
+            {basemap === b.id && <CheckIcon className="text-fg" />}
           </button>
         ))}
       </div>
       <DrawerFooter>
-        <Button variant="secondary" className="w-full" onClick={onChoose}>Use {line} line</Button>
+        <Button className="w-full" onClick={onChoose}>
+          Use {basemap} basemap
+        </Button>
         <DrawerClose asChild>
-          <Button variant="ghost" className="w-full">Cancel</Button>
+          <Button variant="ghost" className="w-full">
+            Cancel
+          </Button>
         </DrawerClose>
       </DrawerFooter>
     </>
@@ -53,11 +57,11 @@ export function Preview() {
     <div className="flex justify-center">
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button variant="outline">Choose a line</Button>
+          <Button variant="outline">Choose a basemap</Button>
         </DrawerTrigger>
         <DrawerContent>
           <div className="mx-auto w-full max-w-md">
-            <ChooseLine onChoose={() => setOpen(false)} />
+            <ChooseBasemap onChoose={() => setOpen(false)} />
           </div>
         </DrawerContent>
       </Drawer>
@@ -83,7 +87,7 @@ export function Directions() {
             </DrawerHeader>
             <DrawerFooter>
               <DrawerClose asChild>
-                <Button variant="secondary">Close</Button>
+                <Button variant="outline">Close</Button>
               </DrawerClose>
             </DrawerFooter>
           </DrawerContent>
@@ -99,7 +103,7 @@ export function Open() {
       <Drawer defaultOpen>
         <DrawerContent>
           <div className="mx-auto w-full max-w-md">
-            <ChooseLine />
+            <ChooseBasemap />
           </div>
         </DrawerContent>
       </Drawer>
