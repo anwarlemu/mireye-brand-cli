@@ -1,10 +1,11 @@
 ---
 name: ticks
 title: Ticks
-type: ui
-surface: site
-description: "A row of 1px vertical lines at a fixed pitch, Mireye's measure of progress: the progress bar, a loading button's bar and the text button's hover underline."
-use_for: "Use through Progress or Button. Use Ticks directly only for a new measure: give the pitch in pixels, a height class and either value (0 to 1) or filled (a number of lines); on and off set the two colours."
-never: [Ticks as decoration, Lines thicker than 1px, A pitch under 4px]
-source: "Figma UI · Progress (442:213): bar 442:224; UI · Buttons (442:3): the loading bar"
+type: product
+surface: product
+description: "A row of 1px vertical lines at a fixed pitch: the system's measuring language for progress, loading keys and scores."
+use_for: "Use for any share or count drawn as a measure: progress, a fit score, a loading key's walk. Set `pitch` (6px for bars, 4px for the text button's underline), and `value` (0 to 1) or `filled` (a number of lines, so no tick is half lit). `on` and `off` take brand color variables: Forest over Stone, or Mist for empty."
+never: ["Solid filled bars", "Rounded or gradient progress tracks", "A pitch other than 4 or 6px"]
+source: "Figma \"UI · Progress\" (442:213) and the Buttons board (442:3) loading state"
+files: ["components/ui/ticks.tsx"]
 ---

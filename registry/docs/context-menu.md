@@ -3,8 +3,8 @@ name: context-menu
 title: Context Menu
 type: ui
 surface: site
-description: "The dropdown menu's panel and rows, opened with a right click or a long press on an area."
-use_for: "Use for shortcuts to actions on an item in a list (an email in the inbox, a contact). Every action must also be reachable another way, such as a row's menu button."
-never: [Actions that exist only in the context menu, A context menu on text people need to select, Nested submenus beyond one level]
-source: "The Inkbox console's Chakra menu theme (src/theme/index.ts), opened from the email list items of Figma 427:2715"
+description: "The dropdown menu's panel on right-click or long-press: a white frame with the 6px cut corner and a 1px Stone line, square 32px rows with Fog under the highlight, Mist while pressed, and Mireye's check on a chosen row."
+use_for: "Use for the actions on a thing people point at directly (a parcel on the map or in a list), as a shortcut to actions that are also reachable another way."
+never: [The only way to reach an action, Rounded corners or a shadow on the panel, Animating the highlighted row, Icons that move on hover]
+source: "Not in Figma. Drawn in Mireye's grammar: the dropdown menu's panel and rows"
 ---

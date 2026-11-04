@@ -11,7 +11,7 @@ export function useLoopFrame(frame: number, count: number, running: boolean, ms:
   React.useEffect(() => {
     setTick(frame);
     if (!running || reduced) return;
-    // ds-latency: steps a loader animation at its frame rate; nothing waits on it.
+    // ds-latency: a loader's frame clock; it runs beside the page and never gates input.
     const id = window.setInterval(() => setTick((t) => (t + 1) % count), ms);
     return () => window.clearInterval(id);
   }, [frame, count, running, ms, reduced]);

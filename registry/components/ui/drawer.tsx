@@ -6,12 +6,13 @@ import { Dialog as DrawerPrimitive } from "radix-ui";
 import { usePortalContainer } from "@/lib/surface";
 import { cn } from "@/lib/utils";
 
-// A drawer, drawn as the console's dialog and pulled from an edge: white over the blurred page under the ink at 32
-// percent, 16px corners on its inner edge, a 40 by 4px handle in the field-edge lilac, a 20px
-// regular title and 24px sides. It slides in on the drawer curve and can be dragged away: a flick (faster than 0.11px
-// per ms) or a pull past a third of its size closes it, a shorter pull springs back on the same curve, and pulling the
-// other way meets growing resistance instead of a wall. The drag follows the pointer even off the panel (pointer
-// capture) and ignores a second finger.
+// A drawer, drawn as the sheet in Mireye's grammar (Figma has none) and pulled from an edge: white, square and flush
+// with its edge, a 1px Stone line on its inner edge and no shadow, on the page under Forest at 40 percent; a square 40
+// by 4px handle in Stone, the 16px regular title over a 13px line in the secondary ink, and 20px sides. It slides in on
+// the drawer curve (300ms in, 200ms out) and can be dragged away: a flick (faster than 0.11px per ms) or a pull past a
+// third of its size closes it, a shorter pull springs back on the same curve, and pulling the other way meets growing
+// resistance instead of a wall. The drag follows the pointer even off the panel (pointer capture) and ignores a
+// second finger.
 type Direction = "bottom" | "top" | "left" | "right";
 
 const DrawerContext = React.createContext<{ direction: Direction; setOpen: (open: boolean) => void }>({ direction: "bottom", setOpen: () => {} });
@@ -50,17 +51,17 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
   return (
     <DrawerPrimitive.Overlay
       data-slot="drawer-overlay"
-      className={cn("fixed inset-0 z-50 bg-scrim backdrop-blur-[var(--ds-blur-scrim)] data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in", className)}
+      className={cn("fixed inset-0 z-50 bg-scrim data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in", className)}
       {...props}
     />
   );
 }
 
 const PLACE: Record<Direction, string> = {
-  bottom: "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-panel data-[state=closed]:animate-sheet-out-bottom data-[state=open]:animate-sheet-in-bottom",
-  top: "inset-x-0 top-0 max-h-[85dvh] flex-col-reverse rounded-b-panel data-[state=closed]:animate-sheet-out-top data-[state=open]:animate-sheet-in-top",
-  right: "inset-y-0 right-0 w-3/4 flex-row-reverse rounded-l-panel sm:max-w-96 data-[state=closed]:animate-sheet-out-right data-[state=open]:animate-sheet-in-right",
-  left: "inset-y-0 left-0 w-3/4 flex-row rounded-r-panel sm:max-w-96 data-[state=closed]:animate-sheet-out-left data-[state=open]:animate-sheet-in-left",
+  bottom: "inset-x-0 bottom-0 max-h-[85dvh] border-t border-line data-[state=closed]:animate-sheet-out-bottom data-[state=open]:animate-sheet-in-bottom",
+  top: "inset-x-0 top-0 max-h-[85dvh] flex-col-reverse border-b border-line data-[state=closed]:animate-sheet-out-top data-[state=open]:animate-sheet-in-top",
+  right: "inset-y-0 right-0 w-3/4 flex-row-reverse border-l border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-right data-[state=open]:animate-sheet-in-right",
+  left: "inset-y-0 left-0 w-3/4 flex-row border-r border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-left data-[state=open]:animate-sheet-in-left",
 };
 
 // Where a pull closes the drawer: toward its own edge (positive for bottom and right).
@@ -107,7 +108,7 @@ function useDrag(direction: Direction, close: () => void) {
       close();
       return;
     }
-    el.style.transition = "transform 500ms var(--ds-easing-drawer)";
+    el.style.transition = "transform var(--ds-duration-slow) var(--ds-easing-drawer)";
     el.style.transform = "";
     const reset = () => {
       el.style.transition = "";
@@ -130,11 +131,11 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
         ref={panel}
         data-slot="drawer-content"
         data-direction={direction}
-        className={cn("group/drawer fixed z-50 flex touch-none bg-surface text-fg shadow-dialog outline-none", vertical ? "flex-col" : "", PLACE[direction], className)}
+        className={cn("group/drawer fixed z-50 flex touch-none bg-surface text-fg outline-none", vertical ? "flex-col" : "", PLACE[direction], className)}
         {...handlers}
         {...props}
       >
-        <div aria-hidden data-slot="drawer-handle" className={cn("shrink-0 rounded-pill bg-line-field", vertical ? "mx-auto my-3 h-1 w-10" : "my-auto mx-3 h-10 w-1")} />
+        <div aria-hidden data-slot="drawer-handle" className={cn("shrink-0 bg-line", vertical ? "mx-auto my-3 h-1 w-10" : "my-auto mx-3 h-10 w-1")} />
         <div className="flex min-h-0 min-w-0 flex-1 touch-auto flex-col overflow-auto">{children}</div>
       </DrawerPrimitive.Content>
     </DrawerPortal>
@@ -142,15 +143,15 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
 }
 
 function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="drawer-header" className={cn("flex flex-col gap-1 px-6 pt-2 pb-4 group-data-[direction=bottom]/drawer:text-center group-data-[direction=top]/drawer:text-center md:text-left md:group-data-[direction=bottom]/drawer:text-left", className)} {...props} />;
+  return <div data-slot="drawer-header" className={cn("flex flex-col gap-1 px-5 pt-2 pb-4 group-data-[direction=bottom]/drawer:text-center group-data-[direction=top]/drawer:text-center md:text-left md:group-data-[direction=bottom]/drawer:text-left", className)} {...props} />;
 }
 
 function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="drawer-footer" className={cn("mt-auto flex flex-col gap-2 p-6", className)} {...props} />;
+  return <div data-slot="drawer-footer" className={cn("mt-auto flex flex-col gap-2 p-5", className)} {...props} />;
 }
 
 function DrawerTitle({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Title>) {
-  return <DrawerPrimitive.Title data-slot="drawer-title" className={cn("font-sans text-h3 leading-heading font-normal text-fg", className)} {...props} />;
+  return <DrawerPrimitive.Title data-slot="drawer-title" className={cn("font-sans text-h3 leading-tight font-normal text-fg", className)} {...props} />;
 }
 
 function DrawerDescription({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Description>) {

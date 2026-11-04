@@ -1,10 +1,11 @@
 ---
 name: dial
 title: Dial
-type: ui
-surface: site
-description: "Mireye's turning instrument: ticks around a circle, the head in Forest and the tail fading to Mist, stepping one tick at a time."
-use_for: "Use through Spinner. Use Dial directly for the loader specimens: size 24, 36 or 140 (Figma pixels), running to turn it and head to place the head when it is still."
-never: [A smooth rotation, Recolouring the ramp, More than one turning dial on a screen]
-source: "Figma UI · Buttons (442:76) and UI · Loaders (443:2): the 24px, 36px and 140px dials"
+type: product
+surface: product
+description: "Mireye's spinner: ticks around a circle with a Forest head fading to Mist, turning one tick a step."
+use_for: "Use as the spinner: on an icon key while it works (24), inline (36) or where a whole panel waits (140). `running={false}` with `head` holds a still frame. It is named \"Loading\" while it runs."
+never: ["A smooth spinning wheel or a circle spinner", "More than one dial in view", "A dial without words nearby saying what is loading, outside an icon key"]
+source: "Figma \"UI · Buttons\" (442:76) and \"UI · Loaders\" (443:2)"
+files: ["components/ui/dial.tsx"]
 ---

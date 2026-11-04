@@ -3,8 +3,8 @@ name: popover
 title: Popover
 type: ui
 surface: site
-description: "A white panel with no edge, 16px corners and the floating shadow that grows out of the control that opened it."
-use_for: "Use for a small form or detail tied to one control (rename a mailbox, set a phone line's state). Put a PopoverHeader with a PopoverTitle and PopoverDescription first, then the fields. For choosing one value from a list use Select or Combobox; for actions use Dropdown Menu."
-never: [A popover that opens on hover (use Hover Card), A dark or lilac popover panel, Scaling from the center instead of the trigger, Long forms that scroll inside a popover]
-source: "The Inkbox console's Chakra popover theme and its popup motion (src/theme/index.ts, src/theme/motion.ts)"
+description: "A white panel with the 6px cut corner and a 1px Stone line, no shadow, 16px of padding, a 13px medium title over a line in the secondary ink; it grows from its trigger in 150ms."
+use_for: "Use for a small form or detail tied to one control (rename a site, set a buffer distance) that keeps the page in view. Use PopoverHeader, PopoverTitle and PopoverDescription for its head."
+never: [Long forms or several steps (use Dialog or Sheet), Rounded corners or a shadow, An arrow on the panel, A popover that opens on hover (use Hover Card)]
+source: "Not in Figma. Drawn in Mireye's grammar: the white cut frame of Figma UI · Inputs (442:107)"
 ---

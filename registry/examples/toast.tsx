@@ -12,28 +12,28 @@ export function Preview() {
         variant="outline"
         onClick={() =>
           toast({
-            title: "Mailbox archived",
-            description: "support@inkboxmail.com no longer receives mail.",
+            title: "Site 14 archived",
+            description: "It no longer appears in search or on the map.",
             action: <ToastAction altText="Undo the archive">Undo</ToastAction>,
           })
         }
       >
-        Archive mailbox
+        Archive site
       </Button>
       <Button
         variant="outline"
         onClick={() =>
           toast({
             variant: "destructive",
-            title: "Delivery failed",
-            description: "api.acme.dev answered 500 three times.",
-            action: <ToastAction altText="Retry the delivery">Retry</ToastAction>,
+            title: "Export failed",
+            description: "The county server answered 500 three times.",
+            action: <ToastAction altText="Retry the export">Retry</ToastAction>,
           })
         }
       >
         Destructive
       </Button>
-      <Button variant="outline" onClick={() => toast({ title: "Contact rule saved" })}>
+      <Button variant="outline" onClick={() => toast({ title: "Requirements saved" })}>
         Title only
       </Button>
     </div>

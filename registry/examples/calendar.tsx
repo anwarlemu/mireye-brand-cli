@@ -5,7 +5,7 @@ import * as React from "react";
 import { Calendar, type DateRange } from "@/components/ui/calendar";
 
 const TODAY = new Date(2026, 7, 8);
-const FRAME = "w-fit rounded-control border border-line-field bg-surface";
+const FRAME = "ds-cut-frame w-fit [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]";
 
 export function Preview() {
   const [date, setDate] = React.useState<Date | undefined>(TODAY);

@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Lockup } from "@www/components/logo";
 
-type Entry = { name: string; title: string };
+type Entry = { name: string; title: string; type?: string };
+
+// Rail groups by registry type: the shadcn set, then Mireye's own parts.
+const GROUPS = [
+  { label: "Components", types: ["ui", "site", "visual", "block"] },
+  { label: "Mireye", types: ["product"] },
+];
 
 // A rail row: 32px and square, 12px in, a 16px glyph 8px before the 13px Forest label. A row under the pointer fills
 // with Fog and the current page sits on Mist (150ms, color only); nothing moves.
@@ -50,25 +56,28 @@ function Groups({ entries, query, onNavigate }: { entries: Entry[]; query: strin
           </ul>
         </div>
       )}
-      <div>
-        <GroupLabel>Components</GroupLabel>
-        {shown.length ? (
-          <ul className="grid gap-0.5">
-            {shown.map((e) => {
-              const href = `/components/${e.name}`;
-              return (
-                <li key={e.name}>
-                  <Link href={href} scroll={false} onNavigate={onNavigate} data-item={e.name} aria-current={pathname === href ? "page" : undefined} className={ROW}>
-                    {e.title}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="px-3 text-body text-fg-muted">Nothing matches.</p>
-        )}
-      </div>
+      {GROUPS.map((group) => {
+        const list = shown.filter((e) => group.types.includes(e.type ?? "ui"));
+        if (!list.length) return null;
+        return (
+          <div key={group.label}>
+            <GroupLabel>{group.label}</GroupLabel>
+            <ul className="grid gap-0.5">
+              {list.map((e) => {
+                const href = `/components/${e.name}`;
+                return (
+                  <li key={e.name}>
+                    <Link href={href} scroll={false} onNavigate={onNavigate} data-item={e.name} aria-current={pathname === href ? "page" : undefined} className={ROW}>
+                      {e.title}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
+      {!shown.length && <p className="px-3 text-body text-fg-muted">Nothing matches.</p>}
     </>
   );
 }

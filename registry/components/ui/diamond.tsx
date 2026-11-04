@@ -10,9 +10,11 @@ import { cn, svgBox, svgSize } from "@/lib/utils";
  *              It is drawn as a square turned 45° (inset by half the stroke) rather than as that
  *              path: Chrome anti-aliases the turned square the way Figma renders the path, and
  *              the path version misses by up to 52 pixels on a 28px radio.
- *              `fill` paints the inside (Figma uses the canvas colour so lines behind stop at
+ *              `fill` paints the inside (Figma uses the canvas color so lines behind stop at
  *              the node).
- * Colours default to the current text colour.
+ * Colors default to the current text color.
+ * The outline stays a 1px line at the product scale (non-scaling stroke), as every line in the
+ * system does; scaled with the mark it would be a faint 0.6px.
  */
 export function Diamond({
   size = 9,
@@ -56,7 +58,6 @@ export function Diamond({
           fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
-          // The box renders at the product scale (0.6 of Figma); the line stays 1px, as every Mireye line is.
           vectorEffect="non-scaling-stroke"
         />
       )}

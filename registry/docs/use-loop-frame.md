@@ -1,8 +1,9 @@
 ---
 name: use-loop-frame
-title: useLoopFrame
+title: Loop frame
 type: lib
-surface: site
-description: "Steps a loader through its frames and follows the reduced-motion setting live."
-use_for: "Use in frame-based loaders and counters: useLoopFrame(frame, count, running, ms) returns the frame to draw, holding the still frame under reduced motion. usePrefersReducedMotion returns the setting itself."
+surface: product
+description: "Hooks for loaders: step through frames while running, and follow the reduced-motion setting live."
+use_for: "Use `useLoopFrame(frame, count, running, ms)` in frame-based loaders and `usePrefersReducedMotion()` to hold motion still."
+never: []
 ---

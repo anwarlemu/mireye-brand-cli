@@ -3,8 +3,8 @@ name: calendar
 title: Calendar
 type: ui
 surface: site
-description: "A month grid of 36px keys: today in purple, selected days as purple keys, a range on a lilac band."
-use_for: "Use to pick a day, several days or a range (a delivery log window, a report period) when the month view helps. Set mode to single, multiple or range, pass selected and onSelect, and disable days that cannot be picked. For a field that opens a calendar, use Date Picker."
-never: [Round day keys, A dark selected day, Animating between months]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): 8px keys, the lilac wash and the purple action"
+description: "A month grid of square 36px day keys: Fog under the pointer, Forest for the chosen day, a Fog band across a range, Slate outside days, and a small Forest diamond under today."
+use_for: "Use inside the date picker, or on its own where a month is always in view (a site visit schedule). Supports single days, several days and ranges."
+never: [Rounded day keys, Animating the change of month, A circle to mark today]
+source: "Not in Figma. Drawn in Mireye's grammar: the Diamond node of Figma UI · Status and tags (442:177) for today"
 ---
