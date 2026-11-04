@@ -4,46 +4,48 @@ import * as React from "react";
 import { chakra } from "@chakra-ui/react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { Diamond } from "@/components/ui/diamond";
+import { cn, svgBox, svgSize } from "@/lib/utils";
 
-// The console's badges (the Badge theme): a 28px pill with 12px sides, a 12px medium label on a 1 line, no caps, a light
-// fill under dark ink. green is success, red the pink with the strong red, blue the tag blue with the info ink, purple
-// the tag purple with the deep purple, gray the lilac hover, yellow the warning sand. `count` is the rail's small red
-// number (16px tall, at least 22px wide, 8px corners, white on the red). `pink` is the 22px plan mark (BETA, ADMIN) with a
-// pink edge, `success` the white Included pill with a green edge. Size `well` makes the tunnel's 38px status wells;
-// sm and lg remain for dense tags and the Included pill.
+// Mireye's tags and statuses (Figma "UI · Status and tags", 442:177), at the product scale. Badges are small, so they are
+// square: no cut corner, no radius.
+// - `default` (also `tag`): the Fog data tag for a site value ("345 kV", "41.2 ac", "Zone X"), Forest ink, no line.
+// - `inverse`: the Forest tag with white ink, for a tag on a map or photo, or one value that must lead.
+// - `outline` (also `status`): the status pill, white with the 1px Stone line. Lead it with a BadgeMark (Verified,
+//   Loading, Queued).
+// - `secondary`: Mist, a quieter tag beside Fog ones. `ghost`: no fill, muted ink. `link`: underlined ink.
+// - `success`, `warning` and `destructive`: the chosen status colours (Figma has none), a 1px line and ink in the colour
+//   on white. Use them sparingly; a status reads first by its mark and word.
+// - `count`: a small Forest number (unread, selected).
+// Sizes: sm 20px, default 24px (Figma's 44px tag at 0.6, on the 4px grid), lg 28px. 12px regular labels (13px at lg),
+// 8px sides. Nothing moves; a badge that links fills one step on hover (150ms).
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-pill border border-transparent font-sans font-medium whitespace-nowrap normal-case transition-[background-color,color] duration-fast ease-out focus-visible:shadow-focus focus-visible:outline-none motion-reduce:transition-none [&>svg]:pointer-events-none [&>svg]:shrink-0",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1.5 overflow-hidden border border-transparent font-sans font-normal whitespace-nowrap normal-case outline-none transition-[background-color,color] duration-fast ease-out focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none [&>svg]:pointer-events-none [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-on-primary [a&]:hover:bg-primary-hover",
-        secondary: "bg-subtle text-fg [a&]:hover:bg-subtle-hover",
-        destructive: "bg-danger text-white",
-        outline: "border-line-field bg-surface text-fg [a&]:hover:bg-subtle",
-        ghost: "text-fg-secondary [a&]:hover:bg-subtle",
-        link: "text-fg-brand underline-offset-4 [a&]:hover:underline",
-        pink: "rounded-pill border-pink bg-surface text-pink",
-        success: "rounded-pill border-success bg-surface text-success",
-        green: "bg-success-bg text-success",
-        red: "bg-pink text-danger-strong",
-        blue: "bg-tag-blue text-info-fg",
-        purple: "bg-tag-purple text-primary-hover",
-        gray: "bg-subtle-hover text-fg",
-        yellow: "bg-warning-bg text-warning-fg",
-        count: "rounded-sm bg-danger text-white",
+        default: "bg-tag text-tag-fg [a&]:hover:bg-subtle-hover",
+        tag: "bg-tag text-tag-fg [a&]:hover:bg-subtle-hover",
+        inverse: "bg-inverse text-fg-inverse [a&]:hover:bg-primary-hover",
+        secondary: "bg-subtle-hover text-fg",
+        outline: "border-line bg-surface text-fg [a&]:hover:bg-subtle",
+        status: "border-line bg-surface text-fg [a&]:hover:bg-subtle",
+        ghost: "text-fg-muted [a&]:hover:text-fg",
+        link: "px-0 text-fg underline decoration-line underline-offset-4 [a&]:hover:decoration-line-strong",
+        success: "border-success bg-surface text-success",
+        warning: "border-warning bg-surface text-warning",
+        destructive: "border-danger bg-surface text-danger",
+        count: "bg-inverse text-fg-inverse tabular-nums",
+        // Older names, kept so existing code still renders: pink was the plan mark, now the status pill.
+        pink: "border-line bg-surface text-fg",
       },
       size: {
-        sm: "h-4.5 px-1 text-micro leading-tight [&>svg]:size-3.5",
-        default: "h-7 px-3 text-caption leading-none [&>svg]:size-4",
-        lg: "h-7 gap-1.5 pr-2.5 pl-1 text-body leading-tight [&>svg]:size-5.5",
-        well: "h-9.5 rounded-pill px-3.5 text-body leading-tight font-normal text-fg [&>svg]:size-5.5",
+        sm: "h-5 px-1.5 text-micro leading-none [&>svg]:size-3",
+        default: "h-6 px-2 text-caption leading-none [&>svg]:size-3.5",
+        lg: "h-7 px-2.5 text-body leading-none [&>svg]:size-4",
       },
     },
-    compoundVariants: [
-      { variant: "pink", size: "default", className: "h-5.5 px-1.5" },
-      { variant: "count", size: "default", className: "h-4 min-w-5.5 px-1.5 text-micro tabular-nums" },
-    ],
+    compoundVariants: [{ variant: "count", className: "h-4 min-w-4 px-1 text-micro" }],
     defaultVariants: { variant: "default", size: "default" },
   },
 );
@@ -55,4 +57,23 @@ function Badge({ className, variant, size, asChild = false, ...props }: React.Co
   return <Comp {...slotProps} data-slot="badge" data-variant={variant ?? "default"} className={cn(badgeVariants({ variant, size }), className)} {...props} />;
 }
 
-export { Badge, badgeVariants };
+/**
+ * The mark at the start of a status (Figma 442:189, 442:194, 442:199), 6px at the product scale: Verified is a solid
+ * diamond, Queued an outlined one, Loading three 1px bars. It takes the text colour.
+ */
+function BadgeMark({ state = "verified", className }: { state?: "verified" | "loading" | "queued"; className?: string }) {
+  // Wrapped, so the badge's glyph size does not stretch the 6px mark.
+  return (
+    <span data-slot="badge-mark" className={cn("flex shrink-0 items-center", className)}>
+      {state === "loading" ? (
+        <svg width={10} height={10} viewBox="0 0 10 10" fill="none" aria-hidden className={cn("block shrink-0", svgBox)} style={svgSize(10)}>
+          <path d="M1.5 0V10M5 0V10M8.5 0V10" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+        </svg>
+      ) : (
+        <Diamond size={10} variant={state === "verified" ? "solid" : "outline"} />
+      )}
+    </span>
+  );
+}
+
+export { Badge, BadgeMark, badgeVariants };

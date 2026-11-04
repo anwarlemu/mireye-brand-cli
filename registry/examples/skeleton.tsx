@@ -2,27 +2,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function Preview() {
   return (
-    <div className="grid w-full max-w-96 gap-1" aria-busy="true" aria-label="Loading emails">
+    <div className="grid w-full max-w-110" aria-busy="true" aria-label="Loading sites">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="grid gap-2.5 p-3">
-          <div className="flex justify-between">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-12" />
+        <div key={i} className="flex items-center gap-4 border-b border-line-subtle py-3">
+          <Skeleton className="h-11 w-14" />
+          <div className="grid flex-1 gap-2">
+            <Skeleton className="h-3.5 w-3/5" />
+            <Skeleton className="h-3 w-2/5" />
           </div>
-          <Skeleton className="h-4 w-11/12" />
-          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-6 w-16" />
         </div>
       ))}
     </div>
   );
 }
 
-export function Row() {
+export function Values() {
   return (
-    <div className="flex w-full max-w-120 items-center gap-4" aria-busy="true" aria-label="Loading mailbox">
-      <Skeleton className="size-5.5 rounded-pill" />
-      <Skeleton className="h-4 flex-1" />
-      <Skeleton className="h-10 w-28 rounded-pill" />
+    <div className="grid w-full max-w-110 gap-3" aria-busy="true" aria-label="Loading cited fields">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="grid grid-cols-[8rem_1fr] items-center gap-4">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-3.5 w-24" />
+        </div>
+      ))}
     </div>
   );
 }

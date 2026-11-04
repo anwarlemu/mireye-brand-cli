@@ -1,31 +1,36 @@
-import { ArrowRightIcon, EnvelopeIcon, GearIcon, KeyIcon, PencilSimpleIcon, PhoneIcon, RobotIcon, UsersThreeIcon } from "@phosphor-icons/react/ssr";
+import { DropIcon, FileTextIcon, LightningIcon, MapTrifoldIcon, MountainsIcon, StackIcon } from "@phosphor-icons/react/ssr";
 
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemHeader, ItemMedia, ItemSeparator, ItemTitle } from "@/components/ui/item";
 
-const EMAILS = [
-  { from: "Ray Liao", when: "Yesterday", subject: "Inkbox A2A: publish your Agent Card and connect by...", preview: "Hello @acme, This is Ray, cofounder of Inkbox. This update is written for you..." },
-  { from: "Ray Liao", when: "Jul 31", subject: "Agent-to-Agent on Inkbox: you can now delegate...", preview: "Hello @acme, This is Ray, cofounder of Inkbox. This week we took A2A across..." },
-  { from: "Ray Liao", when: "Jul 31", subject: "Agent-to-Agent on Inkbox: you can now delegate...", preview: "Hello @acme, This is Ray, cofounder of Inkbox. Two new capabilities, with exact..." },
+const SITES = [
+  { name: "Ellis County site 14", at: "32.4113, -96.8302", acres: "212.6 ac", kv: "345 kV" },
+  { name: "Navarro County site 3", at: "32.0954, -96.4689", acres: "305.0 ac", kv: "138 kV" },
+  { name: "Kaufman County site 8", at: "32.5890, -96.3087", acres: "198.2 ac", kv: "138 kV" },
 ];
 
 export function Preview() {
   return (
-    <ItemGroup className="w-full max-w-96">
-      {EMAILS.map((email, i) => (
-        <div key={i}>
+    <ItemGroup className="w-full max-w-110">
+      {SITES.map((site, i) => (
+        <div key={site.name}>
           {i > 0 && <ItemSeparator />}
           <Item asChild aria-current={i === 0 ? "true" : undefined}>
-            <a href="#email">
-              <ItemHeader>
-                <span className="text-fg">{email.from}</span>
-                <span className="text-fg-muted">{email.when}</span>
-              </ItemHeader>
+            <a href="#site">
+              <ItemMedia variant="image">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/examples/farmland-aerial.jpg" alt="" />
+              </ItemMedia>
               <ItemContent>
-                <ItemTitle className="w-full truncate">{email.subject}</ItemTitle>
-                <ItemDescription className="line-clamp-1">{email.preview}</ItemDescription>
+                <ItemTitle>{site.name}</ItemTitle>
+                <ItemDescription className="font-mono">{site.at}</ItemDescription>
               </ItemContent>
+              <ItemActions className="max-sm:hidden">
+                <Badge>{site.acres}</Badge>
+                <Badge>{site.kv}</Badge>
+              </ItemActions>
             </a>
           </Item>
         </div>
@@ -34,21 +39,25 @@ export function Preview() {
   );
 }
 
-export function Events() {
+export function Sources() {
   return (
-    <ItemGroup className="w-full max-w-96">
-      {["message.sent", "message.delivered", "message.bounced"].map((event, i) => (
-        <div key={event}>
+    <ItemGroup className="w-full max-w-110">
+      {[
+        { title: "Flood zone map", meta: "National flood hazard layer, Oct 2026" },
+        { title: "Elevation model", meta: "10 m elevation model" },
+        { title: "Parcel records", meta: "Ellis County appraisal district" },
+      ].map((source, i) => (
+        <div key={source.title}>
           {i > 0 && <ItemSeparator />}
-          <Item asChild data-selected={i === 0}>
+          <Item asChild>
             <button type="button" className="w-full text-left">
-              <ItemHeader className="justify-start">
-                <Badge variant="blue" size="sm">Email</Badge>
-                <ArrowRightIcon aria-hidden className="size-4.5 text-fg-muted" />
+              <ItemHeader className="justify-start gap-2 text-caption text-fg-muted">
+                <span className="tabular-nums">{i + 1}</span>
+                <span>Source</span>
               </ItemHeader>
               <ItemContent>
-                <ItemTitle>{event}</ItemTitle>
-                <ItemDescription>0 configured destinations</ItemDescription>
+                <ItemTitle>{source.title}</ItemTitle>
+                <ItemDescription>{source.meta}</ItemDescription>
               </ItemContent>
             </button>
           </Item>
@@ -60,19 +69,19 @@ export function Events() {
 
 export function Rail() {
   const rows = [
-    { label: "Agent Workspace", icon: RobotIcon, current: true },
-    { label: "Manage Agents", icon: UsersThreeIcon },
-    { label: "API Keys", icon: KeyIcon },
-    { label: "Email", icon: EnvelopeIcon },
-    { label: "Phone", icon: PhoneIcon },
+    { label: "Map", icon: MapTrifoldIcon, current: true },
+    { label: "Saved sites", icon: StackIcon },
+    { label: "Reports", icon: FileTextIcon },
+    { label: "Power", icon: LightningIcon },
+    { label: "Water", icon: DropIcon },
   ];
   return (
-    <ItemGroup className="w-full max-w-66 gap-0.5">
+    <ItemGroup className="w-full max-w-53 gap-0.5">
       {rows.map(({ label, icon: Icon, current }) => (
         <Item key={label} size="sm" asChild aria-current={current ? "page" : undefined}>
           <a href={`#${label}`}>
             <ItemMedia variant="icon">
-              <Icon weight="fill" />
+              <Icon />
             </ItemMedia>
             <ItemContent>
               <ItemTitle>{label}</ItemTitle>
@@ -89,29 +98,29 @@ export function Variants() {
     <div className="grid w-full max-w-120 gap-3">
       <Item variant="outline">
         <ItemMedia variant="icon">
-          <EnvelopeIcon weight="fill" />
+          <MountainsIcon />
         </ItemMedia>
         <ItemContent>
-          <ItemTitle>acme@inkboxmail.com</ItemTitle>
-          <ItemDescription>Created Jul 27, 2026</ItemDescription>
+          <ItemTitle>Terrain</ItemTitle>
+          <ItemDescription>412 ft average elevation, 2.8% slope</ItemDescription>
         </ItemContent>
         <ItemActions>
-          <Button variant="ghost" size="icon" aria-label="Edit mailbox">
-            <PencilSimpleIcon weight="fill" />
+          <Button variant="ghost" size="icon" aria-label="Open terrain details">
+            <ArrowRightIcon size={16} />
           </Button>
         </ItemActions>
       </Item>
       <Item variant="muted" size="sm">
         <ItemMedia variant="icon">
-          <GearIcon weight="fill" />
+          <LightningIcon />
         </ItemMedia>
         <ItemContent>
-          <ItemTitle>Mailbox settings</ItemTitle>
+          <ItemTitle>345 kV substation, 0.8 mi east</ItemTitle>
         </ItemContent>
       </Item>
       <Item size="xs">
         <ItemContent>
-          <ItemTitle>Shared iMessage Line: Enabled</ItemTitle>
+          <ItemTitle>Queue position: open</ItemTitle>
         </ItemContent>
       </Item>
     </div>

@@ -1,38 +1,34 @@
-import { CheckIcon } from "@phosphor-icons/react/ssr";
-
-import { Bubble, BubbleContent, BubbleGroup } from "@/components/ui/bubble";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import { Diamond } from "@/components/ui/diamond";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageGroup, MessageHeader } from "@/components/ui/message";
 
 export function Preview() {
   return (
     <MessageGroup className="mx-auto w-full max-w-140">
-      <Message>
-        <MessageAvatar>R</MessageAvatar>
-        <MessageContent>
-          <MessageHeader>
-            Ray Liao <time dateTime="2026-08-08T19:16">7:16 PM</time>
-          </MessageHeader>
-          <BubbleGroup>
-            <Bubble variant="secondary">
-              <BubbleContent>Can your agent publish its Agent Card?</BubbleContent>
-            </Bubble>
-            <Bubble variant="secondary">
-              <BubbleContent>Then other organizations can find it and delegate to it.</BubbleContent>
-            </Bubble>
-          </BubbleGroup>
-        </MessageContent>
-      </Message>
       <Message align="end">
         <MessageAvatar>A</MessageAvatar>
         <MessageContent>
           <MessageHeader>
-            @acme <time dateTime="2026-08-08T19:18">7:18 PM</time>
+            You <time dateTime="2026-10-28T16:12">4:12 PM</time>
           </MessageHeader>
           <Bubble align="end">
-            <BubbleContent>Done. It is listed in the public directory now.</BubbleContent>
+            <BubbleContent>Check flood risk and terrain for this parcel.</BubbleContent>
+          </Bubble>
+        </MessageContent>
+      </Message>
+      <Message>
+        <MessageAvatar className="bg-inverse text-fg-inverse">
+          <Diamond size={14} />
+        </MessageAvatar>
+        <MessageContent>
+          <MessageHeader>
+            Mireye <time dateTime="2026-10-28T16:12">4:12 PM</time>
+          </MessageHeader>
+          <Bubble variant="ghost">
+            <BubbleContent>The parcel is in Zone X, outside the 100-year flood plain. It sits at 412 ft with a 2.8% average slope.</BubbleContent>
           </Bubble>
           <MessageFooter>
-            <CheckIcon weight="bold" /> Delivered
+            <Diamond size={8} variant="outline" /> Cited 3 sources
           </MessageFooter>
         </MessageContent>
       </Message>
@@ -40,19 +36,16 @@ export function Preview() {
   );
 }
 
-export function AgentOutput() {
+export function Replies() {
   return (
     <Message className="mx-auto max-w-140">
-      <MessageAvatar>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/octopus.png" alt="" className="bg-subtle" />
-      </MessageAvatar>
+      <MessageAvatar>A</MessageAvatar>
       <MessageContent>
         <MessageHeader>
-          test-agent <time dateTime="2026-08-08T19:20">7:20 PM</time>
+          Acme Energy <time dateTime="2026-10-28T16:20">4:20 PM</time>
         </MessageHeader>
-        <Bubble variant="ghost">
-          <BubbleContent>I sent the first email from test-agent-233@inkboxmail.com and saved my identity for future sessions. The tunnel at test-agent-233.inkboxwire.com is idle until a request arrives.</BubbleContent>
+        <Bubble variant="secondary">
+          <BubbleContent>Add the Navarro sites to the shortlist too.</BubbleContent>
         </Bubble>
       </MessageContent>
     </Message>

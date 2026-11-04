@@ -56,6 +56,8 @@ export function Diamond({
           fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          // The box renders at the product scale (0.6 of Figma); the line stays 1px, as every Mireye line is.
+          vectorEffect="non-scaling-stroke"
         />
       )}
     </svg>

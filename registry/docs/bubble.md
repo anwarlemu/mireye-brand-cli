@@ -3,8 +3,8 @@ name: bubble
 title: Bubble
 type: ui
 surface: site
-description: "A message bubble: incoming on the lilac, outgoing in the action purple, 16px corners with a 4px tail corner."
-use_for: "Use inside Message for each piece of a conversation with an agent or a contact. Use the default (purple) variant with align end for what the person or their agent sent, secondary (lilac) for what arrived, tinted for another agent over Agent2Agent, muted for a system note, outline for a quoted message and destructive for one that failed to send. Stack consecutive bubbles in a BubbleGroup so only the last keeps the tail. BubbleReactions pins reactions to an edge."
-never: [Bubbles in colors outside the palette, An entrance animation on each bubble, Text smaller than 14px, Square corners]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): iMessage and the inbox, in the action purple and the lilac"
+description: "A message in the Figma cut frame: white with the 1px Stone line and the 8px chamfer, Fog for replies, Mist for system notes, Forest when one must lead, or plain text for the agent's answer."
+use_for: "Use inside Message for each piece of a conversation with the agent. Use the default white frame with align end for what the person asked, ghost for the agent's answer (it reads like a report), secondary for a short reply or a note from another agent, muted for a system note and destructive for a question that failed. Stack consecutive bubbles in a BubbleGroup. BubbleReactions pins a short tag (2 sources) to an edge."
+never: [Rounded corners or tails, Shadows, A cut corner anywhere but the top-left, An entrance animation on each bubble, Text smaller than 13px]
+source: "Figma UI · Agent chat (443:433): Message, at the product scale"
 ---

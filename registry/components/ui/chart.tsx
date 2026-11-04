@@ -4,11 +4,13 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-// Charts drawn in SVG (extrapolated from the Inkbox console, Figma 427:2715: its 12px muted labels, lilac rules, white
-// floating panels and the purple, pink, blue, teal and green of its states). ChartContainer takes a config that names
-// and colors each series (series-1 purple, then pink, avatar blue, info teal, success green) and holds the chart, its
-// tooltip and its legend. Lines draw in from the left and bars rise from the axis once, on mount (700ms and 400ms, the
-// strong ease-out); with reduced motion they fade in. Hovering or moving with the arrow keys shows the tooltip.
+// Charts drawn in SVG, in Mireye's survey-sheet look: 1px lines everywhere (series, grid, axis), square ends, flat
+// fills and no gradients or shadows. ChartContainer takes a config that names and colors each series; the colors
+// default to the chart series tokens (Forest, Fern, Lichen, Clay, Bark). The grid is solid Mist with a Stone baseline,
+// labels are 12px Forest at 72% with tabular figures, points are 6px diamonds, bars are square. Lines and areas draw
+// in from the left at a constant speed once, on mount (ds-draw, 600ms, linear, like a plotter); bars rise from the
+// axis (400ms, the strong ease-out). Under reduced motion they appear at once. Hovering or moving with the arrow keys
+// shows the tooltip, a white cut-frame panel.
 
 export type ChartConfig = Record<string, { label?: React.ReactNode; icon?: React.ComponentType<{ className?: string }>; color?: string }>;
 
@@ -164,7 +166,7 @@ function Frame({ kind, props, geometry, children }: { kind: "line" | "area" | "b
           role="img"
           tabIndex={0}
           aria-label={props["aria-label"] ?? "Chart"}
-          className="block overflow-visible rounded-control outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="block overflow-visible outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
           onPointerMove={(e) => activate(pick(e.clientX, e.currentTarget.getBoundingClientRect()))}
           onPointerLeave={() => chart.setActive(null)}
           onBlur={() => chart.setActive(null)}
@@ -176,17 +178,17 @@ function Frame({ kind, props, geometry, children }: { kind: "line" | "area" | "b
             activate(Math.min(data.length - 1, Math.max(0, current + (e.key === "ArrowRight" ? 1 : -1))));
           }}
         >
-          {showGrid && ticks.map((t) => <line key={t} x1={left} x2={left + innerW} y1={yAt(t)} y2={yAt(t)} className="stroke-line-subtle" strokeWidth={1} strokeDasharray={t === 0 ? undefined : "3 3"} />)}
+          {showGrid && ticks.map((t) => <line key={t} x1={left} x2={left + innerW} y1={yAt(t)} y2={yAt(t)} className={t === 0 ? "stroke-line" : "stroke-line-subtle"} strokeWidth={1} shapeRendering="crispEdges" />)}
           {showYAxis && ticks.map((t) => (
-            <text key={t} x={left - 8} y={yAt(t)} dy="0.32em" textAnchor="end" className="fill-fg-muted text-caption">
+            <text key={t} x={left - 8} y={yAt(t)} dy="0.32em" textAnchor="end" className="fill-fg-muted text-caption tabular-nums">
               {valueFormatter(t)}
             </text>
           ))}
-          {chart.active && kind !== "bar" && <line x1={xAt(chart.active.index)} x2={xAt(chart.active.index)} y1={PAD.top} y2={PAD.top + innerH} className="stroke-line-field" strokeWidth={1} />}
-          {chart.active && kind === "bar" && <rect x={xAt(chart.active.index) - band / 2} y={PAD.top} width={band} height={innerH} rx={6} className="fill-subtle" />}
+          {chart.active && kind !== "bar" && <line x1={xAt(chart.active.index)} x2={xAt(chart.active.index)} y1={PAD.top} y2={PAD.top + innerH} className="stroke-line" strokeWidth={1} shapeRendering="crispEdges" />}
+          {chart.active && kind === "bar" && <rect x={xAt(chart.active.index) - band / 2} y={PAD.top} width={band} height={innerH} className="fill-subtle" />}
           {children}
           {showXAxis && data.map((d, i) => (i % labelStep === 0 ? (
-            <text key={i} x={xAt(i)} y={PAD.top + innerH + 18} textAnchor="middle" className="fill-fg-muted text-caption">
+            <text key={i} x={xAt(i)} y={PAD.top + innerH + 18} textAnchor="middle" className="fill-fg-muted text-caption tabular-nums">
               {tickFormatter(String(d[index]))}
             </text>
           ) : null))}
@@ -206,8 +208,8 @@ function LineChart(props: CartesianProps & { curve?: "monotone" | "linear"; dots
         const points = props.data.map((d, n) => [g.xAt(n), g.yAt(Number(d[key] ?? 0))] as [number, number]);
         return (
           <g key={key} data-series={key}>
-            <path d={pathOf(points, curve)} fill="none" stroke={colorOf(g.chart.config, key, i)} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray="1 1" className="animate-chart-line" />
-            {(dots || g.chart.active) && points.map(([x, y], n) => (dots || g.chart.active?.index === n ? <circle key={n} cx={x} cy={y} r={g.chart.active?.index === n ? 4 : 3} fill="var(--ds-color-bg-default)" stroke={colorOf(g.chart.config, key, i)} strokeWidth={2} /> : null))}
+            <path d={pathOf(points, curve)} fill="none" stroke={colorOf(g.chart.config, key, i)} strokeWidth={1} strokeLinejoin="round" className="motion-safe:animate-[ds-draw_600ms_linear_both]" />
+            {(dots || g.chart.active) && points.map(([x, y], n) => (dots || g.chart.active?.index === n ? <rect key={n} x={x - 3} y={y - 3} width={6} height={6} transform={`rotate(45 ${x} ${y})`} fill={g.chart.active?.index === n ? colorOf(g.chart.config, key, i) : "var(--ds-color-bg-default)"} stroke={colorOf(g.chart.config, key, i)} strokeWidth={1} /> : null))}
           </g>
         );
       })}
@@ -219,17 +221,8 @@ function AreaChart(props: CartesianProps & { curve?: "monotone" | "linear"; stac
   const { curve = "monotone", stacked = false } = props;
   const g = useCartesian("area", props, stacked);
   const base = props.data.map(() => 0);
-  const id = React.useId().replace(/:/g, "");
   return (
     <Frame kind="area" props={props} geometry={g}>
-      <defs>
-        {g.visible.map((key) => (
-          <linearGradient key={key} id={`${id}-${key}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={colorOf(g.chart.config, key, g.keys.indexOf(key))} stopOpacity={0.32} />
-            <stop offset="100%" stopColor={colorOf(g.chart.config, key, g.keys.indexOf(key))} stopOpacity={0.02} />
-          </linearGradient>
-        ))}
-      </defs>
       {g.visible.map((key) => {
         const i = g.keys.indexOf(key);
         const lows = stacked ? [...base] : props.data.map(() => 0);
@@ -240,9 +233,9 @@ function AreaChart(props: CartesianProps & { curve?: "monotone" | "linear"; stac
         const line = pathOf(top, curve);
         const area = `${line}L${bottom.map(([x, y]) => `${x},${y}`).join("L")}Z`;
         return (
-          <g key={key} data-series={key}>
-            <path d={area} fill={`url(#${id}-${key})`} className="animate-fade-in" />
-            <path d={line} fill="none" stroke={colorOf(g.chart.config, key, i)} strokeWidth={2} strokeLinecap="round" pathLength={1} strokeDasharray="1 1" className="animate-chart-line" />
+          <g key={key} data-series={key} className="motion-safe:animate-[ds-draw_600ms_linear_both]">
+            <path d={area} fill={colorOf(g.chart.config, key, i)} fillOpacity={0.14} />
+            <path d={line} fill="none" stroke={colorOf(g.chart.config, key, i)} strokeWidth={1} strokeLinejoin="round" />
           </g>
         );
       })}
@@ -251,7 +244,7 @@ function AreaChart(props: CartesianProps & { curve?: "monotone" | "linear"; stac
 }
 
 function BarChart(props: CartesianProps & { stacked?: boolean; radius?: number }) {
-  const { stacked = false, radius = 4 } = props;
+  const { stacked = false, radius = 0 } = props;
   const g = useCartesian("bar", props, stacked);
   const gap = 4;
   const groupW = Math.max(0, g.band * 0.72);
@@ -279,7 +272,7 @@ function BarChart(props: CartesianProps & { stacked?: boolean; radius?: number }
                   rx={top ? Math.min(radius, barW / 2) : 0}
                   fill={colorOf(g.chart.config, key, g.keys.indexOf(key))}
                   style={{ transformOrigin: `0 ${g.yAt(0)}px`, animationDelay: `${n * 30}ms` }}
-                  className="animate-chart-bar"
+                  className="motion-safe:animate-chart-bar"
                 />
               );
             })}
@@ -304,7 +297,7 @@ function PieChart({ data, index, value, innerRadius = 0.6, className, ...props }
   return (
     <div ref={ref} className={cn("relative h-full min-h-0 w-full flex-1", className)}>
       {r > 0 && (
-        <svg width={size.width} height={size.height} role="img" aria-label={props["aria-label"] ?? "Chart"} className="block animate-pop-in origin-center" onPointerLeave={() => chart.setActive(null)}>
+        <svg width={size.width} height={size.height} role="img" aria-label={props["aria-label"] ?? "Chart"} className="block origin-center motion-safe:animate-pop-in" onPointerLeave={() => chart.setActive(null)}>
           {shown.map((d) => {
             const key = String(d[index]);
             const n = data.indexOf(d);
@@ -325,7 +318,7 @@ function PieChart({ data, index, value, innerRadius = 0.6, className, ...props }
                 fillRule="evenodd"
                 fill={colorOf(chart.config, key, n)}
                 stroke="var(--ds-color-bg-default)"
-                strokeWidth={2}
+                strokeWidth={1}
                 className={cn("transition-opacity duration-150 ease-out", chart.active && chart.active.index !== n && "opacity-60")}
                 onPointerMove={(e) => {
                   const rect = e.currentTarget.ownerSVGElement!.getBoundingClientRect();
@@ -375,18 +368,18 @@ type ChartTooltipContentProps = React.ComponentProps<"div"> & {
   formatter?: (value: number, name: React.ReactNode, key: string) => React.ReactNode;
 };
 
-/** The tooltip's panel: white, 16px corners, the floating shadow, the label in 13px medium ink, a row per series. */
+/** The tooltip's panel: the white cut frame with the 1px Stone line, the label in 12px medium Forest, a row per series. */
 function ChartTooltipContent({ payload = [], label, indicator = "dot", hideLabel = false, hideIndicator = false, labelFormatter, formatter, className, ...props }: ChartTooltipContentProps) {
   return (
-    <div data-slot="chart-tooltip-content" className={cn("grid min-w-32 gap-1.5 rounded-panel bg-surface px-3 py-2 text-caption leading-tight text-fg shadow-floating", className)} {...props}>
-      {!hideLabel && label !== undefined && <p className="text-body-sm font-medium text-fg">{labelFormatter ? labelFormatter(label) : label}</p>}
+    <div data-slot="chart-tooltip-content" className={cn("ds-cut-frame grid min-w-32 gap-1.5 px-3 py-2 text-caption leading-tight text-fg [--ds-cut:var(--ds-cut-sm)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]", className)} {...props}>
+      {!hideLabel && label !== undefined && <p className="text-caption font-medium text-fg">{labelFormatter ? labelFormatter(label) : label}</p>}
       <div className="grid gap-1">
         {payload.map((item) => (
           <div key={item.key} className="flex items-center gap-2">
             {!hideIndicator && (
               <span
                 aria-hidden
-                className={cn("shrink-0", indicator === "dot" ? "size-2.5 rounded-xs" : "h-3 w-1 rounded-xs", indicator === "dashed" && "border border-dashed bg-transparent")}
+                className={cn("shrink-0", indicator === "dot" ? "size-2" : "h-3 w-px", indicator === "dashed" && "w-1 border border-dashed bg-transparent")}
                 style={indicator === "dashed" ? { borderColor: item.color } : { background: item.color }}
               />
             )}
@@ -421,12 +414,12 @@ function ChartLegendContent({ className, hideIcon = false, interactive = true, .
         const off = chart.hidden.has(key);
         const body = (
           <>
-            {Icon && !hideIcon ? <Icon className="size-3.5" /> : <span aria-hidden className="size-2.5 rounded-xs" style={{ background: colorOf(chart.config, key, i) }} />}
+            {Icon && !hideIcon ? <Icon className="size-3.5" /> : <span aria-hidden className="size-2" style={{ background: colorOf(chart.config, key, i) }} />}
             {item?.label ?? key}
           </>
         );
         return interactive ? (
-          <button key={key} type="button" aria-pressed={!off} onClick={() => chart.toggle(key)} className={cn("inline-flex items-center gap-1.5 rounded-pill text-caption leading-tight text-fg-secondary outline-none transition-opacity duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring motion-reduce:transition-none", off && "opacity-40")}>
+          <button key={key} type="button" aria-pressed={!off} onClick={() => chart.toggle(key)} className={cn("inline-flex cursor-pointer items-center gap-1.5 text-caption leading-tight text-fg-secondary outline-none transition-opacity duration-150 ease-out focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none", off && "opacity-40")}>
             {body}
           </button>
         ) : (

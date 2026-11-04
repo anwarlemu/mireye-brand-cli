@@ -1,127 +1,104 @@
-import { ArrowsClockwiseIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
-
-import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-const MAILBOXES = [
-  { address: "acme@inkboxmail.com", agent: "@acme", webhooks: "None", storage: "0%", created: "Jul 27, 2026" },
-  { address: "support@inkboxmail.com", agent: "@support-desk", webhooks: "2", storage: "4%", created: "Jul 29, 2026" },
-  { address: "ops@inkboxmail.com", agent: "@ops-runner", webhooks: "1", storage: "12%", created: "Aug 2, 2026" },
+const SUBSTATIONS = [
+  { name: "Waxahachie North", county: "Ellis", kv: 345, distance: 0.8, queue: "Open" },
+  { name: "Ennis East", county: "Ellis", kv: 138, distance: 2.4, queue: "Open" },
+  { name: "Corsicana", county: "Navarro", kv: 138, distance: 6.1, queue: "Full" },
+  { name: "Kaufman South", county: "Kaufman", kv: 69, distance: 9.7, queue: "Open" },
 ];
 
 export function Preview() {
   return (
-    <div className="grid gap-0">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Email address</TableHead>
-            <TableHead>Agent</TableHead>
-            <TableHead>Webhooks</TableHead>
-            <TableHead>Storage</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="w-12 text-right">
-              <Button variant="ghost" size="icon" aria-label="Refresh mailboxes">
-                <ArrowsClockwiseIcon />
-              </Button>
-            </TableHead>
+    <Table>
+      <TableCaption>Substations within 10 mi of parcel 042-117-09.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Substation</TableHead>
+          <TableHead>County</TableHead>
+          <TableHead className="text-right">Voltage</TableHead>
+          <TableHead className="text-right">Distance</TableHead>
+          <TableHead>Queue</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {SUBSTATIONS.map((s) => (
+          <TableRow key={s.name}>
+            <TableCell>{s.name}</TableCell>
+            <TableCell className="text-fg-secondary">{s.county}</TableCell>
+            <TableCell className="text-right tabular-nums">{s.kv} kV</TableCell>
+            <TableCell className="text-right tabular-nums">{s.distance.toFixed(1)} mi</TableCell>
+            <TableCell>
+              <Badge variant={s.queue === "Open" ? "default" : "secondary"}>{s.queue}</Badge>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {MAILBOXES.map((m) => (
-            <TableRow key={m.address}>
-              <TableCell>{m.address}</TableCell>
-              <TableCell className="text-rose">{m.agent}</TableCell>
-              <TableCell>{m.webhooks}</TableCell>
-              <TableCell>{m.storage}</TableCell>
-              <TableCell>{m.created}</TableCell>
-              <TableCell className="text-right">
-                <Button variant="ghost" size="icon" aria-label={`Edit ${m.address}`}>
-                  <PencilSimpleIcon weight="fill" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Pagination bar className="mt-1">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" aria-disabled />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#" isActive>
-              1
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">2</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
 export function WithFooter() {
   return (
-    <Table>
-      <TableCaption>Usage this billing period.</TableCaption>
+    <Table variant="framed">
       <TableHeader>
         <TableRow>
-          <TableHead>Channel</TableHead>
-          <TableHead>Messages</TableHead>
-          <TableHead className="text-right">Cost</TableHead>
+          <TableHead>Parcel</TableHead>
+          <TableHead>Zoning</TableHead>
+          <TableHead className="text-right">Acres</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell>Email</TableCell>
-          <TableCell>1,204</TableCell>
-          <TableCell className="text-right">$12.04</TableCell>
+          <TableCell className="font-mono text-caption">042-117-09</TableCell>
+          <TableCell>I-2 Industrial</TableCell>
+          <TableCell className="text-right tabular-nums">141.3</TableCell>
         </TableRow>
         <TableRow data-state="selected">
-          <TableCell>Phone</TableCell>
-          <TableCell>86</TableCell>
-          <TableCell className="text-right">$4.30</TableCell>
+          <TableCell className="font-mono text-caption">042-117-10</TableCell>
+          <TableCell>I-2 Industrial</TableCell>
+          <TableCell className="text-right tabular-nums">48.9</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell>iMessage</TableCell>
-          <TableCell>412</TableCell>
-          <TableCell className="text-right">$8.24</TableCell>
+          <TableCell className="font-mono text-caption">042-118-02</TableCell>
+          <TableCell>Agricultural</TableCell>
+          <TableCell className="text-right tabular-nums">22.4</TableCell>
         </TableRow>
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={2}>Total</TableCell>
-          <TableCell className="text-right">$24.58</TableCell>
+          <TableCell colSpan={2}>Assembled site</TableCell>
+          <TableCell className="text-right tabular-nums">212.6</TableCell>
         </TableRow>
       </TableFooter>
     </Table>
   );
 }
 
-/** The console's borderless list table: a clear head over the row line, rows that wash on hover. */
-export function Open() {
+export function Interactive() {
   return (
-    <Table variant="open">
+    <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Email address</TableHead>
-          <TableHead>Agent</TableHead>
-          <TableHead className="text-right">Created</TableHead>
+          <TableHead>Site</TableHead>
+          <TableHead className="text-right">Acres</TableHead>
+          <TableHead className="text-right">Fit</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {MAILBOXES.map((m, i) => (
-          <TableRow key={m.address} data-state={i === 1 ? "selected" : undefined}>
-            <TableCell>{m.address}</TableCell>
-            <TableCell className="text-rose">{m.agent}</TableCell>
-            <TableCell className="text-right">{m.created}</TableCell>
+        {[
+          ["Ellis County site 14", "212.6", "9 of 9"],
+          ["Navarro County site 3", "305.0", "7 of 9"],
+          ["Kaufman County site 8", "198.2", "6 of 9"],
+        ].map(([site, acres, fit]) => (
+          <TableRow key={site} data-interactive="">
+            <TableCell>
+              <a href="#site" className="outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong">
+                {site}
+              </a>
+            </TableCell>
+            <TableCell className="text-right tabular-nums">{acres}</TableCell>
+            <TableCell className="text-right tabular-nums">{fit}</TableCell>
           </TableRow>
         ))}
       </TableBody>

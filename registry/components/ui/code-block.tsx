@@ -5,21 +5,24 @@ import { BracketsCurlyIcon, CheckIcon, CopyIcon } from "@phosphor-icons/react/ss
 
 import { cn } from "@/lib/utils";
 
-// The event catalog's code block (Figma 427:2715, Webhooks: Signature headers, Payload example): 8px corners and the
-// editor's gray edge, a 40px gray head with the language (yellow braces for JSON) and a purple copy glyph, then the
-// off-white body in the system monospace at 14px on 20px lines, line numbers in the editor's teal (the first line's
-// darker), and the Light+ colors: red keys, blue values and braces. Long lines scroll, or wrap with `wrap`.
+// Code in a cut-frame window: a white block with the 1px Stone line and the 8px chamfer at the top-left, a 40px Fog head
+// ruled off in Mist with the file name (12px, Forest at 72%) and a square copy key, then the code in DM Mono at 12px on
+// 20px lines, line numbers in Stone (the first in Forest), and a quiet light theme in the palette: Moss keys, Fern
+// strings, Earth numbers, Slate punctuation. The head's Fog is painted on the frame itself (ds-cut-frame's pattern), so
+// the chamfer stays clean. Long lines scroll, or wrap with `wrap`. The copy key turns into a check for two seconds.
+const HEAD_FILL =
+  "has-data-[slot=code-block-header]:[--ds-shape-pattern:linear-gradient(to_bottom,var(--ds-color-bg-code-head)_0_calc(var(--ds-space-10)-2px),var(--ds-color-border-code)_calc(var(--ds-space-10)-2px)_calc(var(--ds-space-10)-1px),transparent_calc(var(--ds-space-10)-1px))]";
 function CodeBlock({ className, ...props }: React.ComponentProps<"figure">) {
-  return <figure data-slot="code-block" className={cn("group/code-block m-0 flex w-full min-w-0 flex-col overflow-hidden rounded-control border border-line-code bg-code text-code-text", className)} {...props} />;
+  return <figure data-slot="code-block" className={cn("group/code-block ds-cut-frame m-0 flex w-full min-w-0 flex-col text-code-text [--ds-shape-fill:var(--ds-color-bg-code)] [--ds-shape-stroke:var(--ds-color-border-default)]", HEAD_FILL, className)} {...props} />;
 }
 
 function CodeBlockHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="code-block-header" className={cn("flex h-10 min-w-0 shrink-0 items-center gap-2 border-b border-line-code bg-code-head pr-1.5 pl-3", className)} {...props} />;
+  return <div data-slot="code-block-header" className={cn("flex h-10 min-w-0 shrink-0 items-center gap-2 pr-1.5 pl-4", className)} {...props} />;
 }
 
 function CodeBlockTitle({ className, children, language, ...props }: React.ComponentProps<"figcaption"> & { language?: string }) {
   return (
-    <figcaption data-slot="code-block-title" className={cn("flex min-w-0 items-center gap-2 font-sans text-body leading-tight text-code-head-fg [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className)} {...props}>
+    <figcaption data-slot="code-block-title" className={cn("flex min-w-0 items-center gap-2 font-sans text-caption leading-tight text-code-head-fg [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5", className)} {...props}>
       {language === "json" && <BracketsCurlyIcon aria-hidden className="text-code-brace" />}
       <span className="truncate">{children}</span>
     </figcaption>
@@ -46,10 +49,10 @@ function CodeBlockCopyButton({ value, className, ...props }: Omit<React.Componen
         data-copied={state === "copied" || undefined}
         aria-label={state === "copied" ? "Copied" : "Copy code"}
         onClick={() => navigator.clipboard.writeText(value).then(() => setState("copied"), () => setState("failed"))}
-        className={cn("inline-flex size-8 items-center justify-center rounded-pill text-fg-brand outline-none transition-[background-color] duration-150 ease-out hover:bg-surface active:bg-surface active:brightness-95 active:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring motion-reduce:transition-none", className)}
+        className={cn("inline-flex size-7 cursor-pointer items-center justify-center text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-surface active:bg-subtle-hover active:transition-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong motion-reduce:transition-none", className)}
         {...props}
       >
-        {state === "copied" ? <CheckIcon className="size-4.5" weight="bold" /> : <CopyIcon className="size-4.5" weight="duotone" />}
+        {state === "copied" ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
       </button>
       <span aria-live="polite" className="sr-only">
         {state === "copied" ? "Copied" : state === "failed" ? "Copy failed. Select the code and copy it." : ""}
@@ -153,12 +156,12 @@ function CodeBlockContent({ code, language = "tsx", lineNumbers = true, wrap = f
     <pre
       data-slot="code-block-content"
       tabIndex={0}
-      className={cn("m-0 overflow-auto bg-code py-3 font-code text-body leading-5 outline-none [scrollbar-width:thin] [tab-size:2] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring", className)}
+      className={cn("m-0 overflow-auto py-3 font-code text-caption leading-5 outline-none [scrollbar-width:thin] [tab-size:2] focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-line-strong", className)}
       {...props}
     >
       <code className={cn("grid", wrap ? "grid-cols-[minmax(0,1fr)]" : "min-w-max")}>
         {lines.map((line, i) => (
-          <span key={i} className={cn("grid", lineNumbers ? "grid-cols-[3rem_minmax(0,1fr)]" : "grid-cols-[minmax(0,1fr)] pl-4", wrap && "min-w-0")}>
+          <span key={i} className={cn("grid", lineNumbers ? "grid-cols-[2.75rem_minmax(0,1fr)]" : "grid-cols-[minmax(0,1fr)] pl-4", wrap && "min-w-0")}>
             {lineNumbers && (
               <span aria-hidden className={cn("pr-4 text-right select-none", i === 0 ? "text-code-line-active" : "text-code-line")}>
                 {i + 1}

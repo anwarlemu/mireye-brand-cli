@@ -3,48 +3,48 @@ import { cn } from "@/lib/utils";
 import { CopyText } from "@www/components/copy-text";
 
 /**
- * A page's head, as the console opens Vault and Webhooks: the 20px regular title, a 14px muted line under it, and the
- * header rule across the page. Actions sit at the right (Tunnel quickstart).
+ * A page's head on the canvas: an optional framed chip (the section), the 24px regular title, a 13px muted line under
+ * it, at most 720px wide, and a 1px Stone rule under the whole head. Actions sit at the right.
  */
 export function PageHead({ title, description, eyebrow, children }: { title: React.ReactNode; description?: React.ReactNode; eyebrow?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <header className="border-b border-line-subtle px-4 py-4 sm:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <header className="border-b border-line px-4 pt-8 pb-6 sm:px-12">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          {eyebrow && <p className="mb-1 text-body-sm leading-tight text-fg-label">{eyebrow}</p>}
-          <h1 className="text-h3 leading-heading font-normal text-fg">{title}</h1>
-          {description && <p className="mt-0.5 max-w-180 text-body leading-body text-fg-muted">{description}</p>}
+          {eyebrow && <p className="mb-3 inline-flex h-5 items-center border border-line px-1.5 text-caption leading-none text-fg-secondary">{eyebrow}</p>}
+          <h1 className="text-h1 leading-heading font-normal text-fg">{title}</h1>
+          {description && <p className="mt-1.5 max-w-180 text-body leading-body text-fg-muted">{description}</p>}
         </div>
-        {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
+        {children && <div className="flex shrink-0 items-center gap-3">{children}</div>}
       </div>
     </header>
   );
 }
 
-/** The page's body, with the console's 24px sides. */
+/** The page's body, 48px in from the rail on a desktop, 16px on a phone. */
 export function PageBody({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={cn("grid gap-10 px-4 py-6 sm:px-6", className)}>{children}</div>;
+  return <div className={cn("grid gap-10 px-4 pt-8 pb-16 sm:px-12", className)}>{children}</div>;
 }
 
-/** A titled block of a page (Signature headers, Payload example): a 14px label over its content. */
+/** A titled block of a page: a 16px regular title, a 13px muted line, then its content 16px below. */
 export function Section({ id, title, description, children }: { id?: string; title: string; description?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section id={id} className="grid min-w-0 scroll-mt-6 gap-3">
-      <div>
-        <h2 className="text-h4 leading-body font-medium text-fg">{title}</h2>
-        {description && <p className="text-body text-fg-muted">{description}</p>}
+    <section id={id} className="grid min-w-0 scroll-mt-6 gap-4">
+      <div className="grid gap-1">
+        <h2 className="text-h3 leading-heading font-normal text-fg">{title}</h2>
+        {description && <p className="max-w-180 text-body leading-body text-fg-muted">{description}</p>}
       </div>
       {children}
     </section>
   );
 }
 
-/** A shell command in the tunnel's copy box: the lilac well, the value in IBM Plex Mono, a purple copy glyph. */
+/** A shell command in a cut-frame window: "$" and the command in DM Mono, the copy key at the right. */
 export function Command({ command, className }: { command: string; className?: string }) {
   return <CopyText value={command} label="Copy command" className={className} />;
 }
 
-/** Code in the event catalog's code block, with its file name in the head. */
+/** Code in the library's code block, with its file name in the head. */
 export function Code({ code, title, lang = "tsx", tall = false, className }: { code: string; title?: string; lang?: string; tall?: boolean; className?: string }) {
   const text = code.trim();
   return (

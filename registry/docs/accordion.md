@@ -3,8 +3,8 @@ name: accordion
 title: Accordion
 type: ui
 surface: site
-description: "Sections that open in place: 14px ink labels with a 16px bold caret at the right, ruled by the faint lilac line."
-use_for: "Use for settings or answers people open one at a time (advanced options, FAQs). Pass type=\"single\" collapsible for one open at a time, type=\"multiple\" for several. Keep the label a short phrase; the content is 14px secondary text or a group of fields."
-never: [Bold or purple trigger labels, A chevron at the left, Boxing each item in a card, Opening animation longer than 200ms]
-source: "Figma 427:2715: Create Agent Identity (Advanced settings - tunnel mode, phone state, line sharing)"
+description: "Sections that open in place: 13px Forest labels ruled by 1px Mist lines, with Mireye's chevron at the right that turns when open."
+use_for: "Use for details people open one at a time (how a check works, the layers behind a value) or for groups of a site's facts. Pass type=\"single\" collapsible for one open at a time, type=\"multiple\" for several. Keep the label a short phrase; the content is 13px secondary text, values or fields."
+never: [Boxing each item in a card, A chevron at the left, Bold labels, A chevron that moves on hover, Opening animation longer than 200ms]
+source: "Not in Figma: Mist rules from Cited fields (443:470) and the arrow head from UI · Buttons (442:3), for a designer's review"
 ---

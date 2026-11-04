@@ -3,8 +3,8 @@ name: sidebar
 title: Sidebar
 type: ui
 surface: site
-description: "The console's rail on the lilac: the lockup, 36px pill rows with 18px filled glyphs and medium labels in the secondary purple, purple group labels, a red unread count and a ruled foot; the second rail for an agent's workspace."
-use_for: "Use for an app's main navigation. Wrap the app in SidebarProvider; put the lockup in SidebarHeader, groups of SidebarMenuButton rows (isActive on the current page, a filled Phosphor glyph first) in SidebarContent, and Help, the organization (SidebarMenuBadge with ADMIN) and the account in SidebarFooter; an unread number is SidebarMenuBadge variant count. The page goes in SidebarInset, under a page head (a 20px regular title, a muted line, actions at the right, a hairline below). Use variant secondary for a second rail beside it (an agent's workspace), collapsible icon to let it narrow to its glyphs (rows then show their tooltip), and SidebarTrigger or Cmd B to toggle. On phones it opens in a sheet."
-never: [A dark or purple rail, Line glyphs in the rows, Bold or purple row labels, A purple pill for the current row, Animating the rail when the keyboard shortcut toggles it]
-source: "Console src/components/layout (sidebar-metrics.ts, sidebar-nav-button.tsx, left-menu-panel.tsx, page-head.tsx)"
+description: "The app's rail: 212px of white with a 1px Stone edge, square 32px rows (Fog under the pointer, Mist when current), group labels as 1px-framed chips, a Forest count; it folds to glyphs, slides away or opens as a sheet on phones."
+use_for: "Use for an app's main navigation beside the canvas (Ask, Map, Saved sites, Reports, then labelled groups such as Layers). Wrap the app in SidebarProvider; put the lockup in SidebarHeader, groups of SidebarMenuItem in SidebarContent and Help and the account in SidebarFooter. Mark the current row with isActive. Use collapsible=\"icon\" to fold to glyphs (give each row a tooltip), variant=\"secondary\" for a second rail of projects on the canvas, and SidebarMenuBadge for a count or a short mark."
+never: [Rounded or pill rows, Filled or bold glyphs, Coloured rows, Icons that move on hover, A rail wider than 212px, Shadows]
+source: "Mireye docs site spec (the 212px white rail, square rows, framed group chips) and the rail's Fog hover and Mist current, for a designer's review"
 ---

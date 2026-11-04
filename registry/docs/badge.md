@@ -3,8 +3,8 @@ name: badge
 title: Badge
 type: ui
 surface: site
-description: "28px pills with 12px medium labels on light fills (green, red, blue, purple, gray, yellow), the pink plan mark, the green Included pill, the red unread count and the tunnel's status wells."
-use_for: "Use green, red, blue, purple, gray or yellow for a status or tag (Active, Failed, Email, Signed, Draft, Pending). Use pink for a feature or role mark beside a label (BETA, ADMIN), success size lg with a filled check-circle for something granted (Included), count for an unread number, and size well for a status reading (Active on green, Idle on gray, Edge on blue). Default (purple) and destructive are for counts and errors."
-never: [Caps typed with CSS, A badge as a button, More than three badges in a row, Saturated fills behind text, Regular-weight badge labels]
-source: "Console Badge theme and the rail's notification count; Figma 427:2715: the rail (BETA, ADMIN), Create Agent Identity (Included), Tunnel (Active, Idle, Edge)"
+description: "Square 24px tags and statuses: Fog data tags for site values, the Forest inverse tag, and the white status pill led by a diamond (Verified, Loading, Queued)."
+use_for: "Use the default Fog tag for a value that describes a site (345 kV, 41.2 ac, Zone X, I-2 Industrial). Use variant=\"outline\" with a BadgeMark for a record's state: state=\"verified\" (solid diamond), \"loading\" (three bars) or \"queued\" (outlined diamond). Use inverse for a tag on a map or photo, count for a small number beside a label, and success, warning or destructive only when the colour carries a verdict (Passes, Partial data, In a flood zone)."
+never: [Rounded or pill corners, A cut corner on a badge, A badge as a button, More than one inverse badge in a row, Status colour without a word, Bold labels]
+source: "Figma UI · Status and tags (442:177): Status 442:187, 442:192, 442:197; Tags 442:202, 442:205, 442:208, 442:211"
 ---

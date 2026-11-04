@@ -7,10 +7,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
-// A row of content (Figma 427:2715): an email in the inbox list (sender and date over the subject and a purple preview),
-// a webhook event (a tag and an arrow over the event name and a purple count), a rail row (a 22px filled glyph and a
-// 14px label, 38px tall at size sm). `default` is bare and takes the hover wash under the pointer (100ms, as the
-// console's list rows do); a selected item (aria-current or data-selected) sits on the lilac with 12px corners. `outline` takes the field edge, `muted` the lilac.
+// A row of content: a site in a result list (name and coordinates over its tags), a source behind an answer, a row in
+// a rail. `default` is bare; a row that is a link or button fills with Fog under the pointer and Mist when pressed
+// (150ms), and a current one (aria-current or data-selected) sits on Mist, the rail's current row. `outline` is a
+// white row in the 1px Stone line; `muted` is Fog. Square throughout; nothing moves.
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return <div role="list" data-slot="item-group" className={cn("group/item-group flex flex-col", className)} {...props} />;
 }
@@ -20,17 +20,17 @@ function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Sepa
 }
 
 const itemVariants = cva(
-  "group/item flex flex-wrap items-center rounded-control border border-transparent font-sans text-body leading-body text-fg outline-none transition-[background-color] duration-fast ease-out focus-visible:shadow-focus aria-[current=page]:bg-subtle aria-[current=true]:bg-subtle data-[selected=true]:bg-subtle motion-reduce:transition-none [a]:hover:bg-wash-hover [button]:hover:bg-wash-hover aria-[current=page]:hover:bg-subtle aria-[current=true]:hover:bg-subtle data-[selected=true]:hover:bg-subtle",
+  "group/item flex flex-wrap items-center border border-transparent font-sans text-body leading-body text-fg outline-none transition-[background-color] duration-fast ease-out focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none [a]:hover:bg-subtle [button]:hover:bg-subtle [a]:active:bg-subtle-hover [button]:active:bg-subtle-hover aria-[current=page]:bg-subtle-hover aria-[current=true]:bg-subtle-hover data-[selected=true]:bg-subtle-hover aria-[current=page]:hover:bg-subtle-hover aria-[current=true]:hover:bg-subtle-hover data-[selected=true]:hover:bg-subtle-hover",
   {
     variants: {
       variant: {
         default: "bg-transparent",
-        outline: "border-line-field bg-surface",
+        outline: "border-line bg-surface",
         muted: "bg-subtle [a]:hover:bg-subtle-hover [button]:hover:bg-subtle-hover",
       },
       size: {
         default: "gap-3 p-3",
-        sm: "min-h-9.5 gap-2.5 px-3 py-1.5",
+        sm: "min-h-9 gap-2.5 px-3 py-1.5",
         xs: "gap-2 px-2 py-1",
       },
     },
@@ -49,8 +49,8 @@ const itemMediaVariants = cva("flex shrink-0 items-center justify-center gap-2 g
   variants: {
     variant: {
       default: "bg-transparent",
-      icon: "text-icon-default [&_svg:not([class*='size-'])]:size-6",
-      image: "size-10 overflow-hidden rounded-pill [&_img]:size-full [&_img]:object-cover",
+      icon: "text-fg [&_svg:not([class*='size-'])]:size-4",
+      image: "h-9 w-12 overflow-hidden bg-subtle [&_img]:size-full [&_img]:object-cover",
     },
   },
   defaultVariants: { variant: "default" },
@@ -68,16 +68,16 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="item-title" className={cn("flex w-fit min-w-0 items-center gap-2 text-body leading-tight text-fg", className)} {...props} />;
 }
 
-/** The purple line under a title (a preview, a count), clamped to two lines. */
+/** The muted line under a title (coordinates, a count, a source), clamped to two lines. */
 function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p data-slot="item-description" className={cn("line-clamp-2 text-body leading-tight font-normal text-balance text-fg-brand [&>a]:underline [&>a]:underline-offset-4", className)} {...props} />;
+  return <p data-slot="item-description" className={cn("line-clamp-2 text-caption leading-tight font-normal text-balance text-fg-muted [&>a]:underline [&>a]:underline-offset-4", className)} {...props} />;
 }
 
 function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="item-actions" className={cn("flex items-center gap-1", className)} {...props} />;
 }
 
-/** The top line of an item: what it is at the left (sender, tag), when or where at the right (date, arrow). */
+/** The top line of an item: what it is at the left (a tag, a county), when or where at the right (a date, a distance). */
 function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="item-header" className={cn("flex basis-full items-center justify-between gap-2 text-body leading-tight", className)} {...props} />;
 }

@@ -3,8 +3,8 @@ name: marker
 title: Marker
 type: ui
 surface: site
-description: "A 12px muted marker in a conversation or list, alone, between two hairlines, ruled underneath, or as the purple unread line."
-use_for: "Mark where a day begins (separator, \"Yesterday\"), where unread messages start (unread), or an event in a thread (default with a MarkerIcon, \"Ray joined the conversation\"). Use border to head a short list."
-never: [Markers larger than 12px, A colored pill around a date, More than one unread line]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): the inbox dates (muted) and the rail rules"
+description: "A 12px muted note in a conversation or list: a date between Mist rules, an event with a glyph, or the Forest line where new results begin."
+use_for: "Use between messages or rows to mark time (Yesterday, Oct 28), a change the agent made (Search widened to 25 mi), or where new results start (variant unread). Keep it one short line; links inside are underlined."
+never: [Coloured markers, Markers as headings, Bold text, More than one unread marker in a list]
+source: "Not in Figma: Mist and Forest rules from Cited fields (443:470), for a designer's review"
 ---

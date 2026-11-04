@@ -1,14 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { ArrowDownIcon, ArrowUpIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // A conversation's scroll area. It opens at the newest message and stays pinned there while new messages arrive, until
-// the reader scrolls up; then a white "Jump to latest" pill with Shadow/S appears at the bottom center. The pill only
-// fades (200ms, the strong ease-out): it shows while someone is reading, and sliding would pull the eye off the text.
+// the reader scrolls up; then a white "Jump to latest" key with the 1px Stone line appears at the bottom center, square
+// and without a shadow, its arrow pointing down. The key only fades (200ms, the strong ease-out): it shows while someone
+// is reading, and sliding would pull the eye off the text.
 // The jump scrolls smoothly, or instantly with reduced motion.
 
 type ScrollOptions = { behavior?: ScrollBehavior };
@@ -151,7 +152,7 @@ function MessageScrollerViewport({ className, onScroll, ...props }: React.Compon
         update();
         onScroll?.(event);
       }}
-      className={cn("size-full min-h-0 min-w-0 overflow-y-auto overscroll-contain outline-none [scrollbar-gutter:stable] [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring", className)}
+      className={cn("size-full min-h-0 min-w-0 overflow-y-auto overscroll-contain outline-none [scrollbar-gutter:stable] [scrollbar-width:thin] focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong", className)}
       {...props}
     />
   );
@@ -177,7 +178,7 @@ function MessageScrollerItem({ className, scrollAnchor = false, ...props }: Reac
   return <div ref={ref} data-slot="message-scroller-item" data-scroll-anchor={scrollAnchor || undefined} className={cn("min-w-0 shrink-0", className)} {...props} />;
 }
 
-function MessageScrollerButton({ direction = "end", className, children, variant = "secondary", size = "sm", onClick, ...props }: React.ComponentProps<typeof Button> & { direction?: "start" | "end" }) {
+function MessageScrollerButton({ direction = "end", className, children, variant = "outline", size = "sm", onClick, ...props }: React.ComponentProps<typeof Button> & { direction?: "start" | "end" }) {
   const { isAtStart, isAtEnd, scrollable, scrollToEnd, scrollToStart } = useScrollerContext("MessageScrollerButton");
   const active = scrollable && (direction === "end" ? !isAtEnd : !isAtStart);
   return (
@@ -194,14 +195,14 @@ function MessageScrollerButton({ direction = "end", className, children, variant
         if (!event.defaultPrevented) (direction === "end" ? scrollToEnd : scrollToStart)();
       }}
       className={cn(
-        "absolute left-1/2 z-10 -translate-x-1/2 gap-1.5 bg-surface px-3.5 text-body shadow-floating transition-[opacity,background-color] duration-200 ease-out hover:bg-subtle data-[active=false]:pointer-events-none data-[active=false]:opacity-0 data-[direction=end]:bottom-4 data-[direction=start]:top-4 [&_svg:not([class*='size-'])]:size-4",
+        "absolute left-1/2 z-10 -translate-x-1/2 gap-2 px-3 text-body transition-[opacity,background-color] duration-200 ease-out data-[active=false]:pointer-events-none data-[active=false]:opacity-0 data-[direction=end]:bottom-4 data-[direction=start]:top-4 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
     >
       {children ?? (
         <>
-          {direction === "end" ? <ArrowDownIcon weight="bold" /> : <ArrowUpIcon weight="bold" />}
+          <ArrowRightIcon size={16} aria-hidden className={direction === "end" ? "rotate-90" : "-rotate-90"} />
           {direction === "end" ? "Jump to latest" : "Jump to first"}
         </>
       )}

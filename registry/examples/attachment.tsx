@@ -1,15 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { ArrowClockwiseIcon, DownloadSimpleIcon, FileCsvIcon, FilePdfIcon, FileTextIcon, ImageIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { ArrowClockwiseIcon, DownloadSimpleIcon, FileCsvIcon, FilePdfIcon, GlobeHemisphereWestIcon, ImageIcon, XIcon } from "@phosphor-icons/react/ssr";
 
 import { Attachment, AttachmentAction, AttachmentActions, AttachmentContent, AttachmentDescription, AttachmentGroup, AttachmentMedia, AttachmentTitle, AttachmentTrigger } from "@/components/ui/attachment";
 
 export function Preview() {
   const [files, setFiles] = React.useState([
-    { name: "invoice-2026-08.pdf", size: "248 KB", icon: FilePdfIcon },
-    { name: "contacts-export.csv", size: "1.2 MB", icon: FileCsvIcon },
-    { name: "agent-card.json", size: "3 KB", icon: FileTextIcon },
+    { name: "site-14-report.pdf", size: "2.4 MB", icon: FilePdfIcon },
+    { name: "ellis-parcels.csv", size: "1.2 MB", icon: FileCsvIcon },
+    { name: "site-boundary.kml", size: "18 KB", icon: GlobeHemisphereWestIcon },
   ]);
   return (
     <AttachmentGroup className="max-w-full">
@@ -17,7 +17,7 @@ export function Preview() {
         <Attachment key={name}>
           <AttachmentTrigger aria-label={`Open ${name}`} />
           <AttachmentMedia>
-            <Icon weight="fill" />
+            <Icon />
           </AttachmentMedia>
           <AttachmentContent>
             <AttachmentTitle>{name}</AttachmentTitle>
@@ -39,32 +39,32 @@ export function States() {
     <div className="flex flex-wrap items-start gap-3">
       <Attachment state="idle">
         <AttachmentMedia>
-          <FileTextIcon weight="fill" />
+          <FileCsvIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>quickstart.md</AttachmentTitle>
+          <AttachmentTitle>buy-box.csv</AttachmentTitle>
           <AttachmentDescription>Waiting</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
       <Attachment state="uploading">
         <AttachmentMedia>
-          <FilePdfIcon weight="fill" />
+          <FilePdfIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>contract-signed.pdf</AttachmentTitle>
+          <AttachmentTitle>site-plan.pdf</AttachmentTitle>
           <AttachmentDescription>62% of 4.8 MB</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
       <Attachment state="error">
         <AttachmentMedia>
-          <FileCsvIcon weight="fill" />
+          <FileCsvIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>leads.csv</AttachmentTitle>
+          <AttachmentTitle>navarro-parcels.csv</AttachmentTitle>
           <AttachmentDescription>Larger than 25 MB</AttachmentDescription>
         </AttachmentContent>
         <AttachmentActions>
-          <AttachmentAction aria-label="Retry leads.csv">
+          <AttachmentAction aria-label="Retry navarro-parcels.csv">
             <ArrowClockwiseIcon />
           </AttachmentAction>
         </AttachmentActions>
@@ -79,25 +79,25 @@ export function Vertical() {
       <Attachment orientation="vertical">
         <AttachmentMedia variant="image">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/octopus.png" alt="" />
+          <img src="/examples/farmland-aerial.jpg" alt="" />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>octopus.png</AttachmentTitle>
-          <AttachmentDescription>94 KB</AttachmentDescription>
+          <AttachmentTitle>aerial-site-14.jpg</AttachmentTitle>
+          <AttachmentDescription>164 KB</AttachmentDescription>
         </AttachmentContent>
         <AttachmentActions>
-          <AttachmentAction aria-label="Download octopus.png">
+          <AttachmentAction aria-label="Download aerial-site-14.jpg">
             <DownloadSimpleIcon />
           </AttachmentAction>
         </AttachmentActions>
       </Attachment>
       <Attachment orientation="vertical" state="processing">
         <AttachmentMedia>
-          <ImageIcon weight="fill" />
+          <ImageIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>screenshot.png</AttachmentTitle>
-          <AttachmentDescription>Scanning</AttachmentDescription>
+          <AttachmentTitle>survey-scan.png</AttachmentTitle>
+          <AttachmentDescription>Reading</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
     </div>
@@ -110,11 +110,11 @@ export function Sizes() {
       {(["default", "sm", "xs"] as const).map((size) => (
         <Attachment key={size} size={size}>
           <AttachmentMedia>
-            <FilePdfIcon weight="fill" />
+            <FilePdfIcon />
           </AttachmentMedia>
           <AttachmentContent>
-            <AttachmentTitle>invoice.pdf</AttachmentTitle>
-            <AttachmentDescription>248 KB</AttachmentDescription>
+            <AttachmentTitle>site-14-report.pdf</AttachmentTitle>
+            <AttachmentDescription>2.4 MB</AttachmentDescription>
           </AttachmentContent>
         </Attachment>
       ))}

@@ -1,17 +1,17 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const TEMPLATES = [
-  { name: "Support desk", text: "Answers inbound email and hands hard cases to a person." },
-  { name: "Scheduler", text: "Books calls over iMessage and confirms by email." },
-  { name: "Researcher", text: "Reads replies and files notes to the shared vault." },
-  { name: "Recruiter", text: "Screens candidates by phone and logs each call." },
-  { name: "Concierge", text: "Greets new contacts and routes them to the right agent." },
+  { name: "Ellis County site 14", text: "212.6 ac, 0.8 mi from a 345 kV substation, Zone X." },
+  { name: "Navarro County site 3", text: "305.0 ac, 2.4 mi from 138 kV, municipal water." },
+  { name: "Kaufman County site 8", text: "198.2 ac, 1.1 mi from 138 kV, rail spur on the east edge." },
+  { name: "Johnson County site 5", text: "241.7 ac, 3.0 mi from 345 kV, I-2 Industrial." },
+  { name: "Hill County site 2", text: "512.0 ac, 4.6 mi from 138 kV, mostly cropland." },
 ];
 
 function Slide({ name, text }: { name: string; text: string }) {
   return (
-    <div className="grid h-36 content-start gap-1 rounded-control border border-line-field bg-surface p-4">
-      <p className="text-body leading-tight font-medium text-fg">{name}</p>
+    <div className="ds-cut-frame grid h-36 content-start gap-1 p-4 [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]">
+      <p className="text-body leading-tight text-fg">{name}</p>
       <p className="text-body leading-body text-fg-muted">{text}</p>
     </div>
   );

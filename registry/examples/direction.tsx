@@ -5,12 +5,12 @@ export function Preview() {
   return (
     <DirectionProvider dir="rtl">
       <div dir="rtl" className="grid gap-3">
-        <p className="text-body text-fg">صندوق البريد</p>
-        <Tabs defaultValue="mailboxes">
+        <p className="text-body text-fg">الموقع ١٤</p>
+        <Tabs defaultValue="parcel">
           <TabsList>
-            <TabsTrigger value="mailboxes">صناديق البريد</TabsTrigger>
-            <TabsTrigger value="rules">قواعد الاتصال</TabsTrigger>
-            <TabsTrigger value="domains">النطاقات</TabsTrigger>
+            <TabsTrigger value="parcel">القطعة</TabsTrigger>
+            <TabsTrigger value="power">الكهرباء</TabsTrigger>
+            <TabsTrigger value="water">المياه</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

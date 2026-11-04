@@ -1,59 +1,54 @@
-import { CheckCircleIcon, InfoIcon, LockIcon, WarningIcon, XCircleIcon } from "@phosphor-icons/react/ssr";
+import { CheckCircleIcon, InfoIcon, WarningIcon, XCircleIcon } from "@phosphor-icons/react/ssr";
 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 export function Preview() {
   return (
-    <Alert variant="muted" className="max-w-200">
-      <LockIcon weight="fill" />
-      <AlertTitle>Initialize vault</AlertTitle>
-      <AlertDescription data-alerts="fill" className="grid gap-2">
-        <p>Create an encrypted vault for your organization. The vault can store login credentials including MFA one-time passwords (OTP), SSH keys, API keys and other secrets for your agents.</p>
-        <Alert variant="info">
-          <InfoIcon weight="fill" />
-          <AlertDescription>The vault is zero-knowledge: all encryption and decryption happens in your browser. The server never sees your secrets.</AlertDescription>
-        </Alert>
-      </AlertDescription>
+    <Alert className="max-w-160">
+      <InfoIcon />
+      <AlertTitle>Values are cited</AlertTitle>
+      <AlertDescription>Every value in a report links to the record it came from: county parcels, the interconnection queue or the elevation model.</AlertDescription>
     </Alert>
   );
 }
 
-export function Info() {
+export function Muted() {
   return (
-    <Alert variant="info" className="max-w-200">
-      <InfoIcon weight="fill" />
-      <AlertDescription>The vault is zero-knowledge: all encryption and decryption happens in your browser. The server never sees your secrets.</AlertDescription>
+    <Alert variant="muted" className="max-w-160">
+      <InfoIcon />
+      <AlertDescription>Parcels under 5 ac are left out of results for this buy box.</AlertDescription>
     </Alert>
   );
 }
 
 export function Warning() {
   return (
-    <Alert variant="warning" className="max-w-180">
-      <WarningIcon weight="fill" />
-      <AlertTitle>Copy this API key now</AlertTitle>
-      <AlertAction>For security, the full key cannot be shown again.</AlertAction>
+    <Alert variant="warning" className="max-w-160">
+      <WarningIcon />
+      <AlertTitle>Partial data for Navarro County</AlertTitle>
+      <AlertDescription>Zoning is not published for 14 of its parcels.</AlertDescription>
+      <AlertAction>Updated Oct 28</AlertAction>
     </Alert>
   );
 }
 
 export function Success() {
   return (
-    <Alert variant="success">
-      <CheckCircleIcon weight="fill" />
-      <AlertTitle>Domain verified</AlertTitle>
-      <AlertDescription>Mail from you@acme.com now sends from your own domain.</AlertDescription>
+    <Alert variant="success" className="max-w-160">
+      <CheckCircleIcon />
+      <AlertTitle>Report ready</AlertTitle>
+      <AlertDescription>Ellis County site 14 meets 9 of 9 requirements.</AlertDescription>
     </Alert>
   );
 }
 
 export function Destructive() {
   return (
-    <Alert variant="destructive" className="max-w-180">
-      <XCircleIcon weight="fill" />
-      <AlertTitle>Webhook delivery failed</AlertTitle>
-      <AlertDescription>https://hooks.example.com/inkbox returned 502 three times. Deliveries are paused until it responds.</AlertDescription>
+    <Alert variant="destructive" className="max-w-160">
+      <XCircleIcon />
+      <AlertTitle>The elevation source did not respond</AlertTitle>
+      <AlertDescription>Slope and elevation are missing from this answer. Try again in a few minutes.</AlertDescription>
       <AlertAction>
         <Button variant="outline" size="sm">Retry</Button>
       </AlertAction>

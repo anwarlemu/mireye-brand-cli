@@ -3,8 +3,8 @@
 import * as React from "react";
 import { AspectRatio as AspectRatioPrimitive } from "radix-ui";
 
-// Holds media at a fixed shape (a screenshot, an attachment preview). The frame takes no style of its own; round and
-// clip the media inside it with the card's 8px corners.
+// Holds media at a fixed shape (an aerial of a parcel, a map tile, a site photo). The frame takes no style of its own;
+// media in Mireye is square-cornered, dimmed with ds-imagery when marks sit on it, and framed by a 1px line if needed.
 function AspectRatio(props: React.ComponentProps<typeof AspectRatioPrimitive.Root>) {
   return <AspectRatioPrimitive.Root data-slot="aspect-ratio" {...props} />;
 }

@@ -2,19 +2,22 @@ import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "@/component
 
 export function Preview() {
   return (
-    <div className="mx-auto flex w-full max-w-120 flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-120 flex-col gap-4">
+      <Bubble align="end">
+        <BubbleContent>Check flood risk and terrain for this parcel.</BubbleContent>
+      </Bubble>
+      <Bubble variant="ghost">
+        <BubbleContent>The parcel is in Zone X, outside the 100-year flood plain. It sits at 412 ft with a 2.8% average slope.</BubbleContent>
+      </Bubble>
       <BubbleGroup>
         <Bubble variant="secondary">
-          <BubbleContent>Hi, can you send me the invoice for August?</BubbleContent>
+          <BubbleContent>Elevation came from the 10 m model.</BubbleContent>
         </Bubble>
         <Bubble variant="secondary">
-          <BubbleContent>The one from acme@inkboxmail.com.</BubbleContent>
+          <BubbleContent>Slope is computed from the same model.</BubbleContent>
+          <BubbleReactions align="start">2 sources</BubbleReactions>
         </Bubble>
       </BubbleGroup>
-      <Bubble align="end">
-        <BubbleContent>Sent it to you just now. It is also in your inbox as invoice-2026-08.pdf.</BubbleContent>
-        <BubbleReactions align="start">👍</BubbleReactions>
-      </Bubble>
     </div>
   );
 }
@@ -22,24 +25,18 @@ export function Preview() {
 export function Variants() {
   return (
     <div className="mx-auto flex w-full max-w-120 flex-col gap-3">
-      <Bubble variant="tinted">
-        <BubbleContent>@ops-agent: I can take the delegated task. Starting now.</BubbleContent>
-      </Bubble>
       <Bubble variant="muted">
-        <BubbleContent>Shared iMessage line connected.</BubbleContent>
+        <BubbleContent>Search widened to 25 mi.</BubbleContent>
       </Bubble>
-      <Bubble variant="outline">
-        <BubbleContent>Quoted: Your agent will be reachable at acme-support.inkboxwire.com</BubbleContent>
+      <Bubble variant="inverse" align="end">
+        <BubbleContent>Shortlist Ellis County site 14.</BubbleContent>
       </Bubble>
       <Bubble variant="destructive" align="end">
-        <BubbleContent>Not delivered. The recipient blocks unknown senders.</BubbleContent>
-      </Bubble>
-      <Bubble variant="ghost">
-        <BubbleContent>A ghost bubble sets text without a box, for long agent output.</BubbleContent>
+        <BubbleContent>Not answered. The elevation source did not respond.</BubbleContent>
       </Bubble>
       <Bubble align="end">
         <BubbleContent asChild>
-          <button type="button">Retry sending</button>
+          <button type="button">Ask again</button>
         </BubbleContent>
       </Bubble>
     </div>

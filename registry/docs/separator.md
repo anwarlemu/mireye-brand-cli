@@ -3,8 +3,8 @@ name: separator
 title: Separator
 type: ui
 surface: site
-description: "A 1px rule in the faint lilac, across or down."
-use_for: "Use between groups: under a page head, above the rail's footer, between list rows, between toolbar groups (orientation=\"vertical\"). It is decorative unless you set decorative={false}."
-never: [Darker rules than the faint lilac between rows, Double rules, Rules inside a lilac panel]
-source: "Figma 427:2715: the rail's footer rule, page head rules, inbox list dividers"
+description: "A 1px rule in Mist inside a panel, or Stone at a panel's edge (strong), across or down."
+use_for: "Use between groups inside a white panel (rows of values, the parts of a card, toolbar groups with orientation=\"vertical\"). Set strong for the rule under a table head or at the edge of a panel. It is decorative unless you set decorative={false}."
+never: [Forest rules between rows, Double rules, Dashed rules, Rules thicker than 1px]
+source: "Figma UI · Agent chat (443:433): the Mist rules of Cited fields (443:470)"
 ---

@@ -1,5 +1,4 @@
-import { LineVerticalIcon } from "@phosphor-icons/react/ssr";
-
+import { Diamond } from "@/components/ui/diamond";
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export function Preview() {
@@ -7,15 +6,15 @@ export function Preview() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">Webhooks</BreadcrumbLink>
+          <BreadcrumbLink href="#">Texas</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">Delivery log</BreadcrumbLink>
+          <BreadcrumbLink href="#">Ellis County</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>message.sent</BreadcrumbPage>
+          <BreadcrumbPage>Site 14</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
@@ -27,7 +26,7 @@ export function Collapsed() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">Agent Workspace</BreadcrumbLink>
+          <BreadcrumbLink href="#">Sites</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
@@ -35,11 +34,11 @@ export function Collapsed() {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">Tunnel</BreadcrumbLink>
+          <BreadcrumbLink href="#">Ellis County</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>Telemetry</BreadcrumbPage>
+          <BreadcrumbPage>Site 14</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
@@ -51,13 +50,13 @@ export function CustomSeparator() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="#">Vault</BreadcrumbLink>
+          <BreadcrumbLink href="#">Saved searches</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
-          <LineVerticalIcon className="rotate-12" />
+          <Diamond size={8} variant="outline" />
         </BreadcrumbSeparator>
         <BreadcrumbItem>
-          <BreadcrumbPage>Login credentials</BreadcrumbPage>
+          <BreadcrumbPage>200+ ac near 138 kV</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

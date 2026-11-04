@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
 
 import { Code, Command, PageBody, PageHead, Section } from "@www/components/chrome";
 import { FramePreview } from "@www/components/frame-preview";
 import { Preview } from "@www/components/preview";
 import { InlineCode, Prose } from "@www/components/prose";
+import { Diamond } from "@/components/ui/diamond";
 import { examples } from "@www/lib/examples.generated";
 import { CLI_COMMAND, type Item, exampleSource, findItem, items, needsPreviewFrame, sourceOf } from "@www/lib/registry";
 
@@ -36,7 +37,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   return (
     <>
       <PageHead eyebrow="Component" title={item.title} description={<Prose text={item.description} />}>
-        <a href={`/r/${item.name}.md`} className="text-body text-fg-brand underline-offset-4 outline-none hover:underline focus-visible:outline-2 focus-visible:outline-focus-ring">Text reference</a>
+        <a href={`/r/${item.name}.md`} className="text-body text-fg underline decoration-line underline-offset-4 outline-none transition-[text-decoration-color] duration-150 ease-out hover:decoration-line-strong focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none">Text reference</a>
       </PageHead>
       <PageBody className="max-w-240">
         <Command command={`${CLI_COMMAND} add ${item.name}`} />
@@ -61,18 +62,18 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
               <Code key={p} title={p} code={sourceOf(p)} tall />
             ))}
           </div>
-          {item.source && <p className="text-body-sm text-fg-muted">Reference: {item.source}.</p>}
+          {item.source && <p className="text-caption text-fg-muted">Reference: {item.source}.</p>}
         </Section>
 
-        <nav aria-label="More components" className="flex items-center justify-between gap-3 border-t border-line-subtle pt-6">
+        <nav aria-label="More components" className="flex items-center justify-between gap-3 border-t border-line pt-6">
           {prev ? (
-            <Link href={`/components/${prev.name}`} className="inline-flex items-center gap-1.5 rounded-control px-2 py-1.5 text-body text-fg-muted outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-2 focus-visible:outline-focus-ring motion-reduce:transition-none">
-              <CaretLeftIcon className="size-4" /> {prev.title}
+            <Link href={`/components/${prev.name}`} className="inline-flex h-8 items-center gap-2 px-2 text-body text-fg-muted outline-none transition-colors duration-150 ease-out hover:bg-subtle hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none">
+              <ArrowRightIcon size={16} aria-hidden className="rotate-180" /> {prev.title}
             </Link>
           ) : <span />}
           {next && (
-            <Link href={`/components/${next.name}`} className="inline-flex items-center gap-1.5 rounded-control px-2 py-1.5 text-body text-fg-muted outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-2 focus-visible:outline-focus-ring motion-reduce:transition-none">
-              {next.title} <CaretRightIcon className="size-4" />
+            <Link href={`/components/${next.name}`} className="inline-flex h-8 items-center gap-2 px-2 text-body text-fg-muted outline-none transition-colors duration-150 ease-out hover:bg-subtle hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none">
+              {next.title} <ArrowRightIcon size={16} aria-hidden />
             </Link>
           )}
         </nav>
@@ -85,17 +86,17 @@ function Usage({ item }: { item: Item }) {
   const requires = item.dependencies.filter((d) => d !== "utils");
   return (
     <Section id="usage" title="Usage">
-      <div className="grid gap-3 rounded-panel bg-subtle p-4">
+      <div className="ds-cut-frame grid gap-3 p-4 [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]">
         <p className="text-body leading-body text-fg">
           <Prose text={item.use_for} />
         </p>
         {item.never.length > 0 && (
           <div>
-            <p className="mb-1 text-body leading-body font-medium text-fg">Avoid</p>
+            <p className="mb-2 inline-flex h-5 items-center border border-line px-1.5 text-caption leading-none text-fg-secondary">Avoid</p>
             <ul className="grid gap-1 text-body leading-body text-fg-secondary">
               {item.never.map((n) => (
                 <li key={n} className="flex gap-2.5">
-                  <span aria-hidden className="mt-2.5 h-px w-2.5 shrink-0 bg-danger" />
+                  <Diamond size={8} variant="outline" className="mt-1.5 text-fg-subtle" />
                   <Prose text={n} />
                 </li>
               ))}
@@ -116,7 +117,7 @@ function Usage({ item }: { item: Item }) {
           Dependencies:{" "}
           {requires.map((d, i) => (
             <span key={d}>
-              {findItem(d) ? <Link href={`/components/${d}`} className="text-fg-brand underline-offset-4 hover:underline">{d}</Link> : <InlineCode>{d}</InlineCode>}
+              {findItem(d) ? <Link href={`/components/${d}`} className="text-fg underline decoration-line underline-offset-4 hover:decoration-line-strong">{d}</Link> : <InlineCode>{d}</InlineCode>}
               {i < requires.length - 1 || item.npm.length ? ", " : ""}
             </span>
           ))}

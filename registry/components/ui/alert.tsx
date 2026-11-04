@@ -3,23 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// The console's notes (the Alert theme). 12px corners, 16px sides and 12px above and below, 14px text on 20px lines; a
-// 20px filled Phosphor glyph in the text's color leads, 12px before the words. The title is medium. An alert is as wide
-// as its words and centered, except inside a dialog, a form or an aside (or under data-alerts="fill"), where it fills
-// the width. `default` and `info` are the pale cyan note in deep teal; `warning` the sand with its brown; `success` the
-// pale green with ink; `destructive` white with the red edge and red text. `muted` is the lilac vault box (a 16px
-// regular title, then a muted description across the full width, which can hold an info note).
+// A note in the flow of a page, drawn as Mireye's cut frame: a 1px line around white with the 8px chamfer at the
+// top-left, 16px sides and 12px above and below. A 16px Phosphor glyph (regular weight) or a Diamond leads, 12px before
+// the words; the title is 13px medium in Forest, the description 13px in Forest at 80%. It fills the width it is given.
+// - `default` (also `info`): the Stone line, Forest glyph.
+// - `success`, `warning`, `destructive`: the line and the glyph in the chosen status colour, the words stay Forest so
+//   they read. Use them sparingly; Figma has no risk state yet.
+// - `muted`: Fog with no line, for a note inside a white panel.
+// Nothing moves.
 const alertVariants = cva(
-  "group/alert relative mx-auto grid w-fit max-w-full grid-cols-[minmax(0,auto)_auto] items-start gap-x-3 gap-y-0.5 rounded-control px-4 py-3 font-sans text-body leading-line-body has-[>svg]:grid-cols-[auto_minmax(0,auto)_auto] in-[[role=dialog]]:mx-0 in-[[role=dialog]]:w-full in-[form]:mx-0 in-[form]:w-full in-[aside]:mx-0 in-[aside]:w-full in-data-[alerts=fill]:mx-0 in-data-[alerts=fill]:w-full [&>svg]:size-5 [&>svg]:shrink-0 [&>svg]:text-current",
+  "group/alert relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 px-4 py-3 font-sans text-body leading-body text-fg has-[>svg]:grid-cols-[auto_minmax(0,1fr)_auto] [&>svg]:mt-px [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-info-bg text-info-fg",
-        info: "bg-info-bg text-info-fg",
-        warning: "bg-warning-bg text-warning-fg [&>[data-slot=alert-action]]:text-warning-muted",
-        success: "bg-success-bg text-fg",
-        destructive: "border border-danger bg-surface text-danger",
-        muted: "items-center bg-subtle py-3 text-fg [&>svg]:size-6 [&>svg]:text-icon-default [&>[data-slot=alert-description]]:col-span-full [&>[data-slot=alert-description]]:col-start-1 [&>[data-slot=alert-description]]:text-fg-muted [&>[data-slot=alert-title]]:text-body-lg [&>[data-slot=alert-title]]:leading-snug [&>[data-slot=alert-title]]:font-normal",
+        default: "ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [&>svg]:text-fg",
+        info: "ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [&>svg]:text-fg",
+        success: "ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-success)] [&>svg]:text-success",
+        warning: "ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-warning)] [&>svg]:text-warning",
+        destructive: "ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-danger)] [&>svg]:text-danger [&>[data-slot=alert-title]]:text-danger",
+        muted: "ds-cut [--ds-shape-fill:var(--ds-color-bg-subtle)] [&>svg]:text-fg",
       },
     },
     defaultVariants: { variant: "default" },
@@ -31,37 +33,22 @@ function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & V
 }
 
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={cn(
-        "col-start-1 min-w-0 leading-line-body font-medium group-has-[>svg]/alert:col-start-2",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <div data-slot="alert-title" className={cn("col-start-1 min-w-0 font-medium group-has-[>svg]/alert:col-start-2", className)} {...props} />;
 }
 
 function AlertDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={cn(
-        "col-start-1 min-w-0 text-body leading-line-body group-has-[>svg]/alert:col-start-2 [&_p]:leading-line-body",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <div data-slot="alert-description" className={cn("col-start-1 min-w-0 text-fg-secondary group-has-[>svg]/alert:col-start-2 [&_p]:leading-body", className)} {...props} />;
 }
 
-/** What sits at the right of an alert: a note (For security, the full key cannot be shown again) or a button. */
+/** What sits at the right of an alert: a short note or a button. Below the words on a phone. */
 function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-action"
-      className={cn("col-start-2 row-span-2 row-start-1 self-center text-right text-body-sm group-has-[>svg]/alert:col-start-3 max-sm:col-start-1 max-sm:col-end-[-1] max-sm:row-start-3 max-sm:row-span-1 max-sm:text-left max-sm:group-has-[>svg]/alert:col-start-2", className)}
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-center text-right text-caption text-fg-muted group-has-[>svg]/alert:col-start-3 max-sm:col-start-1 max-sm:col-end-[-1] max-sm:row-span-1 max-sm:row-start-3 max-sm:mt-1 max-sm:text-left max-sm:group-has-[>svg]/alert:col-start-2",
+        className,
+      )}
       {...props}
     />
   );

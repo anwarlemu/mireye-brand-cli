@@ -1,70 +1,66 @@
 "use client";
 
 import * as React from "react";
-import { ArrowsClockwiseIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ssr";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { DataTable, NumberCell, SiteCell, type DataTableColumn } from "@/components/ui/data-table";
 
-type Mailbox = { address: string; agent: string; webhooks: number; storage: number; created: Date; status: "active" | "paused" };
+type Site = { id: string; name: string; county: string; acres: number; kv: number | null; distance: number; zoning: string | null; status: "verified" | "queued" };
 
-const AGENTS = ["acme", "support-desk", "ops-runner", "acme-support", "test-agent-233", "billing-bot"];
-const MAILBOXES: Mailbox[] = Array.from({ length: 23 }, (_, i) => {
-  const agent = AGENTS[i % AGENTS.length];
-  return { address: `${agent}${i > 5 ? `-${i}` : ""}@inkboxmail.com`, agent, webhooks: (i * 7) % 4, storage: (i * 13) % 61, created: new Date(2026, 6, 27 + (i % 20)), status: i % 5 === 3 ? "paused" : "active" };
+const COUNTIES = ["Ellis", "Navarro", "Kaufman", "Johnson", "Hill", "Henderson"];
+const ZONING = ["I-2 Industrial", "Agricultural", null, "I-1 Light industrial", "Unzoned"];
+const SITES: Site[] = Array.from({ length: 23 }, (_, i) => {
+  const county = COUNTIES[i % COUNTIES.length];
+  return {
+    id: `0${42 + (i % 6)}-${117 + i}-${String((i * 7) % 100).padStart(2, "0")}`,
+    name: `${county} County site ${i + 3}`,
+    county,
+    acres: 120 + ((i * 47) % 420) + (i % 10) / 10,
+    kv: i % 7 === 4 ? null : [345, 138, 69][i % 3],
+    distance: ((i * 13) % 90) / 10 + 0.4,
+    zoning: ZONING[i % ZONING.length],
+    status: i % 4 === 3 ? "queued" : "verified",
+  };
 });
 
-const date = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
-
-const COLUMNS: DataTableColumn<Mailbox>[] = [
-  { id: "address", header: "Email address", accessor: (m) => m.address, sortable: true, hideable: false },
-  { id: "agent", header: "Agent", accessor: (m) => m.agent, sortable: true, cell: (m) => <span className="text-rose">@{m.agent}</span> },
-  { id: "webhooks", header: "Webhooks", accessor: (m) => m.webhooks, sortable: true, cell: (m) => (m.webhooks ? m.webhooks : "None") },
-  { id: "storage", header: "Storage", accessor: (m) => m.storage, sortable: true, cell: (m) => `${m.storage}%` },
-  { id: "status", header: "Status", accessor: (m) => m.status, hidden: true, cell: (m) => <Badge variant={m.status === "active" ? "green" : "gray"} size="sm">{m.status === "active" ? "Active" : "Paused"}</Badge> },
-  { id: "created", header: "Created", accessor: (m) => m.created, sortable: true, cell: (m) => date.format(m.created) },
-  {
-    id: "actions",
-    header: <span className="sr-only">Actions</span>,
-    hideable: false,
-    align: "end",
-    className: "w-14",
-    cell: (m) => (
-      <Button variant="ghost" size="icon" aria-label={`Edit ${m.address}`}>
-        <PencilSimpleIcon weight="fill" />
-      </Button>
-    ),
-  },
+const COLUMNS: DataTableColumn<Site>[] = [
+  { id: "site", header: "Site", accessor: (s) => `${s.name} ${s.id}`, sortable: true, hideable: false, cell: (s) => <SiteCell name={s.name} parcelId={s.id} image={s.id.endsWith("0") ? undefined : "/examples/farmland-aerial.jpg"} /> },
+  { id: "county", header: "County", accessor: (s) => s.county, sortable: true, cell: (s) => <span className="text-fg-secondary">{s.county}</span> },
+  { id: "acres", header: "Acres", accessor: (s) => s.acres, sortable: true, align: "end", className: "text-right", cell: (s) => <NumberCell value={s.acres} /> },
+  { id: "kv", header: "Nearest kV", accessor: (s) => s.kv, sortable: true, align: "end", className: "text-right", cell: (s) => <NumberCell value={s.kv} decimals={0} unit="kV" /> },
+  { id: "distance", header: "Distance", accessor: (s) => s.distance, sortable: true, align: "end", className: "text-right", cell: (s) => <NumberCell value={s.distance} unit="mi" /> },
+  { id: "zoning", header: "Zoning", accessor: (s) => s.zoning, hidden: true, cell: (s) => (s.zoning ? <Badge>{s.zoning}</Badge> : <span className="text-fg-subtle">Not recorded</span>) },
 ];
 
 export function Preview() {
-  return <DataTable columns={COLUMNS} data={MAILBOXES} getRowId={(m) => m.address} rowName="mailbox" pageSize={5} filter={{ placeholder: "Filter mailboxes" }} defaultSort={{ id: "created", desc: false }} empty="No mailbox matches." />;
+  return <DataTable columns={COLUMNS} data={SITES} getRowId={(s) => s.id} rowName="site" pageSize={5} filter={{ placeholder: "Filter sites" }} defaultSort={{ id: "acres", desc: true }} empty="No site matches." />;
 }
 
 export function Selection() {
-  const [rows, setRows] = React.useState(MAILBOXES.slice(0, 8));
+  const [rows, setRows] = React.useState(SITES.slice(0, 8));
   const [selected, setSelected] = React.useState<string[]>([]);
   return (
     <DataTable
       columns={COLUMNS}
       data={rows}
-      getRowId={(m) => m.address}
-      rowName="mailbox"
+      getRowId={(s) => s.id}
+      rowName="site"
       selectable
       selection={selected}
       onSelectionChange={setSelected}
       pageSize={5}
       pageSizes={[5, 10, 20]}
-      filter={{ placeholder: "Filter mailboxes", columns: ["address", "agent"] }}
+      filter={{ placeholder: "Filter sites", columns: ["site", "county"] }}
       toolbar={
         <>
           <Button
             variant="ghost"
-            size="icon-lg"
+            size="icon"
             aria-label="Refresh"
             onClick={() => {
-              setRows(MAILBOXES.slice(0, 8));
+              setRows(SITES.slice(0, 8));
               setSelected([]);
             }}
           >
@@ -72,14 +68,13 @@ export function Selection() {
           </Button>
           {selected.length > 0 && (
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={() => {
-                setRows((r) => r.filter((m) => !selected.includes(m.address)));
+                setRows((r) => r.filter((s) => !selected.includes(s.id)));
                 setSelected([]);
               }}
             >
-              <TrashIcon weight="fill" />
-              Delete {selected.length}
+              Remove {selected.length}
             </Button>
           )}
         </>
@@ -89,5 +84,5 @@ export function Selection() {
 }
 
 export function Empty() {
-  return <DataTable columns={COLUMNS} data={[]} getRowId={(m) => m.address} filter={false} hideViewOptions empty="No mailboxes yet. Mailboxes are created with their agent identity." />;
+  return <DataTable columns={COLUMNS} data={[]} getRowId={(s) => s.id} filter={false} hideViewOptions empty="No sites yet. Matching sites appear here once a search runs." />;
 }

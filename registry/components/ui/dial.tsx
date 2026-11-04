@@ -27,11 +27,10 @@ type DialSpec = {
   spin?: string;
 };
 
-// Loaders board ramp (443:77, 443:103 …): 17 steps from Forest towards Mist, then Mist.
-const RAMP_24_TICKS = [
-  "#1E231C", "#2A2E28", "#353A33", "#41453F", "#4C514A", "#585C56", "#636761", "#6F736D", "#7B7E79",
-  "#868984", "#929590", "#9DA09B", "#A9ACA7", "#B4B7B2", "#C0C2BE", "#CBCEC9", "#D7D9D5", "#DCDEDA",
-];
+// Colours step linearly from Forest to Mist (Figma's ramps, as mixes of the two tokens so the dial follows the palette).
+const mix = (mist: number) => `color-mix(in srgb, var(--ds-color-mist) ${Math.round(mist * 10) / 10}%, var(--ds-color-forest))`;
+// Loaders board ramp (443:77, 443:103 …): 17 steps from Forest towards Mist (the 17th at 97%), then Mist.
+const RAMP_24_TICKS = [...Array.from({ length: 17 }, (_, i) => mix((i * 97.4) / 16)), "var(--ds-color-mist)"];
 
 export const DIALS = {
   // Buttons board, icon button "Loading" (442:76): 24×24, 12 ticks, head at 12 o'clock.
@@ -40,7 +39,7 @@ export const DIALS = {
     inner: 6.72,
     outer: 11,
     stroke: 1.5,
-    ramp: ["#1E231C", "#363B34", "#4E534C", "#676A65", "#7F827D", "#979A95", "#AFB2AD", "#C7CAC5", "#DCDEDA"],
+    ramp: [...Array.from({ length: 8 }, (_, i) => mix(i * 12.5)), "var(--ds-color-mist)"],
   },
   // Loaders board frames (443:103, 443:129, 443:155, 443:181, 443:207): 36×36, 24 ticks.
   // Figma gives no timing. One turn takes 1.2s, like the 24px dial, so both turn at the same speed.
@@ -120,7 +119,7 @@ export function Dial({
       style={svgSize(box, box, props.style)}
     >
       {lines.map((l, i) => (
-        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={l.color} strokeWidth={s.stroke} />
+        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} strokeWidth={s.stroke} style={{ stroke: l.color }} />
       ))}
     </svg>
   );

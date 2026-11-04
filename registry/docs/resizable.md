@@ -3,8 +3,8 @@ name: resizable
 title: Resizable
 type: ui
 surface: site
-description: "Panels split by the console's 1px lilac rule, which can be dragged or moved with the arrow keys."
-use_for: "Use for a workspace whose panes people size themselves (the inbox list beside a message, a log beside its detail). Give each ResizablePanel a defaultSize in percent and sensible minSize; add withHandle when the edge needs to be found."
-never: [Thick or colored dividers, Panels that can collapse to nothing without a minSize, Animating the panes while dragging]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): the 1px rules between the rails and the inbox list"
+description: "Panels split by a 1px Stone rule that turns Forest while dragged or focused; it can be dragged or moved with the arrow keys."
+use_for: "Use for a workspace whose panes people size themselves (a site list beside the map, a map above a report). Give each ResizablePanel a defaultSize in percent and a sensible minSize; add withHandle when the edge needs to be found."
+never: [Thick or coloured dividers, Panels that can collapse to nothing without a minSize, Animating the panes while dragging]
+source: "Not in Figma: the 1px Stone line of every edge, for a designer's review"
 ---

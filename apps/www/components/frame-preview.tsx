@@ -42,13 +42,13 @@ export function FramePreview({ src, label }: { src: string; label: string }) {
       actions={
         <div className="flex items-center gap-2">
           <Tabs value={device} onValueChange={(v) => setDevice(v as "desktop" | "phone")}>
-            <TabsList aria-label="Window width">
+            <TabsList variant="segmented" aria-label="Window width">
               <TabsTrigger value="desktop">Desktop</TabsTrigger>
               <TabsTrigger value="phone">Phone</TabsTrigger>
             </TabsList>
           </Tabs>
-          <a href={src} target="_blank" rel="noreferrer" aria-label={`Open ${label} alone`} className="inline-flex size-8 items-center justify-center rounded-pill text-icon-secondary outline-none transition-colors duration-150 ease-out hover:bg-subtle hover:text-fg focus-visible:outline-2 focus-visible:outline-focus-ring motion-reduce:transition-none">
-            <ArrowSquareOutIcon className="size-5" />
+          <a href={src} target="_blank" rel="noreferrer" aria-label={`Open ${label} alone`} className="inline-flex size-8 items-center justify-center text-fg-muted outline-none transition-colors duration-150 ease-out hover:bg-subtle hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none">
+            <ArrowSquareOutIcon className="size-4" />
           </a>
         </div>
       }

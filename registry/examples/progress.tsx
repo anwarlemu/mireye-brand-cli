@@ -5,29 +5,25 @@ import * as React from "react";
 import { Progress } from "@/components/ui/progress";
 
 export function Preview() {
-  const [value, setValue] = React.useState(12);
+  const [value, setValue] = React.useState(24);
   React.useEffect(() => {
     // ds-latency: advances a presentation-only progress example; no user input is waiting.
-    const t = setTimeout(() => setValue(64), 600);
+    const t = setTimeout(() => setValue(62), 600);
     return () => clearTimeout(t);
   }, []);
   return (
-    <div className="grid w-full max-w-100 gap-2">
-      <div className="flex justify-between text-body">
-        <span className="text-fg">Mailbox storage</span>
-        <span className="text-fg-muted">{value}%</span>
-      </div>
-      <Progress value={value} aria-label="Mailbox storage used" />
+    <div className="w-full max-w-100">
+      <Progress label="Loading terrain" value={value} />
     </div>
   );
 }
 
 export function Values() {
   return (
-    <div className="grid w-full max-w-100 gap-4">
-      <Progress value={0} aria-label="Empty" />
-      <Progress value={33} aria-label="A third" />
-      <Progress value={100} aria-label="Full" />
+    <div className="grid w-full max-w-100 gap-6">
+      <Progress value={0} aria-label="Parcels matched" />
+      <Progress value={38} aria-label="Sources read" />
+      <Progress value={100} aria-label="Report written" />
     </div>
   );
 }

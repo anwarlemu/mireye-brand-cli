@@ -3,8 +3,8 @@ name: message
 title: Message
 type: ui
 surface: site
-description: "One message in a conversation: a 32px avatar tile, the sender and time in 14px, the bubbles, and a 12px muted footer."
-use_for: "Build a conversation from Message rows inside a MessageGroup: MessageAvatar with an initial or a picture, MessageContent with a MessageHeader (the name, then a time element), the Bubble pieces and an optional MessageFooter (Delivered, Read). Set align end for the person's own messages; the row mirrors to the right."
-never: [Round avatars, A bold sender name, Timestamps darker than the muted purple]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): the inbox rows (sender in ink, date muted) and the rail's initial tile"
+description: "One message in an agent conversation: a square avatar, the sender and a DM Mono time, the bubbles and a muted footer."
+use_for: "Use for each turn of a conversation with the agent. Put the person's question in a default Bubble with align end on the Message, and the agent's answer in a ghost Bubble beside a Forest avatar holding a Diamond. Use MessageFooter for what backs the answer (Cited 3 sources). Group turns in MessageGroup."
+never: [Circular avatars, Coloured sender names, Read receipts, Messages that slide or fade in]
+source: "Figma UI · Agent chat (443:433): Message and Sources, at the product scale"
 ---

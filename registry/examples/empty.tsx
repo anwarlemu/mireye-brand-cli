@@ -1,30 +1,37 @@
-import { ArrowsHorizontalIcon, ChatCircleIcon, EnvelopeIcon, EnvelopeOpenIcon, EnvelopeSimpleIcon, PaperPlaneTiltIcon, PhoneIcon, PlusIcon, TextAlignLeftIcon, TrayIcon, VaultIcon } from "@phosphor-icons/react/ssr";
+import { MagnifyingGlassIcon, MapPinIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMascot, EmptyMedia, EmptyOrbit, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMark, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
 export function Preview() {
   return (
-    <Empty className="min-h-100">
-      <EmptyMedia variant="mascot">
-        <EmptyOrbit>
-          <EnvelopeIcon weight="fill" />
-          <PhoneIcon weight="fill" />
-          <ChatCircleIcon weight="bold" className="size-7 text-success" />
-          <ArrowsHorizontalIcon weight="bold" />
-          <VaultIcon weight="fill" />
-        </EmptyOrbit>
-        <EmptyMascot src="/octopus.png" />
+    <Empty className="min-h-90">
+      <EmptyMedia>
+        <EmptyMark />
       </EmptyMedia>
       <EmptyHeader>
-        <EmptyTitle>Create Your First Agent</EmptyTitle>
-        <EmptyDescription>Set up an identity to unlock mailbox, phone, and vault features</EmptyDescription>
+        <EmptyTitle>No sites yet</EmptyTitle>
+        <EmptyDescription>Describe the land you need, and matching sites appear here with their sources.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button>
-          <PlusIcon />
-          Create Agent
-        </Button>
+        <Button>Start a search</Button>
+      </EmptyContent>
+    </Empty>
+  );
+}
+
+export function NoResults() {
+  return (
+    <Empty className="min-h-72">
+      <EmptyMedia variant="icon">
+        <MagnifyingGlassIcon />
+      </EmptyMedia>
+      <EmptyHeader>
+        <EmptyTitle>No parcels match</EmptyTitle>
+        <EmptyDescription>Nothing in Ellis County is over 200 ac within 2 mi of 138 kV. Widen the radius or lower the voltage.</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button variant="outline">Edit requirements</Button>
       </EmptyContent>
     </Empty>
   );
@@ -32,40 +39,13 @@ export function Preview() {
 
 export function NoSelection() {
   return (
-    <Empty className="min-h-100">
-      <EmptyMedia variant="mascot">
-        <EmptyOrbit>
-          <TextAlignLeftIcon weight="bold" />
-          <EnvelopeOpenIcon weight="fill" />
-          <EnvelopeSimpleIcon weight="fill" />
-          <PaperPlaneTiltIcon weight="fill" />
-          <TrayIcon weight="fill" />
-        </EmptyOrbit>
-        <EmptyMascot src="/octopus.png" />
-      </EmptyMedia>
-      <EmptyHeader>
-        <EmptyTitle>No email selected</EmptyTitle>
-        <EmptyDescription>Select an email from the list to read it</EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent>
-        <Button>
-          <PlusIcon />
-          Compose Email
-        </Button>
-      </EmptyContent>
-    </Empty>
-  );
-}
-
-export function Icon() {
-  return (
     <Empty className="min-h-72">
       <EmptyMedia variant="icon">
-        <TrayIcon weight="fill" />
+        <MapPinIcon />
       </EmptyMedia>
       <EmptyHeader>
-        <EmptyTitle>No emails to display</EmptyTitle>
-        <EmptyDescription>New mail for @acme lands here.</EmptyDescription>
+        <EmptyTitle>No site selected</EmptyTitle>
+        <EmptyDescription>Choose a site on the map to read its report.</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

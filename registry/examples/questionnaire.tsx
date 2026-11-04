@@ -21,14 +21,14 @@ import {
 } from "@/components/ui/questionnaire";
 
 const ITEMS = [
-  { name: "channel", required: true, choices: [{ value: "email" }, { value: "phone" }, { value: "imessage" }] },
-  { name: "include", multiple: true, choices: [{ value: "sender" }, { value: "summary" }, { value: "attachments" }, { value: "next-step" }] },
-  { name: "when", required: true, choices: [{ value: "now" }, { value: "hourly" }, { value: "daily" }] },
+  { name: "size", required: true, choices: [{ value: "50" }, { value: "200" }, { value: "500" }] },
+  { name: "needs", multiple: true, choices: [{ value: "power" }, { value: "water" }, { value: "rail" }, { value: "fiber" }] },
+  { name: "when", required: true, choices: [{ value: "now" }, { value: "year" }, { value: "later" }] },
 ] as const;
 
 function Saved({ answers }: { answers: string }) {
   return (
-    <p role="status" className="rounded-control bg-success-bg px-3.5 py-2.5 text-body text-fg">
+    <p role="status" className="ds-cut px-4 py-3 text-body text-fg [--ds-shape-fill:var(--ds-color-bg-subtle)]">
       Saved. {answers}
     </p>
   );
@@ -43,48 +43,48 @@ export function Preview() {
         onSubmit={(event) => {
           event.preventDefault();
           const data = new FormData(event.currentTarget);
-          setSaved(`Channel: ${data.get("channel")}. Include: ${data.getAll("include").join(", ") || "nothing"}. When: ${data.get("when")}.`);
+          setSaved(`Size: ${data.get("size")}+ ac. Needs: ${data.getAll("needs").join(", ") || "none"}. When: ${data.get("when")}.`);
         }}
       >
         <QuestionnaireProgress />
-        <QuestionnaireItem name="channel" required>
-          <QuestionnaireTitle>Where should @acme tell you about new mail?</QuestionnaireTitle>
-          <QuestionnaireDescription>Choose a channel, or type another one.</QuestionnaireDescription>
+        <QuestionnaireItem name="size" required>
+          <QuestionnaireTitle>How much land do you need?</QuestionnaireTitle>
+          <QuestionnaireDescription>Choose a minimum, or type your own.</QuestionnaireDescription>
           <QuestionnaireChoices>
-            <QuestionnaireChoice value="email">
-              <span className="font-medium">Email</span>
-              <QuestionnaireChoiceDescription>A note to robert@acme.com</QuestionnaireChoiceDescription>
+            <QuestionnaireChoice value="50">
+              <span>50+ ac</span>
+              <QuestionnaireChoiceDescription>A warehouse or a small solar site</QuestionnaireChoiceDescription>
             </QuestionnaireChoice>
-            <QuestionnaireChoice value="phone">
-              <span className="font-medium">Phone</span>
-              <QuestionnaireChoiceDescription>A text from the agent&apos;s number</QuestionnaireChoiceDescription>
+            <QuestionnaireChoice value="200">
+              <span>200+ ac</span>
+              <QuestionnaireChoiceDescription>A data center campus</QuestionnaireChoiceDescription>
             </QuestionnaireChoice>
-            <QuestionnaireChoice value="imessage">
-              <span className="font-medium">iMessage</span>
-              <QuestionnaireChoiceDescription>Through the shared iMessage line</QuestionnaireChoiceDescription>
+            <QuestionnaireChoice value="500">
+              <span>500+ ac</span>
+              <QuestionnaireChoiceDescription>Utility-scale solar or storage</QuestionnaireChoiceDescription>
             </QuestionnaireChoice>
-            <QuestionnaireInput aria-label="Another channel" placeholder="Another channel" />
+            <QuestionnaireInput aria-label="Another minimum, in acres" placeholder="Another minimum, in acres" />
           </QuestionnaireChoices>
           <QuestionnaireError />
         </QuestionnaireItem>
-        <QuestionnaireItem name="include" multiple>
-          <QuestionnaireTitle>What should each note include?</QuestionnaireTitle>
+        <QuestionnaireItem name="needs" multiple>
+          <QuestionnaireTitle>What must be on or near the site?</QuestionnaireTitle>
           <QuestionnaireDescription>Choose any, or skip this question.</QuestionnaireDescription>
           <QuestionnaireChoices>
-            <QuestionnaireChoice value="sender">The sender</QuestionnaireChoice>
-            <QuestionnaireChoice value="summary">A one-line summary</QuestionnaireChoice>
-            <QuestionnaireChoice value="attachments">Attachments</QuestionnaireChoice>
-            <QuestionnaireChoice value="next-step">The suggested next step</QuestionnaireChoice>
+            <QuestionnaireChoice value="power">138 kV or above within 2 mi</QuestionnaireChoice>
+            <QuestionnaireChoice value="water">Municipal water</QuestionnaireChoice>
+            <QuestionnaireChoice value="rail">A rail spur</QuestionnaireChoice>
+            <QuestionnaireChoice value="fiber">Fiber at the road</QuestionnaireChoice>
           </QuestionnaireChoices>
           <QuestionnaireError />
         </QuestionnaireItem>
         <QuestionnaireItem name="when" required>
-          <QuestionnaireTitle>How often?</QuestionnaireTitle>
-          <QuestionnaireDescription>Batched notes arrive once per period.</QuestionnaireDescription>
+          <QuestionnaireTitle>When do you need it?</QuestionnaireTitle>
+          <QuestionnaireDescription>Timing changes which sites the agent puts first.</QuestionnaireDescription>
           <QuestionnaireChoices>
-            <QuestionnaireChoice value="now">As each email arrives</QuestionnaireChoice>
-            <QuestionnaireChoice value="hourly">Once an hour</QuestionnaireChoice>
-            <QuestionnaireChoice value="daily">Once a day</QuestionnaireChoice>
+            <QuestionnaireChoice value="now">Now</QuestionnaireChoice>
+            <QuestionnaireChoice value="year">Within a year</QuestionnaireChoice>
+            <QuestionnaireChoice value="later">Later than a year</QuestionnaireChoice>
           </QuestionnaireChoices>
           <QuestionnaireError />
         </QuestionnaireItem>
@@ -92,7 +92,7 @@ export function Preview() {
           <QuestionnairePrevious />
           <QuestionnaireSkip />
           <QuestionnaireNext />
-          <QuestionnaireSubmit>Save rule</QuestionnaireSubmit>
+          <QuestionnaireSubmit>Save buy box</QuestionnaireSubmit>
         </QuestionnaireActions>
       </Questionnaire>
       {saved && <Saved answers={saved} />}
@@ -100,32 +100,32 @@ export function Preview() {
   );
 }
 
-const PLAN = [{ name: "line", required: true, choices: [{ value: "shared" }, { value: "dedicated" }, { value: "port" }] }] as const;
+const PLAN = [{ name: "state", required: true, choices: [{ value: "tx" }, { value: "ok" }, { value: "nm" }] }] as const;
 
 export function Disabled() {
   return (
     <Questionnaire items={PLAN} shortcuts="letters" className="mx-auto max-w-110" onSubmit={(event) => event.preventDefault()}>
-      <QuestionnaireItem name="line" required>
-        <QuestionnaireTitle>Which iMessage line should the agent use?</QuestionnaireTitle>
-        <QuestionnaireDescription>No dedicated lines are available to assign right now.</QuestionnaireDescription>
+      <QuestionnaireItem name="state" required>
+        <QuestionnaireTitle>Which state should the search cover?</QuestionnaireTitle>
+        <QuestionnaireDescription>Parcel data for New Mexico is not loaded yet.</QuestionnaireDescription>
         <QuestionnaireChoices>
-          <QuestionnaireChoice value="shared">
-            <span className="font-medium">Shared</span>
-            <QuestionnaireChoiceDescription>Assigned when someone connects</QuestionnaireChoiceDescription>
+          <QuestionnaireChoice value="tx">
+            <span>Texas</span>
+            <QuestionnaireChoiceDescription>254 counties</QuestionnaireChoiceDescription>
           </QuestionnaireChoice>
-          <QuestionnaireChoice value="dedicated" disabled>
-            <span className="font-medium">Dedicated</span>
-            <QuestionnaireChoiceDescription>None available</QuestionnaireChoiceDescription>
+          <QuestionnaireChoice value="ok">
+            <span>Oklahoma</span>
+            <QuestionnaireChoiceDescription>77 counties</QuestionnaireChoiceDescription>
           </QuestionnaireChoice>
-          <QuestionnaireChoice value="port">
-            <span className="font-medium">Port a number</span>
-            <QuestionnaireChoiceDescription>Bring an existing number</QuestionnaireChoiceDescription>
+          <QuestionnaireChoice value="nm" disabled>
+            <span>New Mexico</span>
+            <QuestionnaireChoiceDescription>Not loaded yet</QuestionnaireChoiceDescription>
           </QuestionnaireChoice>
         </QuestionnaireChoices>
         <QuestionnaireError />
       </QuestionnaireItem>
       <QuestionnaireActions>
-        <QuestionnaireSubmit>Assign line</QuestionnaireSubmit>
+        <QuestionnaireSubmit>Start search</QuestionnaireSubmit>
       </QuestionnaireActions>
     </Questionnaire>
   );

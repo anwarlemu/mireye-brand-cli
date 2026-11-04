@@ -5,9 +5,9 @@ import { DotsSixVerticalIcon } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/lib/utils";
 
-// Panels with a draggable edge between them (extrapolated from the Inkbox console, Figma 427:2715: the 1px rules
-// between its rails and the inbox list). The handle is the console's 1px lilac rule with a wide invisible grip; with
-// `withHandle` it carries a 12 by 20 white tab with 4px corners, the field edge and a grip glyph. Drag it, or focus it
+// Panels with a draggable edge between them (a map beside a site list, a chat beside its sources). The handle is a
+// 1px Stone rule with a wide invisible grip that turns Forest while focused or dragged; with `withHandle` it carries a
+// 12 by 20 white tab, square, in the 1px Stone line, with a grip glyph. Drag it, or focus it
 // and use the arrow keys (Home and End go to the limits). Sizes are percentages of the group; dragging follows the
 // pointer directly, with no animation.
 
@@ -153,7 +153,7 @@ function ResizableHandle({ withHandle, className, ...props }: React.ComponentPro
       data-slot="resizable-handle"
       data-panel-group-direction={direction}
       className={cn(
-        "relative flex shrink-0 touch-none items-center justify-center bg-line-subtle outline-none select-none after:absolute focus-visible:bg-line-brand focus-visible:outline-none data-[dragging]:bg-line-brand",
+        "relative flex shrink-0 touch-none items-center justify-center bg-line outline-none select-none after:absolute focus-visible:bg-line-strong focus-visible:outline-none data-[dragging]:bg-line-strong",
         vertical ? "h-px w-full cursor-row-resize after:inset-x-0 after:-inset-y-1.5" : "w-px cursor-col-resize after:inset-y-0 after:-inset-x-1.5",
         className,
       )}
@@ -198,8 +198,8 @@ function ResizableHandle({ withHandle, className, ...props }: React.ComponentPro
       {...props}
     >
       {withHandle && (
-        <div className={cn("z-10 flex items-center justify-center rounded-xs border border-line-field bg-surface text-icon-secondary", vertical ? "h-3 w-5" : "h-5 w-3")}>
-          <DotsSixVerticalIcon weight="bold" className={cn("size-3", vertical && "rotate-90")} />
+        <div className={cn("z-10 flex items-center justify-center border border-line bg-surface text-fg-muted", vertical ? "h-3 w-5" : "h-5 w-3")}>
+          <DotsSixVerticalIcon className={cn("size-3", vertical && "rotate-90")} />
         </div>
       )}
     </div>

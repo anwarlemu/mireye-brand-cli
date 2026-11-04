@@ -6,9 +6,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// A marker in a conversation or a list: 12px muted text, as the inbox sets its dates (Figma 427:2715). `separator`
-// centers it between two hairlines ("Yesterday"), `border` rules it underneath, and `unread` is the purple line where
-// unread messages begin.
+// A marker in a conversation or a list: 12px text in Forest at 72%, as a run log sets its times. `separator` centers it
+// between two 1px Mist rules ("Yesterday"), `border` rules it underneath, and `unread` is the Forest line, medium,
+// between two 1px Forest rules, where new results begin. Links inside are underlined and step to Forest on hover.
 const markerVariants = cva(
   "group/marker relative flex min-h-4 w-full items-center gap-2 text-left font-sans text-caption leading-tight text-fg-muted [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [a]:underline [a]:underline-offset-4 [a]:hover:text-fg",
   {
@@ -17,7 +17,7 @@ const markerVariants = cva(
         default: "",
         separator: "before:mr-1 before:h-px before:min-w-0 before:flex-1 before:bg-line-subtle after:ml-1 after:h-px after:min-w-0 after:flex-1 after:bg-line-subtle",
         border: "border-b border-line-subtle pb-2",
-        unread: "font-medium text-fg-brand before:mr-1 before:h-px before:min-w-0 before:flex-1 before:bg-line-brand after:ml-1 after:h-px after:min-w-0 after:flex-1 after:bg-line-brand",
+        unread: "font-medium text-fg before:mr-1 before:h-px before:min-w-0 before:flex-1 before:bg-line-strong after:ml-1 after:h-px after:min-w-0 after:flex-1 after:bg-line-strong",
       },
     },
     defaultVariants: { variant: "default" },

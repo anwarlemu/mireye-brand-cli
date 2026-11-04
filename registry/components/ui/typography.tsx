@@ -2,10 +2,11 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-// The console's type as components (Figma 427:2715). Inter throughout, no tracking. Titles are regular, not bold: a page
-// or dialog title is 20px (H3); H1 and H2 are 24px and 22px for the rare larger heading; H4 is a 16px medium card
-// title. Body copy is 14px on a 1.5 line in ink, P under a title in the secondary purple; Muted is the 14px muted line
-// under a page title; Small is 12px; Lead is 16px secondary.
+// Mireye's type as components. Gilroy throughout, Regular 400 and Medium 500 only, no tracking: hierarchy comes from
+// size, colour and space, never weight. H1 is the 24px page title, H2 20px, H3 the 16px section and progress title
+// (Figma's largest product text), H4 a 14px medium label. Body copy is 13px Forest on a 1.4 line; Lead is 14px in
+// Forest at 80%; Muted is 13px at 72%; Small is the 12px caption. Inline code and coordinates are DM Mono on Fog,
+// square. Quotes hang from a 1px Forest rule.
 function TypographyH1({ className, ...props }: React.ComponentProps<"h1">) {
   return <h1 data-slot="typography-h1" className={cn("font-sans text-h1 leading-heading font-normal text-balance text-fg", className)} {...props} />;
 }
@@ -19,7 +20,7 @@ function TypographyH3({ className, ...props }: React.ComponentProps<"h3">) {
 }
 
 function TypographyH4({ className, ...props }: React.ComponentProps<"h4">) {
-  return <h4 data-slot="typography-h4" className={cn("font-sans text-h4 leading-body font-medium text-fg", className)} {...props} />;
+  return <h4 data-slot="typography-h4" className={cn("font-sans text-h4 leading-heading font-medium text-fg", className)} {...props} />;
 }
 
 function TypographyP({ className, ...props }: React.ComponentProps<"p">) {
@@ -42,28 +43,28 @@ function TypographyMuted({ className, ...props }: React.ComponentProps<"p">) {
   return <p data-slot="typography-muted" className={cn("font-sans text-body leading-body text-fg-muted", className)} {...props} />;
 }
 
-/** A quote: indented behind a 2px pink rule, in the secondary purple. */
+/** A quote or a cited passage: indented behind a 1px Forest rule, in Forest at 80%. */
 function TypographyBlockquote({ className, ...props }: React.ComponentProps<"blockquote">) {
-  return <blockquote data-slot="typography-blockquote" className={cn("mt-4 border-l-2 border-pink pl-4 font-sans text-body leading-body text-fg-secondary", className)} {...props} />;
+  return <blockquote data-slot="typography-blockquote" className={cn("mt-4 border-l border-line-strong pl-4 font-sans text-body leading-body text-fg-secondary", className)} {...props} />;
 }
 
 function TypographyList({ className, ordered = false, ...props }: Omit<React.ComponentProps<"ul">, "ref"> & { ordered?: boolean }) {
-  const classes = cn("my-4 ml-5 grid gap-1.5 font-sans text-body leading-body text-fg marker:text-fg-muted", ordered ? "list-decimal" : "list-disc", className);
+  const classes = cn("my-4 ml-5 grid gap-1.5 font-sans text-body leading-body text-fg marker:text-fg-subtle", ordered ? "list-decimal" : "list-disc", className);
   return ordered ? <ol data-slot="typography-list" className={classes} {...props} /> : <ul data-slot="typography-list" className={classes} {...props} />;
 }
 
-/** A key, host or ID inside text: IBM Plex Mono on the lilac with 4px corners. */
+/** A parcel ID, coordinate or command inside text: DM Mono on Fog, square. */
 function TypographyInlineCode({ className, ...props }: React.ComponentProps<"code">) {
-  return <code data-slot="typography-inline-code" className={cn("rounded-xs bg-subtle px-1 py-px font-mono text-body-sm text-fg [box-decoration-break:clone]", className)} {...props} />;
+  return <code data-slot="typography-inline-code" className={cn("bg-subtle px-1 py-px font-mono text-caption text-fg [box-decoration-break:clone]", className)} {...props} />;
 }
 
-/** A plain table in running text: the lilac head row and faint rules. For data, use Table. */
+/** A plain table in running text: caption-size head labels over a Stone rule, Mist rules between rows. For data, use Table. */
 function TypographyTable({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div data-slot="typography-table" className="my-4 w-full overflow-x-auto">
       <table
         className={cn(
-          "w-full border-collapse font-sans text-body leading-body text-fg [&_td]:border-b [&_td]:border-line-subtle [&_td]:px-4 [&_td]:py-2.5 [&_th]:bg-subtle [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-normal [&_th]:text-fg-muted [&_th:first-child]:rounded-l-panel [&_th:last-child]:rounded-r-panel",
+          "w-full border-collapse font-sans text-body leading-body text-fg [&_td]:border-b [&_td]:border-line-subtle [&_td]:px-3 [&_td]:py-2.5 [&_th]:border-b [&_th]:border-line [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-caption [&_th]:font-normal [&_th]:text-fg-secondary",
           className,
         )}
         {...props}

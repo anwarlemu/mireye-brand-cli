@@ -3,8 +3,8 @@ name: pagination
 title: Pagination
 type: ui
 surface: site
-description: "Quiet Previous and Next keys with 18px carets that fill with the lilac hover and a field edge; the current page is medium purple text."
-use_for: "Use under a table or list that has more than one page. Pass bar to center it in a 44px row under a table, as the console does. Mark the current page with isActive and disable Previous on the first page with aria-disabled."
-never: [A purple current page key, Page numbers in the action purple, More than seven page links at once, A filled bar behind the pages]
-source: "Console src/components/navigation/PaginationNavigator.tsx"
+description: "Square 32px page keys that fill with Fog under the pointer; the current page sits on Mist; Previous and Next carry Mireye's arrow."
+use_for: "Use under a long list of sites or records when it is split into pages. Pass bar to sit it under a table. Show the first and last page, the pages around the current one and PaginationEllipsis between. Give Previous aria-disabled on the first page and Next on the last."
+never: [Rounded or pill keys, Arrows that move on hover, A Forest current page, Infinite scroll and pages on one list]
+source: "Not in Figma: built from the rail's Fog hover and Mist current row and the arrow of UI · Buttons (442:3), for a designer's review"
 ---

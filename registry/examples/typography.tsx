@@ -3,16 +3,16 @@ import { TypographyBlockquote, TypographyH1, TypographyH2, TypographyH3, Typogra
 export function Preview() {
   return (
     <article className="w-full max-w-160">
-      <TypographyH3>Tunnel</TypographyH3>
-      <TypographyMuted>Stable hostname routing inbound traffic to @acme.</TypographyMuted>
+      <TypographyH3>Ellis County site 14</TypographyH3>
+      <TypographyMuted>212.6 ac assembled from three parcels, 0.8 mi from a 345 kV substation.</TypographyMuted>
       <TypographyP>
-        Each agent gets a public host such as <TypographyInlineCode>acme.inkboxwire.com</TypographyInlineCode>. Traffic reaches the agent wherever it runs, with TLS handled at the edge by default.
+        The site sits at <TypographyInlineCode>32.4113, -96.8302</TypographyInlineCode>, outside the 100-year flood plain, with municipal water along the north edge.
       </TypographyP>
-      <TypographyBlockquote>Direct card URLs stay public whether or not you list in the directory. Listing only controls discovery.</TypographyBlockquote>
+      <TypographyBlockquote>Zone X: an area of minimal flood hazard, outside the 0.2 percent annual chance flood plain.</TypographyBlockquote>
       <TypographyList>
-        <li>Opt your card into the public directory with an admin key.</li>
-        <li>View the card Inkbox serves for you.</li>
-        <li>Find workers in the public directory.</li>
+        <li>Parcel records from the county appraisal district.</li>
+        <li>Substations and queue status from the grid operator.</li>
+        <li>Elevation and slope from a 10 m elevation model.</li>
       </TypographyList>
       <TypographyTable>
         <thead>
@@ -23,12 +23,12 @@ export function Preview() {
         </thead>
         <tbody>
           <tr>
-            <td>Handle</td>
-            <td>@test-agent-233</td>
+            <td>Flood zone</td>
+            <td>Zone X</td>
           </tr>
           <tr>
-            <td>Email</td>
-            <td>test-agent-233@inkboxmail.com</td>
+            <td>Elevation</td>
+            <td>412 ft</td>
           </tr>
         </tbody>
       </TypographyTable>
@@ -39,16 +39,16 @@ export function Preview() {
 export function Scale() {
   return (
     <div className="grid w-full max-w-160 gap-3">
-      <TypographyH1>Agent Workspace</TypographyH1>
-      <TypographyH2>Create Your First Agent</TypographyH2>
-      <TypographyH3>Create Agent Identity</TypographyH3>
-      <TypographyH4>Email</TypographyH4>
-      <TypographyLead>Set up an identity to unlock mailbox, phone, and vault features.</TypographyLead>
-      <TypographyLarge>Your agent will be reachable at</TypographyLarge>
-      <TypographySmall>Shared lines are assigned when someone connects.</TypographySmall>
+      <TypographyH1>Sites near Waxahachie</TypographyH1>
+      <TypographyH2>Ellis County site 14</TypographyH2>
+      <TypographyH3>Loading terrain</TypographyH3>
+      <TypographyH4>Power</TypographyH4>
+      <TypographyLead>Find land that meets your requirements, with every value cited.</TypographyLead>
+      <TypographyLarge>9 of 9 requirements met</TypographyLarge>
+      <TypographySmall>Updated Oct 28, 2026 from county records.</TypographySmall>
       <TypographyList ordered>
-        <li>Create the agent.</li>
-        <li>Copy its API key.</li>
+        <li>Describe the site you need.</li>
+        <li>Review the matches and their sources.</li>
       </TypographyList>
     </div>
   );

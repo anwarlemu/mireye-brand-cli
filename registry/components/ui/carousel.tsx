@@ -1,14 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
 import { cn } from "@/lib/utils";
 
-// A row of slides that snap into place (extrapolated from the Inkbox console, Figma 427:2715: its white keys with
-// Shadow/S and 8px corners). Slides scroll natively (touch, trackpad and wheel) and snap; the previous and next keys
-// are 32px white circles with Shadow/S and an ink arrow, outside the row. Arrow keys move a slide when the carousel has
-// focus. The scroll is smooth (the browser's own easing) unless reduced motion is set.
+// A row of slides that snap into place (site photos, cards of matching sites). Slides scroll natively (touch, trackpad
+// and wheel) and snap; the previous and next keys are 32px white squares in the 1px Stone line with Mireye's arrow,
+// outside the row. They fill with Fog under the pointer and Mist when pressed (150ms); the arrow never moves. Arrow
+// keys move a slide when the carousel has focus. The scroll is smooth (the browser's own easing) unless reduced motion
+// is set. Nothing is rounded and nothing casts a shadow.
 
 type CarouselEvent = "select" | "reInit";
 type CarouselApi = {
@@ -175,7 +176,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const ARROW =
-  "absolute inline-flex size-8 items-center justify-center rounded-pill bg-surface text-fg shadow-s outline-none transition-[background-color,opacity] duration-150 ease-out hover:bg-subtle active:bg-subtle active:brightness-95 active:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:pointer-events-none disabled:opacity-40 motion-reduce:transition-none [&_svg]:size-4";
+  "absolute inline-flex size-8 cursor-pointer items-center justify-center border border-line bg-surface text-fg outline-none transition-[background-color,color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:transition-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:pointer-events-none disabled:text-fg-subtle motion-reduce:transition-none";
 
 function CarouselPrevious({ className, ...props }: React.ComponentProps<"button">) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel();
@@ -188,7 +189,7 @@ function CarouselPrevious({ className, ...props }: React.ComponentProps<"button"
       className={cn(ARROW, orientation === "horizontal" ? "top-1/2 -left-12 -translate-y-1/2" : "-top-12 left-1/2 -translate-x-1/2 rotate-90", className)}
       {...props}
     >
-      <ArrowLeftIcon />
+      <ArrowRightIcon size={16} aria-hidden className="rotate-180" />
       <span className="sr-only">Previous slide</span>
     </button>
   );
@@ -205,7 +206,7 @@ function CarouselNext({ className, ...props }: React.ComponentProps<"button">) {
       className={cn(ARROW, orientation === "horizontal" ? "top-1/2 -right-12 -translate-y-1/2" : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90", className)}
       {...props}
     >
-      <ArrowRightIcon />
+      <ArrowRightIcon size={16} aria-hidden />
       <span className="sr-only">Next slide</span>
     </button>
   );

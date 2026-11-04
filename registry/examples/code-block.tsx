@@ -1,27 +1,31 @@
 import { CodeBlock, CodeBlockActions, CodeBlockContent, CodeBlockCopyButton, CodeBlockHeader, CodeBlockTitle } from "@/components/ui/code-block";
 
-const HEADERS = `{
-  "X-Inkbox-Request-ID": "b4f64d39-7cf0-4c89-b2fa-3522091e979d",
-  "X-Inkbox-Timestamp": "1764875501",
-  "X-Inkbox-Signature": "sha256=2f8d6b7f37b7d6461f7b8a91f4f495eb54f60af8f4a1f9d3edfdc7d2adf237f2"
+const ANSWER = `{
+  "parcel": "042-117-09",
+  "county": "Ellis",
+  "coordinates": [32.4113, -96.8302],
+  "acres": 212.6,
+  "flood_zone": { "value": "X", "source": 1 },
+  "elevation_ft": { "value": 412, "source": 2 },
+  "slope_pct": { "value": 2.8, "source": 3 }
 }`;
 
-const SNIPPET = `import { Inkbox } from "@inkbox/sdk";
+const SNIPPET = `import { Mireye } from "@acme/mireye-client";
 
-// Send the agent's first email.
-const inkbox = new Inkbox({ apiKey: process.env.INKBOX_API_KEY });
-await inkbox.mail.send({ to: "you@example.com", subject: "Hello" });`;
+// Ask about a parcel and read the cited values.
+const mireye = new Mireye({ apiKey: process.env.MIREYE_API_KEY });
+const answer = await mireye.ask("Check flood risk and terrain for 32.4113, -96.8302");`;
 
 export function Preview() {
   return (
     <CodeBlock>
       <CodeBlockHeader>
-        <CodeBlockTitle language="json">JSON</CodeBlockTitle>
+        <CodeBlockTitle language="json">response.json</CodeBlockTitle>
         <CodeBlockActions>
-          <CodeBlockCopyButton value={HEADERS} />
+          <CodeBlockCopyButton value={ANSWER} />
         </CodeBlockActions>
       </CodeBlockHeader>
-      <CodeBlockContent code={HEADERS} language="json" wrap />
+      <CodeBlockContent code={ANSWER} language="json" wrap />
     </CodeBlock>
   );
 }
@@ -30,7 +34,7 @@ export function Script() {
   return (
     <CodeBlock>
       <CodeBlockHeader>
-        <CodeBlockTitle>send.ts</CodeBlockTitle>
+        <CodeBlockTitle>ask.ts</CodeBlockTitle>
         <CodeBlockActions>
           <CodeBlockCopyButton value={SNIPPET} />
         </CodeBlockActions>

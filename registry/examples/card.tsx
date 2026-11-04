@@ -1,100 +1,85 @@
-import { BellRingingIcon, CheckCircleIcon, EnvelopeIcon, LightningIcon, PhoneIcon, PlugsIcon } from "@phosphor-icons/react/ssr";
+import { DropIcon, LightningIcon, MountainsIcon } from "@phosphor-icons/react/ssr";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeMark } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function Preview() {
   return (
-    <div className="grid w-full gap-6 sm:grid-cols-3">
+    <div className="grid w-full gap-4 sm:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle>
-            <LightningIcon weight="fill" />
-            Trigger
+            <LightningIcon />
+            Power
           </CardTitle>
-          <CardDescription>Triggered after an inbound email is accepted and persisted to the mailbox.</CardDescription>
+          <CardDescription>Nearest substation 0.8 mi east, 138 kV, with capacity on the queue.</CardDescription>
         </CardHeader>
       </Card>
       <Card>
         <CardHeader>
           <CardTitle>
-            <BellRingingIcon weight="fill" />
-            Delivery
+            <DropIcon />
+            Water
           </CardTitle>
-          <CardDescription>Fire-and-forget POST. Delivery failures are logged and do not block mail processing.</CardDescription>
+          <CardDescription>Municipal main along the north edge. Outside the 100-year flood zone.</CardDescription>
         </CardHeader>
       </Card>
       <Card>
         <CardHeader>
           <CardTitle>
-            <PlugsIcon weight="fill" />
-            Response contract
+            <MountainsIcon />
+            Terrain
           </CardTitle>
-          <CardDescription>Any response body is ignored.</CardDescription>
+          <CardDescription>412 ft average elevation, 2.8% slope.</CardDescription>
         </CardHeader>
       </Card>
     </div>
   );
 }
 
-function Tile({ children }: { children: React.ReactNode }) {
-  return <span className="flex size-7 shrink-0 items-center justify-center rounded-pill bg-pink text-rose">{children}</span>;
-}
-
-export function Channel() {
+export function Site() {
   return (
-    <div className="grid w-full max-w-122 gap-2">
-      <Card variant="muted">
-        <CardHeader className="items-center">
-          <CardTitle className="gap-2.5">
-            <Tile>
-              <EnvelopeIcon weight="fill" className="size-5.5" />
-            </Tile>
-            Email
-          </CardTitle>
-          <CardAction className="self-center">
-            <Badge variant="success" size="lg">
-              <CheckCircleIcon weight="fill" />
-              Included
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <p className="flex h-10 items-center rounded-pill border border-line-field bg-subtle px-3.5 text-body text-fg-muted">acme-support@inboxmail.com</p>
-        </CardContent>
-      </Card>
-      <Card variant="muted">
-        <CardHeader className="items-center">
-          <CardTitle className="gap-2.5">
-            <Tile>
-              <PhoneIcon weight="fill" className="size-5.5" />
-            </Tile>
-            Phone Number
-          </CardTitle>
-        </CardHeader>
-      </Card>
-    </div>
-  );
-}
-
-export function WithFooter() {
-  return (
-    <Card variant="raised" className="w-full max-w-100">
+    <Card className="w-full max-w-110">
       <CardHeader>
-        <CardTitle className="text-body-lg">Custom domain</CardTitle>
-        <CardDescription>Send and receive as you@yourcompany.com. Add the DNS records, then verify.</CardDescription>
+        <CardTitle>Ellis County site 14</CardTitle>
+        <CardDescription className="font-mono text-caption">32.4113, -96.8302</CardDescription>
         <CardAction>
-          <Button variant="ghost" size="sm">Docs</Button>
+          <Badge variant="outline">
+            <BadgeMark state="verified" />
+            Verified
+          </Badge>
         </CardAction>
       </CardHeader>
-      <CardContent>
-        <p className="font-mono text-body text-fg">mail.yourcompany.com</p>
+      <CardContent className="flex flex-wrap gap-2">
+        <Badge>212.6 ac</Badge>
+        <Badge>138 kV</Badge>
+        <Badge>Zone X</Badge>
+        <Badge>I-2 Industrial</Badge>
       </CardContent>
       <CardFooter className="justify-end">
-        <Button variant="outline">Verify domain</Button>
+        <Button variant="outline">Open report</Button>
       </CardFooter>
     </Card>
+  );
+}
+
+export function Variants() {
+  return (
+    <div className="grid w-full gap-4 sm:grid-cols-2">
+      <Card variant="muted">
+        <CardHeader>
+          <CardTitle>Buy box</CardTitle>
+          <CardDescription>200+ ac, 138 kV within 2 mi, outside flood zones.</CardDescription>
+        </CardHeader>
+      </Card>
+      <Card variant="inverse">
+        <CardHeader>
+          <CardTitle>Best fit</CardTitle>
+          <CardDescription>Parcel 042-117-09 meets 9 of 9 requirements.</CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
   );
 }
 
@@ -102,8 +87,8 @@ export function Small() {
   return (
     <Card size="sm" className="w-full max-w-72">
       <CardHeader>
-        <CardTitle>Last connected</CardTitle>
-        <CardDescription>Aug 8, 2026, 07:16 PM</CardDescription>
+        <CardTitle>Last surveyed</CardTitle>
+        <CardDescription>Oct 28, 2026, 4:12 PM</CardDescription>
       </CardHeader>
     </Card>
   );

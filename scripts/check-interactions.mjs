@@ -147,10 +147,10 @@ export async function checkInteractions(page, base) {
     const sortable = page.locator('th[aria-sort] button, th button').first();
     await sortable.click();
     assert.ok(await page.locator('th[aria-sort="ascending"], th[aria-sort="descending"]').count(), 'data-table: a head sorts');
-    await page.locator('input[type=search], input[type=text], input:not([type])').first().fill('support-desk@');
-    assert.equal(await settle(rows, (count) => count === 1), 1, 'data-table: the filter finds the exact mailbox');
+    await page.locator('input[type=search], input[type=text], input:not([type])').first().fill('042-117-00');
+    assert.equal(await settle(rows, (count) => count === 1), 1, 'data-table: the filter finds the exact parcel');
     assert.ok(all > 1);
-    assert.match(await page.locator('tbody tr').innerText(), /support-desk@inkboxmail\.com/);
+    assert.match(await page.locator('tbody tr').innerText(), /042-117-00/);
 
     // Sidebar: on a desktop the Collapse row folds the rail to its glyphs and Cmd/Ctrl B brings it back.
     if (width > 800) {

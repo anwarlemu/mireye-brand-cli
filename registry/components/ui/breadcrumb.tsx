@@ -2,19 +2,18 @@
 
 import * as React from "react";
 import { chakra } from "@chakra-ui/react";
-import { CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/lib/utils";
 
-// A trail of pages (extrapolated from the Inkbox console, Figma 427:2715: its page heads and muted links). 14px muted
-// links that darken to ink on hover, the current page in ink, 16px faint carets between them, and three dots for the
-// pages folded away.
+// A trail of places (Texas, Ellis County, Site 14). 13px links in Forest at 72% that step to Forest on hover (150ms,
+// color only), the current place in Forest, and a Slate slash between, like a path. Three dots stand for the levels
+// folded away. Focus is the 1px Forest outline, 2px out.
 function Breadcrumb(props: React.ComponentProps<"nav">) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
-  return <ol data-slot="breadcrumb-list" className={cn("flex flex-wrap items-center gap-1.5 font-sans text-body leading-tight break-words text-fg-muted", className)} {...props} />;
+  return <ol data-slot="breadcrumb-list" className={cn("flex flex-wrap items-center gap-2 font-sans text-body leading-tight break-words text-fg-muted", className)} {...props} />;
 }
 
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
@@ -28,7 +27,7 @@ function BreadcrumbLink({ asChild, className, ...props }: React.ComponentProps<"
   return (
     <Comp {...slotProps}
       data-slot="breadcrumb-link"
-      className={cn("rounded-xs text-fg-muted outline-none transition-colors duration-fast ease-out hover:text-fg focus-visible:shadow-focus motion-reduce:transition-none", className)}
+      className={cn("text-fg-muted outline-none transition-colors duration-fast ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none", className)}
       {...props}
     />
   );
@@ -40,16 +39,16 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
 
 function BreadcrumbSeparator({ children, className, ...props }: React.ComponentProps<"li">) {
   return (
-    <li data-slot="breadcrumb-separator" role="presentation" aria-hidden="true" className={cn("text-fg-faint [&>svg]:size-4", className)} {...props}>
-      {children ?? <CaretRightIcon />}
+    <li data-slot="breadcrumb-separator" role="presentation" aria-hidden="true" className={cn("text-fg-subtle [&>svg]:size-3", className)} {...props}>
+      {children ?? "/"}
     </li>
   );
 }
 
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span">) {
   return (
-    <span data-slot="breadcrumb-ellipsis" role="presentation" aria-hidden="true" className={cn("flex size-7 items-center justify-center", className)} {...props}>
-      <DotsThreeIcon weight="bold" className="size-4" />
+    <span data-slot="breadcrumb-ellipsis" role="presentation" aria-hidden="true" className={cn("flex h-5 items-center justify-center", className)} {...props}>
+      ...
       <span className="sr-only">More</span>
     </span>
   );

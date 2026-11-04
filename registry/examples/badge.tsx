@@ -1,35 +1,39 @@
-import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
-
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeMark } from "@/components/ui/badge";
 
 export function Preview() {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="flex items-center gap-2.5 text-body text-fg">
-        Agent2Agent
-        <Badge variant="pink">BETA</Badge>
-      </span>
-      <span className="flex items-center gap-2.5 text-body text-fg">
-        My Organisation
-        <Badge variant="pink">ADMIN</Badge>
-      </span>
-      <Badge variant="success" size="lg">
-        <CheckCircleIcon weight="fill" />
-        Included
-      </Badge>
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="outline">
+          <BadgeMark state="verified" />
+          Verified
+        </Badge>
+        <Badge variant="outline">
+          <BadgeMark state="loading" />
+          Loading
+        </Badge>
+        <Badge variant="outline">
+          <BadgeMark state="queued" />
+          Queued
+        </Badge>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge>345 kV</Badge>
+        <Badge>41.2 ac</Badge>
+        <Badge>Zone X</Badge>
+        <Badge>I-2 Industrial</Badge>
+      </div>
     </div>
   );
 }
 
 export function Tags() {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <Badge variant="green">Active</Badge>
-      <Badge variant="red">Failed</Badge>
-      <Badge variant="blue">Email</Badge>
-      <Badge variant="purple">Signed</Badge>
-      <Badge variant="gray">Fire-and-forget</Badge>
-      <Badge variant="yellow">Pending</Badge>
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge>138 kV</Badge>
+      <Badge variant="secondary">Unzoned</Badge>
+      <Badge variant="inverse">Best fit</Badge>
+      <Badge variant="ghost">2 sources</Badge>
     </div>
   );
 }
@@ -37,7 +41,7 @@ export function Tags() {
 export function Count() {
   return (
     <span className="flex items-center gap-2 text-body text-fg">
-      Inbox
+      Saved sites
       <Badge variant="count">12</Badge>
     </span>
   );
@@ -45,24 +49,22 @@ export function Count() {
 
 export function Status() {
   return (
-    <div className="flex flex-wrap items-center gap-6">
-      <Badge variant="green" size="well">Active</Badge>
-      <Badge variant="gray" size="well">Idle</Badge>
-      <Badge variant="blue" size="well">Edge</Badge>
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge variant="success">Passes</Badge>
+      <Badge variant="warning">Partial data</Badge>
+      <Badge variant="destructive">In a flood zone</Badge>
     </div>
   );
 }
 
-export function Variants() {
+export function Sizes() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Badge>3 new</Badge>
-      <Badge variant="secondary">Draft</Badge>
-      <Badge variant="outline">Webhook</Badge>
-      <Badge variant="destructive">Failed</Badge>
-      <Badge variant="ghost">Archived</Badge>
+      <Badge size="sm">Zone X</Badge>
+      <Badge>Zone X</Badge>
+      <Badge size="lg">Zone X</Badge>
       <Badge variant="link" asChild>
-        <a href="https://inkbox.ai/docs" target="_blank" rel="noreferrer">Docs</a>
+        <a href="#parcel">Parcel 042-117-09</a>
       </Badge>
     </div>
   );

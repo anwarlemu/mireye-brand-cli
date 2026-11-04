@@ -1,21 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircleIcon, CircleIcon } from "@phosphor-icons/react/ssr";
 
+import { CheckIcon } from "@/components/icons/check";
 import { Button } from "@/components/ui/button";
+import { Diamond } from "@/components/ui/diamond";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-// A short set of questions asked one at a time (extrapolated from the console, Figma 427:2715: Create Agent Identity's
-// choices and the Where does this agent run? picker). A choice is a 44px white card with the field edge and 8px
-// corners, the brand's radio (a thick pink ring when chosen) or checkbox (purple when checked) 14px in, a 14px ink label
-// and its number or letter key at the right; a chosen card takes the purple edge. The question is 16px medium ink with
-// a 14px secondary line under it; progress is a 12px muted count over a thin purple bar. Changing questions is instant:
-// it is driven by the keyboard as often as by the pointer. The answers submit as one native form (FormData), every
-// question's inputs included, so the page owns saving and what happens next.
+// A short set of questions asked one at a time (a buy box: acreage, power, timing). A choice is a 44px white card in the
+// cut frame (1px Stone line, the 8px chamfer at the top-left) with Mireye's radio (an outlined diamond that takes a
+// solid node when chosen) or checkbox (a square that fills Forest with the white check) 12px in, a 13px Forest label
+// and its number or letter key at the right. Under the pointer the card fills with Fog (150ms); a chosen card takes
+// the Forest line. The question is 16px regular with a 13px secondary line under it; progress is a 12px muted count
+// over the tick bar. Changing questions is instant: it is driven by the keyboard as often as by the pointer. The
+// answers submit as one native form (FormData), every question's inputs included, so the page owns saving and what
+// happens next.
 
 type Choice = { readonly value: string; readonly disabled?: boolean };
 type ItemConfig = { readonly name: string; readonly required?: boolean; readonly multiple?: boolean; readonly choices?: readonly Choice[] };
@@ -206,17 +208,17 @@ function Questionnaire({
   );
 }
 
-/** Where the person is: "Question 2 of 3" in 12px muted medium over a 4px purple bar. */
+/** Where the person is: "Question 2 of 3" in 12px muted over the tick bar. */
 function QuestionnaireProgress({ className, children, ...props }: React.ComponentProps<"div">) {
   const { order, active } = useQuestionnaire();
   const at = active ? order.indexOf(active) + 1 : 0;
   const total = order.length;
   return (
     <div data-slot="questionnaire-progress" className={cn("grid w-full gap-1.5", className)} {...props}>
-      <span className="font-sans text-caption leading-tight font-medium text-fg-muted tabular-nums" aria-live="polite">
+      <span className="font-sans text-caption leading-tight text-fg-muted tabular-nums" aria-live="polite">
         {children ?? (total ? `Question ${at} of ${total}` : " ")}
       </span>
-      <Progress value={total ? (at / total) * 100 : 0} aria-label="Progress" className="h-1" />
+      <Progress value={total ? (at / total) * 100 : 0} aria-label="Progress" />
     </div>
   );
 }
@@ -249,7 +251,7 @@ function QuestionnaireItem({ name, required = false, multiple = false, className
 
 function QuestionnaireTitle({ className, ...props }: React.ComponentProps<"div">) {
   const { id } = useItem();
-  return <div id={`${id}-title`} data-slot="questionnaire-title" className={cn("font-sans text-body-lg leading-snug font-medium text-pretty text-fg", className)} {...props} />;
+  return <div id={`${id}-title`} data-slot="questionnaire-title" className={cn("font-sans text-h3 leading-heading font-normal text-pretty text-fg", className)} {...props} />;
 }
 
 function QuestionnaireDescription({ className, ...props }: React.ComponentProps<"p">) {
@@ -280,7 +282,7 @@ function QuestionnaireChoice({ value, disabled = false, index = 0, className, ch
       data-checked={checked || undefined}
       data-disabled={disabled || undefined}
       className={cn(
-        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-control border border-line-field bg-surface px-3.5 py-2.5 text-start font-sans text-body leading-snug text-fg select-none transition-[background-color,border-color] duration-150 ease-out hover:bg-subtle has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring data-checked:border-line-brand data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50 motion-reduce:transition-none",
+        "group/questionnaire-choice ds-cut-frame relative flex min-h-11 cursor-pointer items-start gap-3 px-3 py-3 text-start font-sans text-body leading-snug text-fg select-none [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] after:transition-[background-color] after:duration-fast after:ease-out before:transition-[background-color] before:duration-fast before:ease-out hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] has-focus-visible:outline-solid has-focus-visible:outline-1 has-focus-visible:outline-offset-2 has-focus-visible:outline-line-strong data-checked:[--ds-shape-stroke:var(--ds-color-border-strong)] data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:text-fg-subtle motion-reduce:after:transition-none motion-reduce:before:transition-none",
         className,
       )}
       {...props}
@@ -295,14 +297,16 @@ function QuestionnaireChoice({ value, disabled = false, index = 0, className, ch
         onChange={(event) => setAnswer(name, value, event.target.checked)}
         className="peer sr-only"
       />
-      <span aria-hidden data-slot="questionnaire-choice-indicator" className="pointer-events-none flex size-5.5 shrink-0 items-center justify-center">
+      <span aria-hidden data-slot="questionnaire-choice-indicator" className="pointer-events-none flex h-[1lh] shrink-0 items-center">
         {multiple ? (
-          <>
-            <CircleIcon className="size-full text-line-strong group-data-checked/questionnaire-choice:hidden" />
-            <CheckCircleIcon weight="fill" className="hidden size-full text-brand group-data-checked/questionnaire-choice:block" />
-          </>
+          <span className="flex size-4 items-center justify-center border border-line bg-surface text-fg-inverse group-data-checked/questionnaire-choice:border-line-strong group-data-checked/questionnaire-choice:bg-inverse">
+            <CheckIcon className="hidden group-data-checked/questionnaire-choice:block" />
+          </span>
         ) : (
-          <span className="size-4.5 rounded-pill border-[1.5px] border-line-strong bg-surface transition-[border-color,border-width] duration-150 ease-out group-data-checked/questionnaire-choice:border-[6px] group-data-checked/questionnaire-choice:border-brand motion-reduce:transition-none" />
+          <span className="relative flex size-4 items-center justify-center text-line group-data-checked/questionnaire-choice:text-line-strong">
+            <Diamond size={28} variant="outline" className="absolute size-4" />
+            <Diamond size={12} className="hidden group-data-checked/questionnaire-choice:block" />
+          </span>
         )}
       </span>
       <span data-slot="questionnaire-choice-label" className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -317,7 +321,7 @@ function QuestionnaireChoice({ value, disabled = false, index = 0, className, ch
   );
 }
 
-/** A choice's second line: 14px muted. */
+/** A choice's second line: 13px muted. */
 function QuestionnaireChoiceDescription({ className, ...props }: React.ComponentProps<"span">) {
   return <span data-slot="questionnaire-choice-description" className={cn("text-fg-muted", className)} {...props} />;
 }
@@ -333,7 +337,7 @@ function QuestionnaireInput({ className, ...props }: Omit<React.ComponentProps<t
   );
 }
 
-/** Why the question cannot be passed yet: 12px red, read out when it appears. */
+/** Why the question cannot be passed yet: 12px in the danger colour, read out when it appears. */
 function QuestionnaireError({ className, children, ...props }: React.ComponentProps<"p">) {
   const { errors } = useQuestionnaire();
   const { name, id } = useItem();
@@ -353,7 +357,7 @@ function QuestionnaireActions({ className, ...props }: React.ComponentProps<"div
 
 type ActionProps = Omit<React.ComponentProps<typeof Button>, "onClick" | "type"> & { onClick?: React.MouseEventHandler<HTMLButtonElement> };
 
-function QuestionnairePrevious({ children, className, variant = "secondary", onClick, ...props }: ActionProps) {
+function QuestionnairePrevious({ children, className, variant = "outline", onClick, ...props }: ActionProps) {
   const { order, active, previous } = useQuestionnaire();
   const first = !active || order.indexOf(active) <= 0;
   return (

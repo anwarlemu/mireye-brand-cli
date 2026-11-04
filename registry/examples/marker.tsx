@@ -1,4 +1,4 @@
-import { ArrowsLeftRightIcon, UserPlusIcon } from "@phosphor-icons/react/ssr";
+import { MagnifyingGlassIcon, StackIcon } from "@phosphor-icons/react/ssr";
 
 import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 
@@ -10,12 +10,12 @@ export function Preview() {
       </Marker>
       <Marker>
         <MarkerIcon>
-          <UserPlusIcon weight="fill" />
+          <MagnifyingGlassIcon />
         </MarkerIcon>
-        <MarkerContent>Ray Liao joined the conversation</MarkerContent>
+        <MarkerContent>Search widened to 25 mi from Waxahachie</MarkerContent>
       </Marker>
       <Marker variant="unread">
-        <MarkerContent>2 unread</MarkerContent>
+        <MarkerContent>3 new sites</MarkerContent>
       </Marker>
     </div>
   );
@@ -25,18 +25,18 @@ export function Variants() {
   return (
     <div className="mx-auto grid w-full max-w-120 gap-5">
       <Marker variant="border">
-        <MarkerContent>Threads</MarkerContent>
+        <MarkerContent>Saved searches</MarkerContent>
       </Marker>
       <Marker>
         <MarkerIcon>
-          <ArrowsLeftRightIcon />
+          <StackIcon />
         </MarkerIcon>
         <MarkerContent>
-          Delegated to @ops-agent over Agent2Agent. <a href="#session">View session</a>
+          Ellis County site 14 added to Shortlist. <a href="#shortlist">View shortlist</a>
         </MarkerContent>
       </Marker>
       <Marker variant="separator">
-        <MarkerContent>Jul 31</MarkerContent>
+        <MarkerContent>Oct 28</MarkerContent>
       </Marker>
     </div>
   );

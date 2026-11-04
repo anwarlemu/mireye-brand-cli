@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ArrowDownIcon, ArrowUpIcon, CaretLeftIcon, CaretRightIcon, CaretUpDownIcon, ColumnsIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/ssr";
+import { ColumnsIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/ssr";
 
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
+import { ParcelIcon } from "@/components/icons/parcel-icon";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -11,12 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-// A table of records people sort, filter, select and page through (the console's Mailboxes table, Figma 427:2715,
-// Email). It keeps the table's three panels: the 48px lilac head with 14px muted labels (a sortable label is a ghost key
-// with an arrow for its direction), the white Shadow/S body with 64px rows (a selected row on the lilac) and, 8px below,
-// the 42px lilac pagination bar with the selection count at its left and the pages at its right. Above it, a toolbar:
-// a 40px filter field with a magnifying glass and the outline Columns key that opens a menu of checkboxes. Sorting,
-// filtering and paging are instant (no motion): they are repeated many times in a row.
+// A list of records people sort, filter, select and page through (the Leads sites table), on Mireye's Table: no frame
+// of its own, a head of 12px labels in Forest at 80% over a 1px Stone rule, 44px rows ruled in Mist, a selected row on
+// Fog. A sortable head is a button; its arrow (Mireye's arrow head) shows only once the column is sorted or under the
+// pointer, and turns (150ms) when the sort reverses, so the label never moves. Above it, a toolbar: a filter field
+// with a magnifying glass and the outline Columns key that opens a menu of checkboxes. Under it, the pager: the
+// selection count and rows per page at the left, the page and its arrow keys at the right. Sorting, filtering and
+// paging are instant (no motion): they are repeated many times in a row. Put it on the canvas or in a cut-frame card.
+// SiteCell, NumberCell and TextCell are the cells the site lists use.
 
 type Value = string | number | Date | boolean | null | undefined;
 
@@ -49,20 +53,31 @@ function compare(a: Value, b: Value) {
   return text(a).localeCompare(text(b), undefined, { numeric: true, sensitivity: "base" });
 }
 
-/** A sortable head label: a ghost key whose arrow shows the direction (both carets while unsorted). */
+/** A sortable head label: a button whose arrow head shows the direction once sorted. */
 function DataTableColumnHeader({ title, sorted, onSort, className }: { title: React.ReactNode; sorted: false | "asc" | "desc"; onSort?: () => void; className?: string }) {
   if (!onSort) return <span className={className}>{title}</span>;
-  const Icon = sorted === "asc" ? ArrowUpIcon : sorted === "desc" ? ArrowDownIcon : CaretUpDownIcon;
   return (
     <button
       type="button"
       data-slot="data-table-column-header"
       onClick={onSort}
-      className={cn("-mx-2 inline-flex h-8 items-center gap-1.5 rounded-pill px-2 font-sans text-body leading-tight font-normal text-fg-muted outline-none transition-[background-color,color] duration-fast ease-out hover:bg-subtle-hover hover:text-fg focus-visible:shadow-focus active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none data-[sorted=true]:text-fg motion-reduce:transition-none", className)}
+      className={cn(
+        "group/sort inline-flex h-7 cursor-pointer items-center gap-1.5 font-sans text-caption leading-tight font-normal text-fg-secondary outline-none transition-colors duration-fast ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong data-[sorted=true]:text-fg motion-reduce:transition-none in-[th.text-right]:flex-row-reverse",
+        className,
+      )}
       data-sorted={!!sorted}
     >
       {title}
-      <Icon aria-hidden weight={sorted ? "bold" : "regular"} className="size-4" />
+      <ArrowRightIcon
+        size={16}
+        head
+        aria-hidden
+        className={cn(
+          "size-3 transition-[rotate,opacity] duration-fast ease-out motion-reduce:transition-none",
+          sorted ? "opacity-100" : "opacity-0 group-hover/sort:opacity-60 group-focus-visible/sort:opacity-60",
+          sorted === "desc" ? "rotate-90" : "-rotate-90",
+        )}
+      />
     </button>
   );
 }
@@ -72,8 +87,8 @@ function DataTableViewOptions({ columns, visible, onVisibleChange }: { columns: 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-10 shrink-0">
-          <ColumnsIcon weight="fill" />
+        <Button variant="outline" className="shrink-0">
+          <ColumnsIcon />
           Columns
         </Button>
       </DropdownMenuTrigger>
@@ -90,16 +105,15 @@ function DataTableViewOptions({ columns, visible, onVisibleChange }: { columns: 
   );
 }
 
-/** The pager under the table, as the console draws it: ghost 28px keys with 16px carets around the page number (14px,
- * the secondary purple, at least 32px wide), centered in a row at least 44px tall. The selection count and rows per
- * page sit at its left. */
+/** The pager under the table: the selection count and rows per page at the left; "Page 2 of 5" and two ghost keys
+ * with Mireye's arrow at the right, in a row at least 44px tall. */
 function DataTablePagination({ page, pageCount, onPageChange, pageSize, pageSizes, onPageSizeChange, selected, total, className }: { page: number; pageCount: number; onPageChange: (page: number) => void; pageSize?: number; pageSizes?: number[]; onPageSizeChange?: (size: number) => void; selected?: number; total?: number; className?: string }) {
   const go = (p: number) => () => {
     if (p >= 0 && p < pageCount) onPageChange(p);
   };
   return (
-    <nav aria-label="Pagination" data-slot="data-table-pagination" className={cn("grid min-h-11 grid-cols-1 items-center gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]", className)}>
-      <div className="flex min-h-7 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-body leading-tight text-fg-muted sm:justify-start">
+    <nav aria-label="Pagination" data-slot="data-table-pagination" className={cn("flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-1", className)}>
+      <div className="flex min-h-7 flex-wrap items-center gap-x-4 gap-y-1 text-caption leading-tight text-fg-muted">
         {selected !== undefined && total !== undefined && (
           <span aria-live="polite">
             {selected} of {total} selected
@@ -123,15 +137,15 @@ function DataTablePagination({ page, pageCount, onPageChange, pageSize, pageSize
           </span>
         )}
       </div>
-      <div className="flex items-center justify-center gap-1">
-        <Button variant="ghost" size="icon-sm" aria-label="Previous page" onClick={go(page - 1)} disabled={page === 0}>
-          <CaretLeftIcon className="size-4" />
-        </Button>
-        <span aria-current="page" className="min-w-8 text-center text-body leading-tight text-fg-secondary tabular-nums">
-          {page + 1}
+      <div className="ml-auto flex items-center gap-1">
+        <span aria-current="page" className="mr-2 text-caption leading-tight text-fg-muted tabular-nums">
+          Page {page + 1} of {pageCount}
         </span>
+        <Button variant="ghost" size="icon-sm" aria-label="Previous page" onClick={go(page - 1)} disabled={page === 0}>
+          <ArrowRightIcon size={16} className="rotate-180" />
+        </Button>
         <Button variant="ghost" size="icon-sm" aria-label="Next page" onClick={go(page + 1)} disabled={page >= pageCount - 1}>
-          <CaretRightIcon className="size-4" />
+          <ArrowRightIcon size={16} />
         </Button>
       </div>
     </nav>
@@ -158,10 +172,10 @@ type DataTableProps<T> = {
   empty?: React.ReactNode;
   /** Actions at the toolbar's right, before the Columns key. */
   toolbar?: React.ReactNode;
-  /** What a row is called in labels ("mailbox"). */
+  /** What a row is called in labels ("site"). */
   rowName?: string;
-  /** The boxed table (default) or the console's borderless list table. */
-  variant?: "default" | "open";
+  /** The plain ruled table (default), or the same inside the white cut frame. */
+  variant?: "default" | "framed" | "open";
   className?: string;
 };
 
@@ -203,9 +217,9 @@ function DataTable<T>({ columns, data, getRowId, filter = {}, selectable = false
       {(filter || !hideViewOptions || toolbar) && (
         <div data-slot="data-table-toolbar" className="flex flex-wrap items-center gap-2">
           {filter && (
-            <InputGroup className="max-w-80 min-w-48 flex-1">
+            <InputGroup className="max-w-72 min-w-48 flex-1">
               <InputGroupAddon>
-                <MagnifyingGlassIcon className="size-3.5 text-fg-subtle" />
+                <MagnifyingGlassIcon className="size-4 text-fg-subtle" />
               </InputGroupAddon>
               <InputGroupInput
                 type="text"
@@ -299,5 +313,59 @@ function DataTable<T>({ columns, data, getRowId, filter = {}, selectable = false
   );
 }
 
-export { DataTable, DataTableColumnHeader, DataTablePagination, DataTableViewOptions };
+/**
+ * A site's lead cell: an aerial crop (48 by 36px, the parcel outlined in Bone on it) or the parcel glyph on Fog, then
+ * the name and the parcel ID in DM Mono. The ID truncates from its start: IDs share their beginning, so the end is the
+ * part that differs.
+ */
+function SiteCell({ name, parcelId, image }: { name: string; parcelId?: string; image?: string }) {
+  return (
+    <span data-slot="data-table-site" className="flex min-w-0 items-center gap-3">
+      <span aria-hidden className="relative flex h-9 w-12 shrink-0 items-center justify-center overflow-hidden bg-subtle text-fg-subtle">
+        {image ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="" className="ds-imagery size-full object-cover" />
+            <span className="absolute inset-x-[28%] inset-y-[26%] border border-bone" />
+          </>
+        ) : (
+          <ParcelIcon />
+        )}
+      </span>
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="truncate text-body text-fg" title={name}>
+          {name}
+        </span>
+        {parcelId && (
+          <span dir="rtl" className="truncate text-left font-mono text-caption leading-tight text-fg-muted" title={parcelId}>
+            <bdi>{parcelId}</bdi>
+          </span>
+        )}
+      </span>
+    </span>
+  );
+}
+
+/** A number cell: tabular figures, one decimal by default, an optional unit; no value reads "Not recorded" in Slate. */
+function NumberCell({ value, decimals = 1, unit }: { value: number | null | undefined; decimals?: number; unit?: string }) {
+  if (value == null) return <span className="text-fg-subtle">Not recorded</span>;
+  return (
+    <span className="tabular-nums">
+      {value.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
+      {unit ? ` ${unit}` : ""}
+    </span>
+  );
+}
+
+/** A text cell: one line, truncated, with the full text on hover; no value reads "Not recorded" in Slate. */
+function TextCell({ value }: { value: string | null | undefined }) {
+  if (!value) return <span className="text-fg-subtle">Not recorded</span>;
+  return (
+    <span className="block max-w-60 truncate" title={value}>
+      {value}
+    </span>
+  );
+}
+
+export { DataTable, DataTableColumnHeader, DataTablePagination, DataTableViewOptions, NumberCell, SiteCell, TextCell };
 export type { DataTableColumn, DataTableProps, SortState };
