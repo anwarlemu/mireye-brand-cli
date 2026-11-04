@@ -8,30 +8,6 @@
    rounded and nothing casts a shadow. */
 
 :root {
-	/* Palette · API · Field (the default): green leads, brown supports. */
-	--ds-color-forest: #1E231C;
-	--ds-color-moss: #33402F;
-	--ds-color-fern: #5E7052;
-	--ds-color-lichen: #A9B892;
-	--ds-color-earth: #2A2119;
-	--ds-color-bone: #F4F1EA;
-	/* Palette · Enterprise · Earth: brown leads (the platform: site selection, sector pages, reports). */
-	--ds-color-umber: #1F1813;
-	--ds-color-bark: #4A3E32;
-	--ds-color-clay: #C9A47A;
-	--ds-color-sand: #D9CDB8;
-	--ds-color-bone-warm: #F4EFE6;
-	/* The product's green-tinted grays (UI boards 442:2). */
-	--ds-color-mist: #DCDEDA;
-	--ds-color-stone: #B9BDB7;
-	--ds-color-slate: #8C918B;
-	--ds-color-haze: #C9CDC8;
-	--ds-color-fog: #E6E8E4;
-	/* A primary key's hover: Forest a step lighter (the hatch lines on Figma's hover). */
-	--ds-color-hatch-dark: #3E443E;
-	/* Unlit loader ticks on a dark fill. */
-	--ds-color-track-dark: #5E645E;
-
 	--ds-color-brand: #1E231C;
 	--ds-color-black: #000000;
 	--ds-color-white: #FFFFFF;
@@ -56,11 +32,11 @@
 	/* A switch that is off. */
 	--ds-color-bg-off: #B9BDB7;
 
-	/* Text: Forest, and Forest at 80 and 72 percent for labels and annotations; Slate for placeholders and anything
-	   disabled. Links are the ink too, underlined. */
+	/* Text: Forest, and Forest at 80 and 72 percent on white (#4B4F49, #5D615C, solid so they convert and contrast-check
+	   cleanly) for labels and annotations; Slate for placeholders and anything disabled. Links are the ink, underlined. */
 	--ds-color-text-default: #1E231C;
-	--ds-color-text-secondary: rgb(30 35 28 / 0.8);
-	--ds-color-text-muted: rgb(30 35 28 / 0.72);
+	--ds-color-text-secondary: #4B4F49;
+	--ds-color-text-muted: #5D615C;
 	--ds-color-text-subtle: #8C918B;
 	--ds-color-text-faint: #8C918B;
 	--ds-color-text-nav: #1E231C;
@@ -68,9 +44,9 @@
 	--ds-color-text-inverse-muted: #C9CDC8;
 	--ds-color-text-brand: #1E231C;
 	--ds-color-text-on-brand: #FFFFFF;
-	--ds-color-text-label: rgb(30 35 28 / 0.8);
+	--ds-color-text-label: #4B4F49;
 	--ds-color-icon-default: #1E231C;
-	--ds-color-icon-secondary: rgb(30 35 28 / 0.72);
+	--ds-color-icon-secondary: #5D615C;
 	/* Code: a quiet light theme in the palette (Moss keys, Fern strings, Earth numbers). */
 	--ds-color-code-text: #1E231C;
 	--ds-color-code-key: #33402F;
@@ -86,7 +62,7 @@
 	--ds-color-code-brace: #8C918B;
 	--ds-color-code-line: #B9BDB7;
 	--ds-color-code-line-active: #1E231C;
-	--ds-color-code-head-fg: rgb(30 35 28 / 0.72);
+	--ds-color-code-head-fg: #5D615C;
 
 	/* Lines: Stone for every 1px edge, Mist for rules inside a panel, Forest for a focused or strong edge. */
 	--ds-color-border-default: #B9BDB7;
@@ -237,6 +213,31 @@
 	--ds-easing-out: cubic-bezier(0.23, 1, 0.32, 1);
 	--ds-easing-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 	--ds-easing-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+	/* The named palette, after the roles so a value that matches both converts to its role. */
+	/* Palette · API · Field (the default): green leads, brown supports. */
+	--ds-color-forest: #1E231C;
+	--ds-color-moss: #33402F;
+	--ds-color-fern: #5E7052;
+	--ds-color-lichen: #A9B892;
+	--ds-color-earth: #2A2119;
+	--ds-color-bone: #F4F1EA;
+	/* Palette · Enterprise · Earth: brown leads (the platform: site selection, sector pages, reports). */
+	--ds-color-umber: #1F1813;
+	--ds-color-bark: #4A3E32;
+	--ds-color-clay: #C9A47A;
+	--ds-color-sand: #D9CDB8;
+	--ds-color-bone-warm: #F4EFE6;
+	/* The product's green-tinted grays (UI boards 442:2). */
+	--ds-color-mist: #DCDEDA;
+	--ds-color-stone: #B9BDB7;
+	--ds-color-slate: #8C918B;
+	--ds-color-haze: #C9CDC8;
+	--ds-color-fog: #E6E8E4;
+	/* A primary key's hover: Forest a step lighter (the hatch lines on Figma's hover). */
+	--ds-color-hatch-dark: #3E443E;
+	/* Unlit loader ticks on a dark fill. */
+	--ds-color-track-dark: #5E645E;
 }
 
 /* Enterprise · Earth: the same components, brown instead of green. Wrap a screen in data-brand="enterprise".

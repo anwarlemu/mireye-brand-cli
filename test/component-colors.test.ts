@@ -39,7 +39,7 @@ describe('component color application', () => {
     expect(out).toContain('.btn-primary:hover { background: var(--ds-color-action-primary-hover); }');
     expect(out).toContain('.btn-primary:active { background: var(--ds-color-action-primary-hover); }');
     expect(out).toContain('border: 1px solid var(--ds-color-border-field)');
-    expect(out).toContain('.input:focus-visible { border-color: var(--ds-color-border-brand); }');
+    expect(out).toContain('.input:focus-visible { border-color: var(--ds-color-border-strong); }');
     for (const line of original.split('\n').filter((s) => /chart|unknown|gradient/.test(s))) expect(out).toContain(line);
     expect(apply('page.css', out)).toBe(out);
   });
@@ -59,7 +59,7 @@ describe('component color application', () => {
     expect(out).toContain('onClick={save} className="px-4 bg-primary text-on-primary hover:bg-primary-hover active:bg-primary-hover"');
     expect(out).toContain('variant="destructive" className="bg-danger text-white hover:bg-danger-strong"');
     expect(out).toContain('variant="success" className="border-success bg-surface text-success"');
-    expect(out).toContain('rounded-full bg-surface text-fg border-line-field focus-visible:border-line-brand aria-invalid:border-danger placeholder:text-fg-subtle');
+    expect(out).toContain('rounded-full bg-surface text-fg border-line focus-visible:border-line-strong aria-invalid:border-danger placeholder:text-fg-subtle');
     expect(out).toContain('<div className="bg-red-500 text-blue-500">');
     expect(out).toContain('variant={danger ? "destructive" : "default"} className="bg-red-500"');
     expect(out).toContain('danger && "bg-red-500", selected ? "text-red-500" : "text-blue-500"');
@@ -100,7 +100,7 @@ describe('component color application', () => {
     expect(applied).toContain('--shared: #74629D');
     expect(applied).toContain('.chart { color:#74629D;fill:var(--shared); }');
     expect(applied).toContain('background:var(--ds-color-action-primary)');
-    expect(readFileSync(join(root, '_inkbox-ds/brand.css'), 'utf8')).toContain('--ds-color-action-primary:');
+    expect(readFileSync(join(root, '_mireye-ds/brand.css'), 'utf8')).toContain('--ds-color-action-primary:');
     expect(readFileSync(join(root, 'chart.js'), 'utf8')).toBe('const chart = { color: "#74629D", backgroundColor: "#ff0033" };');
     expect(readFileSync(join(root, 'logo.svg'), 'utf8')).toBe('<svg><path fill="#ffffff"/></svg>');
     expect(JSON.parse(readFileSync(join(root, '.ds/state.json'), 'utf8')).colors).toBe('components');

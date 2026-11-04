@@ -9,18 +9,18 @@
 				]
 			},
 			"css": {
-				"background-color": "var(--ds-color-bg-default)",
+				"background-color": "var(--ds-color-bg-page)",
 				"color": "var(--ds-color-text-default)",
 				"font-family": "var(--ds-font-sans)",
 				"font-size": "var(--ds-text-body)",
 				"line-height": "var(--ds-leading-body)"
 			},
-			"tailwind": "bg-surface text-fg font-sans text-body leading-body",
+			"tailwind": "bg-page text-fg font-sans text-body leading-body",
 			"rules": [
-				"White, Inter at 14px in the deep purple ink.",
-				"The left rail is white with a hairline at its edge; a second rail (an agent workspace) is lilac."
+				"The Canvas ground (#F2F3F1), Gilroy at 13px in Forest.",
+				"White is for controls and panels on the ground, each with a 1px Stone line."
 			],
-			"source": "Figma 427:2715 (Dashboard - empty state)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"column": {
 			"name": "Content column",
@@ -43,7 +43,7 @@
 			"rules": [
 				"Pages fill the width beside the rail with 24px sides; reading text stops at 680px."
 			],
-			"source": "Figma 427:2715 (Email, Vault)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"section": {
 			"name": "Section",
@@ -67,7 +67,7 @@
 			"rules": [
 				"A block of a page: a 14px label (Signature headers) over its content, 24px from the next block."
 			],
-			"source": "Figma 427:2715 (Webhooks - Event catalog)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"section-heading": {
 			"name": "Section heading",
@@ -96,7 +96,7 @@
 				"A section inside a page is named in 14px regular ink (Channels, Signature headers, Tunnel TLS mode).",
 				"A page or dialog title is 20px regular (page-title)."
 			],
-			"source": "Figma 427:2715 (Create Agent Identity: Channels)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"section-description": {
 			"name": "Section description",
@@ -124,9 +124,9 @@
 			},
 			"tailwind": "text-body leading-body text-fg-muted",
 			"rules": [
-				"14px in the muted purple under a title or a field label."
+				"13px in Forest at 72 percent under a title or a field label."
 			],
-			"source": "Figma 427:2715 (Vault: Enter a vault key...)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"hero": {
 			"name": "Page head",
@@ -142,16 +142,16 @@
 			"css": {
 				"display": "flex",
 				"flex-direction": "column",
-				"gap": "var(--ds-space-0-5)",
+				"gap": "var(--ds-space-1)",
 				"padding": "var(--ds-space-4) var(--ds-space-6)",
-				"border-bottom": "1px solid var(--ds-color-border-subtle)",
-				"background-color": "var(--ds-color-bg-default)"
+				"border-bottom": "1px solid var(--ds-color-border-default)",
+				"background-color": "transparent"
 			},
-			"tailwind": "flex flex-col gap-0.5 px-6 py-4 border-b border-line-subtle bg-surface",
+			"tailwind": "flex flex-col gap-1 px-6 py-4 border-b border-line",
 			"rules": [
-				"The console has no hero: a page opens with its head, a 20px title and a 14px muted line, ruled off from the page."
+				"A page opens with its head: a 24px regular title and a 13px muted line, ruled off from the page by a 1px Stone line."
 			],
-			"source": "Figma 427:2715 (Vault, Webhooks heads)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"hero-title": {
 			"name": "Page title",
@@ -167,16 +167,16 @@
 			},
 			"css": {
 				"font-family": "var(--ds-font-display)",
-				"font-size": "var(--ds-text-h3)",
+				"font-size": "var(--ds-text-h1)",
 				"font-weight": "var(--ds-font-weight-regular)",
 				"line-height": "var(--ds-leading-heading)",
 				"color": "var(--ds-color-text-default)"
 			},
-			"tailwind": "font-display text-h3 font-normal leading-heading text-fg",
+			"tailwind": "font-display text-h1 font-normal leading-heading text-fg",
 			"rules": [
 				"20px regular ink; never bold, never tracked."
 			],
-			"source": "Figma 427:2715 (Vault, Email, Create Agent Identity)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"hero-subtitle": {
 			"name": "Page description",
@@ -201,12 +201,12 @@
 			},
 			"tailwind": "text-body leading-body text-fg-muted",
 			"rules": [
-				"14px muted purple, one line under the title."
+				"13px in Forest at 72 percent, one line under the title."
 			],
-			"source": "Figma 427:2715 (Vault: Zero-knowledge encrypted secret store for your agents.)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"eyebrow": {
-			"name": "Rail label",
+			"name": "Section label",
 			"match": {
 				"words": [
 					"eyebrow",
@@ -219,16 +219,16 @@
 				]
 			},
 			"css": {
-				"font-size": "var(--ds-text-body-sm)",
+				"font-size": "var(--ds-text-caption)",
 				"line-height": "var(--ds-leading-tight)",
 				"color": "var(--ds-color-text-label)"
 			},
-			"tailwind": "text-body-sm leading-tight text-fg-label",
+			"tailwind": "text-caption leading-tight text-fg-label",
 			"rules": [
-				"13px regular in the action purple, above a group of rail rows (Channels, Shared).",
+				"12px regular in Forest at 80 percent, above a group of rows or a field.",
 				"Sentence case; never caps."
 			],
-			"source": "Figma 427:2715 (rail: Channels, Shared)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"card": {
 			"name": "Card",
@@ -251,19 +251,18 @@
 				"flex-direction": "column",
 				"gap": "var(--ds-space-2)",
 				"padding": "var(--ds-space-4)",
-				"border": "1px solid var(--ds-color-border-field)",
+				"border": "1px solid var(--ds-color-border-default)",
 				"border-radius": "var(--ds-radius-dialog)",
 				"background-color": "var(--ds-color-bg-default)"
 			},
-			"tailwind": "flex flex-col gap-2 p-4 border border-line-field rounded-dialog bg-surface",
+			"tailwind": "flex flex-col gap-2 p-4 ds-cut-frame",
 			"rules": [
-				"White with the field edge and 24px corners; a 16px glyph and a 14px title over 14px muted text (Trigger, Delivery).",
-				"A channel card inside a dialog sits on the lilac with no edge and 24px corners (rounded-dialog)."
+				"A white panel on the Canvas with a 1px Stone line and the 8px cut corner at the top-left (ds-cut-frame); nothing rounded, no shadow."
 			],
-			"source": "Figma 427:2715 (Webhooks: Trigger, Delivery, Response contract)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"card-raised": {
-			"name": "Raised panel",
+			"name": "Framed panel",
 			"match": {
 				"words": [
 					"feature",
@@ -279,14 +278,14 @@
 				"background-color": "var(--ds-color-bg-default)",
 				"box-shadow": "var(--ds-shadow-card)"
 			},
-			"tailwind": "rounded-dialog bg-surface shadow-card",
+			"tailwind": "bg-surface shadow-card",
 			"rules": [
-				"A white panel lifted by Shadow/S, a 1px ring and a short drop: a table body, a selected tab, a select trigger."
+				"A white panel ringed by a 1px Stone line: a table body, a selected tab, a select. No drop shadow."
 			],
-			"source": "Figma 427:2715 (Email: table body)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"window": {
-			"name": "Lilac panel",
+			"name": "Fog well",
 			"match": {
 				"words": [
 					"window",
@@ -301,11 +300,11 @@
 				"border-radius": "var(--ds-radius-control)",
 				"background-color": "var(--ds-color-bg-subtle)"
 			},
-			"tailwind": "p-3.5 rounded-control bg-subtle",
+			"tailwind": "p-3.5 bg-subtle",
 			"rules": [
-				"A grouped block on the lilac with 12px corners (Initialize vault)."
+				"A Fog well inside a panel: a site chip, a data tag row, a read-only value."
 			],
-			"source": "Figma 427:2715 (Vault: Initialize vault)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"window-bar": {
 			"name": "Code head",
@@ -331,9 +330,9 @@
 			},
 			"tailwind": "flex items-center gap-2 h-10 px-3 border-b border-line-code bg-code-head text-code-head-fg text-body",
 			"rules": [
-				"The gray head of a code block: the language at the left, a purple copy glyph at the right."
+				"The Fog head of a code block: the language at the left in DM Mono, a copy key at the right."
 			],
-			"source": "Figma 427:2715 (Webhooks: JSON)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"card-title": {
 			"name": "Card title",
@@ -360,9 +359,9 @@
 			},
 			"tailwind": "text-body font-normal leading-body text-fg",
 			"rules": [
-				"14px regular ink (Trigger); a channel card title is 16px medium."
+				"13px regular Forest; a section title is 16px regular."
 			],
-			"source": "Figma 427:2715 (Webhooks: Trigger)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"body-text": {
 			"name": "Body text",
@@ -390,7 +389,7 @@
 			"rules": [
 				"14px ink; secondary copy under a title in #70637E."
 			],
-			"source": "Figma 427:2715 (Inbox: message body)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"caption": {
 			"name": "Caption",
@@ -419,7 +418,7 @@
 			"rules": [
 				"12px muted for small print (Will be displayed as, reCAPTCHA notes)."
 			],
-			"source": "Figma 427:2715 (Login footer)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"link": {
 			"name": "Link",
@@ -441,10 +440,9 @@
 			},
 			"tailwind": "text-fg-brand no-underline transition-colors duration-150 ease-out hover:underline underline-offset-4",
 			"rules": [
-				"Links are the action purple with no underline until hover (Forgot password?, Generate a random key instead).",
-				"A link inside muted copy is underlined in the same color as the copy (Manage agents.)."
+				"Links are the ink, underlined 3px below the text; the underline darkens nothing else on hover."
 			],
-			"source": "Figma 427:2715 (Login, Vault)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
 					"text-decoration": "underline"
@@ -475,39 +473,37 @@
 				"align-items": "center",
 				"justify-content": "center",
 				"gap": "var(--ds-space-2)",
-				"height": "var(--ds-space-10)",
-				"padding-inline": "var(--ds-space-5)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-4)",
 				"border": "0",
-				"border-radius": "var(--ds-radius-pill)",
+				"border-radius": "0",
 				"background-color": "var(--ds-color-action-primary)",
 				"color": "var(--ds-color-action-primary-fg)",
 				"font-family": "var(--ds-font-sans)",
 				"font-size": "var(--ds-text-body)",
-				"font-weight": "var(--ds-font-weight-regular)",
+				"font-weight": "var(--ds-font-weight-medium)",
 				"line-height": "1",
 				"white-space": "nowrap",
 				"text-decoration": "none",
 				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
 			},
-			"tailwind": "inline-flex items-center justify-center gap-2 h-10 px-5 rounded-pill bg-primary text-on-primary font-sans text-body font-normal leading-none whitespace-nowrap transition-[background-color] duration-150 ease-out hover:bg-primary-hover active:bg-primary-hover active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none outline-none focus-visible:shadow-focus",
+			"tailwind": "ds-cut [--ds-shape-fill:var(--ds-color-action-primary)] hover:[--ds-shape-fill:var(--ds-color-action-primary-hover)] active:[--ds-shape-fill:var(--ds-color-action-primary)] inline-flex items-center justify-center gap-2 h-9 px-4 text-on-primary font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
 			"rules": [
-				"The main action is a 40px purple pill with a 14px regular white label and a 20px glyph 8px from it.",
-				"One per view (Create Agent, Log in); a dialog's action spans its width."
+				"The one main action: a Forest key with the 8px cut corner, a white 13px medium label and an arrow. Hover steps to #3E443E; press steps back at once. One per view."
 			],
-			"source": "Figma 427:2715 (Create Agent, Enable iMessage, Log in)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
 					"background-color": "var(--ds-color-action-primary-hover)"
 				},
 				":active": {
-					"filter": "brightness(0.95)",
-					"transition": "none",
-					"background-color": "var(--ds-color-action-primary-hover)"
+					"background-color": "var(--ds-color-action-primary)",
+					"transition": "none"
 				}
 			}
 		},
 		"button-secondary": {
-			"name": "Outline button",
+			"name": "Framed button",
 			"match": {
 				"tags": [
 					"button",
@@ -529,13 +525,13 @@
 				"display": "inline-flex",
 				"align-items": "center",
 				"justify-content": "center",
-				"gap": "var(--ds-space-1)",
+				"gap": "var(--ds-space-2)",
 				"height": "var(--ds-space-9)",
-				"padding-inline": "var(--ds-space-3)",
-				"border": "1px solid var(--ds-color-border-field)",
-				"border-radius": "var(--ds-radius-pill)",
+				"padding-inline": "var(--ds-space-4)",
+				"border": "1px solid var(--ds-color-border-strong)",
+				"border-radius": "0",
 				"background-color": "var(--ds-color-bg-default)",
-				"color": "var(--ds-color-text-brand)",
+				"color": "var(--ds-color-text-default)",
 				"font-family": "var(--ds-font-sans)",
 				"font-size": "var(--ds-text-body)",
 				"font-weight": "var(--ds-font-weight-medium)",
@@ -544,25 +540,23 @@
 				"text-decoration": "none",
 				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
 			},
-			"tailwind": "inline-flex items-center justify-center gap-1 h-9 px-3 border border-line-field rounded-pill bg-surface text-fg-brand font-sans text-body font-medium leading-none whitespace-nowrap transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none outline-none focus-visible:shadow-focus",
+			"tailwind": "ds-cut-frame [--ds-shape-stroke:var(--ds-color-border-strong)] [--ds-shape-fill:var(--ds-color-bg-default)] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] inline-flex items-center justify-center gap-2 h-9 px-4 text-fg font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
 			"rules": [
-				"Other actions are the 36px white key with fully rounded corners, the field edge and a medium purple label (View as formatted).",
-				"Beside the main action on a form, use the lilac pill instead (Continue with GitHub)."
+				"The second action: a white key with a 1px Forest line and the cut corner. Hover steps to Fog, press to Mist."
 			],
-			"source": "Figma 427:2715 (Modal - Created: View as formatted, Copy as markdown)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
 					"background-color": "var(--ds-color-bg-subtle)"
 				},
 				":active": {
-					"filter": "brightness(0.95)",
-					"transition": "none",
-					"background-color": "var(--ds-color-bg-subtle)"
+					"background-color": "var(--ds-color-bg-subtle-hover)",
+					"transition": "none"
 				}
 			}
 		},
 		"button-on-brand": {
-			"name": "Lilac pill",
+			"name": "Text action",
 			"match": {
 				"tags": [
 					"button",
@@ -581,31 +575,27 @@
 				"align-items": "center",
 				"justify-content": "center",
 				"gap": "var(--ds-space-2)",
-				"height": "var(--ds-space-10)",
-				"padding-inline": "var(--ds-space-5)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "0",
 				"border": "0",
-				"border-radius": "var(--ds-radius-pill)",
-				"background-color": "var(--ds-color-bg-subtle)",
-				"color": "var(--ds-color-text-default)",
+				"border-radius": "0",
+				"background-color": "transparent",
+				"color": "var(--ds-color-text-secondary)",
 				"font-family": "var(--ds-font-sans)",
 				"font-size": "var(--ds-text-body)",
 				"line-height": "1",
 				"white-space": "nowrap",
-				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
+				"transition": "color var(--ds-duration-fast) var(--ds-easing-out)",
+				"font-weight": "var(--ds-font-weight-medium)"
 			},
-			"tailwind": "inline-flex items-center justify-center gap-2 h-10 px-5 rounded-pill bg-subtle text-fg font-sans text-body leading-none whitespace-nowrap transition-[background-color] duration-150 ease-out hover:bg-subtle-hover active:bg-subtle-hover active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none outline-none focus-visible:shadow-focus",
+			"tailwind": "inline-flex items-center gap-2 h-9 px-0 bg-transparent text-fg-secondary font-sans text-body font-medium leading-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
 			"rules": [
-				"The alternative beside the main action: the same pill in lilac with ink text (Continue with GitHub, Continue with Google)."
+				"A text action: an 80 percent Forest label and the arrow, no fill or shape; the label turns Forest under the pointer and nothing moves."
 			],
-			"source": "Figma 427:2715 (Login)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
-					"background-color": "var(--ds-color-bg-subtle-hover)"
-				},
-				":active": {
-					"filter": "brightness(0.95)",
-					"transition": "none",
-					"background-color": "var(--ds-color-bg-subtle-hover)"
+					"color": "var(--ds-color-text-default)"
 				}
 			}
 		},
@@ -633,15 +623,15 @@
 				"gap": "var(--ds-space-1)",
 				"width": "var(--ds-layout-rail)",
 				"padding": "var(--ds-space-3)",
-				"border-right": "1px solid var(--ds-color-border-subtle)",
+				"border-right": "1px solid var(--ds-color-border-default)",
 				"background-color": "var(--ds-color-bg-default)"
 			},
-			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 border-r border-line-subtle bg-surface",
+			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 border-r border-line bg-surface",
 			"rules": [
-				"Navigation lives in a 288px white rail at the left: the lockup, then rows grouped under purple labels, help and the account at the foot.",
+				"Navigation lives in a 212px white rail at the left with a 1px Stone line at its edge: the mark, then square rows grouped under 12px labels.",
 				"There is no top bar on a desktop screen."
 			],
-			"source": "Figma 427:2715 (Dashboard - empty state: rail)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"header-action": {
 			"name": "Head action",
@@ -668,27 +658,28 @@
 				"display": "inline-flex",
 				"align-items": "center",
 				"gap": "var(--ds-space-2)",
-				"height": "var(--ds-space-10)",
-				"padding-inline": "var(--ds-space-3)",
-				"border-radius": "var(--ds-radius-pill)",
-				"background-color": "var(--ds-color-bg-subtle)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-4)",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-bg-default)",
 				"color": "var(--ds-color-text-default)",
 				"font-size": "var(--ds-text-body)",
-				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
+				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)",
+				"font-weight": "var(--ds-font-weight-medium)",
+				"border": "1px solid var(--ds-color-border-strong)"
 			},
-			"tailwind": "inline-flex items-center gap-2 h-10 px-3 rounded-pill bg-subtle text-fg text-body transition-colors duration-150 ease-out hover:bg-subtle-hover active:bg-subtle-hover active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none outline-none focus-visible:shadow-focus",
+			"tailwind": "ds-cut-frame [--ds-shape-stroke:var(--ds-color-border-strong)] [--ds-shape-fill:var(--ds-color-bg-default)] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] inline-flex items-center justify-center gap-2 h-9 px-4 text-fg font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
 			"rules": [
-				"An action in a page head is the 40px lilac key with a 22px glyph (Tunnel quickstart)."
+				"An action in a page head is the framed key."
 			],
-			"source": "Figma 427:2715 (Agent Workspace - Inbox - Tunnel)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
-					"background-color": "var(--ds-color-bg-subtle-hover)"
+					"background-color": "var(--ds-color-bg-subtle)"
 				},
 				":active": {
-					"filter": "brightness(0.95)",
-					"transition": "none",
-					"background-color": "var(--ds-color-bg-subtle-hover)"
+					"background-color": "var(--ds-color-bg-subtle-hover)",
+					"transition": "none"
 				}
 			}
 		},
@@ -715,30 +706,25 @@
 				"display": "flex",
 				"align-items": "center",
 				"gap": "var(--ds-space-2)",
-				"height": "var(--ds-space-9)",
-				"padding-inline": "var(--ds-space-2-5)",
-				"border-radius": "var(--ds-radius-pill)",
-				"color": "var(--ds-color-icon-secondary)",
+				"height": "var(--ds-space-8)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "0",
+				"color": "var(--ds-color-text-default)",
 				"font-size": "var(--ds-text-body)",
 				"text-decoration": "none",
 				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)",
-				"font-weight": "var(--ds-font-weight-medium)"
+				"font-weight": "var(--ds-font-weight-regular)"
 			},
-			"tailwind": "flex items-center gap-2 h-9 px-2.5 rounded-pill text-icon-secondary text-body font-medium no-underline transition-colors duration-150 ease-out hover:bg-[color-mix(in_srgb,var(--ds-color-bg-subtle-hover)_50%,transparent)] aria-[current=page]:bg-subtle-hover outline-none focus-visible:shadow-focus",
+			"tailwind": "flex items-center gap-2 h-8 px-3 text-fg text-body font-normal no-underline transition-colors duration-150 ease-out hover:bg-subtle aria-[current=page]:bg-subtle-hover outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
 			"rules": [
-				"36px pill rows 4px apart: an 18px glyph and a 14px medium label in the softer purple; the current row sits on the deeper lilac, a hovered row on half of it."
+				"32px square rows: a 16px glyph and a 13px regular label in Forest; Fog under the pointer, Mist for the current page."
 			],
-			"source": "Figma 427:2715 (rail: Agent Workspace, Email, Vault)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				":hover": {
-					"background-color": "var(--ds-color-bg-subtle-hover)"
+					"background-color": "var(--ds-color-bg-subtle)"
 				},
 				"[aria-current=page]": {
-					"background-color": "var(--ds-color-bg-subtle-hover)"
-				},
-				":active": {
-					"filter": "brightness(0.95)",
-					"transition": "none",
 					"background-color": "var(--ds-color-bg-subtle-hover)"
 				}
 			}
@@ -761,13 +747,13 @@
 				"gap": "var(--ds-space-1)",
 				"width": "var(--ds-layout-rail)",
 				"padding": "var(--ds-space-3)",
-				"background-color": "var(--ds-color-bg-subtle)"
+				"background-color": "var(--ds-color-bg-page)"
 			},
-			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 bg-subtle",
+			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 bg-page",
 			"rules": [
-				"An agent's workspace adds a lilac rail of its own beside the white one; its current row is white."
+				"A second rail sits on the Canvas beside the white one; its current row is white."
 			],
-			"source": "Figma 427:2715 (Agent Workspace - Inbox: second rail)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"chip": {
 			"name": "Tag",
@@ -784,21 +770,20 @@
 			"css": {
 				"display": "inline-flex",
 				"align-items": "center",
-				"padding": "0 var(--ds-space-3)",
-				"border-radius": "var(--ds-radius-pill)",
-				"background-color": "var(--ds-color-tag-blue)",
-				"color": "var(--ds-color-tag-blue-fg)",
+				"height": "var(--ds-space-6)",
+				"padding": "0 var(--ds-space-2)",
+				"background-color": "var(--ds-color-tag)",
+				"color": "var(--ds-color-tag-fg)",
+				"font-family": "var(--ds-font-mono)",
 				"font-size": "var(--ds-text-caption)",
-				"font-weight": "var(--ds-font-weight-medium)",
-				"line-height": "1",
-				"height": "var(--ds-space-7)"
+				"font-weight": "var(--ds-font-weight-regular)",
+				"line-height": "1"
 			},
-			"tailwind": "inline-flex items-center h-7 px-3 rounded-pill bg-tag-blue text-tag-blue-fg text-caption font-medium leading-none",
+			"tailwind": "inline-flex items-center h-6 px-2 bg-tag text-tag-fg font-mono text-caption font-normal leading-none",
 			"rules": [
-				"Tags are 28px pills with a 12px medium label on a pale blue, purple, green or gray (Email, Signed, Fire-and-forget).",
-				"A BETA or ADMIN mark is a pink edge with 12px pink text instead."
+				"Data tags are square Fog chips with Forest ink in DM Mono (\"345 kV\", \"41.2 ac\"). Status is a diamond, never a colored chip."
 			],
-			"source": "Figma 427:2715 (Webhooks - Event catalog: tags)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"stat": {
 			"name": "Status well",
@@ -816,18 +801,18 @@
 			"css": {
 				"display": "inline-flex",
 				"align-items": "center",
-				"height": "var(--ds-space-9-5)",
-				"padding-inline": "var(--ds-space-3-5)",
-				"border-radius": "var(--ds-radius-pill)",
+				"height": "var(--ds-space-8)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "0",
 				"background-color": "var(--ds-color-status-success-bg)",
 				"color": "var(--ds-color-text-default)",
 				"font-size": "var(--ds-text-body)"
 			},
-			"tailwind": "inline-flex items-center h-9.5 px-3.5 rounded-pill bg-success-bg text-fg text-body",
+			"tailwind": "inline-flex items-center h-8 px-3 bg-success-bg text-fg text-body",
 			"rules": [
 				"A state is shown as a 38px well with fully rounded corners: green for active, gray for idle, blue for a mode (Active, Idle, Edge)."
 			],
-			"source": "Figma 427:2715 (Agent Workspace - Inbox - Tunnel)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"code-window": {
 			"name": "Code block",
@@ -847,7 +832,7 @@
 			},
 			"css": {
 				"overflow": "hidden",
-				"border": "1px solid var(--ds-color-border-code)",
+				"border": "1px solid var(--ds-color-border-default)",
 				"border-radius": "var(--ds-radius-control)",
 				"background-color": "var(--ds-color-bg-code)",
 				"color": "var(--ds-color-code-text)",
@@ -855,12 +840,12 @@
 				"font-size": "var(--ds-text-body)",
 				"line-height": "var(--ds-leading-body)"
 			},
-			"tailwind": "overflow-hidden border border-line-code rounded-control bg-code text-code-text font-code text-body leading-body",
+			"tailwind": "overflow-hidden border border-line bg-code text-code-text font-code text-body leading-body",
 			"rules": [
 				"Code is light: an off-white body with the editor's gray edge and head, line numbers in teal, red keys and blue values.",
 				"Never a dark code block."
 			],
-			"source": "Figma 427:2715 (Webhooks: Signature headers)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"media-frame": {
 			"name": "Media frame",
@@ -885,14 +870,14 @@
 			},
 			"css": {
 				"overflow": "hidden",
-				"border-radius": "var(--ds-radius-control)",
+				"border-radius": "0",
 				"background-color": "var(--ds-color-bg-subtle)"
 			},
-			"tailwind": "overflow-hidden rounded-control bg-subtle",
+			"tailwind": "overflow-hidden bg-subtle",
 			"rules": [
-				"Images and previews sit in 12px corners on the lilac."
+				"Photos sit square in a Fog frame, dimmed under map marks (ds-imagery)."
 			],
-			"source": "Figma 427:2715 (extrapolated from the lilac panels)"
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
 		},
 		"table": {
 			"name": "Table",
@@ -917,10 +902,10 @@
 			},
 			"tailwind": "w-full border-separate border-spacing-0 text-body text-fg",
 			"rules": [
-				"The head is a 48px lilac bar with 16px corners and 14px muted labels; the body a separate white panel ringed in 1px with 12px corners and a soft drop, 64px rows ruled by Line/S Bottom; a quiet pager (28px ghost keys around the page number) sits under it.",
-				"An agent handle in a cell is rose (#8C5659)."
+				"The head is 12px Forest at 80 percent on a 1px Stone rule; rows are 13px with 1px Mist rules; values with units are DM Mono. Each cited value ends in its source number.",
+				"No fills, no corners, no shadow."
 			],
-			"source": "Figma 427:2715 (Email: Mailboxes table)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"faq": {
 			"name": "Collapsible row",
@@ -948,7 +933,7 @@
 			"rules": [
 				"A disclosure is a 14px ink row with a caret at its right (Advanced settings - tunnel mode, phone state, line sharing)."
 			],
-			"source": "Figma 427:2715 (Modal - Create Agent)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"tabs": {
 			"name": "Tabs",
@@ -967,24 +952,19 @@
 			},
 			"css": {
 				"display": "inline-flex",
-				"flex-wrap": "wrap",
 				"align-items": "center",
-				"gap": "var(--ds-space-1)",
-				"padding": "var(--ds-space-1)",
-				"border-radius": "var(--ds-radius-pill)",
-				"background-color": "var(--ds-color-bg-subtle)"
+				"gap": "var(--ds-space-4)",
+				"border-bottom": "1px solid var(--ds-color-border-default)"
 			},
-			"tailwind": "inline-flex flex-wrap items-center gap-1 p-1 rounded-pill bg-subtle",
+			"tailwind": "inline-flex items-center gap-4 border-b border-line",
 			"rules": [
-				"A segmented lilac track with fully rounded ends, 4px inside; 32px tabs with a 13px regular label in the secondary purple (the brand purple under the pointer); the selected tab is a white pill with Shadow/S that slides to the chosen tab over 160ms."
+				"Tabs sit on a 1px Stone rule; the chosen tab is Forest with a 1px Forest line under it, the rest 72 percent Forest."
 			],
-			"source": "Figma 427:2715 (Email: Mailboxes, Contact rules, Custom domains)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
 				"[aria-selected=true]": {
-					"background-color": "var(--ds-color-bg-default)",
 					"color": "var(--ds-color-text-default)",
-					"box-shadow": "var(--ds-shadow-s)",
-					"border-radius": "var(--ds-radius-pill)"
+					"box-shadow": "inset 0 -1px 0 var(--ds-color-border-strong)"
 				}
 			}
 		},
@@ -1004,10 +984,10 @@
 				]
 			},
 			"css": {
-				"height": "var(--ds-space-10)",
-				"padding-inline": "var(--ds-space-4)",
-				"border": "1px solid var(--ds-color-border-field)",
-				"border-radius": "var(--ds-radius-pill)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-3)",
+				"border": "1px solid var(--ds-color-border-default)",
+				"border-radius": "0",
 				"background-color": "var(--ds-color-bg-default)",
 				"color": "var(--ds-color-text-default)",
 				"font-family": "var(--ds-font-sans)",
@@ -1015,19 +995,14 @@
 				"line-height": "var(--ds-leading-tight)",
 				"transition": "border-color var(--ds-duration-fast) var(--ds-easing-out), box-shadow var(--ds-duration-fast) var(--ds-easing-out)"
 			},
-			"tailwind": "h-10 px-4 border border-line-field rounded-pill [&:is(textarea)]:rounded-control bg-surface text-fg font-sans text-body leading-tight outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-fg-subtle focus-visible:border-line-brand focus-visible:shadow-focus aria-invalid:border-danger hover:border-line-strong",
+			"tailwind": "h-9 px-3 border border-line bg-surface text-fg font-sans text-body leading-tight outline-none transition-[border-color] duration-150 ease-out placeholder:text-fg-subtle focus-visible:border-line-strong aria-invalid:border-danger disabled:bg-subtle disabled:text-fg-subtle",
 			"rules": [
-				"40px fields with fully rounded corners and the lilac-gray edge on white; 14px ink text 14px in; a light purple placeholder.",
-				"A rejected value takes the red edge and a red message under it."
+				"Fields are 36px white frames with a 1px Stone line; focus turns the line Forest, no ring. A unit (ac, ft, kV) sits at the end in the secondary ink."
 			],
-			"source": "Figma 427:2715 (Form- Input)",
+			"source": "Mireye product UI boards (442:2)",
 			"states": {
-				":is(textarea)": {
-					"border-radius": "var(--ds-radius-control)"
-				},
 				":focus-visible": {
-					"border-color": "var(--ds-color-border-brand)",
-					"box-shadow": "var(--ds-shadow-focus)"
+					"border-color": "var(--ds-color-border-strong)"
 				},
 				"[aria-invalid=true]": {
 					"border-color": "var(--ds-color-status-danger)"
@@ -1057,11 +1032,11 @@
 				"border-radius": "var(--ds-radius-panel)",
 				"background-color": "var(--ds-color-bg-subtle)"
 			},
-			"tailwind": "flex flex-wrap items-center gap-2 p-0.5 rounded-panel bg-subtle",
+			"tailwind": "flex flex-wrap items-center gap-2 p-0.5 bg-subtle",
 			"rules": [
-				"A row of tools or partners is a lilac track of 24px circular logo tiles with 14px ink names (Where does this agent run?)."
+				"A row of sources or tools is a Fog track of square tiles with 13px ink names."
 			],
-			"source": "Figma 427:2715 (Modal - Created)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"footer": {
 			"name": "Rail foot",
@@ -1088,7 +1063,7 @@
 			"rules": [
 				"The rail ends with help, the organization (with an ADMIN mark), the account and Collapse, ruled off above."
 			],
-			"source": "Figma 427:2715 (rail foot)"
+			"source": "Mireye product UI boards (442:2)"
 		},
 		"menu-panel": {
 			"name": "Menu panel",
@@ -1111,15 +1086,15 @@
 				"border-radius": "var(--ds-radius-panel)",
 				"background-color": "var(--ds-color-bg-default)",
 				"color": "var(--ds-color-text-default)",
-				"box-shadow": "var(--ds-shadow-floating)",
 				"font-family": "var(--ds-font-sans)",
-				"font-size": "var(--ds-text-body)"
+				"font-size": "var(--ds-text-body)",
+				"border": "1px solid var(--ds-color-border-default)"
 			},
-			"tailwind": "rounded-panel bg-surface p-1 font-sans text-body text-fg shadow-floating outline-none",
+			"tailwind": "bg-surface p-1 font-sans text-body text-fg border border-line outline-none",
 			"rules": [
-				"Menus and select lists are white with 16px corners, the Shadow/S ring and a soft drop, 4px inside, 8px from the trigger."
+				"Menus and select lists are white with a 1px Stone line, square, 4px inside, 8px from the trigger. No shadow."
 			],
-			"source": "Figma 427:2715 (extrapolated from Shadow/S and the select trigger)",
+			"source": "Extrapolated from the Mireye product UI boards (442:2)",
 			"states": {}
 		},
 		"menu-item": {
@@ -1149,14 +1124,14 @@
 				"font-size": "var(--ds-text-body)",
 				"padding-block": "var(--ds-space-2)"
 			},
-			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 rounded-control text-fg text-body outline-none data-[highlighted]:bg-subtle-hover",
+			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 text-fg text-body outline-none data-[highlighted]:bg-subtle",
 			"rules": [
-				"Rows at least 36px tall with 12px corners, 4px apart, 14px ink with a 16px glyph; the highlighted row sits on the deeper lilac with no fade; a chosen row ends in a filled check circle in the brand purple."
+				"Square 36px rows, 13px Forest; Fog on the highlighted row with no fade; a chosen row ends in the check glyph."
 			],
-			"source": "Figma 427:2715 (extrapolated from the rail rows)",
+			"source": "Extrapolated from the Mireye product UI boards (442:2)",
 			"states": {
 				"[data-highlighted]": {
-					"background-color": "var(--ds-color-bg-subtle-hover)"
+					"background-color": "var(--ds-color-bg-subtle)"
 				}
 			}
 		},
@@ -1173,13 +1148,13 @@
 				"padding": "var(--ds-space-1)",
 				"border-radius": "var(--ds-radius-panel)",
 				"background-color": "var(--ds-color-bg-default)",
-				"box-shadow": "var(--ds-shadow-floating)"
+				"border": "1px solid var(--ds-color-border-default)"
 			},
-			"tailwind": "rounded-panel bg-surface p-1 shadow-floating",
+			"tailwind": "bg-surface p-1 border border-line",
 			"rules": [
-				"The console has no glass: floating panels are the white menu panel."
+				"Mireye has no glass: floating panels are the white framed panel."
 			],
-			"source": "Figma 427:2715 (extrapolated)"
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
 		},
 		"glass-menu-item": {
 			"name": "Floating panel item",
@@ -1201,11 +1176,11 @@
 				"font-size": "var(--ds-text-body)",
 				"padding-block": "var(--ds-space-2)"
 			},
-			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 rounded-control text-fg text-body",
+			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 text-fg text-body",
 			"rules": [
 				"As a menu item."
 			],
-			"source": "Figma 427:2715 (extrapolated)"
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
 		},
 		"popover-panel": {
 			"name": "Popover panel",
@@ -1220,13 +1195,13 @@
 				"border-radius": "var(--ds-radius-panel)",
 				"background-color": "var(--ds-color-bg-default)",
 				"color": "var(--ds-color-text-default)",
-				"box-shadow": "var(--ds-shadow-floating)"
+				"border": "1px solid var(--ds-color-border-default)"
 			},
-			"tailwind": "rounded-panel bg-surface p-4 text-fg shadow-floating",
+			"tailwind": "bg-surface p-4 text-fg border border-line",
 			"rules": [
-				"Popovers are the white menu panel with 16px inside."
+				"Popovers are the white framed panel with 16px inside."
 			],
-			"source": "Figma 427:2715 (extrapolated from Shadow/S)"
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
 		}
 	}
 }

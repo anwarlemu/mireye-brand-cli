@@ -10,7 +10,9 @@ import { sitePalette } from '../src/convert/palette.js';
 const ROOT = join(import.meta.dirname, '..');
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');
 const table = JSON.parse(read('build/tokens.json')).site as Record<string, string>;
-const refs = (text: string) => [...text.matchAll(/var\((--ds-[\w-]+)/g)].map(m => m[1]);
+// The brand's shape utilities take parameters a component sets (--ds-shape-fill and the like); they are not tokens.
+const PARAMS = new Set(['--ds-svg-w', '--ds-svg-h', '--ds-scale', '--ds-shape-fill', '--ds-shape-stroke', '--ds-shape-pattern', '--ds-hatch-color', '--ds-walk', '--ds-steps-split']);
+const refs = (text: string) => [...text.matchAll(/var\((--ds-[\w-]+)/g)].map(m => m[1]).filter(name => !PARAMS.has(name));
 
 describe('complete token output', () => {
   it('exports every token through the theme without dangling brand references', () => {
@@ -38,9 +40,14 @@ describe('complete token output', () => {
     expect(output).not.toMatch(/transition-duration:\s*150ms|font-weight:\s*(400|500)|padding:\s*14px/);
   });
 
-  it('lets the converter use every fixed radius step while preserving explicit pills', () => {
+  it('converts every radius to a brand radius step while preserving explicit pills', () => {
     const out = convertCss('.detail { border-radius:6px } .panel { border-radius:16px } .card { border-radius:24px } .pill { border-radius:9999px }', sitePalette(''), newStats());
-    for (const radius of ['xs', 'panel', 'dialog', 'pill']) expect(out).toContain(`var(--ds-radius-${radius})`);
+    // Every radius converts to a brand radius token, and each resolves to the brand's value (all square for a brand
+    // with no rounding); pills keep the pill token.
+    const used = [...out.matchAll(/var\((--ds-radius-[\w-]+)\)/g)].map(m => m[1]);
+    expect(used).toHaveLength(4);
+    expect(used.at(-1)).toBe('--ds-radius-pill');
+    for (const name of used) expect(name in table).toBe(true);
   });
 
   it('keeps the smallest and largest type and spacing steps available to conversion', () => {
@@ -67,18 +74,18 @@ describe('complete token output', () => {
       symlinkSync(join(ROOT, 'node_modules'), join(root, 'node_modules'), 'dir');
       const run = (...args: string[]) => JSON.parse(execFileSync(process.execPath, [join(ROOT, 'bin.js'), ...args, '--json', '--no-install'], { cwd: root, encoding: 'utf8', timeout: 60_000 }));
       run('init', '--dry-run');
-      expect(existsSync(join(root, 'src/_inkbox-ds'))).toBe(false);
+      expect(existsSync(join(root, 'src/_mireye-ds'))).toBe(false);
       run('init');
-      const css = readFileSync(join(root, 'src/_inkbox-ds/brand.css'), 'utf8');
+      const css = readFileSync(join(root, 'src/_mireye-ds/brand.css'), 'utf8');
       const installed = new Set([...css.matchAll(/(--ds-[\w-]+)\s*:/g)].map(m => m[1]));
       expect(Object.keys(table).filter(name => !installed.has(name))).toEqual([]);
-      expect(readFileSync(join(root, 'src/_inkbox-ds/theme.css'), 'utf8')).toBe(read('build/theme.css'));
+      expect(readFileSync(join(root, 'src/_mireye-ds/theme.css'), 'utf8')).toBe(read('build/theme.css'));
       const added = run('add', ...index.map(item => item.name));
       expect(added.items).toHaveLength(items.length);
       const main = readFileSync(join(root, 'src/index.css'), 'utf8');
       expect(main).toContain('--existing-chart-color: #ff0033');
-      expect(main.match(/_inkbox-ds\/brand.css/g)).toHaveLength(1);
-      expect(main.match(/_inkbox-ds\/theme.css/g)).toHaveLength(1);
+      expect(main.match(/_mireye-ds\/brand.css/g)).toHaveLength(1);
+      expect(main.match(/_mireye-ds\/theme.css/g)).toHaveLength(1);
       expect(readFileSync(join(root, 'src/App.tsx'), 'utf8')).toContain('Existing content');
       try {
         execFileSync(process.execPath, [join(ROOT, 'node_modules/typescript/bin/tsc'), '-p', join(root, 'tsconfig.json')], { cwd: root, encoding: 'utf8', timeout: 60_000 });

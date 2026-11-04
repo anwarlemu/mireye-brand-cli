@@ -5,7 +5,7 @@ const root=new URL('..', import.meta.url).pathname;
 const require=createRequire(`${root}/package.json`);
 const {chromium}=require('playwright-core');
 const base=process.env.DOCS_URL || 'http://localhost:4645';
-const out=process.env.AUDIT_DIR || '/tmp/inkbox-library-audit';
+const out=process.env.AUDIT_DIR || '/tmp/ds-library-audit';
 mkdirSync(out,{recursive:true});
 const {items}=JSON.parse(readFileSync(`${root}/apps/www/lib/registry-index.json`));
 const jobs=items.flatMap(item=>item.examples.flatMap(example=>[false,true].map(phone=>({name:item.name,example,phone,width:phone?390:item.type==='ui'?720:1440}))));
