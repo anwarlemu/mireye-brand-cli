@@ -69,7 +69,7 @@ describe('portable agent workflow', () => {
     expect(readFileSync(join(root, '.ds/agent-guide.md'), 'utf8').trim()).toBe(agentGuide());
     expect(agentGuide()).toContain('data-ds-motion="instant"');
     expect(agentGuide()).toContain('pointer-down');
-    const styles = readFileSync(join(root, 'src/_inkbox-ds/brand.css'), 'utf8');
+    const styles = readFileSync(join(root, 'src/_mireye-ds/brand.css'), 'utf8');
     expect(styles).toContain('touch-action: manipulation');
     expect(styles).toContain('transition-duration: 0s !important');
     expect(styles).toContain('[data-ds-motion="instant"]');

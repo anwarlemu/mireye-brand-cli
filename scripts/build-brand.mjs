@@ -63,6 +63,8 @@ const theme = [
 		.filter(([ms, step]) => `--ds-duration-${step}` in t && !Object.values(t).includes(`${ms}ms`))
 		.map(([ms, step]) => `\t--transition-duration-${ms}: var(--ds-duration-${step});`),
 	...Object.keys(t).filter((k) => k.startsWith('--ds-line-')).map((k) => `\t--leading-${k.slice(5)}: var(${k});`),
+	// The cut corner's sizes, so they can size a layout too (size-cut, -translate-x-cut).
+	...Object.keys(t).filter((k) => /^--ds-cut(-\w+)?$/.test(k)).map((k) => `\t--spacing-${k.slice(5)}: var(${k});`),
 	...Object.keys(t).filter((k) => /^--ds-(section|component)-padding$/.test(k)).map((k) => `\t--spacing-${k.slice(5, -8)}: var(${k});`),
 	'\t--default-transition-duration: var(--ds-duration-fast);',
 	'\t--default-transition-timing-function: var(--ds-easing-out);',

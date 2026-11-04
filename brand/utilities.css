@@ -74,7 +74,7 @@
 		inset: var(--ds-border-width);
 		z-index: -1;
 		pointer-events: none;
-		background-color: var(--ds-shape-fill, var(--ds-color-bg-surface));
+		background-color: var(--ds-shape-fill, var(--ds-color-bg-default));
 		background-image: var(--ds-shape-pattern, none);
 		/* Keep the pattern on the outer box's grid, so lines sit where Figma puts them. */
 		background-position: calc(-1 * var(--ds-border-width)) 0;
@@ -137,9 +137,9 @@
 	color: transparent;
 	background-image: linear-gradient(
 		90deg,
-		var(--ds-color-text-disabled) 40%,
+		var(--ds-color-text-subtle) 40%,
 		var(--ds-color-text-default) 50%,
-		var(--ds-color-text-disabled) 60%
+		var(--ds-color-text-subtle) 60%
 	);
 	background-size: 300% 100%;
 	-webkit-background-clip: text;

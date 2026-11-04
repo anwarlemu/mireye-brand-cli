@@ -118,7 +118,7 @@ describe('convert', () => {
 	it('converts Tailwind classes, style objects, chart literals and native colors', () => {
 		const pal = sitePalette('body { background: #fff; color: #111; }');
 		expect(convertClasses('bg-white text-gray-500 hover:bg-blue-600 border-zinc-200', pal, stats(), true)).toBe('bg-surface text-fg-muted hover:bg-surface-brand border-line-subtle');
-		expect(convertScript("const s = { color: '#ff0000', marginTop: 16 }; const series = ['#22c55e', '#f59e0b', '#8b5cf6'];", pal, stats(), {})).toMatch(/marginTop: 'var\(--ds-space-4\)'.*#74629D.*#F9B1B5/s);
+		expect(convertScript("const s = { color: '#ff0000', marginTop: 16 }; const series = ['#22c55e', '#f59e0b', '#8b5cf6'];", pal, stats(), {})).toMatch(/marginTop: 'var\(--ds-space-4\)'.*#1E231C.*#5E7052/s);
 		expect(convertNative('val bg = Color(0xFF0B0B0C)\nText(color = Color(0xFFF5F5F5))', sitePalette('body{background:#0b0b0c;color:#f5f5f5}'), stats(), 'site')).toContain('Color(0xFFFFFFFF)');
 	});
 	it('reads a text color by its property, not by the words in the line', () => {
@@ -139,8 +139,8 @@ describe('convert', () => {
 		const dark = sitePalette('body{background:#08090a;color:#fff}');
 		const trail = "const ctx = c.getContext('2d');\nctx.fillStyle = 'rgba(255,255,255,' + a + ')';\nconst glow = 'rgba(255, 255, 255, 0.2)';\nconst sea = '#1a4fd0';";
 		const out = convertScript(trail, dark, stats(), {});
-		expect(out).toContain("'rgba(62,42,83,' + a");
-		expect(out).toContain("'rgba(62, 42, 83, 0.2)'");
+		expect(out).toContain("'rgba(30,35,28,' + a");
+		expect(out).toContain("'rgba(30, 35, 28, 0.2)'");
 		expect(out).toContain("'#1a4fd0'");
 		expect(convertMarkup('<script>const s = { color: "#ffffff" };</script>', dark, stats())).not.toContain('#ffffff');
 		expect(convertMarkup('<script type="application/ld+json">{"color":"#ffffff"}</script>', dark, stats())).toContain('#ffffff');
@@ -158,7 +158,7 @@ describe('convert', () => {
 	it('keeps style guide swatches and redraws only light one-color marks for a dark site', () => {
 		expect(convertMarkup('<div style="background:#ff6600"></div><span>#ff6600</span>', sitePalette(''), stats())).toContain('background:#ff6600');
 		const dark = sitePalette('body{background:#000;color:#fff}');
-		expect(convertSvgMark('<svg><path fill="#ffffff"/></svg>', dark)).toContain('fill="#3E2A53"');
+		expect(convertSvgMark('<svg><path fill="#ffffff"/></svg>', dark)).toContain('fill="#1E231C"');
 		expect(convertSvgMark('<svg><path fill="#ff0000"/><path fill="#fff"/></svg>', dark)).toContain('#ff0000');
 	});
 });
@@ -172,8 +172,8 @@ describe('project', () => {
 		expect(found.surface).toBe('site');
 		expect(listScreens(detectProject(s), styledFiles(s), found).map((x) => x.url)).toEqual(['/', '/about.html', '/pricing.html', '/404.html']);
 		// A project route that shares the CLI's name is still the project's; only the files the CLI writes are skipped.
-		const n = project({ 'src/app/inkbox-ds/page.tsx': '<div style={{ color: "#ff0000" }} />', 'src/app/_inkbox-ds/brand.css': ':root{}' });
-		expect(styledFiles(n)).toEqual(['src/app/inkbox-ds/page.tsx']);
+		const n = project({ 'src/app/mireye-ds/page.tsx': '<div style={{ color: "#ff0000" }} />', 'src/app/_mireye-ds/brand.css': ':root{}' });
+		expect(styledFiles(n)).toEqual(['src/app/mireye-ds/page.tsx']);
 		rmSync(n, { recursive: true });
 		for (const d of [p, s]) rmSync(d, { recursive: true });
 	});
@@ -181,7 +181,7 @@ describe('project', () => {
 
 describe('check', () => {
 	it('flags raw values with the token to use, and fixes exact matches', () => {
-		const css = '.a { color: #74629d; padding: 16px; font-weight: 700; transition: all 300ms ease-in; font-family: Inter; }';
+		const css = '.a { color: #1e231c; padding: 16px; font-weight: 700; transition: all 300ms ease-in; font-family: Inter; }';
 		const r = checkText('a.css', css);
 		expect(r.findings.map((f) => f.rule)).toEqual(expect.arrayContaining(['raw-color', 'off-scale', 'font', 'motion']));
 		expect(r.findings.find((f) => f.rule === 'raw-color')?.hint).toContain('var(--ds-color-brand)');
@@ -190,7 +190,7 @@ describe('check', () => {
 		expect(fixed).toContain('padding: var(--ds-space-4)');
 	});
 	it('checks Tailwind classes, style objects and template styles, and accepts brand values', () => {
-		expect(checkText('a.tsx', 'export const A = () => <p className="text-red-500 p-[13px] font-bold text-sm">x</p>;').findings.map((f) => f.rule)).toEqual(['raw-color', 'off-scale', 'off-scale']);
+		expect(checkText('a.tsx', 'export const A = () => <p className="text-red-500 p-[13px] font-bold text-sm">x</p>;').findings.map((f) => f.rule)).toEqual(['raw-color', 'off-scale', 'font', 'off-scale']);
 		expect(checkText('a.tsx', 'export const A = () => <p style={{ color: "#ff0000" }}>x</p>;').findings[0].rule).toBe('raw-color');
 		expect(checkText('a.astro', '<p style="color: #ff0000">x</p><style>.a { gap: 13px }</style>').findings.map((f) => f.rule)).toEqual(['raw-color', 'off-scale']);
 		expect(checkText('a.tsx', 'export const A = () => <p className="bg-surface text-fg-muted p-4 rounded-control" style={{ color: "var(--ds-color-brand)" }}>x</p>;').findings).toEqual([]);
@@ -359,10 +359,10 @@ describe('the one command', () => {
 		expect(first).toMatch(/installed and applied/);
 		expect(first).toMatch(/Task 1 of 2: 2 main screens and the shared shell/);
 		const css = readFileSync(join(p, 'styles.css'), 'utf8');
-		expect(css.startsWith('/* site */\n@import "./_inkbox-ds/brand.css";')).toBe(true);
+		expect(css.startsWith('/* site */\n@import "./_mireye-ds/brand.css";')).toBe(true);
 		expect(css).toContain("@font-face { font-family: 'Brand'; src: url(b.woff2); }");
-		expect(css).toContain('background: var(--ds-color-bg-default)');
-		expect(readFileSync(join(p, '_inkbox-ds/brand.css'), 'utf8')).toMatch(/^@import url\("https:\/\/fonts\.googleapis\.com\/css2\?family=Inter/);
+		expect(css).toContain('background: var(--ds-color-bg-page)');
+		expect(readFileSync(join(p, '_mireye-ds/brand.css'), 'utf8')).toMatch(/^@import url\("https:\/\/fonts\.googleapis\.com\/css2\?family=DM\+Mono/);
 		expect(readFileSync(join(p, 'index.html'), 'utf8')).not.toContain('<script');
 		expect(readFileSync(join(p, 'AGENTS.md'), 'utf8')).toContain('ds:contract:start');
 		expect(JSON.parse(readFileSync(join(p, '.claude/settings.json'), 'utf8')).hooks.PreToolUse[0].hooks[0].command).toMatch(/hook pre-tool-use/);
@@ -475,8 +475,8 @@ export function Help({ children, ...props }: any) { return <PopoverPanel classNa
   it('styles portalled parts without replacing refs, state, handlers, placement or variant conditions', () => {
     const out = restyleOverlays(menu, 'site');
     expect(out.parts).toEqual(['dropdown-menu.Content', 'dropdown-menu.Item', 'popover.Content']);
-    expect(out.text).toContain('rounded-panel bg-surface');
-    expect(out.text).toContain('shadow-floating');
+    expect(out.text).toContain('bg-surface p-1');
+    expect(out.text).toContain('border border-line');
     expect(out.text).toContain('data-[highlighted]:bg-subtle');
     expect(out.text).toContain('max-h-(--radix-dropdown-menu-content-available-height)');
     expect(out.text).toContain('danger === "danger" && "text-red-500"');
@@ -494,7 +494,7 @@ export function Help({ children, ...props }: any) { return <PopoverPanel classNa
 export function Picker(props: any) { return <Select.Root name="card" value={props.value} onValueChange={props.onValueChange} required><Select.Trigger ref={props.ref} className="flex h-10 rounded-xl bg-black text-white px-4"><Select.Value /></Select.Trigger><Select.Portal><Select.Content position="popper" className="w-full min-w-20 rounded-xl bg-black text-white font-display text-body-sm"><Select.Viewport><Select.Item value="travel" disabled={props.disabled} onKeyDown={props.onKeyDown} className="py-2 font-display text-body-sm focus:bg-purple-500"><Select.ItemText>Travel</Select.ItemText></Select.Item></Select.Viewport></Select.Content></Select.Portal></Select.Root>; }`;
     const out = restyleOverlays(source, 'site');
     expect(out.parts).toEqual(['select.Trigger', 'select.Content', 'select.Item']);
-    expect(out.text).toContain('rounded-control');
+    expect(out.text).toContain('border border-line');
     expect(out.text).toContain('font-sans text-body');
     expect(out.text).toContain('w-[max(11rem,var(--radix-select-trigger-width))]');
     expect(out.text).toContain('max-w-(--radix-select-content-available-width)');
@@ -512,18 +512,18 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
       expect(readFileSync(join(dir, 'components/dropdown-menu.tsx'), 'utf8')).toBe(menu);
       run(dir);
       const applied = readFileSync(join(dir, 'components/dropdown-menu.tsx'), 'utf8');
-      expect(applied).toContain('shadow-floating');
-      expect(applied).toContain('data-[highlighted]:bg-subtle-hover');
+      expect(applied).toContain('border border-line');
+      expect(applied).toContain('data-[highlighted]:bg-subtle');
       expect(applied).toContain('onSelect={props.onSelect}');
-      expect(readFileSync(join(dir, 'app/page.tsx'), 'utf8')).toContain('shadow-floating');
+      expect(readFileSync(join(dir, 'app/page.tsx'), 'utf8')).toContain('border border-line');
     } finally { rmSync(dir, { recursive: true }); }
   });
   it('styles explicit CSS menu names without restyling generic navigation or containers', () => {
     const css = '.dropdown-menu { position: absolute } .menu-item { display: flex } .glass-menu { width: 240px } .glass-menu-item { display: grid } .popover-content { color: red } .menu { display: flex }';
     const out = elementLayer('menu.css', css, 'site');
     expect(out.styled).toEqual([{selector:'.dropdown-menu',kind:'menu-panel'},{selector:'.menu-item',kind:'menu-item'},{selector:'.glass-menu',kind:'glass-menu'},{selector:'.glass-menu-item',kind:'glass-menu-item'},{selector:'.popover-content',kind:'popover-panel'}]);
-    expect(out.block).toContain('var(--ds-shadow-floating)');
-    expect(out.block).toContain('var(--ds-radius-control)');
+    expect(out.block).toContain('var(--ds-color-border-default)');
+    expect(out.block).not.toContain('box-shadow');
     expect(out.block).not.toMatch(/position:|display:|width:/);
     expect(elementLayer('select.css', '.select-content { color: red } .select-item { color: red }', 'site').styled).toEqual([{selector:'.select-content',kind:'menu-panel'},{selector:'.select-item',kind:'menu-item'}]);
   });
@@ -540,7 +540,7 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
       expect(installed).toContain('shadow-floating');
       expect(existsSync(join(dir, 'lib/surface.tsx'))).toBe(true);
       expect(readFileSync(join(dir, `lib/${brand().bin}-utils.ts`), 'utf8')).toContain('"floating"');
-      expect(readFileSync(join(dir, 'app/_inkbox-ds/brand.css'), 'utf8')).toContain('--ds-shadow-floating');
+      expect(readFileSync(join(dir, 'app/_mireye-ds/brand.css'), 'utf8')).toContain('--ds-shadow-floating');
     } finally { rmSync(dir, { recursive: true }); }
   });
 });
