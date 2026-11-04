@@ -16,7 +16,7 @@ export type BrandConfig = {
 	/** The surfaces the brand has: a site (pages people read), a product (an app people work in), or both. */
 	surfaces?: ('site' | 'product')[];
 	/** How the brand's fonts load: a stylesheet URL, next/font families, and what a native app adds. */
-	fonts: { css: string; next: NextFont[]; native: string };
+	fonts: { css: string; next: NextFont[]; native: string; local?: { family: string; files: Record<string, string>; license?: string } };
 	/** The library's variant names for what the engine picks: a filled, outlined and on-brand button, and a card. */
 	/** The markup the CLI adds to a site's home: an attribute on the hero (with an optional script, a file in brand/) and
 	 *  the closing words of headings wrapped in ds-accent. `does` says what each one gives, for the tasks. */
@@ -46,7 +46,7 @@ export const hasFrame = () => (framed ??= /body::after\s*\{/.test(readFileSync(p
 export const cli = () => `npx ${brand().bin}`;
 
 /** The files the CLI writes into a project (its folder may share a name with a project's own route, so match files). */
-export const isOwnFile = (rel: string) => new RegExp(`(^|/)_?${brand().bin}/(brand\\.css|theme\\.css|[\\w-]+\\.js)$|(^|/)ds-fonts\\.[jt]s$`).test(rel);
+export const isOwnFile = (rel: string) => new RegExp(`(^|/)_?${brand().bin}/(brand\\.css|theme\\.css|[\\w-]+\\.js|fonts/[\\w.-]+)$|(^|/)ds-fonts\\.[jt]s$`).test(rel);
 
 type TokenFile = { site: Record<string, string>; product: Record<string, string>; dark: Record<string, string>; theme: Record<string, string> };
 let tokenFile: TokenFile | undefined;

@@ -34,6 +34,13 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 	css += groundAliases(styleText);
 	// Next self-hosts the fonts through next/font; everything else loads them at the top of the brand stylesheet.
 	if (!next && (!main || !tailwind4)) css = `${readFileSync(pkgPath('build', 'fonts.css'), 'utf8').split('\n').filter((l) => l.startsWith('@import')).join('\n')}\n${css}`;
+	// A licensed face the brand ships itself sits beside the brand stylesheet, so every bundler resolves it.
+	const local = brand().fonts.local;
+	if (local) {
+		const faces = readFileSync(pkgPath('build', 'fonts.css'), 'utf8').split('\n').filter((l) => !l.startsWith('@import') && !l.startsWith('/*')).join('\n').trim();
+		css += `\n${faces.replace(/url\("\/fonts\//g, 'url("./fonts/')}\n`;
+		for (const file of Object.values(local.files)) w.copy(`${dir}/fonts/${file}`, pkgPath('brand', 'fonts', file));
+	}
 	w.write(`${dir}/brand.css`, css);
 	if (tailwind4) w.write(`${dir}/theme.css`, readFileSync(pkgPath('build', 'theme.css'), 'utf8'));
 

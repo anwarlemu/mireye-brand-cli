@@ -25,6 +25,19 @@ export class Writer {
 		return true;
 	}
 
+	/** Copies a binary file (a font) into the project, only when it differs. */
+	copy(rel: string, from: string) {
+		const abs = join(this.root, rel);
+		const data = readFileSync(from);
+		if (existsSync(abs) && readFileSync(abs).equals(data)) return false;
+		this.changes.push({ file: rel, action: existsSync(abs) ? 'patched' : 'wrote' });
+		if (!this.dryRun) {
+			mkdirSync(dirname(abs), { recursive: true });
+			writeFileSync(abs, data);
+		}
+		return true;
+	}
+
 	json(rel: string) {
 		const text = this.read(rel);
 		if (!text) return undefined;

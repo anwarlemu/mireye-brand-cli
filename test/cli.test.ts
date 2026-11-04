@@ -363,6 +363,11 @@ describe('the one command', () => {
 		expect(css).toContain("@font-face { font-family: 'Brand'; src: url(b.woff2); }");
 		expect(css).toContain('background: var(--ds-color-bg-page)');
 		expect(readFileSync(join(p, '_mireye-ds/brand.css'), 'utf8')).toMatch(/^@import url\("https:\/\/fonts\.googleapis\.com\/css2\?family=DM\+Mono/);
+		// A face the brand ships itself is copied beside the brand stylesheet and loaded from there.
+		for (const file of Object.values(brand().fonts.local?.files ?? {})) {
+			expect(existsSync(join(p, '_mireye-ds/fonts', file))).toBe(true);
+			expect(readFileSync(join(p, '_mireye-ds/brand.css'), 'utf8')).toContain(`url("./fonts/${file}")`);
+		}
 		expect(readFileSync(join(p, 'index.html'), 'utf8')).not.toContain('<script');
 		expect(readFileSync(join(p, 'AGENTS.md'), 'utf8')).toContain('ds:contract:start');
 		expect(JSON.parse(readFileSync(join(p, '.claude/settings.json'), 'utf8')).hooks.PreToolUse[0].hooks[0].command).toMatch(/hook pre-tool-use/);
