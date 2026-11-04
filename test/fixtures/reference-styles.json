@@ -1,0 +1,10 @@
+{
+ "reference": "Figma \"Mireye (INT)\", page 3.2 Brand identity, product UI boards (442:2), at the product scale (0.6)",
+ "captured": "2026-11-04",
+ "method": "Colors sampled from the 1x renders, type fitted to text layer widths, sizes and radii from layer geometry; component radii updated to the requested rounded styling; values the console (console-agencidev, agencidev/console 41e55a9) sets differently are taken from it and named in each source",
+ "viewport": {
+  "width": 1440,
+  "height": 1000
+ },
+ "checks": []
+}

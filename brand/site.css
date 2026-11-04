@@ -1,0 +1,65 @@
+/* The base layer: what every Mireye screen has before any component is styled. Defaults use :where() so the app's
+   own rules still win; there are no markup touches. */
+
+/* Element defaults sit in the base layer, so a utility class on an element wins over them. */
+@layer base {
+	html {
+		background-color: var(--ds-color-bg-page);
+	}
+
+	html,
+	body {
+		color: var(--ds-color-text-default);
+	}
+
+	/* The canvas is the ground; white is for controls and panels on it. */
+	body {
+		background-color: var(--ds-color-bg-page);
+		font-family: var(--ds-font-sans);
+		font-size: var(--ds-text-body);
+		line-height: var(--ds-leading-body);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	/* Titles are Gilroy Regular: hierarchy comes from size, never weight. */
+	:where(h1, h2, h3, h4, h5, h6) {
+		font-family: var(--ds-font-display);
+		font-weight: var(--ds-font-weight-heading);
+		color: inherit;
+		line-height: var(--ds-leading-heading);
+		text-wrap: balance;
+	}
+
+	:where(p, li, blockquote, figcaption, dd, td) {
+		text-wrap: pretty;
+	}
+
+	/* Coordinates, IDs, values and code are DM Mono. */
+	:where(code, kbd, pre, samp) {
+		font-family: var(--ds-font-mono);
+	}
+
+	/* Links are the ink, underlined. */
+	:where(a) {
+		color: var(--ds-color-text-brand);
+		text-underline-offset: 3px;
+	}
+
+	::selection {
+		background-color: var(--ds-color-ring-tint);
+	}
+
+	/* Focus: a 1px ink outline 2px outside the control, square like everything else. */
+	:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+		outline: 1px solid var(--ds-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
+/* A section label: 12px in the secondary ink. */
+.ds-label {
+	font-size: var(--ds-text-caption);
+	line-height: var(--ds-leading-tight);
+	color: var(--ds-color-text-label);
+}
