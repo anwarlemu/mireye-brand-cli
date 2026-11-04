@@ -1,20 +1,20 @@
 "use client";
 
-import { KeyIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-function DeleteAgent() {
+function RemoveSite() {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Delete @acme?</AlertDialogTitle>
-        <AlertDialogDescription>Its mailbox, phone line and tunnel are deleted with it. Messages it sent stay with their recipients. This cannot be undone.</AlertDialogDescription>
+        <AlertDialogTitle>Remove Site 14?</AlertDialogTitle>
+        <AlertDialogDescription>Its 6 parcels, notes and fit scores are removed with it. Exports you already shared keep their copy. This cannot be undone.</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive">Delete agent</AlertDialogAction>
+        <AlertDialogAction variant="destructive">Remove site</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   );
@@ -26,11 +26,11 @@ export function Preview() {
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant="destructive">
-            <TrashIcon weight="fill" />
-            Delete agent
+            <TrashIcon />
+            Remove site
           </Button>
         </AlertDialogTrigger>
-        <DeleteAgent />
+        <RemoveSite />
       </AlertDialog>
     </div>
   );
@@ -42,21 +42,21 @@ export function Small() {
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant="outline">
-            <KeyIcon weight="fill" />
-            Rotate API key
+            <ArrowsClockwiseIcon />
+            Rescore sites
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogMedia>
-              <KeyIcon weight="fill" />
+              <ArrowsClockwiseIcon />
             </AlertDialogMedia>
-            <AlertDialogTitle>Rotate the API key?</AlertDialogTitle>
-            <AlertDialogDescription>Agents using the old key stop working until you give them the new one.</AlertDialogDescription>
+            <AlertDialogTitle>Rescore 24 sites?</AlertDialogTitle>
+            <AlertDialogDescription>Fit scores change to the new requirements. The old scores stay in the history.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Rotate</AlertDialogAction>
+            <AlertDialogAction>Rescore</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -68,7 +68,7 @@ export function Open() {
   return (
     <div className="min-h-100">
       <AlertDialog defaultOpen>
-        <DeleteAgent />
+        <RemoveSite />
       </AlertDialog>
     </div>
   );

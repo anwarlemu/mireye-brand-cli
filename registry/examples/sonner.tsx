@@ -12,24 +12,24 @@ export function Preview() {
       <Button
         variant="outline"
         onClick={() =>
-          toast("Webhook paused", {
-            description: "message.sent stops delivering to api.acme.dev.",
-            action: { label: "Undo", onClick: () => toast.success("Webhook resumed") },
+          toast("Site 14 removed", {
+            description: "Its 6 parcels left the shortlist.",
+            action: { label: "Undo", onClick: () => toast.success("Site 14 restored") },
           })
         }
       >
-        Pause webhook
+        Remove site
       </Button>
-      <Button variant="outline" onClick={() => toast.success("Agent created", { description: "@test-agent is ready to send its first email." })}>
+      <Button variant="outline" onClick={() => toast.success("Survey complete", { description: "212 acres in Weld County scored 86 against your requirements." })}>
         Success
       </Button>
-      <Button variant="outline" onClick={() => toast.error("Handle not available", { description: "acme-support is taken. Try another." })}>
+      <Button variant="outline" onClick={() => toast.error("Export failed", { description: "The shapefile is over 50 MB. Export fewer parcels." })}>
         Error
       </Button>
-      <Button variant="outline" onClick={() => toast.warning("Copy this API key now", { description: "For security, the full key cannot be shown again." })}>
+      <Button variant="outline" onClick={() => toast.warning("Floodplain overlap", { description: "18 acres of parcel 0412-07 sit in the 100-year floodplain." })}>
         Warning
       </Button>
-      <Button variant="outline" onClick={() => toast.info("The vault is zero-knowledge", { description: "Encryption happens in your browser." })}>
+      <Button variant="outline" onClick={() => toast.info("New county data", { description: "Larimer County parcels were updated on Oct 30." })}>
         Info
       </Button>
       <Button
@@ -37,9 +37,9 @@ export function Preview() {
         onClick={() =>
           // ds-latency: demonstrates a pending notification; no control or input waits for the demo timer.
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1600)), {
-            loading: "Provisioning phone line...",
-            success: "Line +1 650 474 9720 is live",
-            error: "Could not provision a line",
+            loading: "Scoring 24 sites...",
+            success: "24 sites scored",
+            error: "Could not score the sites",
           })
         }
       >

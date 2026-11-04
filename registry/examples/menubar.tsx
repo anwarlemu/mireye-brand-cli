@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CopyIcon, FileTextIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import { CopyIcon, DownloadSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 
 import {
   Menubar,
@@ -22,39 +22,39 @@ import {
 } from "@/components/ui/menubar";
 
 function Bar({ open }: { open?: boolean }) {
-  const [wrap, setWrap] = React.useState(true);
-  const [format, setFormat] = React.useState("markdown");
+  const [labels, setLabels] = React.useState(true);
+  const [basemap, setBasemap] = React.useState("survey");
   return (
-    <Menubar defaultValue={open ? "note" : undefined}>
-      <MenubarMenu value="note">
-        <MenubarTrigger>Note</MenubarTrigger>
+    <Menubar defaultValue={open ? "site" : undefined}>
+      <MenubarMenu value="site">
+        <MenubarTrigger>Site</MenubarTrigger>
         <MenubarContent className="w-56">
           <MenubarGroup>
             <MenubarItem>
               <PlusIcon />
-              New note
+              New site
               <MenubarShortcut>⌘N</MenubarShortcut>
             </MenubarItem>
             <MenubarItem>
-              <CopyIcon weight="duotone" />
+              <CopyIcon />
               Duplicate
               <MenubarShortcut>⌘D</MenubarShortcut>
             </MenubarItem>
             <MenubarSub>
               <MenubarSubTrigger>
-                <FileTextIcon weight="fill" />
+                <DownloadSimpleIcon />
                 Export as
               </MenubarSubTrigger>
               <MenubarSubContent className="w-40">
-                <MenubarItem>Markdown</MenubarItem>
-                <MenubarItem>Plain text</MenubarItem>
+                <MenubarItem>GeoJSON</MenubarItem>
+                <MenubarItem>Shapefile</MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
           </MenubarGroup>
           <MenubarSeparator />
           <MenubarItem variant="destructive">
-            <TrashIcon weight="fill" />
-            Delete note
+            <TrashIcon />
+            Remove site
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
@@ -69,17 +69,17 @@ function Bar({ open }: { open?: boolean }) {
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-      <MenubarMenu value="view">
-        <MenubarTrigger>View</MenubarTrigger>
+      <MenubarMenu value="map">
+        <MenubarTrigger>Map</MenubarTrigger>
         <MenubarContent className="w-52">
-          <MenubarCheckboxItem checked={wrap} onCheckedChange={(v) => setWrap(v === true)}>
-            Wrap lines
+          <MenubarCheckboxItem checked={labels} onCheckedChange={(v) => setLabels(v === true)}>
+            Parcel labels
           </MenubarCheckboxItem>
           <MenubarSeparator />
-          <MenubarLabel>Show as</MenubarLabel>
-          <MenubarRadioGroup value={format} onValueChange={setFormat}>
-            <MenubarRadioItem value="markdown">Markdown</MenubarRadioItem>
-            <MenubarRadioItem value="formatted">Formatted</MenubarRadioItem>
+          <MenubarLabel>Basemap</MenubarLabel>
+          <MenubarRadioGroup value={basemap} onValueChange={setBasemap}>
+            <MenubarRadioItem value="survey">Survey</MenubarRadioItem>
+            <MenubarRadioItem value="aerial">Aerial</MenubarRadioItem>
           </MenubarRadioGroup>
         </MenubarContent>
       </MenubarMenu>

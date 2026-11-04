@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpenTextIcon, EnvelopeSimpleIcon, GearSixIcon, KeyIcon, LockKeyIcon, PhoneIcon, PlusIcon, RobotIcon, WebhooksLogoIcon } from "@phosphor-icons/react/ssr";
+import { BookOpenTextIcon, ChartLineIcon, DownloadSimpleIcon, GearSixIcon, LightningIcon, MapPinIcon, MapTrifoldIcon, PlusIcon, StackIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from "@/components/ui/command";
@@ -9,57 +9,57 @@ import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, Comma
 function Items({ onRun }: { onRun?: () => void }) {
   return (
     <>
-      <CommandInput placeholder="Search agents, mailboxes and pages" />
+      <CommandInput placeholder="Search sites, layers and pages" />
       <CommandList>
         <CommandEmpty>No results.</CommandEmpty>
-        <CommandGroup heading="Agents">
+        <CommandGroup heading="Sites">
           <CommandItem onSelect={onRun}>
-            <RobotIcon weight="fill" />
-            @acme
+            <MapPinIcon />
+            Site 14, Weld County
           </CommandItem>
           <CommandItem onSelect={onRun}>
-            <RobotIcon weight="fill" />
-            @acme-support
+            <MapPinIcon />
+            Site 9, Larimer County
           </CommandItem>
           <CommandItem onSelect={onRun}>
             <PlusIcon />
-            Create Agent
+            New site
             <CommandShortcut>⌘N</CommandShortcut>
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
-        <CommandGroup heading="Channels">
+        <CommandGroup heading="Layers">
           <CommandItem onSelect={onRun}>
-            <EnvelopeSimpleIcon weight="fill" />
-            Email
+            <StackIcon />
+            Parcels
           </CommandItem>
           <CommandItem onSelect={onRun}>
-            <PhoneIcon weight="fill" />
-            Phone
+            <LightningIcon />
+            Substations
           </CommandItem>
           <CommandItem disabled>
-            <WebhooksLogoIcon weight="fill" />
-            Agent2Agent (beta)
+            <MapTrifoldIcon />
+            Wetlands (coming soon)
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
-        <CommandGroup heading="Shared">
+        <CommandGroup heading="Project">
           <CommandItem onSelect={onRun}>
-            <LockKeyIcon weight="fill" />
-            Vault
+            <ChartLineIcon />
+            Fit scores
           </CommandItem>
           <CommandItem onSelect={onRun}>
-            <KeyIcon weight="fill" />
-            API Keys
-            <CommandShortcut>⌘K</CommandShortcut>
+            <DownloadSimpleIcon />
+            Export shortlist
+            <CommandShortcut>⌘E</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={onRun}>
-            <GearSixIcon weight="fill" />
-            Settings
+            <GearSixIcon />
+            Requirements
             <CommandShortcut>⌘,</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={onRun}>
-            <BookOpenTextIcon weight="fill" />
+            <BookOpenTextIcon />
             Read the docs
           </CommandItem>
         </CommandGroup>
@@ -70,7 +70,7 @@ function Items({ onRun }: { onRun?: () => void }) {
 
 export function Preview() {
   return (
-    <Command className="mx-auto max-w-112 shadow-s">
+    <Command className="mx-auto max-w-112">
       <Items />
     </Command>
   );
@@ -93,8 +93,8 @@ export function Dialog() {
       <Button variant="outline" onClick={() => setOpen(true)}>
         Open the command menu
       </Button>
-      <p className="text-body text-fg-muted">
-        Or press <kbd className="rounded-xs bg-subtle px-1.5 font-sans text-caption text-fg">⌘K</kbd>
+      <p className="text-body text-fg-secondary">
+        Or press <kbd className="border border-line bg-surface px-1.5 font-sans text-caption text-fg">⌘K</kbd>
       </p>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Items onRun={() => setOpen(false)} />

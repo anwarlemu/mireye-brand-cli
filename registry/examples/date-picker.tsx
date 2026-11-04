@@ -14,8 +14,8 @@ export function Preview() {
   const [date, setDate] = React.useState<Date | undefined>();
   return (
     <div className="grid w-full max-w-72 gap-1">
-      <Label htmlFor="expires">Key expires</Label>
-      <DatePicker id="expires" value={date} onValueChange={setDate} placeholder="Never" calendar={{ today: TODAY, disabled: { before: TODAY } }} />
+      <Label htmlFor="survey-date">Survey date</Label>
+      <DatePicker id="survey-date" value={date} onValueChange={setDate} placeholder="Pick a date" calendar={{ today: TODAY, disabled: { before: TODAY } }} />
     </div>
   );
 }
@@ -24,8 +24,8 @@ export function Range() {
   const [range, setRange] = React.useState<DateRange | undefined>({ from: days(-6), to: TODAY });
   return (
     <div className="grid w-full max-w-80 gap-1">
-      <Label htmlFor="log-range">Delivery log</Label>
-      <DateRangePicker id="log-range" value={range} onValueChange={setRange} calendar={{ today: TODAY, disabled: { after: TODAY } }} />
+      <Label htmlFor="permit-range">Permit window</Label>
+      <DateRangePicker id="permit-range" value={range} onValueChange={setRange} calendar={{ today: TODAY, disabled: { after: TODAY } }} />
     </div>
   );
 }
@@ -36,9 +36,9 @@ export function Presets() {
   return (
     <div className="grid w-full max-w-80 gap-4">
       <div className="grid gap-1">
-        <Label htmlFor="send-at">Send the summary on</Label>
+        <Label htmlFor="site-visit">Site visit on</Label>
         <DatePicker
-          id="send-at"
+          id="site-visit"
           value={send}
           onValueChange={setSend}
           calendar={{ today: TODAY, disabled: { before: TODAY } }}
@@ -51,9 +51,9 @@ export function Presets() {
         />
       </div>
       <div className="grid gap-1">
-        <Label htmlFor="usage-range">Usage</Label>
+        <Label htmlFor="parcel-range">Parcels updated</Label>
         <DateRangePicker
-          id="usage-range"
+          id="parcel-range"
           value={range}
           onValueChange={setRange}
           placeholder="All time"
@@ -74,8 +74,8 @@ export function States() {
     <div className="grid w-full max-w-72 gap-3">
       <DatePicker aria-label="Disabled date" defaultValue={TODAY} disabled />
       <div className="grid gap-1">
-        <DatePicker aria-label="Start date" aria-invalid calendar={{ today: TODAY }} />
-        <p className="text-caption leading-body text-danger">Choose a start date.</p>
+        <DatePicker aria-label="Option start date" aria-invalid calendar={{ today: TODAY }} />
+        <p className="text-caption leading-body text-danger">Choose the date the option starts.</p>
       </div>
     </div>
   );

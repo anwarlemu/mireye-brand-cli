@@ -7,25 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-function EditMailbox() {
+function EditRequirements() {
   return (
     <>
       <SheetHeader>
-        <SheetTitle>Edit mailbox</SheetTitle>
-        <SheetDescription>Mailboxes are provisioned and deleted with their owning identity.</SheetDescription>
+        <SheetTitle>Edit requirements</SheetTitle>
+        <SheetDescription>Every site in the project is scored against these.</SheetDescription>
       </SheetHeader>
-      <div className="grid gap-4 px-6">
+      <div className="grid gap-4 px-5">
         <div className="grid gap-1">
-          <Label htmlFor="sheet-name">Display name</Label>
-          <Input id="sheet-name" defaultValue="Acme support" />
+          <Label htmlFor="sheet-acres">Minimum acres</Label>
+          <Input id="sheet-acres" inputMode="numeric" defaultValue="200" />
         </div>
         <div className="grid gap-1">
-          <Label htmlFor="sheet-reply">Reply-to address</Label>
-          <Input id="sheet-reply" type="email" placeholder="support@acme.com" />
+          <Label htmlFor="sheet-kv">Substation within (miles)</Label>
+          <Input id="sheet-kv" inputMode="decimal" defaultValue="3" />
         </div>
       </div>
       <SheetFooter>
-        <Button variant="secondary" className="w-full">Save changes</Button>
+        <Button className="w-full">Save requirements</Button>
       </SheetFooter>
     </>
   );
@@ -36,10 +36,10 @@ export function Preview() {
     <div className="flex justify-center">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline">Edit mailbox</Button>
+          <Button variant="outline">Edit requirements</Button>
         </SheetTrigger>
         <SheetContent>
-          <EditMailbox />
+          <EditRequirements />
         </SheetContent>
       </Sheet>
     </div>
@@ -74,7 +74,7 @@ export function Open() {
     <div className="min-h-120">
       <Sheet defaultOpen>
         <SheetContent>
-          <EditMailbox />
+          <EditRequirements />
         </SheetContent>
       </Sheet>
     </div>

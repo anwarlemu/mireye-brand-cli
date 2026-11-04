@@ -3,8 +3,8 @@ name: toast
 title: Toast
 type: ui
 surface: site
-description: "The Radix toast API in the same white floating look, with an outline action and a red edge for destructive toasts."
-use_for: "Use when an app already calls the older toast() and useToast() API. Mount Toaster once and call toast({ title, description, action }); pass variant destructive for failures. For new work, use Sonner."
-never: [Stacking more than three toasts, A toast that needs a decision before work continues, A purple or dark toast]
-source: "The Inkbox console's toast (src/components/ui/sonner.tsx): white floating panels, its close key and outline keys"
+description: "The Radix toast drawn as the Sonner toasts: a white panel with the 8px cut corner and a 1px Stone line, a 6px Forest diamond, a 13px medium title and a square framed action; destructive is drawn in brick."
+use_for: "Use where an app already uses shadcn's useToast API. Prefer Sonner for new work."
+never: [A new toast system beside Sonner, Rounded corners or a shadow, More than one action]
+source: "Not in Figma. Drawn in Mireye's grammar: the Sonner toasts"
 ---
