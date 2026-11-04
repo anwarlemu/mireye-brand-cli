@@ -1,10 +1,10 @@
 ---
 name: toggle-group
-title: Toggle Group
+title: Toggle group
 type: ui
 surface: site
-description: "The segmented choice: a lilac track of 40px choices where the chosen one is a white pill with Shadow/S."
-use_for: "Use for a choice among a few options that changes what is shown next (Where does this agent run? Hermes, Openclaw, Codex, Claude Code). Use type single for one choice, multiple for several. Put a 24px logo tile or a 20px glyph before each label. Use variant outline for separate keys."
-never: [A purple chosen key, A sliding indicator between choices, More than seven choices in one track]
-source: "Figma 427:2715: Where does this agent run? in Modal - Created"
+description: "A choice among a few: a segmented track in the field's frame (36px, white, 1px Stone line, the cut) whose chosen item is a Forest key with a white label. The outline variant is a row of framed toggles, joined with spacing 0."
+use_for: "Use for switching a view (Map, List, Compare), a unit or a distance band, with two to five short options. Use type single for one choice and multiple for layers. For more options or long labels use Select or Radio Group."
+never: ["A sliding or animated chosen item", "More than five items", "Icons without labels unless each has an aria-label"]
+source: "Not in Figma; drawn from \"UI · Buttons\" (442:3) and the field frame (442:107)"
 ---

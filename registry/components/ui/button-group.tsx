@@ -6,18 +6,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Buttons joined into one control (extrapolated from the Inkbox console, Figma 427:2715: the outline keys of the
-// created dialog and the split field of the Email channel card). Inner corners square off and the shared edges merge,
-// so outline keys read as one 36px bar with fully rounded outer corners; a field, select or text segment can sit in the bar.
-// ButtonGroupText is the lilac segment with muted 14px text 12px from its sides (@inboxmail.com), as the field addon; ButtonGroupSeparator is a 1px rule
-// between filled buttons.
+// Keys joined into one control. Only the group's first key keeps the cut corner: the others square off (their cut set
+// to 0) and step 1px over their neighbor, so two framed keys share one line, as a field and its unit do. A field,
+// select or text segment can sit in the bar. ButtonGroupText is a Fog segment inside the Stone line with 12px caption
+// text, for a fixed prefix or suffix (kV, ac). ButtonGroupSeparator is a 1px rule between filled keys (Stone, or the
+// dark track on Forest keys). Groups nest with 8px between them.
 const buttonGroupVariants = cva(
-  "group/button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[>input]:[&>[data-slot=button]]:h-10 has-[>input]:[&>[data-slot=button-group-text]]:h-10 [&>input]:flex-1",
+  "group/button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 *:focus-within:z-10 has-[>[data-slot=button-group]]:gap-2 [&>input]:flex-1",
   {
     variants: {
       orientation: {
-        horizontal: "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none",
-        vertical: "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none",
+        horizontal: "[&>*:not(:first-child)]:-ml-px [&>*:not(:first-child)]:[--ds-cut:0px]",
+        vertical: "flex-col [&>*:not(:first-child)]:-mt-px [&>*:not(:first-child)]:[--ds-cut:0px]",
       },
     },
     defaultVariants: { orientation: "horizontal" },
@@ -33,9 +33,13 @@ function ButtonGroupText({ className, asChild = false, ...props }: React.Compone
   // Chakra's factory renders its child in its place only when told to.
   const slotProps = asChild ? { asChild: true } : {};
   return (
-    <Comp {...slotProps}
+    <Comp
+      {...slotProps}
       data-slot="button-group-text"
-      className={cn("flex items-center gap-2 rounded-pill border border-line-field bg-subtle px-3 font-sans text-body leading-tight whitespace-nowrap text-fg-muted [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-5.5", className)}
+      className={cn(
+        "ds-cut-frame flex h-9 items-center gap-2 px-3 font-sans text-caption leading-tight whitespace-nowrap text-fg-secondary [--ds-shape-fill:var(--ds-color-bg-subtle)] [--ds-shape-stroke:var(--ds-color-border-default)] [&_svg]:pointer-events-none [&_svg:not([data-slot=icon]):not([class*='size-'])]:size-4",
+        className,
+      )}
       {...props}
     />
   );
@@ -48,7 +52,12 @@ function ButtonGroupSeparator({ className, orientation = "vertical", ...props }:
       aria-orientation={orientation}
       data-slot="button-group-separator"
       data-orientation={orientation}
-      className={cn("relative shrink-0 self-stretch bg-surface/40", orientation === "vertical" ? "w-px" : "h-px", className)}
+      className={cn(
+        "relative z-10 shrink-0 self-stretch bg-line group-has-[>[data-variant=default]]/button-group:bg-track-dark",
+        // A separator takes no room: the keys still meet under it.
+        orientation === "vertical" ? "-mr-px w-px" : "-mb-px h-px",
+        className,
+      )}
       {...props}
     />
   );

@@ -1,106 +1,98 @@
 "use client";
 
 import * as React from "react";
-import { EnvelopeSimpleIcon, PhoneIcon, ChatCircleIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function Preview() {
-  const [state, setState] = React.useState("any");
-  const [saved, setSaved] = React.useState<string>();
+  const [state, setState] = React.useState<string>();
   return (
-    <form
-      className="grid w-full max-w-114.5 gap-1"
-      onSubmit={(event) => {
-        event.preventDefault();
-        setSaved(String(new FormData(event.currentTarget).get("state")));
-      }}
-    >
-      <Label htmlFor="any-state">Phone number state</Label>
-      <Select name="state" value={state} onValueChange={setState}>
-        <SelectTrigger id="any-state">
-          <SelectValue placeholder="Choose a state" />
+    <div className="grid w-full max-w-80 gap-2">
+      <Label id="state-label">State</Label>
+      <Select value={state} onValueChange={setState}>
+        <SelectTrigger aria-labelledby="state-label">
+          <SelectValue placeholder="Any state" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="any">Any State</SelectItem>
-          <SelectSeparator />
           <SelectGroup>
             <SelectLabel>West</SelectLabel>
-            <SelectItem value="ca">California</SelectItem>
             <SelectItem value="or">Oregon</SelectItem>
             <SelectItem value="wa">Washington</SelectItem>
+            <SelectItem value="nv">Nevada</SelectItem>
           </SelectGroup>
+          <SelectSeparator />
           <SelectGroup>
-            <SelectLabel>East</SelectLabel>
-            <SelectItem value="ny">New York</SelectItem>
-            <SelectItem value="ma">Massachusetts</SelectItem>
-            <SelectItem value="fl" disabled>
-              Florida (no numbers left)
+            <SelectLabel>South</SelectLabel>
+            <SelectItem value="tx">Texas</SelectItem>
+            <SelectItem value="ga">Georgia</SelectItem>
+            <SelectItem value="az" disabled>
+              Arizona (no data yet)
             </SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
-      <div className="mt-3 flex items-center gap-3">
-        <Button type="submit">Save</Button>
-        <p aria-live="polite" className="text-body text-fg-muted">
-          {saved ? `Saved: ${saved}` : ""}
-        </p>
-      </div>
-    </form>
+    </div>
   );
 }
 
-export function WithIcons() {
+export function Sizes() {
   return (
-    <Select defaultValue="email">
-      <SelectTrigger aria-label="Channel" className="w-60">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="email">
-          <EnvelopeSimpleIcon weight="fill" /> Email
-        </SelectItem>
-        <SelectItem value="phone">
-          <PhoneIcon weight="fill" /> Phone
-        </SelectItem>
-        <SelectItem value="imessage">
-          <ChatCircleIcon weight="fill" /> iMessage
-        </SelectItem>
-      </SelectContent>
-    </Select>
+    <form className="flex w-full max-w-120 flex-wrap items-center gap-3" onSubmit={(e) => e.preventDefault()}>
+      <Select defaultValue="345">
+        <SelectTrigger aria-label="Minimum voltage" className="w-40">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="115">115 kV</SelectItem>
+          <SelectItem value="230">230 kV</SelectItem>
+          <SelectItem value="345">345 kV</SelectItem>
+          <SelectItem value="500">500 kV</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select defaultValue="fit">
+        <SelectTrigger size="sm" aria-label="Sort parcels" className="w-40">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="fit">Best fit</SelectItem>
+          <SelectItem value="size">Largest first</SelectItem>
+          <SelectItem value="distance">Nearest a substation</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button type="submit" size="sm" arrow>
+        Find sites
+      </Button>
+    </form>
   );
 }
 
 export function States() {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Select>
-        <SelectTrigger aria-label="Line" size="sm" className="w-44">
-          <SelectValue placeholder="Choose a line" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="shared">Shared</SelectItem>
-          <SelectItem value="dedicated">Dedicated</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select defaultValue="shared" disabled>
-        <SelectTrigger aria-label="Disabled" className="w-44">
+    <div className="grid w-full max-w-80 gap-4">
+      <Select defaultValue="or" disabled>
+        <SelectTrigger aria-label="Locked state">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="shared">Shared</SelectItem>
+          <SelectItem value="or">Oregon</SelectItem>
         </SelectContent>
       </Select>
-      <Select>
-        <SelectTrigger aria-label="Invalid" aria-invalid className="w-44">
-          <SelectValue placeholder="Required" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="edge">Edge</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="grid gap-2">
+        <Select>
+          <SelectTrigger aria-label="Required zoning" aria-invalid aria-describedby="zoning-error">
+            <SelectValue placeholder="Choose a zoning" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="i1">I-1 Light industrial</SelectItem>
+            <SelectItem value="i2">I-2 Industrial</SelectItem>
+          </SelectContent>
+        </Select>
+        <p id="zoning-error" className="m-0 text-caption leading-line-caption text-danger">
+          Choose the zoning the site needs.
+        </p>
+      </div>
     </div>
   );
 }

@@ -3,8 +3,8 @@ name: label
 title: Label
 type: ui
 surface: site
-description: "A field's 14px regular ink label on a 24px line, with a red required mark."
-use_for: "Name every field with a Label tied to it by htmlFor, 4px above the field. For a label with a hint or an action beside it (Forgot password?), use Field. Mark a required field with <span data-slot=\"label-required\" aria-hidden>*</span> inside the label (it turns red) and required on the control."
-never: [Bold or caps labels, A label in the action purple]
-source: "Figma 427:2715: Login (Email address, Password), Vault (Vault key)"
+description: "A field's label: 12px regular in 80% Forest, 8px above its field. Beside a checkbox, radio or switch it becomes the control's own 13px Forest label. A required mark inside it is brick."
+use_for: "Use above every field, tied to it with htmlFor (or aria-labelledby for a Select or Combobox). Keep labels short nouns (Parcel size, Location). Beside a checkbox, radio or switch, prefer the control's own children as its label."
+never: ["Bold or uppercase labels", "A label after its field", "A colon at the end"]
+source: "Figma \"UI · Inputs\" (442:107): Parcel size, Location"
 ---

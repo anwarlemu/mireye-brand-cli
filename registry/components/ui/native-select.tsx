@@ -1,11 +1,15 @@
-import * as React from "react";
-import { CaretDownIcon } from "@phosphor-icons/react/ssr";
+"use client";
 
+import * as React from "react";
+
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
+import { inputClassName } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-// The browser's own select dressed as the console's select ("Any State", "Shared" in Create Agent Identity): a white
-// 40px pill with the Shadow/S ring instead of an edge, 14px regular ink 14px from the left and a 16px bold caret 12px from
-// the right. Focus adds the soft ring; disabled sits on the lilac with muted text and no ring. `size="sm"` is 36px. Use it where the platform picker is better (phones, long lists, forms without script).
+// The browser's own select dressed as Mireye's select: Input's frame (white, 1px Stone line, the 8px cut, 36px;
+// `size="sm"` 32px) with the value in 13px Forest 16px in and the brand arrow's head turned down 16px from the right.
+// Focus turns the line Forest; invalid turns it brick; disabled sits on Mist with Slate text. Use it where the
+// platform picker is better (phones, long lists, forms without script).
 type NativeSelectProps = Omit<React.ComponentProps<"select">, "size"> & { size?: "sm" | "default" };
 
 function NativeSelect({ className, size = "default", ...props }: NativeSelectProps) {
@@ -14,10 +18,15 @@ function NativeSelect({ className, size = "default", ...props }: NativeSelectPro
       <select
         data-slot="native-select"
         data-size={size}
-        className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-pill bg-surface py-0 pr-10 pl-[calc(var(--spacing)*3.5)] font-sans text-body leading-tight font-normal text-fg shadow-s outline-none transition-[box-shadow] duration-fast ease-out focus-visible:shadow-[var(--ds-shadow-s),var(--ds-shadow-focus)] disabled:cursor-not-allowed disabled:bg-subtle disabled:text-fg-muted disabled:shadow-none aria-invalid:shadow-[0_0_0_1px_var(--ds-color-status-danger)] data-[size=sm]:h-9 motion-reduce:transition-none"
+        className={cn(inputClassName, "cursor-pointer appearance-none py-0 pr-10 data-[size=sm]:h-8 data-[size=sm]:pl-3")}
         {...props}
       />
-      <CaretDownIcon aria-hidden data-slot="native-select-icon" weight="bold" className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-fg group-has-[select:disabled]/native-select:text-fg-muted" />
+      <ArrowRightIcon
+        size={16}
+        head
+        data-slot="native-select-icon"
+        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 rotate-90 text-fg group-data-[size=sm]/native-select:right-3 group-has-[select:disabled]/native-select:text-fg-subtle"
+      />
     </div>
   );
 }

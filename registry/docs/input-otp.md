@@ -3,8 +3,8 @@ name: input-otp
 title: Input OTP
 type: ui
 surface: site
-description: "Joined 40px slots in the field's edge with a purple active slot, the soft ring and a blinking caret."
-use_for: "Use for one-time codes from email or SMS (a login code, a vault unlock code). Set maxLength to the code's length and pattern to REGEXP_ONLY_DIGITS for numbers; split long codes into groups with InputOTPSeparator. Paste and SMS autofill fill every slot at once; onComplete fires when the code is full."
-never: [Separate inputs per digit, Auto-submitting without a visible result, Hiding the characters of a one-time code]
-source: "Extrapolated from the Inkbox console (Figma 427:2715): Form- Input's 40px, edge and focus"
+description: "A one-time code: one 36px square per character, each the field's frame with the compact 6px cut, 8px apart, with 16px DM Mono characters. The next slot's line turns Forest with a blinking caret; invalid turns every line brick."
+use_for: "Use for sign-in and verification codes. Set `maxLength` and `pattern` (REGEXP_ONLY_DIGITS for numeric codes); split long codes into groups with a separator. Say where the code was sent below it."
+never: ["One field per character that the reader must tab through", "Rounded slots", "A code shown in the sans face"]
+source: "Not in Figma; drawn from the field (442:107)"
 ---

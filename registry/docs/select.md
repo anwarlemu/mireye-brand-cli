@@ -3,8 +3,8 @@ name: select
 title: Select
 type: ui
 surface: site
-description: "A white 40px pill with the Shadow/S ring and a bold caret that turns over while it opens the console's white menu: 36px rows with 12px corners and a filled purple check circle at the end."
-use_for: "Use to choose one value from a list of five or more (Any State for a phone number, Shared or Dedicated for an iMessage line). Give it a Label or an aria-label, a placeholder when nothing is chosen, and group long lists with SelectGroup and SelectLabel. Control it with value and onValueChange (values are non-empty strings), and give the root a name so a form submits the value with FormData."
-never: [A field edge instead of the Shadow/S ring, A dark or purple list, Checkmarks at the left of the items, Animating items as they are highlighted, A hover change on the trigger]
-source: "The Inkbox console's Select (src/components/ui/select.tsx) and menu theme; Figma 427:2715: Any State and Shared in Create Agent Identity"
+description: "Mireye's select: the field's frame (36px, white, 1px Stone line, the cut) with the value and the brand arrow's head turned down. Its list floats 4px under it in the same frame: 28px rows in 80% Forest, the highlighted one a Fog plate with the small cut, the chosen one full Forest with a solid diamond."
+use_for: "Use for one choice among a known list of up to about fifteen (a state, a voltage, a sort). Put a Label above it with aria-labelledby. Pass `name` to submit the value with its form (FormData). Use size sm in dense toolbars. For long or searchable lists use Combobox; for two to five short options use Radio Group or Toggle Group."
+never: ["A check mark or circle for the chosen row (it is the diamond)", "A shadow under the list", "Rounded rows", "A select for a yes or no choice"]
+source: "Drawn from Figma \"UI · Inputs\" (442:107) and the design's unit list"
 ---

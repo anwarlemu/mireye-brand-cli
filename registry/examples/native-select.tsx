@@ -3,18 +3,16 @@ import { NativeSelect, NativeSelectOptGroup, NativeSelectOption } from "@/compon
 
 export function Preview() {
   return (
-    <div className="grid w-full max-w-114.5 gap-1">
-      <Label htmlFor="state">Phone number state</Label>
-      <NativeSelect id="state" defaultValue="any" className="w-full">
-        <NativeSelectOption value="any">Any State</NativeSelectOption>
+    <div className="grid gap-2">
+      <Label htmlFor="ns-state">State</Label>
+      <NativeSelect id="ns-state" defaultValue="or" className="w-60">
         <NativeSelectOptGroup label="West">
-          <NativeSelectOption value="ca">California</NativeSelectOption>
           <NativeSelectOption value="or">Oregon</NativeSelectOption>
           <NativeSelectOption value="wa">Washington</NativeSelectOption>
         </NativeSelectOptGroup>
-        <NativeSelectOptGroup label="East">
-          <NativeSelectOption value="ny">New York</NativeSelectOption>
-          <NativeSelectOption value="ma">Massachusetts</NativeSelectOption>
+        <NativeSelectOptGroup label="South">
+          <NativeSelectOption value="tx">Texas</NativeSelectOption>
+          <NativeSelectOption value="ga">Georgia</NativeSelectOption>
         </NativeSelectOptGroup>
       </NativeSelect>
     </div>
@@ -24,18 +22,16 @@ export function Preview() {
 export function States() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <NativeSelect aria-label="Line" size="sm" defaultValue="shared">
-        <NativeSelectOption value="shared">Shared</NativeSelectOption>
-        <NativeSelectOption value="dedicated">Dedicated</NativeSelectOption>
+      <NativeSelect size="sm" aria-label="Sort parcels" defaultValue="fit" className="w-48">
+        <NativeSelectOption value="fit">Best fit</NativeSelectOption>
+        <NativeSelectOption value="size">Largest first</NativeSelectOption>
       </NativeSelect>
-      <NativeSelect aria-label="Disabled" disabled defaultValue="shared">
-        <NativeSelectOption value="shared">Shared</NativeSelectOption>
+      <NativeSelect aria-label="Locked state" disabled className="w-48">
+        <NativeSelectOption>Oregon</NativeSelectOption>
       </NativeSelect>
-      <NativeSelect aria-label="Invalid" aria-invalid defaultValue="">
-        <NativeSelectOption value="" disabled>
-          Choose a mode
-        </NativeSelectOption>
-        <NativeSelectOption value="edge">Edge</NativeSelectOption>
+      <NativeSelect aria-label="Zoning" aria-invalid className="w-48">
+        <NativeSelectOption value="">Choose a zoning</NativeSelectOption>
+        <NativeSelectOption value="i2">I-2 Industrial</NativeSelectOption>
       </NativeSelect>
     </div>
   );

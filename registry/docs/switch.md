@@ -3,8 +3,8 @@ name: switch
 title: Switch
 type: ui
 surface: site
-description: "A 52 by 32 pill: off gray, purple when on, with a 24px white knob that slides 20px across in 120ms."
-use_for: "Use to turn a setting or a channel on and off immediately (Phone Number, iMessage, Agent2Agent in Create Agent Identity). Put the label at the left and the switch at the right of the row, and give the switch an accessible name with aria-label or a Label. Use size sm (44 by 28) in dense lists."
-never: [A switch that needs a save button to apply, A label inside the track, A colored track other than purple when on, A knob that bounces]
-source: "The Inkbox console's Switch theme (a 44 by 24 track inside 4px of padding); Figma 427:2715: Toggle in the channel cards of Create Agent Identity"
+description: "A square 32 by 16 track with no cut: white with a Stone line and a Mist knob when off, Forest with a white knob when on. The knob slides in 200ms on the strong ease-out; the track's color fades over 150ms. Its label is 13px Forest 12px after it."
+use_for: "Use for a setting that applies at once, such as a map layer (Terrain). Pass the label as children. Use size sm in dense rows. For an option applied on submit use Checkbox."
+never: ["A rounded track or knob", "A switch that needs a Save key to apply", "A bouncing knob"]
+source: "Figma \"UI · Controls\" (442:145), where it is called Toggle: Terrain, on and off"
 ---

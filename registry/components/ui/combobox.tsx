@@ -3,20 +3,26 @@
 import * as React from "react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import { Command as CommandPrimitive } from "cmdk";
-import { CaretDownIcon, CheckCircleIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { XIcon } from "@phosphor-icons/react/ssr";
+
+import { ArrowRightIcon } from "@/components/icons/arrow-right";
+import { ParcelIcon } from "@/components/icons/parcel-icon";
+import { Diamond } from "@/components/ui/diamond";
+import { Dial } from "@/components/ui/dial";
 
 import { usePortalContainer } from "@/lib/surface";
 import { cn } from "@/lib/utils";
 
-// A searchable choice (extrapolated from the Inkbox console's select and menus). The trigger is the select's: a white
-// 40px pill with the Shadow/S ring, the value in 14px regular ink (the placeholder in the light purple) and a 16px bold
-// caret at the right that turns over while the list is open; disabled it sits on the lilac with no ring. It opens the
-// menu panel 8px from the trigger (white, 16px corners, the floating shadow), growing from the trigger over 160ms and
-// leaving in 100ms: a 44px search row with a 16px magnifier, then 36px rows 4px apart with 12px corners and sides, 14px
-// ink, the highlighted row on the lilac at once and a 16px bold purple check 12px after each chosen label; groups are
-// headed in 12px purple. For several values, ComboboxChips is a field with 24px corners: lilac pill chips with an x, and
-// an input that filters as you type (Backspace on an empty input removes the last chip). Moving through the rows is
-// instant: it is done by keyboard.
+// A searchable choice, for finding a place or any record by name (the design's search field and its floating results).
+// The trigger is the select's: Input's frame (white, 1px Stone line, the 8px cut, 36px) with the value in 13px Forest
+// (the placeholder Slate) and the brand arrow's head turned down, turning up while open; open, its line is Forest.
+// The list floats 4px under it in the same frame (no shadow), fading in from 0.98 (the shared pop): a 36px search row with
+// the parcel glyph over a Mist rule, then 28px rows with 12px sides in 80% Forest. The typed part of each name is
+// full Forest. The highlighted row is a Fog plate with the small cut, at once (it follows the keys); a chosen row is
+// full Forest with a solid diamond before it. `detail` puts a short 12px note on a row's right (State, County).
+// `searching` on ComboboxInput turns the Dial at the end of the search row while the parent's search runs. For
+// several values, ComboboxChips is the frame holding square Fog chips with an x, and an input that filters as you
+// type (Backspace on an empty input removes the last chip).
 
 type Item = { value: string; label: string; disabled?: boolean };
 
@@ -120,8 +126,10 @@ function Combobox(props: ComboboxSingleProps | ComboboxMultipleProps) {
   );
 }
 
-const FIELD =
-  "flex min-h-10 w-full min-w-0 items-center gap-2 rounded-pill bg-surface pr-3 pl-[calc(var(--spacing)*3.5)] font-sans text-body leading-tight font-normal text-fg shadow-s outline-none transition-[box-shadow] duration-fast ease-out aria-invalid:shadow-[0_0_0_1px_var(--ds-color-status-danger)] motion-reduce:transition-none";
+const FIELD = cn(
+  "ds-cut-frame flex min-h-9 w-full min-w-0 items-center gap-2 px-4 font-sans text-body leading-tight font-normal text-fg outline-none",
+  "[--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] aria-invalid:[--ds-shape-stroke:var(--ds-color-status-danger)]",
+);
 
 /** The closed field: the chosen value (ComboboxValue) and the caret. Opens the list. */
 function ComboboxTrigger({ className, children, ...props }: React.ComponentProps<"button">) {
@@ -136,11 +144,11 @@ function ComboboxTrigger({ className, children, ...props }: React.ComponentProps
         data-slot="combobox-trigger"
         data-empty={!values.length}
         disabled={disabled}
-        className={cn(FIELD, "group/combobox-trigger h-10 cursor-pointer text-left focus-visible:shadow-[var(--ds-shadow-s),var(--ds-shadow-focus)] disabled:cursor-not-allowed disabled:bg-subtle disabled:text-fg-muted disabled:shadow-none data-[empty=true]:text-fg-subtle", className)}
+        className={cn(FIELD, "group/combobox-trigger h-9 cursor-pointer text-left focus-visible:[--ds-shape-stroke:var(--ds-color-border-strong)] aria-expanded:[--ds-shape-stroke:var(--ds-color-border-strong)] disabled:cursor-not-allowed disabled:text-fg-subtle disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] data-[empty=true]:text-fg-subtle", className)}
         {...props}
       >
         <span className="flex min-w-0 flex-1 items-center gap-2 truncate">{children ?? <ComboboxValue />}</span>
-        <CaretDownIcon aria-hidden weight="bold" className="size-4 shrink-0 text-fg transition-transform duration-slow ease-out group-aria-expanded/combobox-trigger:rotate-180 group-disabled/combobox-trigger:text-fg-muted motion-reduce:transition-none" />
+        <ArrowRightIcon size={16} head className="shrink-0 rotate-90 text-fg transition-transform duration-fast ease-out group-aria-expanded/combobox-trigger:-rotate-90 group-disabled/combobox-trigger:text-fg-subtle motion-reduce:transition-none" />
       </button>
     </PopoverPrimitive.Trigger>
   );
@@ -167,15 +175,15 @@ function ComboboxClear({ className, ...props }: React.ComponentProps<"button">) 
         e.stopPropagation();
         clear();
       }}
-      className={cn("inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-pill text-fg-faint outline-none transition-[color,box-shadow] duration-fast ease-out hover:text-fg-muted active:text-fg focus-visible:shadow-focus motion-reduce:transition-none", className)}
+      className={cn("inline-flex size-6 shrink-0 cursor-pointer items-center justify-center text-fg-muted outline-none transition-[color] duration-fast ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none", className)}
       {...props}
     >
-      <XIcon weight="bold" className="size-4" />
+      <XIcon className="size-4" />
     </button>
   );
 }
 
-function ComboboxContent({ className, children, align = "start", sideOffset = 8, anchor, onInteractOutside, ...props }: React.ComponentProps<typeof PopoverPrimitive.Content> & { anchor?: React.RefObject<HTMLElement | null> }) {
+function ComboboxContent({ className, children, align = "start", sideOffset = 4, anchor, onInteractOutside, ...props }: React.ComponentProps<typeof PopoverPrimitive.Content> & { anchor?: React.RefObject<HTMLElement | null> }) {
   const container = usePortalContainer();
   const { search, chips, listRef, chipsRef, contentId, open } = useCombobox();
   // With chips cmdk does not filter, so it would keep a hidden row highlighted: highlight the first match instead.
@@ -202,7 +210,7 @@ function ComboboxContent({ className, children, align = "start", sideOffset = 8,
           if (chips && chipsRef.current?.contains(e.target as Node)) e.preventDefault();
         }}
         className={cn(
-          "z-50 w-(--radix-popover-trigger-width) min-w-56 max-w-[calc(100vw-2rem)] origin-(--radix-popover-content-transform-origin) overflow-hidden rounded-panel bg-surface text-fg shadow-floating outline-none data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in motion-reduce:animate-none",
+          "ds-cut-frame z-50 w-(--radix-popover-trigger-width) min-w-56 max-w-[calc(100vw-2rem)] origin-(--radix-popover-content-transform-origin) overflow-hidden text-fg outline-none [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in motion-reduce:animate-none",
           className,
         )}
         {...props}
@@ -216,20 +224,21 @@ function ComboboxContent({ className, children, align = "start", sideOffset = 8,
   );
 }
 
-/** The search row at the top of the list. */
-function ComboboxInput({ className, placeholder = "Search", ...props }: Omit<React.ComponentProps<typeof CommandPrimitive.Input>, "value" | "onValueChange">) {
+/** The search row at the top of the list. `searching` turns the Dial at its end while a search runs. */
+function ComboboxInput({ className, placeholder = "Search", searching = false, ...props }: Omit<React.ComponentProps<typeof CommandPrimitive.Input>, "value" | "onValueChange"> & { searching?: boolean }) {
   const { search, setSearch } = useCombobox();
   return (
-    <div data-slot="combobox-input-wrapper" className="flex h-11 shrink-0 items-center gap-2.5 border-b border-line-subtle px-4">
-      <MagnifyingGlassIcon aria-hidden className="size-4 shrink-0 text-icon-secondary" />
+    <div data-slot="combobox-input-wrapper" className="flex h-9 shrink-0 items-center gap-2 border-b border-line-subtle px-4">
+      <ParcelIcon size={10} className="size-2.5 shrink-0 text-fg" />
       <CommandPrimitive.Input
         data-slot="combobox-input"
         value={search}
         onValueChange={setSearch}
         placeholder={placeholder}
-        className={cn("h-full w-full min-w-0 bg-transparent font-sans text-body leading-tight text-fg outline-none placeholder:text-fg-subtle", className)}
+        className={cn("h-full w-full min-w-0 bg-transparent font-sans text-body leading-tight text-fg caret-fg outline-none placeholder:text-fg-subtle", className)}
         {...props}
       />
+      {searching && <Dial size={24} aria-label="Searching" />}
     </div>
   );
 }
@@ -238,7 +247,7 @@ function ComboboxInput({ className, placeholder = "Search", ...props }: Omit<Rea
 function ComboboxList({ className, children, ...props }: Omit<React.ComponentProps<typeof CommandPrimitive.List>, "children"> & { children?: React.ReactNode | ((item: Item) => React.ReactNode) }) {
   const { items } = useCombobox();
   return (
-    <CommandPrimitive.List data-slot="combobox-list" className={cn("max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto overscroll-contain p-1 [&_[cmdk-list-sizer]]:flex [&_[cmdk-list-sizer]]:flex-col [&_[cmdk-list-sizer]]:gap-1 [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-1", className)} {...props}>
+    <CommandPrimitive.List data-slot="combobox-list" className={cn("max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto overscroll-contain p-1 [&_[cmdk-list-sizer]]:flex [&_[cmdk-list-sizer]]:flex-col [&_[cmdk-list-sizer]]:gap-px [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-px", className)} {...props}>
       {typeof children === "function" ? items?.map((item) => <React.Fragment key={item.value}>{children(item)}</React.Fragment>) : children}
     </CommandPrimitive.List>
   );
@@ -249,7 +258,7 @@ function ComboboxCollection({ items, children }: { items: (Item | string)[]; chi
   return <>{normalize(items)?.map((item) => <React.Fragment key={item.value}>{children(item)}</React.Fragment>)}</>;
 }
 
-function ComboboxItem({ value, label, className, children, disabled, ...props }: Omit<React.ComponentProps<typeof CommandPrimitive.Item>, "value" | "onSelect"> & { value: string; label?: string }) {
+function ComboboxItem({ value, label, detail, className, children, disabled, ...props }: Omit<React.ComponentProps<typeof CommandPrimitive.Item>, "value" | "onSelect"> & { value: string; label?: string; detail?: React.ReactNode }) {
   const { values, toggle, register, chips, search } = useCombobox();
   const text = label ?? (typeof children === "string" ? children : value);
   React.useEffect(() => {
@@ -266,14 +275,33 @@ function ComboboxItem({ value, label, className, children, disabled, ...props }:
       data-checked={selected || undefined}
       onSelect={() => toggle(value)}
       className={cn(
-        "relative flex h-9 shrink-0 cursor-default items-center gap-2.5 rounded-control px-3 font-sans text-body leading-tight font-normal text-fg outline-none select-none data-checked:pe-10 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-subtle-hover [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5.5 [&_svg:not([class*='text-'])]:text-icon-secondary",
+        "ds-cut relative flex h-7 shrink-0 cursor-default items-center gap-2 px-3 font-sans text-body leading-tight font-normal text-fg-secondary outline-none select-none [--ds-cut:var(--ds-cut-sm)]",
+        "data-checked:text-fg data-[disabled=true]:pointer-events-none data-[disabled=true]:text-fg-subtle data-[selected=true]:[--ds-shape-fill:var(--ds-color-bg-subtle)]",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-slot]):not([class*='size-'])]:size-4 [&_svg:not([data-slot]):not([class*='text-'])]:text-icon-secondary",
         className,
       )}
       {...props}
     >
-      {children ?? text}
-      {selected && <CheckCircleIcon aria-hidden weight="fill" className="absolute right-3 size-5 text-fg-brand" />}
+      <span aria-hidden className="flex w-2 shrink-0 items-center justify-center">
+        {selected && <Diamond size={8} className="size-1.5" />}
+      </span>
+      <span className="min-w-0 flex-1 truncate">{typeof children === "string" || children == null ? <Highlight text={text} query={search} /> : children}</span>
+      {detail != null && <span className="shrink-0 text-caption text-fg-muted">{detail}</span>}
     </CommandPrimitive.Item>
+  );
+}
+
+/** The typed part of a name in full Forest; the rest stays in the row's 80% Forest. */
+function Highlight({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  const at = q ? text.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  if (at < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, at)}
+      <span className="text-fg">{text.slice(at, at + q.length)}</span>
+      {text.slice(at + q.length)}
+    </>
   );
 }
 
@@ -284,13 +312,13 @@ function ComboboxEmpty({ className, children = "No results.", ...props }: React.
     const any = (items ?? values.map((v) => ({ value: v, label: labelOf(v) }))).some((i) => !search || i.label.toLowerCase().includes(search.toLowerCase()));
     if (any) return null;
     return (
-      <div data-slot="combobox-empty" className={cn("py-6 text-center text-body text-fg-muted", className)}>
+      <div data-slot="combobox-empty" className={cn("px-3 py-4 text-body text-fg-muted", className)}>
         {children}
       </div>
     );
   }
   return (
-    <CommandPrimitive.Empty data-slot="combobox-empty" className={cn("py-6 text-center text-body text-fg-muted", className)} {...props}>
+    <CommandPrimitive.Empty data-slot="combobox-empty" className={cn("px-3 py-4 text-body text-fg-muted", className)} {...props}>
       {children}
     </CommandPrimitive.Empty>
   );
@@ -300,7 +328,7 @@ function ComboboxGroup({ className, ...props }: React.ComponentProps<typeof Comm
   return (
     <CommandPrimitive.Group
       data-slot="combobox-group"
-      className={cn("overflow-hidden text-fg [&_[cmdk-group-heading]]:mx-3 [&_[cmdk-group-heading]]:my-1 [&_[cmdk-group-heading]]:text-caption [&_[cmdk-group-heading]]:leading-line-caption [&_[cmdk-group-heading]]:text-fg-brand", className)}
+      className={cn("overflow-hidden text-fg [&_[cmdk-group-heading]]:mr-3 [&_[cmdk-group-heading]]:ml-7 [&_[cmdk-group-heading]]:mt-2 [&_[cmdk-group-heading]]:mb-1 [&_[cmdk-group-heading]]:text-caption [&_[cmdk-group-heading]]:leading-line-caption [&_[cmdk-group-heading]]:text-fg-muted", className)}
       {...props}
     />
   );
@@ -308,11 +336,11 @@ function ComboboxGroup({ className, ...props }: React.ComponentProps<typeof Comm
 
 /** A heading inside the list that is not a group's (a note above the rows). */
 function ComboboxLabel({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="combobox-label" className={cn("mx-3 my-1 text-caption leading-line-caption text-fg-brand", className)} {...props} />;
+  return <div data-slot="combobox-label" className={cn("mt-2 mr-3 mb-1 ml-7 text-caption leading-line-caption text-fg-muted", className)} {...props} />;
 }
 
 function ComboboxSeparator({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Separator>) {
-  return <CommandPrimitive.Separator data-slot="combobox-separator" className={cn("-mx-1 h-px shrink-0 bg-line-subtle", className)} {...props} />;
+  return <CommandPrimitive.Separator data-slot="combobox-separator" className={cn("-mx-1 my-1 h-px shrink-0 bg-line-subtle", className)} {...props} />;
 }
 
 /** The field for several values: chips and a text input, anchoring the list. */
@@ -334,7 +362,7 @@ function ComboboxChips({ className, children, ...props }: React.ComponentProps<"
           e.currentTarget.querySelector("input")?.focus();
           setOpen(true);
         }}
-        className={cn(FIELD, "flex-wrap gap-1.5 rounded-dialog py-1.5 pl-1.5 has-[input:focus-visible]:shadow-[var(--ds-shadow-s),var(--ds-shadow-focus)] data-disabled:bg-subtle data-disabled:text-fg-muted", className)}
+        className={cn(FIELD, "flex-wrap gap-1 py-1.5 pr-2 pl-2 has-[input:focus]:[--ds-shape-stroke:var(--ds-color-border-strong)] data-disabled:text-fg-subtle data-disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)]", className)}
         {...props}
       >
         {children}
@@ -346,16 +374,16 @@ function ComboboxChips({ className, children, ...props }: React.ComponentProps<"
 function ComboboxChip({ value, className, children, ...props }: React.ComponentProps<"span"> & { value: string }) {
   const { remove, labelOf, disabled } = useCombobox();
   return (
-    <span data-slot="combobox-chip" className={cn("inline-flex h-7 max-w-full items-center gap-1 rounded-pill bg-subtle pr-1 pl-2 text-body leading-tight text-fg", className)} {...props}>
+    <span data-slot="combobox-chip" className={cn("inline-flex h-6 max-w-full items-center gap-1 bg-tag pr-0.5 pl-2 text-caption leading-tight text-tag-fg", className)} {...props}>
       <span className="truncate">{children ?? labelOf(value)}</span>
       <button
         type="button"
         aria-label={`Remove ${labelOf(value)}`}
         disabled={disabled}
         onClick={() => remove(value)}
-        className="inline-flex size-5 cursor-pointer items-center justify-center rounded-pill text-fg-muted outline-none transition-[background-color,color,box-shadow] duration-fast ease-out hover:bg-subtle-hover hover:text-fg focus-visible:shadow-focus active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed)] active:transition-none motion-reduce:transition-none"
+        className="inline-flex size-5 cursor-pointer items-center justify-center text-fg-muted outline-none transition-[background-color,color] duration-fast ease-out hover:bg-subtle-hover hover:text-fg active:bg-subtle active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-line-strong motion-reduce:transition-none"
       >
-        <XIcon weight="bold" className="size-3.5" />
+        <XIcon className="size-3" />
       </button>
     </span>
   );
@@ -388,7 +416,7 @@ function ComboboxChipsInput({ className, onKeyDown, ...props }: React.ComponentP
           listRef.current.dispatchEvent(new KeyboardEvent("keydown", { key: e.key, bubbles: true, cancelable: true }));
         } else if (e.key === "ArrowDown" && !open) setOpen(true);
       }}
-      className={cn("h-7 min-w-24 flex-1 bg-transparent font-sans text-body leading-tight text-fg outline-none placeholder:text-fg-subtle disabled:cursor-not-allowed", className)}
+      className={cn("h-6 min-w-24 flex-1 bg-transparent px-1 font-sans text-body leading-tight text-fg caret-fg outline-none placeholder:text-fg-subtle disabled:cursor-not-allowed", className)}
       {...props}
     />
   );

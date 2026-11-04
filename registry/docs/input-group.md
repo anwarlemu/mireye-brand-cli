@@ -1,10 +1,10 @@
 ---
 name: input-group
-title: Input Group
+title: Input group
 type: ui
 surface: site
-description: "The console's field with addons inside it: glyphs, text, a lilac suffix segment, buttons, or the handle check's state glyph."
-use_for: "Use to attach context to a field: a fixed suffix (@inboxmail.com as a segment), a search glyph, a show or copy button, a character count under a textarea, or the live state of a check (spinner, green check-circle, red x-circle). Put InputGroupInput or InputGroupTextarea inside, then InputGroupAddon at inline-start, inline-end, block-start or block-end."
-never: [Putting a separate Input inside the group, More than one action at each end, A suffix that people can edit]
-source: "Figma 427:2715: the Email card's handle field with @inboxmail.com and the handle check states (checking, Available, Not Available) in Modal States"
+description: "A field with things inside it: the field's frame around a borderless input, with addons 16px in: the parcel glyph, a unit in 13px Forest, a Dial while a check runs, a key hint, an icon key, or a Fog segment behind a Stone rule. Addons can sit above or below a textarea."
+use_for: "Use for a search field (the parcel glyph first, as in Figma), a value with a unit or a fixed prefix (APN), a field with a live check (the Dial, then a check or a brick x) or a copy key, and a question box with a caption above or below."
+never: ["A spinner other than the Dial", "Addons that change the field's height", "Two segments on one side"]
+source: "Figma \"UI · Inputs\" (442:107): the Search row and the unit slot"
 ---

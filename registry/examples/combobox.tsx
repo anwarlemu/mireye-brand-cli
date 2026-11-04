@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { PlusIcon, RobotIcon } from "@phosphor-icons/react/ssr";
+import { PlusIcon } from "@phosphor-icons/react/ssr";
 
 import {
   Combobox,
@@ -22,35 +22,32 @@ import {
 } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 
-const AGENTS = [
-  { value: "acme", label: "@acme" },
-  { value: "acme-support", label: "@acme-support" },
-  { value: "support-desk", label: "@support-desk" },
-  { value: "ops-runner", label: "@ops-runner" },
-  { value: "test-agent-233", label: "@test-agent-233" },
-  { value: "billing-bot", label: "@billing-bot", disabled: true },
+const COUNTIES = [
+  { value: "marion-or", label: "Marion County", detail: "OR" },
+  { value: "linn-or", label: "Linn County", detail: "OR" },
+  { value: "lane-or", label: "Lane County", detail: "OR" },
+  { value: "maricopa-az", label: "Maricopa County", detail: "AZ" },
+  { value: "travis-tx", label: "Travis County", detail: "TX" },
+  { value: "loudoun-va", label: "Loudoun County", detail: "VA", disabled: true },
 ];
 
-const EVENTS = ["message.received", "message.sent", "message.delivered", "message.bounced", "call.started", "call.ended", "imessage.received", "tunnel.connected", "tunnel.disconnected"];
+const LAYERS = ["Parcels", "Substations", "Transmission lines", "Floodplain", "Wetlands", "Zoning", "Roads", "Rail", "Fiber"];
 
 export function Preview() {
-  const [agent, setAgent] = React.useState<string | null>("acme");
+  const [county, setCounty] = React.useState<string | null>("marion-or");
   return (
-    <div className="grid w-full max-w-80 gap-1">
-      <Label id="agent-label">Agent</Label>
-      <Combobox items={AGENTS} value={agent} onValueChange={setAgent}>
-        <ComboboxTrigger aria-labelledby="agent-label">
-          <ComboboxValue placeholder="Choose an agent" />
+    <div className="grid w-full max-w-80 gap-2">
+      <Label id="county-label">County</Label>
+      <Combobox items={COUNTIES} value={county} onValueChange={setCounty}>
+        <ComboboxTrigger aria-labelledby="county-label">
+          <ComboboxValue placeholder="Choose a county" />
         </ComboboxTrigger>
         <ComboboxContent>
-          <ComboboxInput placeholder="Search agents" />
+          <ComboboxInput placeholder="Search counties" />
           <ComboboxList>
-            <ComboboxEmpty>No agent with that handle.</ComboboxEmpty>
-            {AGENTS.map((a) => (
-              <ComboboxItem key={a.value} value={a.value} label={a.label} disabled={a.disabled}>
-                <RobotIcon weight="fill" />
-                {a.label}
-              </ComboboxItem>
+            <ComboboxEmpty>No county by that name.</ComboboxEmpty>
+            {COUNTIES.map((c) => (
+              <ComboboxItem key={c.value} value={c.value} label={c.label} detail={c.detail} disabled={c.disabled} />
             ))}
           </ComboboxList>
         </ComboboxContent>
@@ -60,27 +57,21 @@ export function Preview() {
 }
 
 export function Multiple() {
-  const [events, setEvents] = React.useState<string[]>(["message.received", "message.delivered"]);
+  const [layers, setLayers] = React.useState<string[]>(["Parcels", "Substations"]);
   return (
-    <div className="grid w-full max-w-100 gap-1">
-      <Label htmlFor="events">Events</Label>
-      <Combobox multiple items={EVENTS} value={events} onValueChange={setEvents} name="events">
+    <div className="grid w-full max-w-100 gap-2">
+      <Label htmlFor="layers">Map layers</Label>
+      <Combobox multiple items={LAYERS} value={layers} onValueChange={setLayers} name="layers">
         <ComboboxChips>
-          {events.map((e) => (
-            <ComboboxChip key={e} value={e} className="font-mono text-body-sm" />
+          {layers.map((l) => (
+            <ComboboxChip key={l} value={l} />
           ))}
-          <ComboboxChipsInput id="events" placeholder={events.length ? "" : "Add events"} />
+          <ComboboxChipsInput id="layers" placeholder={layers.length ? "" : "Add layers"} />
           <ComboboxClear />
         </ComboboxChips>
         <ComboboxContent>
-          <ComboboxList>
-            {(item) => (
-              <ComboboxItem value={item.value} className="font-mono text-body-sm">
-                {item.label}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-          <ComboboxEmpty>No such event.</ComboboxEmpty>
+          <ComboboxList>{(item) => <ComboboxItem value={item.value}>{item.label}</ComboboxItem>}</ComboboxList>
+          <ComboboxEmpty>No such layer.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </div>
@@ -96,7 +87,7 @@ function CreateRow({ known }: { known: string[] }) {
     <>
       <ComboboxSeparator />
       <ComboboxItem value={value} label={value}>
-        <PlusIcon weight="bold" className="size-4" />
+        <PlusIcon />
         Create &ldquo;{value}&rdquo;
       </ComboboxItem>
     </>
@@ -104,11 +95,11 @@ function CreateRow({ known }: { known: string[] }) {
 }
 
 export function Creatable() {
-  const [tags, setTags] = React.useState(["vip", "customer", "vendor"]);
+  const [tags, setTags] = React.useState(["shortlist", "needs survey", "rejected"]);
   const [tag, setTag] = React.useState<string | null>(null);
   return (
     <div className="grid w-full max-w-80 gap-1">
-      <Label id="tag-label">Contact tag</Label>
+      <Label id="tag-label">Site tag</Label>
       <Combobox items={tags} value={tag} onValueChange={(v) => {
         if (v && !tags.includes(v)) setTags((t) => [...t, v]);
         setTag(v);
@@ -133,33 +124,33 @@ export function Creatable() {
 }
 
 export function Groups() {
-  const [line, setLine] = React.useState<string | null>(null);
+  const [site, setSite] = React.useState<string | null>(null);
   return (
-    <div className="grid w-full max-w-80 gap-1">
-      <Label id="line-label">Route to</Label>
+    <div className="grid w-full max-w-80 gap-2">
+      <Label id="site-label">Compare with</Label>
       <Combobox
-        value={line}
-        onValueChange={setLine}
+        value={site}
+        onValueChange={setSite}
         items={[
-          { value: "+16504749720", label: "+1 650 474 9720" },
-          { value: "+14155550134", label: "+1 415 555 0134" },
-          { value: "shared", label: "Shared iMessage line" },
+          { value: "041-220-17", label: "041-220-17" },
+          { value: "041-310-02", label: "041-310-02" },
+          { value: "north-campus", label: "North campus" },
         ]}
       >
-        <ComboboxTrigger aria-labelledby="line-label">
-          <ComboboxValue placeholder="Choose a line" />
+        <ComboboxTrigger aria-labelledby="site-label">
+          <ComboboxValue placeholder="Choose a site" />
         </ComboboxTrigger>
         <ComboboxContent>
-          <ComboboxInput placeholder="Search lines" />
+          <ComboboxInput placeholder="Search sites" searching />
           <ComboboxList>
             <ComboboxEmpty />
-            <ComboboxGroup heading="Phone">
-              <ComboboxItem value="+16504749720">+1 650 474 9720</ComboboxItem>
-              <ComboboxItem value="+14155550134">+1 415 555 0134</ComboboxItem>
+            <ComboboxGroup heading="Parcels">
+              <ComboboxItem value="041-220-17" detail="41.2 ac">041-220-17</ComboboxItem>
+              <ComboboxItem value="041-310-02" detail="88.0 ac">041-310-02</ComboboxItem>
             </ComboboxGroup>
             <ComboboxSeparator />
-            <ComboboxGroup heading="iMessage">
-              <ComboboxItem value="shared">Shared iMessage line</ComboboxItem>
+            <ComboboxGroup heading="Saved sites">
+              <ComboboxItem value="north-campus" detail="3 parcels">North campus</ComboboxItem>
             </ComboboxGroup>
           </ComboboxList>
         </ComboboxContent>
@@ -170,23 +161,21 @@ export function Groups() {
 
 export function States() {
   return (
-    <div className="grid w-full max-w-80 gap-3">
-      <Combobox items={AGENTS} defaultValue="acme" disabled>
-        <ComboboxTrigger aria-label="Disabled agent" />
+    <div className="grid w-full max-w-80 gap-4">
+      <Combobox items={COUNTIES} defaultValue="marion-or" disabled>
+        <ComboboxTrigger aria-label="Locked county" />
       </Combobox>
-      <div className="grid gap-1">
-        <Combobox items={AGENTS}>
-          <ComboboxTrigger aria-label="Required agent" aria-invalid>
-            <ComboboxValue placeholder="Choose an agent" />
+      <div className="grid gap-2">
+        <Combobox items={COUNTIES}>
+          <ComboboxTrigger aria-label="Required county" aria-invalid>
+            <ComboboxValue placeholder="Choose a county" />
           </ComboboxTrigger>
           <ComboboxContent>
-            <ComboboxInput placeholder="Search agents" />
-            <ComboboxList>
-              {(a) => <ComboboxItem value={a.value}>{a.label}</ComboboxItem>}
-            </ComboboxList>
+            <ComboboxInput placeholder="Search counties" />
+            <ComboboxList>{(c) => <ComboboxItem value={c.value}>{c.label}</ComboboxItem>}</ComboboxList>
           </ComboboxContent>
         </Combobox>
-        <p className="text-caption leading-body text-danger">Choose the agent that owns this mailbox.</p>
+        <p className="m-0 text-caption leading-line-caption text-danger">Choose the county to search.</p>
       </div>
     </div>
   );

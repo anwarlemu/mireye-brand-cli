@@ -3,8 +3,8 @@ name: textarea
 title: Textarea
 type: ui
 surface: site
-description: "The field's lilac-gray edge with 12px corners around several lines of 14px text, 12px by 16px in, 72px tall to start and not resized by hand."
-use_for: "Use for free text longer than a line (Agent Description, a note, a message). Label it above like Input. It grows with its content; set rows or a min-h class to change the starting height."
-never: [A textarea without a label, A gray background for an editable value, A fixed height that hides what was typed]
-source: "Figma 427:2715: Agent Description (Form- Input, 72px) in Create Agent Identity"
+description: "The field for more than a line: the field's frame and states with 13px Forest text on 18px lines, 8px above and below. It grows with its content from 72px and is not resized by hand."
+use_for: "Use for notes and questions to the agent: site notes, criteria in words. Put a Label above it. For a box with a caption or actions inside, use Input Group with a textarea."
+never: ["A resize handle", "A fixed height that scrolls a short note", "Rounded corners"]
+source: "Drawn from Figma \"UI · Inputs\" (442:107)"
 ---

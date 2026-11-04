@@ -113,10 +113,10 @@ export async function checkOverlays(page, base) {
     await page.locator('[data-slot="combobox-trigger"]').first().click();
     const search = page.getByRole('combobox').last();
     await visible(search);
-    await page.keyboard.type('ops');
+    await page.keyboard.type('linn');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(200);
-    assert.match(await page.locator('[data-slot="combobox-trigger"]').first().innerText(), /ops-runner/, 'combobox: Enter chooses the match');
+    assert.match(await page.locator('[data-slot="combobox-trigger"]').first().innerText(), /Linn County/, 'combobox: Enter chooses the match');
 
     // Command: typing filters the list.
     await open(page, base, 'command');

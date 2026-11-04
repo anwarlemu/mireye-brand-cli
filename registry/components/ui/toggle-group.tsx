@@ -7,11 +7,12 @@ import { type VariantProps } from "class-variance-authority";
 import { toggleVariants } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 
-// The console's segmented choice (Figma 427:2715, Modal - Created: "Where does this agent run?"): a lilac track with
-// fully rounded corners and a 2px inset holding 40px choices 8px apart; each choice is a 24px logo tile 8px from a 14px medium
-// ink label, 12px from the sides, and the chosen one is a white pill with Shadow/S. With `spacing={0}`
-// the choices sit flush in the track. `variant="outline"` drops the track: separate keys with the field edge, the chosen
-// one white with Shadow/S. Choosing is instant (no sliding key): the choice is made often and must feel immediate.
+// A choice among a few (Figma has none; drawn from the keys and fields at the product scale). The default is the
+// segmented track: Input's frame (white, 1px Stone line, the 8px cut) holding 32px choices 1px in, so the track is
+// 36px like a field. Choices have no fill and an 80% Forest label that turns Forest under the pointer; the chosen
+// one is a Forest key with a white label, the first one cut to sit inside the track's corner. Choosing is instant (no
+// sliding key): it is done often and must feel immediate. `variant="outline"` drops the track: separate framed
+// keys (see Toggle), joined into one bar with `spacing={0}`.
 const ToggleGroupContext = React.createContext<VariantProps<typeof toggleVariants> & { spacing?: number; orientation?: "horizontal" | "vertical" }>({
   size: "default",
   variant: "default",
@@ -39,7 +40,8 @@ function ToggleGroup({
       style={{ "--gap": spacing } as React.CSSProperties}
       className={cn(
         "group/toggle-group flex w-fit max-w-full items-center gap-[calc(var(--spacing)*var(--gap))] data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch",
-        variant === "default" && "overflow-x-auto rounded-pill data-[orientation=vertical]:rounded-dialog bg-subtle p-0.5 [scrollbar-width:none]",
+        variant === "default" && "ds-cut-frame overflow-x-auto p-px [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [scrollbar-width:none]",
+        variant === "outline" && spacing === 0 && "data-[orientation=horizontal]:[&>*:not(:first-child)]:-ml-px data-[orientation=vertical]:[&>*:not(:first-child)]:-mt-px [&>*:not(:first-child)]:[--ds-cut:0px]",
         className,
       )}
       {...props}
@@ -60,8 +62,8 @@ function ToggleGroupItem({ className, children, variant, size, ...props }: React
       data-spacing={context.spacing}
       className={cn(
         toggleVariants({ variant: v, size: context.size || size }),
-        // In the track the chosen choice is the white key, as in the segmented choice.
-        v === "default" && "hover:bg-subtle-hover data-[state=on]:bg-surface data-[state=on]:text-fg data-[state=on]:hover:bg-surface data-[state=on]:shadow-s data-[state=on]:focus-visible:shadow-[var(--ds-shadow-s),var(--ds-shadow-focus)] data-[state=on]:active:shadow-[inset_0_0_0_9996px_var(--ds-color-wash-pressed),var(--ds-shadow-s)]",
+        // In the track the chosen choice is the Forest key; only the first keeps a cut, inside the track's corner.
+        v === "default" && "not-first:[--ds-cut:0px] data-[state=on]:text-on-primary data-[state=on]:[--ds-shape-fill:var(--ds-color-action-primary)] data-[state=on]:hover:[--ds-shape-fill:var(--ds-color-action-primary)] group-data-[size=default]/toggle-group:h-8 group-data-[size=sm]/toggle-group:h-7 group-data-[size=lg]/toggle-group:h-9",
         "focus-visible:z-10",
         className,
       )}

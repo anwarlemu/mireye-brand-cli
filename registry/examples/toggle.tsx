@@ -1,18 +1,17 @@
-"use client";
-
-import { ArchiveIcon, PushPinIcon, TextBIcon, TextItalicIcon } from "@phosphor-icons/react/ssr";
+import { MountainsIcon, StackIcon, WavesIcon } from "@phosphor-icons/react/ssr";
 
 import { Toggle } from "@/components/ui/toggle";
 
 export function Preview() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Toggle aria-label="Pin the thread" defaultPressed>
-        <PushPinIcon weight="fill" />
+      <Toggle aria-label="Show terrain" defaultPressed>
+        <MountainsIcon />
+        Terrain
       </Toggle>
-      <Toggle>
-        <ArchiveIcon weight="fill" />
-        Show archived
+      <Toggle aria-label="Show floodplain">
+        <WavesIcon />
+        Floodplain
       </Toggle>
     </div>
   );
@@ -21,17 +20,15 @@ export function Preview() {
 export function Variants() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Toggle variant="outline" aria-label="Bold" defaultPressed>
-        <TextBIcon weight="bold" />
+      <Toggle variant="outline" defaultPressed>
+        <StackIcon />
+        Parcel lines
       </Toggle>
-      <Toggle variant="outline" aria-label="Italic">
-        <TextItalicIcon weight="bold" />
+      <Toggle variant="outline">Zoning</Toggle>
+      <Toggle size="sm" aria-label="Show terrain">
+        <MountainsIcon />
       </Toggle>
-      <Toggle size="sm" aria-label="Pin, small">
-        <PushPinIcon weight="fill" />
-      </Toggle>
-      <Toggle size="lg">Large</Toggle>
-      <Toggle disabled>Disabled</Toggle>
+      <Toggle disabled>Wetlands</Toggle>
     </div>
   );
 }
