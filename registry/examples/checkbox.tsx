@@ -11,6 +11,7 @@ export function Preview() {
     <div className="grid gap-3">
       <Checkbox defaultChecked>Exclude floodplain</Checkbox>
       <Checkbox>Exclude wetlands</Checkbox>
+      <Checkbox>Exclude protected land</Checkbox>
     </div>
   );
 }
