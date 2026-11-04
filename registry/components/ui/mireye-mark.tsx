@@ -3,7 +3,7 @@ import { cn, svgBox, svgSize } from "@/lib/utils";
 
 /**
  * The Mireye logomark: two cut blocks. Path copied from Figma ("Mireye mark", 27.17×20 on the
- * UI boards). It uses `text-fg`, so it follows the theme ink; pass a text colour in className to change it.
+ * UI boards). It uses `text-fg`, so it follows the theme ink; pass a text color in className to change it.
  */
 export function MireyeMark({ className, style, ...props }: React.SVGProps<SVGSVGElement>) {
   return (

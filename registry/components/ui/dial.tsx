@@ -3,7 +3,7 @@ import { cn, svgBox, svgSize } from "@/lib/utils";
 
 /**
  * Dial: Mireye's spinner. Ticks around a circle; the head tick is Forest and the ticks behind
- * it fade to Mist. Geometry and colours are Figma's ("Dial" layers on the Buttons and Loaders
+ * it fade to Mist. Geometry and colors are Figma's ("Dial" layers on the Buttons and Loaders
  * boards). It turns one tick per step, so it reads as a survey instrument, not a smooth wheel.
  *
  * The two boards draw it turning opposite ways, and we keep both:
@@ -15,11 +15,11 @@ import { cn, svgBox, svgSize } from "@/lib/utils";
 
 type DialSpec = {
   ticks: number;
-  /** Radius where each tick starts and ends, from the centre. */
+  /** Radius where each tick starts and ends, from the center. */
   inner: number;
   outer: number;
   stroke: number;
-  /** Colours from the head backwards; ticks past the ramp use the last colour. */
+  /** Colors from the head backwards; ticks past the ramp use the last color. */
   ramp: string[];
   /** The head turns clockwise and the tail trails counter-clockwise. */
   clockwise?: boolean;
@@ -27,11 +27,19 @@ type DialSpec = {
   spin?: string;
 };
 
-// Loaders board ramp (443:77, 443:103 …): 17 steps from Forest towards Mist, then Mist.
-const RAMP_24_TICKS = [
-  "#1E231C", "#2A2E28", "#353A33", "#41453F", "#4C514A", "#585C56", "#636761", "#6F736D", "#7B7E79",
-  "#868984", "#929590", "#9DA09B", "#A9ACA7", "#B4B7B2", "#C0C2BE", "#CBCEC9", "#D7D9D5", "#DCDEDA",
+/**
+ * A ramp from Forest towards Mist: `steps` colors, each `share` more Mist than the last, then
+ * Mist. Figma's ramps are exactly these mixes, within rounding: the 24px dial's nine colors
+ * (#1E231C, #363B34 … #DCDEDA) step by an eighth; the Loaders' eighteen (#1E231C, #2A2E28 …
+ * #D7D9D5, then #DCDEDA) by about 6%.
+ */
+const ramp = (steps: number, share: number) => [
+  ...Array.from({ length: steps }, (_, i) => `color-mix(in srgb, var(--ds-color-forest) ${Math.round((1 - i * share) * 1000) / 10}%, var(--ds-color-mist))`),
+  "var(--ds-color-mist)",
 ];
+
+// Loaders board ramp (443:77, 443:103 …): 17 steps from Forest towards Mist, then Mist.
+const RAMP_24_TICKS = ramp(17, 0.0608);
 
 export const DIALS = {
   // Buttons board, icon button "Loading" (442:76): 24×24, 12 ticks, head at 12 o'clock.
@@ -40,7 +48,7 @@ export const DIALS = {
     inner: 6.72,
     outer: 11,
     stroke: 1.5,
-    ramp: ["#1E231C", "#363B34", "#4E534C", "#676A65", "#7F827D", "#979A95", "#AFB2AD", "#C7CAC5", "#DCDEDA"],
+    ramp: ramp(8, 1 / 8),
   },
   // Loaders board frames (443:103, 443:129, 443:155, 443:181, 443:207): 36×36, 24 ticks.
   // Figma gives no timing. One turn takes 1.2s, like the 24px dial, so both turn at the same speed.
@@ -86,7 +94,7 @@ export function Dial({
   const n = s.ticks;
   const lines = Array.from({ length: n }, (_, k) => {
     // Tick k sits at k steps clockwise from 12 o'clock. Its distance behind the head picks the
-    // colour: clockwise from the head on the 24px dial, counter-clockwise on the Loaders dials.
+    // color: clockwise from the head on the 24px dial, counter-clockwise on the Loaders dials.
     const a = (k * 2 * Math.PI) / n;
     const behind = (((s.clockwise ? head - k : k - head) % n) + n) % n;
     const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -120,7 +128,7 @@ export function Dial({
       style={svgSize(box, box, props.style)}
     >
       {lines.map((l, i) => (
-        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={l.color} strokeWidth={s.stroke} />
+        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} strokeWidth={s.stroke} style={{ stroke: l.color }} />
       ))}
     </svg>
   );
