@@ -1,21 +1,21 @@
-# Inkbox design system
+# Mireye design system
 
-Components, design tokens and a CLI for building Inkbox pages and interfaces.
+Components, design tokens and a CLI for building Mireye pages and interfaces.
 
-Reference: https://inkbox-ds.vercel.app
+Reference: https://mireye-ds.vercel.app
 
 ## Consistent CLI workflow
 
 ```sh
-npx inkbox-ds info --json
-npx inkbox-ds search button --json
-npx inkbox-ds view button --json
-npx inkbox-ds add button card --dry-run --json
-npx inkbox-ds add button card --json
-npx inkbox-ds add button --diff
+npx mireye-ds info --json
+npx mireye-ds search button --json
+npx mireye-ds view button --json
+npx mireye-ds add button card --dry-run --json
+npx mireye-ds add button card --json
+npx mireye-ds add button --diff
 ```
 
-For a new app: `npx -y github:anwarlemu/inkbox-brand-cli#release create --template vite --name my-app`.
+For a new app: `npx -y github:anwarlemu/mireye-brand-cli#release create --template vite --name my-app`.
 For an existing app: `init` sets up the theme; `apply --dry-run` previews a requested restyle.
 `add` also installs agent instructions and portable Claude/Codex skills, so a separate init is optional.
 Use `--cwd <app>` for a different directory. Existing components.json aliases, TS/JS output, local helpers, unrelated registries and local component edits are preserved.
@@ -23,9 +23,9 @@ Use `--cwd <app>` for a different directory. Existing components.json aliases, T
 The standard registry works with shadcn 4.22.1:
 
 ```sh
-npx inkbox-ds init
-npx inkbox-ds shadcn add @inkbox-ds/theme @inkbox-ds/button
-npx inkbox-ds mcp init --client claude
+npx mireye-ds init
+npx mireye-ds shadcn add @mireye-ds/theme @mireye-ds/button
+npx mireye-ds mcp init --client claude
 ```
 
 Include `theme` explicitly when using upstream shadcn to update existing theme aliases. Native `add` handles it automatically. Shared workspace installation, presets, migrations, registry authoring and MCP use the pinned upstream implementation via `shadcn <args...>`. Bundled component discovery works offline; installation needs network access for missing dependencies. Agent hosts must load their MCP configuration before it is available in a session.
@@ -35,18 +35,18 @@ Include `theme` explicitly when using upstream shadcn to update existing theme a
 Run once from the project root:
 
 ```sh
-npm install --save-dev github:anwarlemu/inkbox-brand-cli#release
+npm install --save-dev github:anwarlemu/mireye-brand-cli#release
 ```
 
 Prepare styles, fonts and agent instructions for new work:
 
 ```sh
-npx inkbox-ds init
-npx inkbox-ds guide
+npx mireye-ds init
+npx mireye-ds guide
 ```
 
 `init` does not convert existing components. The bare command does; see "Update an existing interface" below.
-Requires Node.js 20 or later. Read [the agent guide](https://inkbox-ds.vercel.app/agents.md) with any coding agent.
+Requires Node.js 20 or later. Read [the agent guide](https://mireye-ds.vercel.app/agents.md) with any coding agent.
 The same guide is installed at `.ds/agent-guide.md`. Agents that do not auto-load project instructions should read it explicitly.
 
 ## Add components
@@ -54,16 +54,16 @@ The same guide is installed at `.ds/agent-guide.md`. Agents that do not auto-loa
 Run `add` from the target app root. Components require React 19.2+, Tailwind CSS 4, and valid project configuration. For other frameworks, run the bare CLI command to apply the brand instead. In a React and Tailwind 4 app, add the components the page needs:
 
 ```sh
-npx inkbox-ds add button card field input
+npx mireye-ds add button card field input
 ```
 
 The CLI copies component source, installs dependencies and adds the theme. It uses the project’s `src` folder and
 configured aliases and components.json paths. Read each component’s examples and usage notes before changing it.
 
 ```sh
-npx inkbox-ds list --json
-npx inkbox-ds show select --json
-npx inkbox-ds tokens border
+npx mireye-ds list --json
+npx mireye-ds show select --json
+npx mireye-ds tokens border
 ```
 
 ## Instructions for coding agents
@@ -71,9 +71,9 @@ npx inkbox-ds tokens border
 Include this with the page requirements:
 
 ```text
-Build this page using the Inkbox design system at https://inkbox-ds.vercel.app.
-Read https://inkbox-ds.vercel.app/agents.md first.
-Run npx inkbox-ds show <name> --json for exact exports, usage rules, examples and source.
+Build this page using the Mireye design system at https://mireye-ds.vercel.app.
+Read https://mireye-ds.vercel.app/agents.md first.
+Run npx mireye-ds show <name> --json for exact exports, usage rules, examples and source.
 Add existing components with the CLI. Use design tokens for custom layout and styling.
 Connect every control to its intended behavior. Include validation, loading, empty and error states where needed.
 Run the project checks and the CLI token check. Test keyboard interaction and desktop and phone layouts.
@@ -82,19 +82,19 @@ Run the project checks and the CLI token check. Test keyboard interaction and de
 ## Check the implementation
 
 ```sh
-npx inkbox-ds check --changed
-npx inkbox-ds review http://localhost:3000 --any
+npx mireye-ds check --changed
+npx mireye-ds review http://localhost:3000 --any
 ```
 
 Start the development server before running `review`. It captures desktop and phone screenshots and compares the
-page with the Inkbox reference. It requires `playwright-core` and Chromium (`npx playwright install chromium`).
+page with the Mireye reference. It requires `playwright-core` and Chromium (`npx playwright install chromium`).
 Review uses the available Codex or Claude Code session, or the Anthropic API when configured. When no reviewer is
 available, it saves screenshots for the coding agent to review. Visual review does not test form validation or
 control behavior; test those separately.
 
 ## Commands
 
-Run these commands with `npx inkbox-ds` after installing the CLI.
+Run these commands with `npx mireye-ds` after installing the CLI.
 
 | Command | Purpose |
 |---|---|
@@ -122,8 +122,8 @@ artwork, gradients and unrelated colors stay intact. Unknown or dynamic color ro
 installed checks follow the same color scope, including `check --fix`.
 
 ```sh
-npx inkbox-ds apply --dry-run
-npx inkbox-ds apply
+npx mireye-ds apply --dry-run
+npx mireye-ds apply
 ```
 
 Subsequent runs report the next screen to review. `--redo` repeats conversion after an update. Component decisions

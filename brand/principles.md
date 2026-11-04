@@ -1,68 +1,54 @@
-# Inkbox: what good looks like
+# Mireye: what good looks like
 
-Read by `inkbox-ds review` every time, next to the reference screenshots in `brand/reference/` (the console's own
-screens from its design).
+Read by `mireye-ds review` every time, next to the reference screenshots in `brand/reference/` (the product UI boards
+from Mireye's Figma identity, at the product scale).
 
 ## The idea
 
-Inkbox gives AI agents their own identity: a mailbox, a phone line, iMessage, a tunnel and a vault. Its mascot is a
-soft purple octopus. The console is calm and quiet: white pages, a lilac rail, deep purple ink, and one muted purple
-for every action. It reads like a well-kept mail client, not a dashboard of charts.
+Mireye makes the physical world legible to AI agents. The interface reads like a survey sheet: a plain ground,
+precise lines, and marks that say where something is and how sure we are. It is restrained, because Mireye sells to
+enterprise: flat color, one ink, no gradients and no shadows.
 
-## The console
+## The product
 
-- One ground. Pages are white. The left rail is white with a hairline at its edge; an agent's workspace adds a second,
-  lilac rail (#F4F2F6) beside it. The lilac is also the ground of a table's head and foot, a field's well, a channel
-  card and the tab track.
-- Ink is a deep purple (#3E2A53), never black. Secondary copy is #70637E; dates, table heads and descriptions are the
-  muted purple #998EA5. The action purple (#74629D) is for the main action, links, rail labels and email previews.
-  Pink (#F9B1B5) is the one accent: BETA and ADMIN marks, a channel's icon tile.
-- One face: Inter. Body and controls are 14px regular; page and dialog titles 20px regular; tabs and card titles
-  medium; nothing is heavier than semibold. Keys, hosts and IDs are IBM Plex Mono; code blocks use the system
-  monospace in a light editor theme. No caps except BETA and ADMIN; no tracking.
-- The main action is a 40px purple pill. Other actions: the lilac pill beside it, the 36px white outline key with
-  fully rounded corners for actions inside content, a 40px lilac key in a page head, ghost glyphs for row actions that
-  turn purple under the pointer. A held key darkens with the ink at 8 percent laid over it; a disabled key goes lilac
-  with muted text. Focus is a soft purple ring.
-- A dialog's main action spans its width with no glyph (lilac to create or confirm, red to destroy); there is no
-  Cancel key, the X, Escape and the scrim close it.
-- Fields are 40px with fully rounded corners and a lilac-gray edge (#D2C9DB) that darkens under the pointer; a select is
-  the same pill with no edge, raised by Shadow/S. Raised white things (a selected tab, a table body,
-  a select) carry Shadow/S: a 1px ring and a short drop. Corners: pills for buttons, compact controls, tabs, badges and horizontal
-  attachments; circles for avatars and small icon or logo tiles; 12px content panels,
-  16px dropdown menus and popup panels (command palettes, date pickers, popovers, tooltips, dialogs, sheets and toasts),
-  table heads and banners; 24px cards (all variants and sizes) and multiple-selection fields.
-- Navigation is the rail: 36px pill rows with an 18px glyph and a 14px medium label; the current row sits on the lilac
-  a step deeper.
-- Tabs are a segmented lilac track with a white key that slides to the chosen tab. Checkboxes are round; a chosen radio
-  is a purple ring. Menus and selects list 36px rows with the check at the end.
-  A page opens with a head: a 20px title, a 14px muted line, a hairline under it.
-- Tables are three pieces: a lilac head, a white body with Shadow/S and 64px rows, a lilac pagination bar.
-- Dialogs are white with the shared 16px popup corners over the page tinted with the ink at 32 percent and lightly
-  blurred; on a phone they fill the screen. Close keys are 36px with 12px corners.
-- Icons are filled (Phosphor fill weight) in ink or #5B4C6A; chevrons, close and plus are line glyphs.
-- Empty states have the octopus with five glyph circles around it, a short title and a pill action.
-- Motion is quick: 100ms for hovers and exits, 120ms for a dialog, 160ms for a popup or the sliding tab key.
+- One ground. Pages are Canvas (#F2F3F1), a pale green-gray. Controls, fields, cards and panels are white on it, each
+  drawn with a 1px Stone line (#B9BDB7). Rules inside a panel are Mist (#DCDEDA).
+- One ink: Forest (#1E231C) for text, the main action, strong lines and focus. Labels are Forest at 80 percent,
+  annotations at 72 percent; placeholders and anything disabled are Slate (#8C918B). Moss, Fern and Lichen are for
+  charts and accents; Earth supports. The Enterprise theme (data-brand="enterprise") swaps Forest for Umber.
+- The cut corner is the only shape: a 45° chamfer at the top-left of keys, fields, cards, messages, dialogs and
+  popups, taken from the cuts in the logomark. Nothing is rounded. Small parts (checks, rows, tags, avatars) are
+  square.
+- Survey marks carry state. A diamond is a node: solid means done or confirmed, outline means pending, a dot inside
+  means current; diamonds are also bullets, steps and the chosen radio. Ticks (1px lines at a fixed pitch) show
+  progress and loading. Contours and thin rules with nodes at their crossings frame maps.
+- One face: Gilroy, Regular and Medium only. Controls and copy are 13px, labels and chips 12px, titles 16 to 24px
+  regular. Hierarchy comes from size, color and space, never weight. Coordinates, IDs and values are DM Mono.
+- The main action is a Forest cut key with a white medium label and an arrow; the second is a white cut key with a
+  Forest line; text actions are 80 percent Forest with the arrow. One Forest key per view.
+- Fields are 36px white cut frames; focus turns the line Forest. A unit sits at the end of the field (ac, ft, kV).
+- Every value carries its source: cited fields, numbered sources, coordinates, precise numbers.
+- Real photos only as accents, dimmed under map marks.
 
 ## Always
 
 - Keep what each screen is for: its main action stays the most prominent thing, its key information easy to scan.
 - For new pages, follow the user's brief. When only restyling existing UI, preserve its words, links, images, elements
   and behavior.
-- Visible focus on every control; touch targets at least 44px on phones. The muted purples are the design's own
-  values and sit under 4.5:1 on white: keep them for secondary information (dates, heads, hints), never for the only
-  copy of something a person must read.
+- Visible focus on every control (a 1px Forest outline 2px outside); touch targets at least 44px on phones. Slate sits
+  under 4.5:1 on white: keep it for placeholders and disabled parts, never for copy a person must read.
 - Rare onboarding, feedback and celebrations may use expressive motion; frequent interactions use subtle style changes;
   shortcuts, command palette toggles and other 100+ daily interactions are instant. Reduced motion disables animation.
-- Press feedback starts on pointer-down; actions retain native click/keyboard activation. No scaling, changing font
-  weights or padding on hover/press. Reuse component variants and consistent section gutters.
+- Hover steps a fill once (Forest a step lighter, white to Fog); press steps back at once, on pointer-down. Never
+  a hatch, outline, shadow, size change or moving icon on hover. Loaders and spinners are the only designed motion. Reuse component variants and consistent section gutters.
 - Audit debounces, artificial timers, transition waits and tap delay. Keep typing, filtering and feedback immediate;
   only essential nonblocking timers survive, with a specific `ds-latency` reason beside each call.
 
 ## Refuse
 
-- Black or gray text, a dark theme, gradients, glows, bright saturated accents, square main actions, bold titles,
-  heavy shadows, outlined cards inside cards, more than one purple pill in a view.
+- Rounded corners, pills or circles, shadows, gradients, glows, bright saturated accents, a second ink color, bold or
+  semibold type, decorative icons for status (use diamonds and ticks), stock imagery, more than one Forest key in a
+  view.
 
 ## Voice (for any text the agent must write, such as an alt text)
 
