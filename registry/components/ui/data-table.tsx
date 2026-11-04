@@ -314,7 +314,7 @@ function DataTable<T>({ columns, data, getRowId, filter = {}, selectable = false
 }
 
 /**
- * A site's lead cell: an aerial crop (48 by 36px, the parcel outlined in Bone on it) or the parcel glyph on Fog, then
+ * A site's lead cell: an aerial crop (48 by 36px, the parcel outlined in Bone on it; not dimmed, it is a thumbnail) or the parcel glyph on Fog, then
  * the name and the parcel ID in DM Mono. The ID truncates from its start: IDs share their beginning, so the end is the
  * part that differs.
  */
@@ -325,7 +325,7 @@ function SiteCell({ name, parcelId, image }: { name: string; parcelId?: string; 
         {image ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="" className="ds-imagery size-full object-cover" />
+            <img src={image} alt="" className="size-full object-cover" />
             <span className="absolute inset-x-[28%] inset-y-[26%] border border-bone" />
           </>
         ) : (
