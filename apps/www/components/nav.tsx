@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Lockup } from "@www/components/logo";
 
-type Entry = { name: string; title: string };
+type Entry = { name: string; title: string; type?: string };
+
+// Rail groups by registry type: the shadcn set, then Mireye's own parts.
+const GROUPS = [
+  { label: "Components", types: ["ui", "site", "visual", "block"] },
+  { label: "Mireye", types: ["product"] },
+];
 
 // A rail row, as the console draws one (Agent Workspace, Email, Vault): 38px tall with 8px corners, a 22px glyph 10px
 // from a 14px regular ink label; the current page sits on the lilac. Hover washes the row; there is no motion.
@@ -40,11 +46,14 @@ function Groups({ entries, query, onNavigate }: { entries: Entry[]; query: strin
           ))}
         </ul>
       )}
-      <div>
-        <p className="ds-label mb-2 px-1 text-body-sm leading-tight text-fg-label">Components</p>
-        {shown.length ? (
+      {GROUPS.map((group) => {
+        const list = shown.filter((e) => group.types.includes(e.type ?? "ui"));
+        if (!list.length) return null;
+        return (
+      <div key={group.label}>
+        <p className="ds-label mb-2 px-1 text-body-sm leading-tight text-fg-label">{group.label}</p>
           <ul className="grid gap-1">
-            {shown.map((e) => {
+            {list.map((e) => {
               const href = `/components/${e.name}`;
               return (
                 <li key={e.name}>
@@ -55,10 +64,10 @@ function Groups({ entries, query, onNavigate }: { entries: Entry[]; query: strin
               );
             })}
           </ul>
-        ) : (
-          <p className="px-3 text-body text-fg-muted">Nothing matches.</p>
-        )}
       </div>
+        );
+      })}
+      {!shown.length && <p className="px-3 text-body text-fg-muted">Nothing matches.</p>}
     </>
   );
 }
