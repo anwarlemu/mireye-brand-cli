@@ -1,4 +1,4 @@
-// Compare rendered library styles to the values measured from the Inkbox console design (Figma 427:2715).
+// Compare rendered library styles (and, as before:/after: keys, the cut shape's line and fill layers) to the values in the Mireye Figma identity (the product UI boards), at the product scale.
 // This catches style drift that a no-overflow or no-console-error test cannot detect.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -27,7 +27,7 @@ try {
         return Array.from(ctx.getImageData(0,0,1,1).data).slice(0,3);
       };
       const box=el.getBoundingClientRect();
-      const read=(key)=>key==='width'?`${Math.round(box.width)}px`:key==='height'?`${Math.round(box.height)}px`:key==='placeholderColor'?getComputedStyle(el,'::placeholder').color:getComputedStyle(el)[key];
+      const read=(key)=>key==='width'?`${Math.round(box.width)}px`:key==='height'?`${Math.round(box.height)}px`:key==='placeholderColor'?getComputedStyle(el,'::placeholder').color:/^(before|after):/.test(key)?getComputedStyle(el,`::${key.split(':')[0]}`)[key.split(':')[1]]:getComputedStyle(el)[key];
       return Object.fromEntries(Object.entries(expected).map(([key,value])=>{
         const isColor=/color$/i.test(key);
         return [key,{expected:isColor?color(value):value,actual:isColor?color(read(key)):read(key)}];

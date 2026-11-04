@@ -1,10 +1,106 @@
 {
  "reference": "Figma \"Mireye (INT)\", page 3.2 Brand identity, product UI boards (442:2), at the product scale (0.6)",
  "captured": "2026-11-04",
- "method": "Colors sampled from the 1x renders, type fitted to text layer widths, sizes and radii from layer geometry; component radii updated to the requested rounded styling; values the console (console-agencidev, agencidev/console 41e55a9) sets differently are taken from it and named in each source",
+ "method": "Sizes, colors and type from Figma's Dev Mode output for the product UI boards, at the product scale (0.6, snapped to the 4px grid; type mapped to the 12/13/16px steps); the cut corner's line and fill are read from the shape layers (::before and ::after)",
  "viewport": {
   "width": 1440,
   "height": 1000
  },
- "checks": []
+ "checks": [
+  {
+   "id": "button-primary",
+   "name": "button",
+   "example": "Preview",
+   "selector": "[data-slot=button][data-variant=default]",
+   "source": "Figma 442:3 UI · Buttons, Primary (64px, 28px sides, 22px Medium label, 12px cut) at 0.6",
+   "expected": {
+    "height": "36px",
+    "paddingLeft": "16px",
+    "fontSize": "13px",
+    "fontWeight": "500",
+    "color": "#FFFFFF",
+    "after:backgroundColor": "#1E231C",
+    "fontFamily": "Gilroy, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+   },
+   "width": 1440
+  },
+  {
+   "id": "button-secondary",
+   "name": "button",
+   "example": "Preview",
+   "selector": "[data-slot=button][data-variant=outline]",
+   "source": "Figma 442:3 UI · Buttons, Secondary (1px Forest line on white)",
+   "expected": {
+    "height": "36px",
+    "color": "#1E231C",
+    "before:backgroundColor": "#1E231C",
+    "after:backgroundColor": "#FFFFFF"
+   },
+   "width": 1440
+  },
+  {
+   "id": "input",
+   "name": "input",
+   "example": "Preview",
+   "selector": "[data-slot=input]",
+   "source": "Figma 442:107 UI · Inputs (64px field, 22px value) at 0.6",
+   "expected": {
+    "height": "36px",
+    "fontSize": "13px",
+    "color": "#1E231C"
+   },
+   "width": 1440
+  },
+  {
+   "id": "tag",
+   "name": "tag",
+   "example": "Preview",
+   "selector": "[data-slot=tag]",
+   "source": "Figma 442:202 UI · Status and tags, data tag (Fog, Forest)",
+   "expected": {
+    "height": "28px",
+    "color": "#1E231C",
+    "after:backgroundColor": "#E6E8E4"
+   },
+   "width": 1440
+  },
+  {
+   "id": "site-chip",
+   "name": "site-chip",
+   "example": "Preview",
+   "selector": "[data-slot=site-chip]",
+   "source": "Figma 443:433 UI · Agent chat, site tag (40px) at 0.6",
+   "expected": {
+    "height": "24px",
+    "after:backgroundColor": "#E6E8E4"
+   },
+   "width": 1440
+  },
+  {
+   "id": "chat-input",
+   "name": "chat-input",
+   "example": "Preview",
+   "selector": "[data-slot=chat-input]",
+   "source": "Figma 443:433 UI · Agent chat, input (150px, 16px cut) at 0.6",
+   "expected": {
+    "height": "90px",
+    "before:backgroundColor": "#B9BDB7",
+    "after:backgroundColor": "#FFFFFF"
+   },
+   "width": 1440
+  },
+  {
+   "id": "card",
+   "name": "card",
+   "example": "Preview",
+   "selector": "[data-slot=card]",
+   "source": "Extrapolated from the Figma message and field frames (1px Stone line, white fill, cut corner)",
+   "expected": {
+    "before:backgroundColor": "#B9BDB7",
+    "after:backgroundColor": "#FFFFFF",
+    "borderTopLeftRadius": "0px"
+   },
+   "width": 1440
+  }
+ ]
 }
