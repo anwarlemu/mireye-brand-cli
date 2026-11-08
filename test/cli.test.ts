@@ -543,6 +543,20 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(result.decisions.find((d) => d.name === 'CardAction')).toMatchObject({ item: 'card' });
 		} finally { rmSync(dir, { recursive: true }); }
 	});
+	it('apply points a shadcn theme at the brand; init leaves the app its own', () => {
+		const css = '@import "tailwindcss";\n\n@theme inline {\n  --color-background: var(--background);\n  --color-primary: var(--primary);\n  --color-border: var(--border);\n  --radius-lg: var(--radius);\n}\n\n:root {\n  --background: oklch(1 0 0);\n  --primary: oklch(0.2 0 0);\n  --border: oklch(0.9 0 0);\n  --radius: 0.625rem;\n}\n';
+		const files = { 'package.json': JSON.stringify({ dependencies: { react: '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0' } }), 'components.json': JSON.stringify({ tsx: true, tailwind: { css: 'app/globals.css' }, aliases: { components: '@/components', ui: '@/components/ui', utils: '@/lib/utils', lib: '@/lib', hooks: '@/hooks' } }), 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'app/globals.css': css };
+		const applied = project(files), initialized = project(files);
+		try {
+			run(applied);
+			const out = readFileSync(join(applied, 'app/globals.css'), 'utf8');
+			expect(out).toContain('--color-background: var(--ds-color-bg-page);');
+			expect(out).toContain('--color-border: var(--ds-color-border-default);');
+			expect(out).toContain('--radius-lg: var(--ds-radius-control);');
+			run(initialized, 'init');
+			expect(readFileSync(join(initialized, 'app/globals.css'), 'utf8')).not.toContain('--color-background: var(--ds-color-bg-page)');
+		} finally { rmSync(applied, { recursive: true }); rmSync(initialized, { recursive: true }); }
+	});
 	it('restyling a root leaves separators such as join(" ") alone', () => {
 		const text = 'export function Tag({ on }: { on: boolean }) { return <span className={["rounded-full bg-green-100 px-2", on ? "font-bold" : undefined].filter(Boolean).join(" ")}>x</span>; }';
 		const [tag] = componentsIn('Tag.tsx', text);
