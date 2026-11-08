@@ -218,8 +218,9 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 			};
 			const classes = libraryClasses(content, c.name, pick);
 			const restyled = classes ? restyleRoot(current.get(c.file)!, c, c.item, classes) : undefined;
-			if (restyled) {
-				write(c.file, restyled);
+			const already = !!classes && classes.split(/\s+/).filter(Boolean).every((cls) => c.root!.literals.some((lit) => lit.value.split(/\s+/).includes(cls)));
+			if (restyled || already) {
+				if (restyled) write(c.file, restyled);
 				result.styled.push(c.file);
 				return { ...d, action: 'style', reason: `its element takes the library's ${c.item} look${canAdapt && adaptable(c.item) ? ' (a swap would drop some of its props)' : ''}` };
 			}

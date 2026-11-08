@@ -486,6 +486,7 @@ export function Button({ variant = "primary", size, loading, className, children
 			const again = applyComponents(detectProject(dir), () => 'site', {})!;
 			expect(snapshot()).toEqual(first);
 			expect(again.decisions.find((d) => d.name === 'Button')).toMatchObject({ action: 'swap', item: 'button' });
+			expect(again.decisions.map((d) => [d.name, d.action])).toEqual(result.decisions.map((d) => [d.name, d.action]));
 			expect(again.decisions.map((d) => d.file)).not.toContain('components/ui/provider.tsx');
 		} finally { rmSync(dir, { recursive: true }); }
 	});
