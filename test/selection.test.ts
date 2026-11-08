@@ -686,6 +686,8 @@ describe('a named page renders in the brand', () => {
 			const page = read(dir, 'app/settings/page.tsx');
 			expect(page).toContain('<main className="ds-page p-[13px]">');
 			expect(page).toMatch(/<PrimaryButton className="[^"]*ds-cut![^"]*" variant="secondary">Export<\/PrimaryButton>/);
+			// The cut shape is drawn under the content: the component's own ground, line, corners and shadow are cleared there.
+			expect(page).toMatch(/<PrimaryButton className="[^"]*bg-transparent! border-0! rounded-none! shadow-none!"/);
 			expect(read(dir, 'components/primary-button.tsx')).toBe(APP['components/primary-button.tsx']);
 			expect(read(dir, 'app/page.tsx')).toBe(APP['app/page.tsx']);
 			expect(read(dir, `app/_${bin}/brand.css`)).toMatch(/@layer base \{\s*\.ds-page \{[^}]*font-family: var\(--ds-font-sans\)/);
