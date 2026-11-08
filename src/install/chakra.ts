@@ -11,6 +11,7 @@ const CHAKRA_PACKAGES = ['@chakra-ui/react', '@emotion/react'];
 // The provider the CLI writes, named for the brand in brand.json (<Name>ChakraProvider).
 const PROVIDER = () => `${brand().name.replace(/[^A-Za-z0-9]/g, '')}ChakraProvider`;
 export const chakraPackages = () => CHAKRA_PACKAGES;
+export const providerName = () => PROVIDER();
 
 const VERSIONS: Record<string, string> = { '@chakra-ui/react': '@3.37.0', '@emotion/react': '@^11.14.0', '@emotion/cache': '@^11.14.0' };
 

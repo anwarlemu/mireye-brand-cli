@@ -9,7 +9,7 @@ import { adaptable, adaptComponent, libraryClasses, lookOf, restyleRoot, variant
 import { restyleOverlays } from './overlay-styles.js';
 import { type Identified, componentsIn, identify, usesIn } from './components.js';
 import { itemName, loadIndexSync, loadItemSync, type RegistryItem } from './registry.js';
-import { installChakraProvider, missingChakraPackages } from '../install/chakra.js';
+import { installChakraProvider, missingChakraPackages, providerName } from '../install/chakra.js';
 import { Writer } from '../install/files.js';
 
 // Identify, then apply. Every component the app defines is identified (what it is, from its name, what it renders,
@@ -117,6 +117,13 @@ const ROOT_STYLED = new Set(['button', 'badge', 'card', 'input', 'textarea', 'la
 const ROUTE_FILE = /(^|\/)(page|layout|template|loading|error|not-found|default|_app|_document|root)\.(tsx|jsx)$/;
 const LIBRARY_DIR = /(^|\/)components\/ds\//;
 
+/** The library item a component already renders through an adapter (import { Button as DsButton } ... DS_<NAME>_VARIANT). */
+export function adapterItem(text: string, name: string) {
+	if (!new RegExp(`\\bDS_${name.toUpperCase()}_`).test(text)) return undefined;
+	return text.match(/import \{[^}]*\bas Ds\w+[^}]*\} from ["'][^"']*\/([\w-]+)["']/)?.[1];
+}
+
+
 export function applyComponents(project: Project, surfaceOf: (rel: string) => Surface, { dryRun = false } = {}): SwapResult | undefined {
 	const root = project.root;
 	const layout = componentLayout(project);
@@ -124,8 +131,9 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	if (!index.length) return undefined;
 	const kindsOf = (item: string) => index.find((i) => i.name === item)?.kinds ?? [];
 	const overlayFiles = styledFiles(root).filter((f) => /\.(tsx|jsx)$/.test(f) && !LIBRARY_DIR.test(f));
-	const files = overlayFiles.filter((f) => !ROUTE_FILE.test(f));
 	const texts = new Map(overlayFiles.map((f) => [f, readFileSync(join(root, f), 'utf8')]));
+	// The Chakra provider this CLI writes is setup, not one of the app's components.
+	const files = overlayFiles.filter((f) => !ROUTE_FILE.test(f) && !texts.get(f)!.includes(`export function ${providerName()}(`));
 
 	// Find and identify every component, and how the app uses each.
 	const found = files.flatMap((f) => componentsIn(f, texts.get(f)!));
@@ -182,6 +190,9 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	const exportNameOf = new Map<string, string>();
 	const decide = (c: Identified): Decision => {
 		const d = { file: c.file, name: c.name, item: c.item, confidence: Math.round(c.confidence * 100) / 100, signals: c.signals, uses: c.uses };
+		// An adapter an earlier run wrote already renders the library's item: a second run leaves it as it is.
+		const adapted = adapterItem(current.get(c.file)!, c.name);
+		if (adapted) return { ...d, item: adapted, action: 'swap', reason: `renders the library's ${adapted}, its props mapped` };
 		if (!c.item) return { ...d, action: 'refine', reason: 'no library item covers it' };
 		const item = loadItemSync(c.item);
 		const surface = surfaceOf(c.file);

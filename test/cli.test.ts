@@ -468,7 +468,7 @@ export function Button({ variant = "primary", size, loading, className, children
 	});
 	it('a swap to a Chakra-based item also sets up Chakra, so the swapped app renders', () => {
 		const layout = 'export default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang="en"><body>{children}</body></html>;\n}\n';
-		const files = { 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'components/Button.tsx': BUTTON, 'app/layout.tsx': layout, 'app/page.tsx': 'import { Button } from "@/components/Button";\nexport default function Page() { return <Button>Save</Button>; }\n' };
+		const files = { 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'components/Button.tsx': BUTTON, 'components/Card.tsx': 'export function Card({ title }: { title: string }) {\n  return <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-md">{title}</div>;\n}\n', 'app/layout.tsx': layout, 'app/page.tsx': 'import { Button } from "@/components/Button";\nimport { Card } from "@/components/Card";\nexport default function Page() { return <Card title="Acme"><Button>Save</Button></Card>; }\n' };
 		const bare = project({ ...files, 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.0.0', tailwindcss: '4.1.0' } }) });
 		try {
 			expect(applyComponents(detectProject(bare), () => 'site', { dryRun: true })!.packages).toEqual(expect.arrayContaining(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']));
@@ -480,7 +480,21 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(result.swapped).toContain('components/Button.tsx');
 			expect(readFileSync(join(dir, 'app/layout.tsx'), 'utf8')).toMatch(/<body><MireyeChakraProvider>\{children\}<\/MireyeChakraProvider><\/body>/);
 			expect(readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8')).toContain('useServerInsertedHTML');
+			// A second run (apply --redo) leaves the adapter, the restyled card and the provider as they are.
+			const snapshot = () => Object.fromEntries(['components/Button.tsx', 'components/Card.tsx', 'app/layout.tsx', 'components/ui/provider.tsx'].map((f) => [f, readFileSync(join(dir, f), 'utf8')]));
+			const first = snapshot();
+			const again = applyComponents(detectProject(dir), () => 'site', {})!;
+			expect(snapshot()).toEqual(first);
+			expect(again.decisions.find((d) => d.name === 'Button')).toMatchObject({ action: 'swap', item: 'button' });
+			expect(again.decisions.map((d) => d.file)).not.toContain('components/ui/provider.tsx');
 		} finally { rmSync(dir, { recursive: true }); }
+	});
+	it('restyling a root leaves separators such as join(" ") alone', () => {
+		const text = 'export function Tag({ on }: { on: boolean }) { return <span className={["rounded-full bg-green-100 px-2", on ? "font-bold" : undefined].filter(Boolean).join(" ")}>x</span>; }';
+		const [tag] = componentsIn('Tag.tsx', text);
+		const out = restyleRoot(text, tag, 'badge', 'border border-line text-fg-subtle')!;
+		expect(out).toContain('.join(" ")');
+		expect(restyleRoot(out, componentsIn('Tag.tsx', out)[0], 'badge', 'border border-line text-fg-subtle')).toBeUndefined();
 	});
 });
 

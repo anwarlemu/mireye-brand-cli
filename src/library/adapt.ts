@@ -308,9 +308,15 @@ export function restyleRoot(text: string, c: AppComponent, item: string, library
 	// Right to left, so earlier offsets stay valid.
 	const sorted = [...literals].sort((a, b) => b.start - a.start);
 	const first = literals.reduce((a, b) => (a.start < b.start ? a : b));
+	const library = libraryClassList.split(/\s+/).filter(Boolean);
 	for (const lit of sorted) {
-		const kept = lit.value.split(/\s+/).filter((cls) => cls && !isLook(cls, control));
-		const next = lit === first ? [...kept, ...libraryClassList.split(/\s+/).filter((cls) => !kept.includes(cls))] : kept;
+		// A separator such as join(" ") is not a class list.
+		if (!lit.value.trim()) continue;
+		const present = lit.value.split(/\s+/).filter(Boolean);
+		// Already the library's look (a second run): leave the order as it is.
+		if (lit === first && library.every((cls) => present.includes(cls)) && present.every((cls) => !isLook(cls, control) || library.includes(cls))) continue;
+		const kept = present.filter((cls) => !isLook(cls, control));
+		const next = lit === first ? [...kept, ...library.filter((cls) => !kept.includes(cls))] : kept;
 		const value = next.join(' ');
 		if (value === lit.value) continue;
 		const quote = out[lit.start];
