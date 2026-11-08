@@ -51,6 +51,8 @@ export async function checkOverlays(page, base) {
     await open(page, base, 'popover');
     await page.locator('[data-slot="popover-trigger"]').first().click();
     await visible(page.locator('[data-slot="popover-content"]'));
+    // Content mounts when it opens, so it takes focus a frame later; Escape is checked once focus is inside.
+    await page.waitForFunction(() => document.querySelector('[data-slot="popover-content"]')?.contains(document.activeElement), null, { timeout: 5000 });
     await page.keyboard.press('Escape');
     await hidden(page.locator('[data-slot="popover-content"]'));
 

@@ -1,6 +1,7 @@
 {
  "reference": "Figma \"Mireye (INT)\", page 3.2 Brand identity, product UI boards (442:2), at the product scale (0.6)",
  "captured": "2026-11-04",
+  "owner": "Bone (#F4F1EA) replaces Figma's white for surfaces and for text on Forest (owner decision, 2026-11-08, matching the website).",
  "method": "Sizes, colors and type from Figma's Dev Mode output for the product UI boards, at the product scale (0.6, snapped to the 4px grid; type mapped to the 12/13/16px steps); the cut corner's line and fill are read from the shape layers (::before and ::after)",
  "viewport": {
   "width": 1440,
@@ -18,7 +19,7 @@
     "paddingLeft": "16px",
     "fontSize": "13px",
     "fontWeight": "500",
-    "color": "#FFFFFF",
+    "color": "#F4F1EA",
     "after:backgroundColor": "#1E231C",
     "fontFamily": "Gilroy, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
    },
@@ -34,7 +35,7 @@
     "height": "36px",
     "color": "#1E231C",
     "before:backgroundColor": "#1E231C",
-    "after:backgroundColor": "#FFFFFF"
+    "after:backgroundColor": "#F4F1EA"
    },
    "width": 1440
   },
@@ -85,7 +86,7 @@
    "expected": {
     "height": "90px",
     "before:backgroundColor": "#B9BDB7",
-    "after:backgroundColor": "#FFFFFF"
+    "after:backgroundColor": "#F4F1EA"
    },
    "width": 1440
   },
@@ -97,7 +98,7 @@
    "source": "Extrapolated from the Figma message and field frames (1px Stone line, white fill, cut corner)",
    "expected": {
     "before:backgroundColor": "#B9BDB7",
-    "after:backgroundColor": "#FFFFFF",
+    "after:backgroundColor": "#F4F1EA",
     "borderTopLeftRadius": "0px"
    },
    "width": 1440

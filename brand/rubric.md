@@ -22,7 +22,7 @@ spacing rhythm and type scale. Nothing left from the old look: an old accent col
 rounded corners, shadows, gray smudges where an old shadow or fade was converted.
 
 ## Reads as Mireye (score: brand_voice)
-Compared side by side with the reference, does it look like the same product? A Canvas ground with white cut panels
+Compared side by side with the reference, does it look like the same product? A Bone ground with Bone cut panels
 and 1px Stone lines; Forest ink with 80 and 72 percent labels; Gilroy at 13px with regular titles; a Forest cut key for
 the main action; diamonds and ticks for state; DM Mono for coordinates and values. Too little reads as a generic gray
 page (5 at most). Too much is as wrong (5 at most): cut corners on every small part, hatching as decoration, the

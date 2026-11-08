@@ -17,7 +17,7 @@
 			},
 			"tailwind": "bg-page text-fg font-sans text-body leading-body",
 			"rules": [
-				"The Canvas ground (#F2F3F1), Gilroy at 13px in Forest.",
+				"The Bone ground (#F4F1EA), Gilroy at 13px in Forest.",
 				"White is for controls and panels on the ground, each with a 1px Stone line."
 			],
 			"source": "Mireye product UI boards (442:2)"
