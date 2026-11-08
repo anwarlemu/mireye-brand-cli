@@ -720,6 +720,9 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     const dir = join(ROOT, 'registry/examples');
     for (const file of readdirSync(dir)) expect(readFileSync(join(dir, file), 'utf8'), file).not.toMatch(/from ["']@\/lib\/utils["']/);
   });
+  it('a closed popover renders no content on the server (a date picker prerenders without reading the date)', () => {
+    expect(readFileSync(join(ROOT, 'registry/components/ui/popover.tsx'), 'utf8')).toMatch(/<ChakraPopover\.Root unstyled lazyMount unmountOnExit /);
+  });
   it('every registry item lists only installable npm package names', () => {
     const items = JSON.parse(readFileSync(join(ROOT, 'apps/www/public/r/index.json'), 'utf8')).items as { name: string; packages?: string[] }[];
     for (const item of items) for (const pkg of item.packages ?? []) expect(pkg, item.name).toMatch(/^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/);

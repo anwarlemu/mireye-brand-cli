@@ -12,7 +12,9 @@ import { cn } from "@/lib/utils";
 // ease-out) and leaves faster than it came (120ms).
 type PopoverProps = Omit<React.ComponentProps<typeof ChakraPopover.Root>, "onOpenChange"> & { onOpenChange?: (open: boolean) => void };
 function Popover({ onOpenChange, ...props }: PopoverProps) {
-  return <ChakraPopover.Root unstyled data-slot="popover" onOpenChange={(details) => onOpenChange?.(details.open)} {...props} />;
+  // Content mounts when it opens (and leaves after its exit), so a closed popover never renders its contents on the
+  // server: a date picker's calendar reads today's date, which Next's prerender rejects.
+  return <ChakraPopover.Root unstyled lazyMount unmountOnExit data-slot="popover" onOpenChange={(details) => onOpenChange?.(details.open)} {...props} />;
 }
 
 function PopoverTrigger(props: React.ComponentProps<typeof ChakraPopover.Trigger>) {
