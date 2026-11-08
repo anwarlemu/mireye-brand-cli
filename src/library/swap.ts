@@ -125,6 +125,11 @@ const ROOT_STYLED = new Set(['button', 'badge', 'card', 'input', 'textarea', 'la
 const ROUTE_FILE = /(^|\/)(page|layout|template|loading|error|not-found|default|_app|_document|root)\.(tsx|jsx)$/;
 const LIBRARY_DIR = /(^|\/)components\/ds\//;
 
+/** The compound component a component is part of: another in its file, identified as a library item, whose name it extends. */
+export function partOf(c: { name: string }, siblings: { name: string; item?: string }[]) {
+	return siblings.filter((o) => o.item && o.name !== c.name && c.name.startsWith(o.name) && /^[A-Z]/.test(c.name.slice(o.name.length))).sort((a, b) => b.name.length - a.name.length)[0];
+}
+
 /** The library item a component already renders through an adapter (import { Button as DsButton } ... DS_<NAME>_VARIANT). */
 export function adapterItem(text: string, name: string) {
 	if (!new RegExp(`\\bDS_${name.toUpperCase()}_`).test(text)) return undefined;
@@ -202,6 +207,20 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 		// An adapter an earlier run wrote already renders the library's item: a second run leaves it as it is.
 		const adapted = adapterItem(current.get(c.file)!, c.name);
 		if (adapted) return { ...d, item: adapted, action: 'swap', reason: `renders the library's ${adapted}, its props mapped` };
+		// A part of a compound component (CardHeader beside Card) takes that part's look from the library, never the root's.
+		const owner = partOf(c, byFile.get(c.file) ?? []);
+		if (owner) {
+			const ownerItem = loadItemSync(owner.item!);
+			const classes = ownerItem?.files?.[0]?.content ? libraryClasses(ownerItem.files[0].content, c.name, () => undefined, undefined, true) : undefined;
+			const restyled = classes && c.root?.literals.length ? restyleRoot(current.get(c.file)!, c, owner.item!, classes) : undefined;
+			if (restyled) {
+				write(c.file, restyled);
+				if (!result.styled.includes(c.file)) result.styled.push(c.file);
+			}
+			return restyled || (classes && c.root?.literals.some((lit) => classes.split(/\s+/).every((cls) => lit.value.split(/\s+/).includes(cls))))
+				? { ...d, item: owner.item, action: 'style', reason: `a part of ${owner.name}: it takes the library's ${c.name} look` }
+				: { ...d, item: owner.item, action: 'refine', reason: `a part of ${owner.name}, styled by the element layer and the converter` };
+		}
 		if (!c.item) return { ...d, action: 'refine', reason: 'no library item covers it' };
 		const item = loadItemSync(c.item);
 		const surface = surfaceOf(c.file);

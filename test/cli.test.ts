@@ -529,6 +529,20 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(existsSync(join(dir, 'src/components/ds/button.jsx'))).toBe(true);
 		} finally { rmSync(dir, { recursive: true }); }
 	});
+	it('gives the parts of a compound component (shadcn CardHeader, CardTitle, CardAction) their own library look, not the root one', () => {
+		const card = `import * as React from "react";\nimport { cn } from "@/lib/utils";\n\nfunction Card({ className, ...props }: React.ComponentProps<"div">) {\n  return <div data-slot="card" className={cn("flex flex-col gap-6 rounded-xl border bg-card py-6 shadow-sm", className)} {...props} />;\n}\n\nfunction CardHeader({ className, ...props }: React.ComponentProps<"div">) {\n  return <div data-slot="card-header" className={cn("grid auto-rows-min gap-1.5 px-6", className)} {...props} />;\n}\n\nfunction CardTitle({ className, ...props }: React.ComponentProps<"div">) {\n  return <div data-slot="card-title" className={cn("leading-none font-semibold", className)} {...props} />;\n}\n\nfunction CardAction({ className, ...props }: React.ComponentProps<"div">) {\n  return <div data-slot="card-action" className={cn("col-start-2 row-span-2 self-start justify-self-end", className)} {...props} />;\n}\n\nexport { Card, CardHeader, CardTitle, CardAction };\n`;
+		const dir = project({ 'package.json': JSON.stringify({ dependencies: { react: '19.0.0', tailwindcss: '4.1.0' } }), 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'components/ui/card.tsx': card, 'lib/utils.ts': 'export const cn = (...a: string[]) => a.join(" ");\n' });
+		try {
+			const result = applyComponents(detectProject(dir), () => 'site', {})!;
+			const out = readFileSync(join(dir, 'components/ui/card.tsx'), 'utf8');
+			const classesOf = (slot: string) => out.match(new RegExp(`data-slot="${slot}" className=\\{cn\\("([^"]+)"`))![1];
+			expect(classesOf('card')).toContain('ds-cut-frame');
+			for (const slot of ['card-header', 'card-title', 'card-action']) expect(classesOf(slot)).not.toMatch(/ds-cut|group\/button/);
+			expect(classesOf('card-title')).toContain('text-h3');
+			expect(classesOf('card-title')).not.toContain('font-semibold');
+			expect(result.decisions.find((d) => d.name === 'CardAction')).toMatchObject({ item: 'card' });
+		} finally { rmSync(dir, { recursive: true }); }
+	});
 	it('restyling a root leaves separators such as join(" ") alone', () => {
 		const text = 'export function Tag({ on }: { on: boolean }) { return <span className={["rounded-full bg-green-100 px-2", on ? "font-bold" : undefined].filter(Boolean).join(" ")}>x</span>; }';
 		const [tag] = componentsIn('Tag.tsx', text);

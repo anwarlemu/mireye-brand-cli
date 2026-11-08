@@ -301,7 +301,14 @@ function isLook(cls: string, control: boolean) {
 }
 
 /** The library item's classes for one look: a cva's base, the variant and size picked, and the compounds that match. */
-export function libraryClasses(content: string, exportName: string, pickVariant: (values: string[]) => string | undefined, size = defaultSize()): string | undefined {
+export function libraryClasses(content: string, exportName: string, pickVariant: (values: string[]) => string | undefined, size = defaultSize(), own = false): string | undefined {
+	// own: only the classes of the library's component by that name (a compound part such as CardHeader); none when the
+	// library has no such part.
+	if (own) {
+		const body = content.match(new RegExp(`function ${exportName}\\b[\\s\\S]*?\\n\\}`))?.[0];
+		if (!body || /\w+Variants\(/.test(body)) return undefined;
+		return body.match(/className=\{cn\(\s*"([^"]+)"/)?.[1];
+	}
 	let ast: any;
 	try {
 		ast = parse(content, { sourceType: 'module', plugins: ['jsx', 'typescript'] });
