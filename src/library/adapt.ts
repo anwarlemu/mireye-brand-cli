@@ -25,13 +25,15 @@ export function variantsFor(surface: Surface) {
 	const p = surface === 'product' ? v.product : undefined;
 	return p
 		? { filled: p.filled, black: p.black, outlined: p.outlined, quiet: p.ghost, onBrand: p.onBrand, card: p.card }
-		: { filled: v.site.filled, black: v.site.filled, outlined: v.site.outlined, quiet: v.site.quiet ?? v.site.outlined, onBrand: v.site.onBrand, card: v.site.card };
+		: { filled: v.site.filled, black: v.site.filled, outlined: v.site.outlined, quiet: v.site.quiet ?? v.site.outlined, onBrand: v.site.onBrand, card: v.site.card, destructive: v.site.destructive };
 }
 
 const BUTTON_VARIANTS = (surface: Surface): [RegExp, string][] => {
 	const v = variantsFor(surface);
 	return surface === 'site' || !brand().variants.product
 		? [
+				// A library with its own destructive key takes danger there; otherwise it is the outline in red (DS_*_DANGER).
+				...('destructive' in v && v.destructive ? ([[DANGER, v.destructive]] as [RegExp, string][]) : []),
 				[/^(default|primary|solid|filled|main|cta|brand|dark|black)$/i, v.filled],
 				[/^(white|light|inverse|inverted|on-?(brand|dark|blue))$/i, v.onBrand],
 				...(v.quiet !== v.outlined ? ([[/^(ghost|link|tertiary|plain|text|subtle|quiet|minimal|transparent)$/i, v.quiet]] as [RegExp, string][]) : []),
@@ -93,9 +95,11 @@ function button({ c, surface, local, values }: Ctx): Adapter | undefined {
 	const prelude = [
 		mapLiteral(`DS_${key}_VARIANT`, variants, BUTTON_VARIANTS(surface), variantsFor(surface).outlined),
 		mapLiteral(`DS_${key}_SIZE`, sizes, SIZES(), defaultSize()),
-		...(a.get('variant') ? [`const DS_${key}_DANGER = new Set<string>(${JSON.stringify([...new Set(variants)].filter((v) => DANGER.test(v)))});`] : []),
+		...(a.get('variant') && !variantsFor(surface).destructive ? [`const DS_${key}_DANGER = new Set<string>(${JSON.stringify([...new Set(variants)].filter((v) => DANGER.test(v)))});`] : []),
 	].join('\n');
-	const v = a.get('variant');
+	const variantProp = a.get('variant');
+	// The red outline is only for a library without a destructive key.
+	const v = variantsFor(surface).destructive ? undefined : variantProp;
 	const s = a.get('size');
 	const loading = a.get('loading') ?? a.get('isLoading');
 	const left = a.get('leftIcon') ?? a.get('startIcon') ?? a.get('icon');
@@ -109,7 +113,7 @@ function button({ c, surface, local, values }: Ctx): Adapter | undefined {
 		a.spread,
 		...a.forwards.filter((f) => !(loading && f.startsWith('disabled='))),
 		a.ref,
-		`variant={(DS_${key}_VARIANT[${variantKey(v)}] ?? "${variantsFor(surface).outlined}") as DsComponentProps<typeof ${local}>["variant"]}`,
+		`variant={(DS_${key}_VARIANT[${variantKey(variantProp)}] ?? "${variantsFor(surface).outlined}") as DsComponentProps<typeof ${local}>["variant"]}`,
 		`size={(DS_${key}_SIZE[${variantKey(s)}] ?? "${defaultSize()}") as DsComponentProps<typeof ${local}>["size"]}`,
 		classes.length ? `className={[${classes.join(', ')}].filter(Boolean).join(" ") || undefined}` : '',
 		a.get('asChild') && !c.params.identifier ? 'asChild={asChild}' : '',
@@ -218,7 +222,38 @@ export function adaptComponent(text: string, c: AppComponent, item: string, surf
 	if (adapter.prelude) out = out.slice(0, c.span.start) + `${adapter.prelude}\n\n` + out.slice(c.span.start);
 	const names = [`${adapter.exportName} as ${local}`, ...(adapter.extraImports ?? [])];
 	const imports = [`import { ${names.join(', ')} } from "${importFrom}";`, ...(adapter.prelude ? ['import type { ComponentProps as DsComponentProps } from "react";'] : [])];
-	return insertImports(out, imports);
+	return insertImports(dropOrphanStyles(text, out), imports);
+}
+
+/**
+ * The class maps the old body read (const styles = { primary: 'bg-indigo-600 ...' }) are unused once it renders the
+ * library's item; left in, they fail noUnusedLocals (the Vite template's default) and the swap is reverted. Removes a
+ * file-level, unexported constant that holds only class strings, when the swap left it unread.
+ */
+export function dropOrphanStyles(before: string, after: string) {
+	let ast: any;
+	try {
+		ast = parse(after, { sourceType: 'module', plugins: ['jsx', 'typescript'] });
+	} catch {
+		return after;
+	}
+	const strings = (n: any): boolean =>
+		n?.type === 'StringLiteral' ||
+		(n?.type === 'TemplateLiteral' && !n.expressions.length) ||
+		(n?.type === 'ArrayExpression' && n.elements.every(strings)) ||
+		(n?.type === 'ObjectExpression' && n.properties.every((p: any) => p.type === 'ObjectProperty' && !p.computed && strings(p.value))) ||
+		((n?.type === 'TSAsExpression' || n?.type === 'TSSatisfiesExpression') && strings(n.expression));
+	const uses = (text: string, name: string) => (text.match(new RegExp(`(?<![\\w$.])${name}(?![\\w$])`, 'g')) ?? []).length;
+	const drop: { start: number; end: number }[] = [];
+	for (const node of ast.program.body) {
+		if (node.type !== 'VariableDeclaration' || node.declarations.length !== 1) continue;
+		const [d] = node.declarations;
+		if (d.id?.type !== 'Identifier' || !strings(d.init)) continue;
+		if (uses(after, d.id.name) === 1 && uses(before, d.id.name) > 1) drop.push({ start: node.start, end: node.end });
+	}
+	let out = after;
+	for (const { start, end } of drop.reverse()) out = out.slice(0, start) + out.slice(end).replace(/^[ \t]*\n(?:[ \t]*\n)?/, '');
+	return out;
 }
 
 /** Adds import lines after the file's last import (after a "use client" directive when there is no import). */

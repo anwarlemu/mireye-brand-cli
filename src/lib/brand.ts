@@ -26,7 +26,7 @@ export type BrandConfig = {
 	type?: { caps?: boolean; bold?: boolean };
 	/** The one icon set: its name and the packages that provide it (web, native). The check flags imports of any other. */
 	icons?: { name: string; packages: string[] };
-	variants: { site: { filled: string; outlined: string; quiet?: string; onBrand: string; card: string; size?: string; badges?: Record<string, string> }; product?: { filled: string; black: string; outlined: string; ghost: string; onBrand: string; card: string } };
+	variants: { site: { filled: string; outlined: string; quiet?: string; onBrand: string; card: string; size?: string; destructive?: string; badges?: Record<string, string> }; product?: { filled: string; black: string; outlined: string; ghost: string; onBrand: string; card: string } };
 };
 
 let config: BrandConfig | undefined;

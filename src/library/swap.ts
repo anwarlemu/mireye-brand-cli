@@ -36,10 +36,18 @@ function readJson(path: string) {
 
 /** Where the library's interface components go (components/ds, apart from the app's own), and the aliases they use. */
 export function componentLayout(project: Project): { uiDir: string; aliases: Aliases } | undefined {
-	if (!project.hasAlias) return undefined;
+	// Without an import alias the configured paths are relative (./src/components): files and adapters import relatively.
 	const config = componentConfig(project.root, project);
+	if (!project.hasAlias && !config.aliases.components.startsWith('.')) return undefined;
 	const aliases = { ...config.aliases, ui: `${config.aliases.components}/ds`, utils: `${config.aliases.lib}/${brand().bin}-utils` };
 	return { uiDir: relative(project.root, resolveAlias(project.root, aliases.ui)), aliases };
+}
+
+/** How a file imports a library module: through the alias, or relatively when the app has none. */
+function importPath(root: string, from: string, spec: string) {
+	if (!spec.startsWith('.')) return spec;
+	const path = relative(dirname(join(root, from)), resolve(root, spec)).split('\\').join('/');
+	return path.startsWith('.') ? path : `./${path}`;
 }
 
 /** The library's file, with its imports rewritten to the app's aliases. */
@@ -199,7 +207,7 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 		const values = { ...c.values };
 		for (const [k, v] of Object.entries(c.useValues)) values[k] = [...new Set([...(values[k] ?? []), ...v])];
 		if (canAdapt && item && c.confidence >= SWAP_FLOOR && c.exported && adaptable(c.item)) {
-			const adapted = adaptComponent(current.get(c.file)!, c, c.item, surface, `${layout!.aliases.ui}/${c.item}`, values);
+			const adapted = adaptComponent(current.get(c.file)!, c, c.item, surface, importPath(root, c.file, `${layout!.aliases.ui}/${c.item}`), values);
 			if (adapted) {
 				install(item);
 				write(c.file, adapted);

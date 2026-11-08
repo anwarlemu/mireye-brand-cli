@@ -54,6 +54,7 @@
 			"onBrand": "secondary",
 			"card": "default",
 			"size": "default",
+			"destructive": "destructive",
 			"badges": {
 				"brand": "default",
 				"success": "success",

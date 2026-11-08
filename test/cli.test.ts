@@ -16,7 +16,7 @@ import { patchWrites } from '../src/hooks/payload.js';
 import { runningHarness } from '../src/install/agents.js';
 import { elements, tokens } from '../src/lib/brand.js';
 import { elementsIn } from '../src/plan/elements.js';
-import { adaptComponent, restyleRoot } from '../src/library/adapt.js';
+import { adaptComponent, dropOrphanStyles, restyleRoot } from '../src/library/adapt.js';
 import { componentsIn, identify } from '../src/library/components.js';
 import { restyleOverlays } from '../src/library/overlay-styles.js';
 import { applyComponents } from '../src/library/swap.js';
@@ -436,8 +436,10 @@ export function Button({ variant = "primary", size, loading, className, children
 		const out = adaptComponent(BUTTON, button, 'button', 'site', '@/components/ds/button', button.values)!;
 		expect(out).toContain('import { Button as DsButton } from "@/components/ds/button";');
 		expect(out).toContain('"primary": "default"');
-		expect(out).toContain('"danger": "outline"');
 		expect(out).toContain('"small": "sm"');
+		// The library's own destructive key takes danger (brand.json variants.site.destructive), not a red outline.
+		expect(out).toContain('"danger": "destructive"');
+		expect(out).not.toContain('border-danger');
 		expect(out).toContain('type ButtonProps');
 		expect(out).toContain('disabled={!!rest.disabled || !!loading}');
 		expect(() => parseTs(out, { sourceType: 'module', plugins: ['jsx', 'typescript'] })).not.toThrow();
@@ -489,6 +491,24 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(again.decisions.map((d) => [d.name, d.action])).toEqual(result.decisions.map((d) => [d.name, d.action]));
 			expect(again.decisions.map((d) => d.file)).not.toContain('components/ui/provider.tsx');
 		} finally { rmSync(dir, { recursive: true }); }
+	});
+	it('swaps in an app without an import alias (the Vite template), importing relatively and dropping the old class map', () => {
+		const button = `import type { ButtonHTMLAttributes } from 'react';\n\ntype Props = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' };\n\nconst styles = {\n  primary: 'bg-indigo-600 text-white',\n  ghost: 'bg-transparent text-indigo-600',\n};\n\nexport function PrimaryButton({ variant = 'primary', className = '', ...props }: Props) {\n  return <button className={\`rounded-lg px-4 py-2 \${styles[variant]} \${className}\`} {...props} />;\n}\n`;
+		const deps = { react: '19.0.0', vite: '7.0.0', typescript: '5.9.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', 'class-variance-authority': '*', clsx: '*', 'tailwind-merge': '*' };
+		const dir = project({ 'package.json': JSON.stringify({ dependencies: deps }), 'tsconfig.json': JSON.stringify({ compilerOptions: { noUnusedLocals: true } }), 'src/index.css': '@import "tailwindcss";', 'src/components/PrimaryButton.tsx': button, 'src/App.tsx': 'import { PrimaryButton } from "./components/PrimaryButton";\nexport default function App() { return <PrimaryButton variant="ghost">Go</PrimaryButton>; }\n', 'src/main.tsx': 'import { createRoot } from "react-dom/client";\nimport App from "./App";\ncreateRoot(document.getElementById("root")!).render(<App />);\n' });
+		try {
+			const result = applyComponents(detectProject(dir), () => 'site', { dryRun: true })!;
+			expect(result.decisions.find((d) => d.name === 'PrimaryButton')).toMatchObject({ action: 'swap' });
+			applyComponents(detectProject(dir), () => 'site', {});
+			const adapted = readFileSync(join(dir, 'src/components/PrimaryButton.tsx'), 'utf8');
+			expect(adapted).toContain('from "./ds/button"');
+			expect(adapted).not.toContain('const styles');
+			expect(readFileSync(join(dir, 'src/components/ds/button.tsx'), 'utf8')).toMatch(/from "\.\.\/\.\.\/lib\//);
+			expect(readFileSync(join(dir, 'src/main.tsx'), 'utf8')).toContain('<MireyeChakraProvider><App /></MireyeChakraProvider>');
+		} finally { rmSync(dir, { recursive: true }); }
+		// A class map something else still reads stays.
+		const kept = 'const styles = { a: "x" };\nexport const B = () => <b className={styles.a} />;\nexport const C = () => <i className={styles.a} />;\n';
+		expect(dropOrphanStyles(kept, kept)).toBe(kept);
 	});
 	it('restyling a root leaves separators such as join(" ") alone', () => {
 		const text = 'export function Tag({ on }: { on: boolean }) { return <span className={["rounded-full bg-green-100 px-2", on ? "font-bold" : undefined].filter(Boolean).join(" ")}>x</span>; }';
