@@ -466,6 +466,22 @@ export function Button({ variant = "primary", size, loading, className, children
 		expect(readFileSync(join(dir, 'components/Button.tsx'), 'utf8')).toBe(BUTTON);
 		rmSync(dir, { recursive: true });
 	});
+	it('a swap to a Chakra-based item also sets up Chakra, so the swapped app renders', () => {
+		const layout = 'export default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang="en"><body>{children}</body></html>;\n}\n';
+		const files = { 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'components/Button.tsx': BUTTON, 'app/layout.tsx': layout, 'app/page.tsx': 'import { Button } from "@/components/Button";\nexport default function Page() { return <Button>Save</Button>; }\n' };
+		const bare = project({ ...files, 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.0.0', tailwindcss: '4.1.0' } }) });
+		try {
+			expect(applyComponents(detectProject(bare), () => 'site', { dryRun: true })!.packages).toEqual(expect.arrayContaining(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']));
+		} finally { rmSync(bare, { recursive: true }); }
+		const deps = { next: '16.0.0', react: '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', '@emotion/cache': '^11.14.0', 'class-variance-authority': '*', clsx: '*', 'tailwind-merge': '*' };
+		const dir = project({ ...files, 'package.json': JSON.stringify({ dependencies: deps }) });
+		try {
+			const result = applyComponents(detectProject(dir), () => 'site', {})!;
+			expect(result.swapped).toContain('components/Button.tsx');
+			expect(readFileSync(join(dir, 'app/layout.tsx'), 'utf8')).toMatch(/<body><MireyeChakraProvider>\{children\}<\/MireyeChakraProvider><\/body>/);
+			expect(readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8')).toContain('useServerInsertedHTML');
+		} finally { rmSync(dir, { recursive: true }); }
+	});
 });
 
 describe('overlay styling', () => {

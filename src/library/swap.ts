@@ -9,6 +9,8 @@ import { adaptable, adaptComponent, libraryClasses, lookOf, restyleRoot, variant
 import { restyleOverlays } from './overlay-styles.js';
 import { type Identified, componentsIn, identify, usesIn } from './components.js';
 import { itemName, loadIndexSync, loadItemSync, type RegistryItem } from './registry.js';
+import { installChakraProvider, missingChakraPackages } from '../install/chakra.js';
+import { Writer } from '../install/files.js';
 
 // Identify, then apply. Every component the app defines is identified (what it is, from its name, what it renders,
 // its props and how it is used; see components.ts) and gets one of three outcomes:
@@ -22,7 +24,7 @@ import { itemName, loadIndexSync, loadItemSync, type RegistryItem } from './regi
 
 type Aliases = { components: string; ui: string; utils: string; lib: string; hooks: string };
 export type Decision = { file: string; name: string; item?: string; confidence: number; signals: string[]; uses: number; action: 'swap' | 'style' | 'refine'; reason: string };
-export type SwapResult = { swapped: string[]; styled: string[]; reverted: string[]; added: string[]; packages: string[]; utils?: string; checked: boolean; decisions: Decision[] };
+export type SwapResult = { swapped: string[]; styled: string[]; reverted: string[]; added: string[]; packages: string[]; utils?: string; checked: boolean; decisions: Decision[]; warnings?: string[] };
 
 function readJson(path: string) {
 	try {
@@ -156,13 +158,15 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	const pkg = readJson(join(root, 'package.json')) ?? {};
 	const installed = { ...pkg.dependencies, ...pkg.devDependencies } as Record<string, string>;
 	const packages = new Set<string>();
+	// Chakra-based items also need Emotion and the provider at the app root, or the first page fails to render.
+	let chakra = false;
 	const seen = new Set<string>();
 	const base = project.srcDir ? 'src/' : '';
 	// The library item and what it needs, into components/ds (the app's lib/utils is patched, never replaced).
 	const install = (item: RegistryItem) => {
 		if (!layout || seen.has(item.name)) return;
 		seen.add(item.name);
-		for (const d of item.packages ?? []) if (!installed[d]) packages.add(d);
+		for (const d of item.packages ?? []) if (d === '@chakra-ui/react') chakra = true; else if (!installed[d]) packages.add(d);
 		for (const dep of item.requires ?? []) {
 			const d = loadItemSync(itemName(dep));
 			if (d && d.type !== 'theme') install(d);
@@ -230,6 +234,7 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 		if (!result.styled.includes(file)) result.styled.push(file);
 		for (const name of styled.parts) result.decisions.push({ file, name, confidence: 1, signals: ['Radix primitive import'], uses: 0, action: 'style', reason: 'its panel or row takes the brand styling, preserving the existing interaction' });
 	}
+	if (chakra) for (const spec of missingChakraPackages(root, project)) packages.add(spec);
 	result.packages = [...packages];
 	if (dryRun) return result;
 	writeInventory(root, result.decisions);
@@ -237,6 +242,10 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	if (packages.size) {
 		const pm = project.packageManager;
 		spawnSync(pm, pm === 'npm' ? ['install', ...packages] : ['add', ...packages], { cwd: root, stdio: 'ignore' });
+	}
+	if (chakra) {
+		const setup = installChakraProvider(new Writer(root), project);
+		if (setup.warning) result.warnings = [...(result.warnings ?? []), setup.warning];
 	}
 	// An adapter that introduces type errors goes back: that component is restyled instead.
 	const before = typeErrorsOf(root, backups);
