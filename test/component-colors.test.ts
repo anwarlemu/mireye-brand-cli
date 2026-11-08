@@ -115,4 +115,10 @@ describe('component color application', () => {
     cli(root, '--redo');
     expect(readFileSync(join(root, 'style.css'), 'utf8')).toBe(applied);
   });
+  it('a stylesheet button on a light ground takes the outline colors, so its dark label stays readable', () => {
+    const css = '.btn { border: 1px solid #d1d5db; background: #fff; color: #111827; }\n.btn-primary { background: #4f46e5; color: #fff; }\n';
+    const out = applyComponentColors('style.css', css, 'site', newStats(), false);
+    expect(out).toContain('.btn { border: 1px solid var(--ds-color-border-strong); background: var(--ds-color-bg-default); color: var(--ds-color-text-default); }');
+    expect(out).toContain('.btn-primary { background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg); }');
+  });
 });

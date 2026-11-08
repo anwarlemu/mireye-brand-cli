@@ -623,7 +623,7 @@
 				"gap": "var(--ds-space-1)",
 				"width": "var(--ds-layout-rail)",
 				"padding": "var(--ds-space-3)",
-				"border-right": "1px solid var(--ds-color-border-default)",
+				"border-color": "var(--ds-color-border-default)",
 				"background-color": "var(--ds-color-bg-default)"
 			},
 			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 border-r border-line bg-surface",
