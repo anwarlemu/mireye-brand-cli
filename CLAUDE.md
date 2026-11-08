@@ -69,3 +69,9 @@ npm run ci           # build, limits, registry, tests; must pass before you push
 - Kill processes by pattern (`pkill -f "next dev"`): the owner's other dev servers run on :3000.
 - Modify any other brand's repo (agentcard, opencommerce, context-dev) or the Figma file.
 - Commit `build`, `dist` or `node_modules`.
+
+## Public registry
+
+The library site is behind Vercel login, so the registry files (`/r/`) are also published to a public project, the
+`registryHost` in `brand/brand.json`. The CLI, components.json, shadcn, MCP and the agent guide read `/r/` from there;
+page links stay on `registryUrl`. After every registry change: `sh scripts/deploy-registry.sh` (after `registry`).

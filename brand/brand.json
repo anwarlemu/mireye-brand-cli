@@ -5,6 +5,7 @@
 	"reviewModel": "claude-opus-5-5",
 	"reviewThreshold": 7,
 	"registryUrl": "https://mireye-ds.agencidev.com",
+	"registryHost": "https://mireye-ds-registry.vercel.app",
 	"site": "https://mireye.com",
 	"surfaces": [
 		"site"
