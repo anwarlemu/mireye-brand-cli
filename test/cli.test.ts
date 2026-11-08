@@ -31,6 +31,7 @@ import { accentSplit, addTouches } from '../src/install/touches.js';
 import { groundAliases } from '../src/install/styles.js';
 import { patchUtils } from '../src/library/swap.js';
 import { missingChakraPackages } from '../src/install/chakra.js';
+import { canonicalName, suggestNames } from '../src/library/registry.js';
 
 const ROOT = join(import.meta.dirname, '..');
 const BIN = join(ROOT, 'bin.js');
@@ -532,6 +533,16 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     expect(out.block).not.toContain('box-shadow');
     expect(out.block).not.toMatch(/position:|display:|width:/);
     expect(elementLayer('select.css', '.select-content { color: red } .select-item { color: red }', 'site').styled).toEqual([{selector:'.select-content',kind:'menu-panel'},{selector:'.select-item',kind:'menu-item'}]);
+  });
+  it('finds library items by any spelling of their name and suggests close names', () => {
+    expect(['AlertDialog', 'alert_dialog', 'Alert Dialog', 'alert-dialog', 'InputOTP'].map(canonicalName)).toEqual(['alert-dialog', 'alert-dialog', 'alert-dialog', 'alert-dialog', 'input-otp']);
+    expect(suggestNames('buton', ['button', 'badge', 'card'])).toEqual(['button']);
+    expect(suggestNames('xyzzy', ['button', 'badge', 'card'])).toEqual([]);
+    const dir = project({ 'package.json': '{}' });
+    try {
+      for (const spelling of ['AlertDialog', 'alert_dialog', 'alertdialog']) expect(JSON.parse(run(dir, 'view', spelling, '--json')).name).toBe('alert-dialog');
+      expect(() => execFileSync(process.execPath, [BIN, 'view', 'buton'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' })).toThrow(/Did you mean button\?/);
+    } finally { rmSync(dir, { recursive: true }); }
   });
   it('a Next App Router root gets a Chakra provider that renders its styles in the head, set up once', () => {
     const deps = { next: '16.0.0', react: '19.2.0', 'react-dom': '19.2.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', '@emotion/cache': '^11.14.0', 'radix-ui': '*', '@phosphor-icons/react': '*', clsx: '*', 'tailwind-merge': '*', 'class-variance-authority': '*' };

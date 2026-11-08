@@ -42,6 +42,39 @@ function sources() {
 /** The name an item is known by, from a bare name or its URL (https://…/r/button.json). */
 export const itemName = (ref: string) => ref.replace(/^.*\//, '').replace(/\.json$/, '');
 
+/** The registry spelling of a name typed as a component would be: AlertDialog, alert_dialog and Alert Dialog are alert-dialog. */
+export const canonicalName = (name: string) => name.trim().replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').toLowerCase();
+
+function distance(a: string, b: string) {
+	const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+	for (let i = 1; i <= a.length; i++) {
+		let prev = row[0];
+		row[0] = i;
+		for (let j = 1; j <= b.length; j++) {
+			const next = row[j];
+			row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+			prev = next;
+		}
+	}
+	return row[b.length];
+}
+
+/** The closest item names to one that does not exist, best first. */
+export function suggestNames(name: string, names: string[], limit = 3) {
+	const key = canonicalName(name);
+	return names
+		.map(candidate => ({ candidate, score: candidate.includes(key) || key.includes(candidate) ? Math.abs(candidate.length - key.length) * 0.1 : distance(key, candidate) }))
+		.filter(({ candidate, score }) => score <= Math.max(2, Math.floor(candidate.length / 3)))
+		.sort((a, b) => a.score - b.score || a.candidate.localeCompare(b.candidate))
+		.slice(0, limit)
+		.map(({ candidate }) => candidate);
+}
+
+const missing = (name: string, names: string[], status = '') => {
+	const near = suggestNames(name, names);
+	return new Error(`No library item "${name}"${status}. ${near.length ? `Did you mean ${near.join(', ')}? ` : ''}Use search to find an item.`);
+};
+
 function validateItem(value: any, source: string): RegistryItem {
 	if (!value || typeof value.name !== 'string' || !/^[a-z][a-z0-9-]*$/.test(value.name) || !Array.isArray(value.files)) throw new Error(`Invalid registry item: ${source}`);
 	for (const file of value.files) if (typeof file.path !== 'string' || typeof file.content !== 'string') throw new Error(`Invalid registry file in ${source}`);
@@ -59,16 +92,20 @@ export async function loadItem(ref: string): Promise<RegistryItem> {
 		item.requires = (item.requires ?? []).map(dep => /^https?:/.test(dep) ? dep : remote ? new URL(`${itemName(dep)}.json`, ref).href : resolve(dirname(ref), `${itemName(dep)}.json`));
 		return item;
 	}
-	const name = itemName(ref);
-	if (name !== ref) throw new Error(`Unsupported item address: ${ref}. Use a name, a JSON file, or an HTTP(S) URL.`);
+	if (itemName(ref) !== ref) throw new Error(`Unsupported item address: ${ref}. Use a name, a JSON file, or an HTTP(S) URL.`);
 	const { dirs, url } = sources();
+	// Match the exact file name, so a case-insensitive disk cannot hand back an item under another spelling.
+	const names = loadIndexSync().map(entry => entry.name);
+	// datepicker and Datepicker are date-picker: the one item whose name is the same without dashes.
+	const typed = canonicalName(ref), joined = names.filter(n => n.replaceAll('-', '') === typed.replaceAll('-', ''));
+	const name = names.includes(typed) || joined.length !== 1 ? typed : joined[0];
 	for (const dir of dirs) {
 		const file = join(dir, `${name}.json`);
-		if (existsSync(file)) return validateItem(JSON.parse(readFileSync(file, 'utf8')), file);
+		if ((!names.length || names.includes(name)) && existsSync(file)) return validateItem(JSON.parse(readFileSync(file, 'utf8')), file);
 	}
-	if (dirs.length) throw new Error(`No library item "${name}". Use search to find an item.`);
+	if (dirs.length) throw missing(ref, names);
 	const response = await fetch(`${url}/${name}.json`, { signal: AbortSignal.timeout(15000) });
-	if (!response.ok) throw new Error(`No library item "${name}" (${response.status}). Use search to find an item.`);
+	if (!response.ok) throw missing(ref, await loadIndex().then(items => items.map(item => item.name)).catch(() => []), ` (${response.status})`);
 	return validateItem(await response.json(), name);
 }
 
