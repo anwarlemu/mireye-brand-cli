@@ -30,6 +30,7 @@ import { elementLayer } from '../src/install/layer.js';
 import { accentSplit, addTouches } from '../src/install/touches.js';
 import { groundAliases } from '../src/install/styles.js';
 import { patchUtils } from '../src/library/swap.js';
+import { missingChakraPackages } from '../src/install/chakra.js';
 
 const ROOT = join(import.meta.dirname, '..');
 const BIN = join(ROOT, 'bin.js');
@@ -531,6 +532,31 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     expect(out.block).not.toContain('box-shadow');
     expect(out.block).not.toMatch(/position:|display:|width:/);
     expect(elementLayer('select.css', '.select-content { color: red } .select-item { color: red }', 'site').styled).toEqual([{selector:'.select-content',kind:'menu-panel'},{selector:'.select-item',kind:'menu-item'}]);
+  });
+  it('a Next App Router root gets a Chakra provider that renders its styles in the head, set up once', () => {
+    const deps = { next: '16.0.0', react: '19.2.0', 'react-dom': '19.2.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', '@emotion/cache': '^11.14.0', 'radix-ui': '*', '@phosphor-icons/react': '*', clsx: '*', 'tailwind-merge': '*', 'class-variance-authority': '*' };
+    const layout = "import './globals.css';\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang=\"en\">\n      <body>{children}</body>\n    </html>\n  );\n}\n";
+    const dir = project({ 'package.json': JSON.stringify({ dependencies: deps }), 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'app/globals.css': '@import "tailwindcss";', 'app/layout.tsx': layout });
+    try {
+      expect(missingChakraPackages(dir)).toEqual([]);
+      expect(missingChakraPackages(dir, { framework: 'vite' })).toEqual([]);
+      const out = run(dir, 'add', 'button');
+      const provider = readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8');
+      expect(provider).toContain('useServerInsertedHTML');
+      expect(provider).toContain('<CacheProvider');
+      const wrapped = readFileSync(join(dir, 'app/layout.tsx'), 'utf8');
+      expect(wrapped.match(/ChakraProvider>/g)).toHaveLength(2);
+      expect(out).not.toMatch(/Wrap the application root/);
+      const again = run(dir, 'add', 'badge');
+      expect(again).not.toMatch(/Wrap the application root/);
+      expect(readFileSync(join(dir, 'app/layout.tsx'), 'utf8')).toBe(wrapped);
+      // A provider the app edited stays as the app wrote it.
+      writeFileSync(join(dir, 'components/ui/provider.tsx'), `${provider}\n// Acme theme tweaks\n`);
+      run(dir, 'add', 'card');
+      expect(readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8')).toContain('Acme theme tweaks');
+    } finally { rmSync(dir, { recursive: true }); }
+    const bare = project({ 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0' } }) });
+    try { expect(missingChakraPackages(bare)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']); } finally { rmSync(bare, { recursive: true }); }
   });
   it('CLI add ships the corrected components, dependencies and theme', () => {
     const dir = project({ 'package.json': JSON.stringify({ dependencies: { react: '19.0.0', 'react-dom': '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', 'radix-ui': '*', '@phosphor-icons/react': '*', clsx: '*', 'tailwind-merge': '*', 'class-variance-authority': '*' } }), 'tsconfig.json': JSON.stringify({compilerOptions:{paths:{'@/*':['./*']}}}), 'app/globals.css': '@import "tailwindcss";' });

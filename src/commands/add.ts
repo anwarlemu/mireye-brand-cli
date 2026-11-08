@@ -8,7 +8,7 @@ import { Writer } from '../install/files.js';
 import { installStyles } from '../install/styles.js';
 import { installAgents } from '../install/agents.js';
 import { componentConfig, componentFile, configureRegistry, prepareTransforms } from '../install/config.js';
-import { installChakraProvider } from '../install/chakra.js';
+import { installChakraProvider, missingChakraPackages } from '../install/chakra.js';
 import { closure, loadIndex, loadIndexSync } from '../library/registry.js';
 import { MARKUP, STYLES, detectProject, styledFiles } from '../project/detect.js';
 import { profile } from '../project/surface.js';
@@ -57,8 +57,7 @@ export async function add(names: string[], opts: AddOptions) {
 		}
 	}
 	if (chakraNeeded) {
-		if (!deps['@chakra-ui/react']) npm.add('@chakra-ui/react@3.37.0');
-		if (!deps['@emotion/react']) npm.add('@emotion/react@^11.14.0');
+		for (const spec of missingChakraPackages(root, project)) if (![...npm].some(name => spec.startsWith(`${name.replace(/(.)@.*$/, '$1')}@`))) npm.add(spec);
 	}
 	if (!readonly) selfInstall(root, opts);
 	let packagesInstalled = npm.size === 0;
