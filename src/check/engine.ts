@@ -61,8 +61,11 @@ export function applyFixes(text: string, fixes: NonNullable<Finding['fix']>[]) {
 /** Files changed in git (staged, unstaged, untracked), for pre-commit and the stop hook. */
 export function changedFiles(root: string) {
 	try {
-		const out = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' });
-		return out.split('\n').filter(Boolean).map((l) => l.slice(3).replace(/^.* -> /, '').replace(/^"|"$/g, ''));
+		// Porcelain paths are relative to the top of the work tree; an app in a subfolder (a monorepo's apps/web) keeps its own
+		// files, relative to itself.
+		const prefix = execFileSync('git', ['rev-parse', '--show-prefix'], { cwd: root, encoding: 'utf8' }).trim();
+		const out = execFileSync('git', ['status', '--porcelain', '--untracked-files=all', '--', '.'], { cwd: root, encoding: 'utf8' });
+		return out.split('\n').filter(Boolean).map((l) => l.slice(3).replace(/^.* -> /, '').replace(/^"|"$/g, '')).filter((f) => f.startsWith(prefix)).map((f) => f.slice(prefix.length));
 	} catch {
 		return [];
 	}

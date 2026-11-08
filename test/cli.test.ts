@@ -557,6 +557,11 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(hook).toContain('(cd "apps/web" && node ../../node_modules/mireye-ds/bin.js check --changed');
 			run(join(dir, 'apps/web'), 'init');
 			expect(readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8')).toBe(hook);
+			// check --changed sees the app's own changed files (git reports them from the repository root).
+			writeFileSync(join(dir, 'apps/web/extra.css'), '.acme { color: #ff0000; }\n');
+			let output = '';
+			try { execFileSync(process.execPath, [BIN, 'check', '--changed'], { cwd: join(dir, 'apps/web'), encoding: 'utf8', stdio: 'pipe' }); } catch (error: any) { output = String(error.stdout); }
+			expect(output).toMatch(/^extra\.css:1 /m);
 		} finally { rmSync(dir, { recursive: true }); }
 	});
 	it('a Tailwind 3 app gets a brand stylesheet its build accepts, and add says how to upgrade', () => {
