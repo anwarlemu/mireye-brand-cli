@@ -543,6 +543,22 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(result.decisions.find((d) => d.name === 'CardAction')).toMatchObject({ item: 'card' });
 		} finally { rmSync(dir, { recursive: true }); }
 	});
+	it('an app in a monorepo gets hooks that find the hoisted CLI on any clone, and its own pre-commit block at the repository root', () => {
+		const dir = project({ 'package.json': JSON.stringify({ private: true, workspaces: ['apps/*'] }), 'node_modules/mireye-ds/bin.js': '', 'apps/web/package.json': JSON.stringify({ name: 'web' }), 'apps/web/index.html': '<html><head></head><body><h1>Acme</h1></body></html>' });
+		try {
+			run(join(dir, 'apps/web'), 'init');
+			const claude = readFileSync(join(dir, 'apps/web/.claude/settings.json'), 'utf8');
+			expect(claude).toContain('node \\"$CLAUDE_PROJECT_DIR/../../node_modules/mireye-ds/bin.js\\" hook stop');
+			expect(claude).not.toContain(dir);
+			expect(readFileSync(join(dir, 'apps/web/.cursor/hooks.json'), 'utf8')).toContain('$CURSOR_PROJECT_DIR/../../node_modules/mireye-ds/bin.js');
+			expect(readFileSync(join(dir, 'apps/web/.codex/hooks.json'), 'utf8')).toContain('|| pwd)/node_modules/mireye-ds/bin.js');
+			const hook = readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8');
+			expect(hook).toContain('# ds:pre-commit(apps/web):start');
+			expect(hook).toContain('(cd "apps/web" && node ../../node_modules/mireye-ds/bin.js check --changed');
+			run(join(dir, 'apps/web'), 'init');
+			expect(readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8')).toBe(hook);
+		} finally { rmSync(dir, { recursive: true }); }
+	});
 	it('a Tailwind 3 app gets a brand stylesheet its build accepts, and add says how to upgrade', () => {
 		const dir = project({ 'package.json': JSON.stringify({ dependencies: { next: '14.2.0', react: '18.3.1', tailwindcss: '^3.4.1' } }), 'app/globals.css': '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n', 'app/layout.tsx': 'export default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang="en"><body>{children}</body></html>;\n}\n' });
 		try {
