@@ -1,6 +1,6 @@
 import { brand } from '../src/lib/brand.js';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -715,6 +715,10 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     } finally { rmSync(dir, { recursive: true }); }
     const bare = project({ 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0' } }) });
     try { expect(missingChakraPackages(bare)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']); } finally { rmSync(bare, { recursive: true }); }
+  });
+  it('examples import only what add installs under the same path (an app gets lib/<brand>-utils, not lib/utils)', () => {
+    const dir = join(ROOT, 'registry/examples');
+    for (const file of readdirSync(dir)) expect(readFileSync(join(dir, file), 'utf8'), file).not.toMatch(/from ["']@\/lib\/utils["']/);
   });
   it('every registry item lists only installable npm package names', () => {
     const items = JSON.parse(readFileSync(join(ROOT, 'apps/www/public/r/index.json'), 'utf8')).items as { name: string; packages?: string[] }[];

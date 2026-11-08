@@ -1,7 +1,6 @@
 "use client";
 
 import { Sources, Source, SourceRef, SourceGroup, useSourceLink } from "@/components/ui/sources";
-import { cn } from "@/lib/utils";
 
 // An answer cites its sources by number, in three layouts to choose from (29 Oct). In each, point
 // at a number in the text or at a source: every chip with that number turns Forest while the
@@ -74,15 +73,15 @@ function SourceCard({ number, title, kind }: { number: number; title: string; ki
     <li
       tabIndex={0}
       {...handlers}
-      className={cn(
+      className={[
         "flex min-w-0 flex-1 basis-27 flex-col gap-2 p-2",
         "ds-cut-frame [--ds-cut:0px] [--ds-shape-fill:var(--ds-color-bg-default)] before:transition-colors before:duration-150 before:ease-out",
         active ? "[--ds-shape-stroke:var(--ds-color-border-strong)]" : "[--ds-shape-stroke:var(--ds-color-border-subtle)]",
         focus,
-      )}
+      ].join(" ")}
     >
       <SourceRef number={number} size="sm" className="self-start" />
-      <span className={cn("ds-trim text-caption transition-colors duration-150 ease-out", dimmed ? "text-fg-secondary" : "text-fg")}>{title}</span>
+      <span className={`ds-trim text-caption transition-colors duration-150 ease-out ${dimmed ? "text-fg-secondary" : "text-fg"}`}>{title}</span>
       <span className="ds-trim text-caption text-fg-muted">{kind}</span>
     </li>
   );
