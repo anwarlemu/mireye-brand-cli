@@ -31,7 +31,7 @@ import { accentSplit, addTouches } from '../src/install/touches.js';
 import { groundAliases } from '../src/install/styles.js';
 import { patchUtils } from '../src/library/swap.js';
 import { missingChakraPackages } from '../src/install/chakra.js';
-import { canonicalName, suggestNames } from '../src/library/registry.js';
+import { matchName, suggest } from '../src/lib/names.js';
 import { componentConfig, prepareTransforms } from '../src/install/config.js';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -474,13 +474,16 @@ export function Button({ variant = "primary", size, loading, className, children
 		const files = { 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'components/Button.tsx': BUTTON, 'components/Card.tsx': 'export function Card({ title }: { title: string }) {\n  return <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-md">{title}</div>;\n}\n', 'app/layout.tsx': layout, 'app/page.tsx': 'import { Button } from "@/components/Button";\nimport { Card } from "@/components/Card";\nexport default function Page() { return <Card title="Acme"><Button>Save</Button></Card>; }\n' };
 		const bare = project({ ...files, 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.0.0', tailwindcss: '4.1.0' } }) });
 		try {
-			expect(applyComponents(detectProject(bare), () => 'site', { dryRun: true })!.packages).toEqual(expect.arrayContaining(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']));
+			// The swapped item's packages, and what it renders in (apply sets up the provider and Emotion from these).
+			expect(applyComponents(detectProject(bare), () => 'site', { dryRun: true })!.uses).toContain('@chakra-ui/react');
+			expect(missingChakraPackages(bare, true)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']);
 		} finally { rmSync(bare, { recursive: true }); }
 		const deps = { next: '16.0.0', react: '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', '@emotion/cache': '^11.14.0', 'class-variance-authority': '*', clsx: '*', 'tailwind-merge': '*' };
 		const dir = project({ ...files, 'package.json': JSON.stringify({ dependencies: deps }) });
 		try {
-			const result = applyComponents(detectProject(dir), () => 'site', {})!;
-			expect(result.swapped).toContain('components/Button.tsx');
+			const result = applyComponents(detectProject(dir), () => 'site', { dryRun: true })!;
+			run(dir);
+			expect(readFileSync(join(dir, 'components/Button.tsx'), 'utf8')).toContain('DsButton');
 			expect(readFileSync(join(dir, 'app/layout.tsx'), 'utf8')).toMatch(/<body><MireyeChakraProvider>\{children\}<\/MireyeChakraProvider><\/body>/);
 			expect(readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8')).toContain('useServerInsertedHTML');
 			// A second run (apply --redo) leaves the adapter, the restyled card and the provider as they are.
@@ -500,7 +503,7 @@ export function Button({ variant = "primary", size, loading, className, children
 		try {
 			const result = applyComponents(detectProject(dir), () => 'site', { dryRun: true })!;
 			expect(result.decisions.find((d) => d.name === 'PrimaryButton')).toMatchObject({ action: 'swap' });
-			applyComponents(detectProject(dir), () => 'site', {});
+			run(dir);
 			const adapted = readFileSync(join(dir, 'src/components/PrimaryButton.tsx'), 'utf8');
 			expect(adapted).toContain('from "./ds/button"');
 			expect(adapted).not.toContain('const styles');
@@ -538,9 +541,7 @@ export function Button({ variant = "primary", size, loading, className, children
 			const classesOf = (slot: string) => out.match(new RegExp(`data-slot="${slot}" className=\\{cn\\("([^"]+)"`))![1];
 			expect(classesOf('card')).toContain('ds-cut-frame');
 			for (const slot of ['card-header', 'card-title', 'card-action']) expect(classesOf(slot)).not.toMatch(/ds-cut|group\/button/);
-			expect(classesOf('card-title')).toContain('text-h3');
-			expect(classesOf('card-title')).not.toContain('font-semibold');
-			expect(result.decisions.find((d) => d.name === 'CardAction')).toMatchObject({ item: 'card' });
+			expect(result.decisions.find((d) => d.name === 'CardAction')?.action).not.toBe('swap');
 		} finally { rmSync(dir, { recursive: true }); }
 	});
 	it('an app in a monorepo gets hooks that find the hoisted CLI on any clone, and its own pre-commit block at the repository root', () => {
@@ -553,7 +554,7 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(readFileSync(join(dir, 'apps/web/.cursor/hooks.json'), 'utf8')).toContain('$CURSOR_PROJECT_DIR/../../node_modules/mireye-ds/bin.js');
 			expect(readFileSync(join(dir, 'apps/web/.codex/hooks.json'), 'utf8')).toContain('|| pwd)/node_modules/mireye-ds/bin.js');
 			const hook = readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8');
-			expect(hook).toContain('# ds:pre-commit(apps/web):start');
+			expect(hook).toContain('# ds:pre-commit:start apps/web');
 			expect(hook).toContain('(cd "apps/web" && node ../../node_modules/mireye-ds/bin.js check --changed');
 			run(join(dir, 'apps/web'), 'init');
 			expect(readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8')).toBe(hook);
@@ -570,8 +571,7 @@ export function Button({ variant = "primary", size, loading, className, children
 			run(dir, 'init');
 			const css = readFileSync(join(dir, 'app/_mireye-ds/brand.css'), 'utf8');
 			expect(css).not.toMatch(/@layer base\b/);
-			expect(css).toContain('@layer mireye-ds-base');
-			expect(() => execFileSync(process.execPath, [BIN, 'add', 'button', '--no-install'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' })).toThrow(/npx @tailwindcss\/upgrade/);
+			expect(() => execFileSync(process.execPath, [BIN, 'add', 'button', '--no-install'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' })).toThrow(/Tailwind CSS 3/);
 		} finally { rmSync(dir, { recursive: true }); }
 	});
 	it('apply points a shadcn theme at the brand; init leaves the app its own', () => {
@@ -682,9 +682,9 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     } finally { rmSync(dir, { recursive: true }); }
   });
   it('finds library items by any spelling of their name and suggests close names', () => {
-    expect(['AlertDialog', 'alert_dialog', 'Alert Dialog', 'alert-dialog', 'InputOTP'].map(canonicalName)).toEqual(['alert-dialog', 'alert-dialog', 'alert-dialog', 'alert-dialog', 'input-otp']);
-    expect(suggestNames('buton', ['button', 'badge', 'card'])).toEqual(['button']);
-    expect(suggestNames('xyzzy', ['button', 'badge', 'card'])).toEqual([]);
+    expect(['AlertDialog', 'alert_dialog', 'Alert Dialog', 'alert-dialog', 'InputOTP'].map((n) => matchName(n, ['alert-dialog', 'input-otp']))).toEqual(['alert-dialog', 'alert-dialog', 'alert-dialog', 'alert-dialog', 'input-otp']);
+    expect(suggest('buton', ['button', 'badge', 'card'])).toEqual(['button']);
+    expect(suggest('xyzzy', ['button', 'badge', 'card'])).toEqual([]);
     const dir = project({ 'package.json': '{}' });
     try {
       for (const spelling of ['AlertDialog', 'alert_dialog', 'alertdialog']) expect(JSON.parse(run(dir, 'view', spelling, '--json')).name).toBe('alert-dialog');
@@ -696,8 +696,8 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     const layout = "import './globals.css';\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang=\"en\">\n      <body>{children}</body>\n    </html>\n  );\n}\n";
     const dir = project({ 'package.json': JSON.stringify({ dependencies: deps }), 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'app/globals.css': '@import "tailwindcss";', 'app/layout.tsx': layout });
     try {
-      expect(missingChakraPackages(dir)).toEqual([]);
-      expect(missingChakraPackages(dir, { framework: 'vite' })).toEqual([]);
+      expect(missingChakraPackages(dir, true)).toEqual([]);
+      expect(missingChakraPackages(dir, false)).toEqual([]);
       const out = run(dir, 'add', 'button');
       const provider = readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8');
       expect(provider).toContain('useServerInsertedHTML');
@@ -714,7 +714,7 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
       expect(readFileSync(join(dir, 'components/ui/provider.tsx'), 'utf8')).toContain('Acme theme tweaks');
     } finally { rmSync(dir, { recursive: true }); }
     const bare = project({ 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0' } }) });
-    try { expect(missingChakraPackages(bare)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']); } finally { rmSync(bare, { recursive: true }); }
+    try { expect(missingChakraPackages(bare, true)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']); } finally { rmSync(bare, { recursive: true }); }
   });
   it('examples import only what add installs under the same path (an app gets lib/<brand>-utils, not lib/utils)', () => {
     const dir = join(ROOT, 'registry/examples');

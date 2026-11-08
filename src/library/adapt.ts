@@ -2,6 +2,7 @@ import { parse } from '@babel/parser';
 import type { Surface } from '../project/surface.js';
 import type { AppComponent } from './components.js';
 import { brand } from '../lib/brand.js';
+import { loadItemSync } from './registry.js';
 
 // Two ways an identified component takes the library's look.
 //
@@ -25,15 +26,13 @@ export function variantsFor(surface: Surface) {
 	const p = surface === 'product' ? v.product : undefined;
 	return p
 		? { filled: p.filled, black: p.black, outlined: p.outlined, quiet: p.ghost, onBrand: p.onBrand, card: p.card }
-		: { filled: v.site.filled, black: v.site.filled, outlined: v.site.outlined, quiet: v.site.quiet ?? v.site.outlined, onBrand: v.site.onBrand, card: v.site.card, destructive: v.site.destructive };
+		: { filled: v.site.filled, black: v.site.filled, outlined: v.site.outlined, quiet: v.site.quiet ?? v.site.outlined, onBrand: v.site.onBrand, card: v.site.card };
 }
 
 const BUTTON_VARIANTS = (surface: Surface): [RegExp, string][] => {
 	const v = variantsFor(surface);
 	return surface === 'site' || !brand().variants.product
 		? [
-				// A library with its own destructive key takes danger there; otherwise it is the outline in red (DS_*_DANGER).
-				...('destructive' in v && v.destructive ? ([[DANGER, v.destructive]] as [RegExp, string][]) : []),
 				[/^(default|primary|solid|filled|main|cta|brand|dark|black)$/i, v.filled],
 				[/^(white|light|inverse|inverted|on-?(brand|dark|blue))$/i, v.onBrand],
 				...(v.quiet !== v.outlined ? ([[/^(ghost|link|tertiary|plain|text|subtle|quiet|minimal|transparent)$/i, v.quiet]] as [RegExp, string][]) : []),
@@ -92,20 +91,21 @@ function button({ c, surface, local, values }: Ctx): Adapter | undefined {
 	const variants = [...(values.variant ?? []), 'default'];
 	const sizes = [...(values.size ?? []), 'default'];
 	const key = c.name.toUpperCase();
+	// A library button with a destructive variant takes danger values as it; otherwise the outline in the danger color.
+	const destructive = /\bdestructive\s*:/.test(loadItemSync('button')?.files?.[0]?.content ?? '');
+	const table: [RegExp, string][] = destructive ? [[DANGER, 'destructive'], ...BUTTON_VARIANTS(surface)] : BUTTON_VARIANTS(surface);
 	const prelude = [
-		mapLiteral(`DS_${key}_VARIANT`, variants, BUTTON_VARIANTS(surface), variantsFor(surface).outlined),
+		mapLiteral(`DS_${key}_VARIANT`, variants, table, variantsFor(surface).outlined),
 		mapLiteral(`DS_${key}_SIZE`, sizes, SIZES(), defaultSize()),
-		...(a.get('variant') && !variantsFor(surface).destructive ? [`const DS_${key}_DANGER = new Set<string>(${JSON.stringify([...new Set(variants)].filter((v) => DANGER.test(v)))});`] : []),
+		...(a.get('variant') && !destructive ? [`const DS_${key}_DANGER = new Set<string>(${JSON.stringify([...new Set(variants)].filter((v) => DANGER.test(v)))});`] : []),
 	].join('\n');
-	const variantProp = a.get('variant');
-	// The red outline is only for a library without a destructive key.
-	const v = variantsFor(surface).destructive ? undefined : variantProp;
+	const v = a.get('variant');
 	const s = a.get('size');
 	const loading = a.get('loading') ?? a.get('isLoading');
 	const left = a.get('leftIcon') ?? a.get('startIcon') ?? a.get('icon');
 	const right = a.get('rightIcon') ?? a.get('endIcon');
 	const full = a.get('fullWidth') ?? a.get('block');
-	const classes = [a.get('className'), v ? `DS_${key}_DANGER.has(String(${v})) ? "border-danger text-danger" : undefined` : undefined, full ? `${full} ? "w-full" : undefined` : undefined].filter(Boolean);
+	const classes = [a.get('className'), v && !destructive ? `DS_${key}_DANGER.has(String(${v})) ? "border-danger text-danger" : undefined` : undefined, full ? `${full} ? "w-full" : undefined` : undefined].filter(Boolean);
 	// Disabled while loading, and whenever the app passes disabled (destructured, or still inside the rest).
 	const passedDisabled = a.get('disabled') ?? (c.params.rest ? `${c.params.rest}.disabled` : 'false');
 	const disabled = loading ? `disabled={!!${passedDisabled} || !!${loading}}` : '';
@@ -113,7 +113,7 @@ function button({ c, surface, local, values }: Ctx): Adapter | undefined {
 		a.spread,
 		...a.forwards.filter((f) => !(loading && f.startsWith('disabled='))),
 		a.ref,
-		`variant={(DS_${key}_VARIANT[${variantKey(variantProp)}] ?? "${variantsFor(surface).outlined}") as DsComponentProps<typeof ${local}>["variant"]}`,
+		`variant={(DS_${key}_VARIANT[${variantKey(v)}] ?? "${variantsFor(surface).outlined}") as DsComponentProps<typeof ${local}>["variant"]}`,
 		`size={(DS_${key}_SIZE[${variantKey(s)}] ?? "${defaultSize()}") as DsComponentProps<typeof ${local}>["size"]}`,
 		classes.length ? `className={[${classes.join(', ')}].filter(Boolean).join(" ") || undefined}` : '',
 		a.get('asChild') && !c.params.identifier ? 'asChild={asChild}' : '',
@@ -191,13 +191,28 @@ function safeWrapper(text: string, c: AppComponent) {
   const source = text.slice(c.body.start, c.body.end);
   const ast: any = parse(`const wrapper = () => ${source}`, { sourceType: 'module', plugins: ['typescript', 'jsx'] });
   let node = ast.program.body[0].declarations[0].init.body;
+  // Local constants that only compute class strings from props (const tone = variant === "primary" ? "bg-..." : "...")
+  // are part of the look the library replaces; anything else (hooks, calls, handlers) is behavior and stops the swap.
+  const computed = new Set<string>();
   if (node.type === 'BlockStatement') {
-   if (node.body.length !== 1 || node.body[0].type !== 'ReturnStatement') return false;
-   node = node.body[0].argument;
+   const statements = node.body;
+   const last = statements[statements.length - 1];
+   if (last?.type !== 'ReturnStatement') return false;
+   for (const stmt of statements.slice(0, -1)) {
+    if (stmt.type !== 'VariableDeclaration' || stmt.kind !== 'const') return false;
+    for (const d of stmt.declarations) {
+     if (d.id.type !== 'Identifier' || !classOnly(d.init)) return false;
+     computed.add(d.id.name);
+    }
+   }
+   node = last.argument;
+   while (node?.type === 'ParenthesizedExpression') node = node.expression;
   }
   if (node?.type !== 'JSXElement') return false;
   const access = (expression: any) => expression?.type === 'Identifier' ? expression.name : expression?.type === 'MemberExpression' && expression.object?.name === c.params.identifier ? expression.property?.name : undefined;
+  const mentions = (n: any): boolean => !!n && typeof n === 'object' && (n.type === 'Identifier' && computed.has(n.name) || Object.entries(n).some(([k, v]) => k !== 'loc' && (Array.isArray(v) ? v.some(mentions) : v && typeof v === 'object' && mentions(v))));
   for (const attr of node.openingElement.attributes) {
+   if (computed.size && attr.type === 'JSXAttribute' && attr.name?.name !== 'className' && mentions(attr.value)) return false;
    if (attr.type === 'JSXSpreadAttribute') {
     if (attr.argument.type !== 'Identifier' || ![c.params.identifier, c.params.rest].includes(attr.argument.name)) return false;
    } else if (attr.name?.name !== 'className') {
@@ -210,6 +225,39 @@ function safeWrapper(text: string, c: AppComponent) {
  } catch { return false; }
 }
 
+/** An expression that only picks or joins class strings: literals, the component's values, comparisons and choices. */
+function classOnly(n: any): boolean {
+ if (!n) return false;
+ switch (n.type) {
+  case 'StringLiteral':
+  case 'NumericLiteral':
+  case 'BooleanLiteral':
+  case 'NullLiteral':
+  case 'Identifier':
+   return true;
+  case 'TemplateLiteral':
+   return n.expressions.every(classOnly);
+  case 'ConditionalExpression':
+   return classOnly(n.test) && classOnly(n.consequent) && classOnly(n.alternate);
+  case 'LogicalExpression':
+  case 'BinaryExpression':
+   return classOnly(n.left) && classOnly(n.right);
+  case 'UnaryExpression':
+   return n.operator === '!' && classOnly(n.argument);
+  case 'MemberExpression':
+   // A lookup in a class map (SIZES[size]) or a prop (props.variant).
+   return classOnly(n.object) && (n.computed ? classOnly(n.property) : n.property?.type === 'Identifier');
+  case 'ParenthesizedExpression':
+  case 'TSAsExpression':
+  case 'TSNonNullExpression':
+   return classOnly(n.expression);
+  case 'ArrayExpression':
+   return n.elements.every(classOnly);
+  default:
+   return false;
+ }
+}
+
 export function adaptComponent(text: string, c: AppComponent, item: string, surface: Surface, importFrom: string, values: Record<string, string[]>): string | undefined {
 	if (!safeWrapper(text, c)) return undefined;
 	const make = ADAPTERS[item];
@@ -217,31 +265,13 @@ export function adaptComponent(text: string, c: AppComponent, item: string, surf
 	const local = `Ds${item.replace(/(^|-)([a-z])/g, (_, __, ch: string) => ch.toUpperCase())}`;
 	const adapter = make({ c, surface, local, values });
 	if (!adapter) return undefined;
-	// A JavaScript file gets the same adapter without its type annotations.
-	const js = /\.(jsx|js)$/.test(c.file);
-	const plain = (code: string) => (js ? stripTypes(code) : code);
-	const body = c.body.expression ? `(${plain(adapter.body)})` : `{\n  return ${plain(adapter.body)};\n}`;
+	const body = c.body.expression ? `(${adapter.body})` : `{\n  return ${adapter.body};\n}`;
 	let out = text.slice(0, c.body.start) + body + text.slice(c.body.end);
-	if (adapter.prelude) out = out.slice(0, c.span.start) + `${plain(adapter.prelude)}\n\n` + out.slice(c.span.start);
+	if (adapter.prelude) out = out.slice(0, c.span.start) + `${adapter.prelude}\n\n` + out.slice(c.span.start);
 	const names = [`${adapter.exportName} as ${local}`, ...(adapter.extraImports ?? [])];
-	const imports = [`import { ${names.join(', ')} } from "${importFrom}";`, ...(adapter.prelude && !js ? ['import type { ComponentProps as DsComponentProps } from "react";'] : [])];
-	const result = insertImports(dropOrphanStyles(text, out), imports);
-	if (js) {
-		try {
-			parse(result, { sourceType: 'module', plugins: ['jsx'] });
-		} catch {
-			return undefined;
-		}
-	}
-	return result;
+	const imports = [`import { ${names.join(', ')} } from "${importFrom}";`, ...(adapter.prelude ? ['import type { ComponentProps as DsComponentProps } from "react";'] : [])];
+	return insertImports(dropOrphanStyles(text, out), imports);
 }
-
-/** The adapters' TypeScript-only syntax removed: the variant maps' types and the casts to the library's prop types. */
-const stripTypes = (code: string) =>
-	code
-		.replace(/(const \w+): Record<string, string> =/g, '$1 =')
-		.replace(/new Set<string>\(/g, 'new Set(')
-		.replace(/ as DsComponentProps<typeof \w+>\["\w+"\]/g, '');
 
 /**
  * The class maps the old body read (const styles = { primary: 'bg-indigo-600 ...' }) are unused once it renders the
@@ -274,6 +304,7 @@ export function dropOrphanStyles(before: string, after: string) {
 	return out;
 }
 
+
 /** Adds import lines after the file's last import (after a "use client" directive when there is no import). */
 function insertImports(text: string, lines: string[]) {
 	const re = /^import[\s\S]*?from\s+["'][^"']+["'];?[^\n]*$|^import\s+["'][^"']+["'];?$/gm;
@@ -295,20 +326,15 @@ const CONTROLS = new Set(['button', 'badge', 'input', 'textarea', 'kbd']);
 
 const base = (cls: string) => cls.split(':').pop()!.replace(/^!/, '');
 function isLook(cls: string, control: boolean) {
+	// The brand's shape utilities (ds-cut-frame) and their parameters ([--ds-shape-fill:...], any state) draw the look.
+	if (/^ds-[\w-]+$/.test(cls) || /(^|:)\[--ds-[\w-]+:/.test(cls)) return true;
 	const b = base(cls);
 	if (KEEP_TEXT.test(b)) return false;
 	return LOOK.test(b) || (control && SIZE.test(b)) || /^(hover|focus|focus-visible|active|dark|disabled|group-hover|aria-[\w-]+|data-\[[^\]]+\]):/.test(cls) && (LOOK.test(b) || SIZE.test(b));
 }
 
 /** The library item's classes for one look: a cva's base, the variant and size picked, and the compounds that match. */
-export function libraryClasses(content: string, exportName: string, pickVariant: (values: string[]) => string | undefined, size = defaultSize(), own = false): string | undefined {
-	// own: only the classes of the library's component by that name (a compound part such as CardHeader); none when the
-	// library has no such part.
-	if (own) {
-		const body = content.match(new RegExp(`function ${exportName}\\b[\\s\\S]*?\\n\\}`))?.[0];
-		if (!body || /\w+Variants\(/.test(body)) return undefined;
-		return body.match(/className=\{cn\(\s*"([^"]+)"/)?.[1];
-	}
+export function libraryClasses(content: string, exportName: string, pickVariant: (values: string[]) => string | undefined, size = defaultSize()): string | undefined {
 	let ast: any;
 	try {
 		ast = parse(content, { sourceType: 'module', plugins: ['jsx', 'typescript'] });
@@ -368,15 +394,17 @@ export function restyleRoot(text: string, c: AppComponent, item: string, library
 	// Right to left, so earlier offsets stay valid.
 	const sorted = [...literals].sort((a, b) => b.start - a.start);
 	const first = literals.reduce((a, b) => (a.start < b.start ? a : b));
-	const library = libraryClassList.split(/\s+/).filter(Boolean);
 	for (const lit of sorted) {
-		// A separator such as join(" ") is not a class list.
+		// A separator (" ") or an empty string between expressions is not a class list.
 		if (!lit.value.trim()) continue;
+		const library = libraryClassList.split(/\s+/).filter((cls) => cls && isLook(cls, control));
 		const present = lit.value.split(/\s+/).filter(Boolean);
 		// Already the library's look (a second run): leave the order as it is.
 		if (lit === first && library.every((cls) => present.includes(cls)) && present.every((cls) => !isLook(cls, control) || library.includes(cls))) continue;
 		const kept = present.filter((cls) => !isLook(cls, control));
-		const next = lit === first ? [...kept, ...library.filter((cls) => !kept.includes(cls))] : kept;
+		// Only the library's look (and a control's size) is taken: its layout classes (flex, gap, padding on a card) would
+		// change how the component lays out its children.
+		const next = lit === first ? [...kept, ...libraryClassList.split(/\s+/).filter((cls) => cls && !kept.includes(cls) && isLook(cls, control))] : kept;
 		const value = next.join(' ');
 		if (value === lit.value) continue;
 		const quote = out[lit.start];

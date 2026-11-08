@@ -178,14 +178,14 @@ export function componentsIn(file: string, text: string): AppComponent[] {
 		const param = fn.params?.[0];
 		const params: AppComponent['params'] = { names: [] };
 		let typeNode: Node | undefined;
-		// A destructured default ({ variant = 'primary' }) is a value the prop takes whenever a use leaves it out.
-		const defaults: Record<string, string> = {};
+		// A prop's default (variant = "primary") is one of its values even when no type or use names it.
+		const defaults: Record<string, string[]> = {};
 		if (param?.type === 'ObjectPattern') {
 			for (const p of param.properties) {
 				if (p.type === 'RestElement') params.rest = p.argument?.name;
 				else if (p.key?.name) {
 					params.names.push(p.key.name);
-					if (p.value?.type === 'AssignmentPattern' && p.value.right?.type === 'StringLiteral') defaults[p.key.name] = p.value.right.value;
+					if (p.value?.type === 'AssignmentPattern' && p.value.right?.type === 'StringLiteral') defaults[p.key.name] = [p.value.right.value];
 				}
 			}
 			typeNode = param.typeAnnotation?.typeAnnotation;
@@ -200,7 +200,7 @@ export function componentsIn(file: string, text: string): AppComponent[] {
 		const props = [...new Set([...params.names, ...members.names])];
 		const values: Record<string, string[]> = {};
 		for (const p of props) {
-			const v = [...new Set([...(members.values[p] ?? cva[p] ?? []), ...(defaults[p] ? [defaults[p]] : [])])];
+			const v = [...new Set([...(members.values[p] ?? cva[p] ?? []), ...(defaults[p] ?? [])])];
 			if (v.length && VARIANT_PROPS.has(p)) values[p] = v;
 		}
 		for (const [k, v] of Object.entries(cva)) if (VARIANT_PROPS.has(k) && !values[k]) values[k] = v;
@@ -293,7 +293,7 @@ type Signature = { item: string; surface?: Surface; names: RegExp; not?: RegExp;
 const SIGNATURES: Signature[] = [
 	{ item: 'button', names: /^(button|btn|cta|action|submit)$/, not: /group|bar|list|toolbar/, tags: ['button'], props: ['variant', 'size', 'asChild', 'loading', 'onClick', 'disabled', 'leftIcon', 'rightIcon'] },
 	{ item: 'badge', names: /^(badge|tag|pill|chip|status|label)$/, not: /input|filter|list/, tags: ['span'], props: ['variant', 'tone', 'color'] },
-	{ item: 'card', names: /^(card|panel|tile|box)$/, not: /stat|metric|pricing|plan|price/, tags: ['div', 'article', 'section'], props: ['title', 'description', 'footer', 'header'] },
+	{ item: 'card', names: /^(card|panel|tile|box)$/, not: /pricing|plan|price/, tags: ['div', 'article', 'section'], props: ['title', 'description', 'footer', 'header'] },
 	{ item: 'input', names: /^(input|textfield|textbox|field)$/, not: /area|select|tag|search|group/, tags: ['input'], inputs: ['text', 'email', 'password', 'url', 'number', 'search', 'tel'] },
 	{ item: 'textarea', names: /^(textarea|multiline)$/, tags: ['textarea'] },
 	{ item: 'label', names: /^(label|fieldlabel|formlabel)$/, tags: ['label'], props: ['htmlFor', 'required'] },
@@ -329,6 +329,9 @@ const SIGNATURES: Signature[] = [
 	{ item: 'section', surface: 'site', names: /^(section|sectionheading|sectionheader|sectiontitle)$/, tags: ['section'] },
 ];
 
+// A component named for a part of another (CardHeader, CardTitle, DialogContent) is that part, not the whole item.
+const PART = /^(header|title|description|content|footer|action|actions|body|item|items|trigger|group|list|label|icon|wrapper|container|overlay|portal|close|separator|indicator|value|viewport|section|caption|cell|row|head)$/;
+
 /** The words a component's name is made of, lowercased and joined (PrimaryButton gives primarybutton, primary, button). */
 function nameWords(name: string) {
 	const words = name.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().split(/\s+/);
@@ -338,6 +341,9 @@ function nameWords(name: string) {
 /** The best library item for a component, with its score and the signals that gave it. */
 export function identify(c: AppComponent, surface: Surface, kindsOf: (item: string) => string[] = () => []): { item?: string; kind?: string; confidence: number; signals: string[] } {
 	const { whole, words, head } = nameWords(c.name);
+	// CardHeader, DialogContent, MenuItem: a part of an item, styled with its item, never restyled as an item itself.
+	const owner = words.slice(0, -1).find((w) => SIGNATURES.some((s) => s.names.test(w)));
+	if (owner && PART.test(head)) return { confidence: 0, signals: [`part of a ${owner}`] };
 	const classWords = (c.root?.classes ?? []).filter((cl) => !UTILITY.test(cl)).flatMap((cl) => cl.toLowerCase().split(/[_-]+/));
 	let best: { item: string; score: number; signals: string[] } | undefined;
 	for (const sig of SIGNATURES) {
@@ -350,7 +356,7 @@ export function identify(c: AppComponent, surface: Surface, kindsOf: (item: stri
 		} else if (sig.names.test(head)) {
 			score += 5;
 			signals.push(`named …${head}`);
-		} else if (words.some((w) => sig.names.test(w))) {
+		} else if (!PART.test(head) && words.some((w) => sig.names.test(w))) {
 			score += 2;
 			signals.push(`name has ${words.find((w) => sig.names.test(w))}`);
 		}

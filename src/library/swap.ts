@@ -1,4 +1,5 @@
-import { componentConfig, componentFile, resolveAlias, tsConfig } from '../install/config.js';
+import { asJavaScript, componentConfig, componentFile, resolveAlias, tsConfig } from '../install/config.js';
+import { providerName } from '../install/chakra.js';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -9,8 +10,7 @@ import { adaptable, adaptComponent, libraryClasses, lookOf, restyleRoot, variant
 import { restyleOverlays } from './overlay-styles.js';
 import { type Identified, componentsIn, identify, usesIn } from './components.js';
 import { itemName, loadIndexSync, loadItemSync, type RegistryItem } from './registry.js';
-import { installChakraProvider, missingChakraPackages, providerName } from '../install/chakra.js';
-import { Writer } from '../install/files.js';
+import { type StoredScope, componentInScope, coverage, kindsIn, scopeItems } from '../plan/scope.js';
 
 // Identify, then apply. Every component the app defines is identified (what it is, from its name, what it renders,
 // its props and how it is used; see components.ts) and gets one of three outcomes:
@@ -24,7 +24,7 @@ import { Writer } from '../install/files.js';
 
 type Aliases = { components: string; ui: string; utils: string; lib: string; hooks: string };
 export type Decision = { file: string; name: string; item?: string; confidence: number; signals: string[]; uses: number; action: 'swap' | 'style' | 'refine'; reason: string };
-export type SwapResult = { swapped: string[]; styled: string[]; reverted: string[]; added: string[]; packages: string[]; utils?: string; checked: boolean; decisions: Decision[]; warnings?: string[] };
+export type SwapResult = { swapped: string[]; styled: string[]; reverted: string[]; added: string[]; packages: string[]; utils?: string; checked: boolean; decisions: Decision[]; /** Every package the installed library items import (a provider they need is set up from this). */ uses: string[] };
 
 function readJson(path: string) {
 	try {
@@ -36,18 +36,10 @@ function readJson(path: string) {
 
 /** Where the library's interface components go (components/ds, apart from the app's own), and the aliases they use. */
 export function componentLayout(project: Project): { uiDir: string; aliases: Aliases } | undefined {
-	// Without an import alias the configured paths are relative (./src/components): files and adapters import relatively.
+	// Without an import alias the library's files import each other by relative paths (componentFile maps them).
 	const config = componentConfig(project.root, project);
-	if (!project.hasAlias && !config.aliases.components.startsWith('.')) return undefined;
 	const aliases = { ...config.aliases, ui: `${config.aliases.components}/ds`, utils: `${config.aliases.lib}/${brand().bin}-utils` };
 	return { uiDir: relative(project.root, resolveAlias(project.root, aliases.ui)), aliases };
-}
-
-/** How a file imports a library module: through the alias, or relatively when the app has none. */
-function importPath(root: string, from: string, spec: string) {
-	if (!spec.startsWith('.')) return spec;
-	const path = relative(dirname(join(root, from)), resolve(root, spec)).split('\\').join('/');
-	return path.startsWith('.') ? path : `./${path}`;
 }
 
 /** The library's file, with its imports rewritten to the app's aliases. */
@@ -125,19 +117,7 @@ const ROOT_STYLED = new Set(['button', 'badge', 'card', 'input', 'textarea', 'la
 const ROUTE_FILE = /(^|\/)(page|layout|template|loading|error|not-found|default|_app|_document|root)\.(tsx|jsx)$/;
 const LIBRARY_DIR = /(^|\/)components\/ds\//;
 
-/** The compound component a component is part of: another in its file, identified as a library item, whose name it extends. */
-export function partOf(c: { name: string }, siblings: { name: string; item?: string }[]) {
-	return siblings.filter((o) => o.item && o.name !== c.name && c.name.startsWith(o.name) && /^[A-Z]/.test(c.name.slice(o.name.length))).sort((a, b) => b.name.length - a.name.length)[0];
-}
-
-/** The library item a component already renders through an adapter (import { Button as DsButton } ... DS_<NAME>_VARIANT). */
-export function adapterItem(text: string, name: string) {
-	if (!new RegExp(`\\bDS_${name.toUpperCase()}_`).test(text)) return undefined;
-	return text.match(/import \{[^}]*\bas Ds\w+[^}]*\} from ["'][^"']*\/([\w-]+)["']/)?.[1];
-}
-
-
-export function applyComponents(project: Project, surfaceOf: (rel: string) => Surface, { dryRun = false } = {}): SwapResult | undefined {
+export function applyComponents(project: Project, surfaceOf: (rel: string) => Surface, { dryRun = false, scope = undefined as StoredScope | undefined } = {}): SwapResult | undefined {
 	const root = project.root;
 	const layout = componentLayout(project);
 	const index = loadIndexSync();
@@ -165,9 +145,15 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 		return { ...c, ...identify(c, surfaceOf(c.file), kindsOf), uses: u.count, useValues: u.values };
 	});
 
-	const result: SwapResult = { swapped: [], styled: [], reverted: [], added: [], packages: [], checked: false, decisions: [] };
-	// TypeScript files are type-checked after the swap; JavaScript files get adapters without types (adapt.ts).
+	const result: SwapResult = { swapped: [], styled: [], reverted: [], added: [], packages: [], checked: false, decisions: [], uses: [] };
 	const canAdapt = !!layout;
+	// The adapter's import of the library component: the alias, or a path relative to the component's file.
+	const importOf = (file: string, item: string) => {
+		const spec = `${layout!.aliases.ui}/${item}`;
+		if (!spec.startsWith('.')) return spec;
+		const to = relative(dirname(join(root, file)), join(root, layout!.uiDir, item)).split('\\').join('/');
+		return to.startsWith('.') ? to : `./${to}`;
+	};
 	const backups = new Map<string, string | undefined>();
 	const current = new Map(texts);
 	const write = (rel: string, content: string) => {
@@ -180,15 +166,16 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	const pkg = readJson(join(root, 'package.json')) ?? {};
 	const installed = { ...pkg.dependencies, ...pkg.devDependencies } as Record<string, string>;
 	const packages = new Set<string>();
-	// Chakra-based items also need Emotion and the provider at the app root, or the first page fails to render.
-	let chakra = false;
 	const seen = new Set<string>();
 	const base = project.srcDir ? 'src/' : '';
 	// The library item and what it needs, into components/ds (the app's lib/utils is patched, never replaced).
 	const install = (item: RegistryItem) => {
 		if (!layout || seen.has(item.name)) return;
 		seen.add(item.name);
-		for (const d of item.packages ?? []) if (d === '@chakra-ui/react') chakra = true; else if (!installed[d]) packages.add(d);
+		for (const d of item.packages ?? []) {
+			if (!installed[d]) packages.add(d);
+			if (!result.uses.includes(d)) result.uses.push(d);
+		}
 		for (const dep of item.requires ?? []) {
 			const d = loadItemSync(itemName(dep));
 			if (d && d.type !== 'theme') install(d);
@@ -202,32 +189,21 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 		}
 	};
 	const exportNameOf = new Map<string, string>();
+	const earlier = previousDecisions(root);
 	const decide = (c: Identified): Decision => {
 		const d = { file: c.file, name: c.name, item: c.item, confidence: Math.round(c.confidence * 100) / 100, signals: c.signals, uses: c.uses };
-		// An adapter an earlier run wrote already renders the library's item: a second run leaves it as it is.
-		const adapted = adapterItem(current.get(c.file)!, c.name);
-		if (adapted) return { ...d, item: adapted, action: 'swap', reason: `renders the library's ${adapted}, its props mapped` };
-		// A part of a compound component (CardHeader beside Card) takes that part's look from the library, never the root's.
-		const owner = partOf(c, byFile.get(c.file) ?? []);
-		if (owner) {
-			const ownerItem = loadItemSync(owner.item!);
-			const classes = ownerItem?.files?.[0]?.content ? libraryClasses(ownerItem.files[0].content, c.name, () => undefined, undefined, true) : undefined;
-			const restyled = classes && c.root?.literals.length ? restyleRoot(current.get(c.file)!, c, owner.item!, classes) : undefined;
-			if (restyled) {
-				write(c.file, restyled);
-				if (!result.styled.includes(c.file)) result.styled.push(c.file);
-			}
-			return restyled || (classes && c.root?.literals.some((lit) => classes.split(/\s+/).every((cls) => lit.value.split(/\s+/).includes(cls))))
-				? { ...d, item: owner.item, action: 'style', reason: `a part of ${owner.name}: it takes the library's ${c.name} look` }
-				: { ...d, item: owner.item, action: 'refine', reason: `a part of ${owner.name}, styled by the element layer and the converter` };
-		}
+		// A component swapped on an earlier run renders the library's already: leave it as it is.
+		const adapterOf = c.root?.tag.match(/^Ds([A-Z]\w*)$/)?.[1];
+		if (adapterOf && new RegExp(`\\bas Ds${adapterOf}\\b[^;]*from\\s*["'][^"']*/ds/[\\w-]+["']`).test(current.get(c.file)!)) return earlier.find((x) => x.file === c.file && x.name === c.name && x.action === 'swap') ?? { ...d, item: c.item ?? adapterOf.replace(/[A-Z]/g, (m, i: number) => `${i ? '-' : ''}${m.toLowerCase()}`), action: 'swap', reason: `renders the library's ${c.item ?? adapterOf} (swapped on an earlier run)` };
 		if (!c.item) return { ...d, action: 'refine', reason: 'no library item covers it' };
 		const item = loadItemSync(c.item);
 		const surface = surfaceOf(c.file);
 		const values = { ...c.values };
 		for (const [k, v] of Object.entries(c.useValues)) values[k] = [...new Set([...(values[k] ?? []), ...v])];
 		if (canAdapt && item && c.confidence >= SWAP_FLOOR && c.exported && adaptable(c.item)) {
-			const adapted = adaptComponent(current.get(c.file)!, c, c.item, surface, importPath(root, c.file, `${layout!.aliases.ui}/${c.item}`), values);
+			let adapted = adaptComponent(current.get(c.file)!, c, c.item, surface, importOf(c.file, c.item), values);
+			// A JavaScript app gets the adapter without its types.
+			if (adapted && /\.jsx?$/.test(c.file)) adapted = asJavaScript(adapted, c.file);
 			if (adapted) {
 				install(item);
 				write(c.file, adapted);
@@ -237,7 +213,7 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 			}
 		}
 		const content = item?.files?.[0]?.content;
-		if (item && content && ROOT_STYLED.has(c.item) && c.root?.literals.length) {
+		if (item && content && ROOT_STYLED.has(c.item) && c.confidence >= SWAP_FLOOR && c.root?.literals.length) {
 			const look = lookOf(c.root.classes);
 			const pick = (vs: string[]) => {
 				const v = variantsFor(surface);
@@ -246,12 +222,14 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 			};
 			const classes = libraryClasses(content, c.name, pick);
 			const restyled = classes ? restyleRoot(current.get(c.file)!, c, c.item, classes) : undefined;
-			const already = !!classes && classes.split(/\s+/).filter(Boolean).every((cls) => c.root!.literals.some((lit) => lit.value.split(/\s+/).includes(cls)));
-			if (restyled || already) {
-				if (restyled) write(c.file, restyled);
+			if (restyled) {
+				write(c.file, restyled);
 				result.styled.push(c.file);
 				return { ...d, action: 'style', reason: `its element takes the library's ${c.item} look${canAdapt && adaptable(c.item) ? ' (a swap would drop some of its props)' : ''}` };
 			}
+			// Restyled on an earlier run: nothing left to change, and the decision stands.
+			const before = earlier.find((x) => x.file === c.file && x.name === c.name && x.action === 'style');
+			if (classes && before) return before;
 		}
 		return { ...d, action: 'refine', reason: `a ${c.item}, styled by the element layer and the converter` };
 	};
@@ -261,6 +239,8 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	for (const c of identified) byFile.set(c.file, [...(byFile.get(c.file) ?? []), c]);
 	for (const [file, list] of byFile) {
 		for (const first of [...list].sort((a, b) => b.confidence - a.confidence)) {
+			// A selection: only the components it names, by item, by name or by the page files they are in.
+			if (!componentInScope(scope, first)) continue;
 			const fresh = componentsIn(file, current.get(file)!).find((x) => x.name === first.name);
 			if (!fresh) continue;
 			result.decisions.push(decide({ ...first, ...fresh }));
@@ -268,24 +248,23 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	}
 	// Compound primitives have several styled parts under a portal; a root-only pass cannot reach them.
 	for (const file of overlayFiles) {
-		const styled = restyleOverlays(current.get(file)!, surfaceOf(file));
+		const cover = coverage(scope, file);
+		if (cover === 'none') continue;
+		const styled = restyleOverlays(current.get(file)!, surfaceOf(file), cover === 'kinds' ? (family) => scopeItems(scope!).includes(family) || !!kindsIn(scope, file)?.includes(family) : undefined);
 		if (!styled.parts.length) continue;
 		if (styled.text !== current.get(file)) write(file, styled.text);
 		if (!result.styled.includes(file)) result.styled.push(file);
 		for (const name of styled.parts) result.decisions.push({ file, name, confidence: 1, signals: ['Radix primitive import'], uses: 0, action: 'style', reason: 'its panel or row takes the brand styling, preserving the existing interaction' });
 	}
-	if (chakra) for (const spec of missingChakraPackages(root, project)) packages.add(spec);
 	result.packages = [...packages];
 	if (dryRun) return result;
+	// A selection adds its decisions to the earlier ones; the whole app replaces them.
+	if (scope) result.decisions = [...previousDecisions(root).filter((d) => !result.decisions.some((x) => x.file === d.file && x.name === d.name)), ...result.decisions].sort((a, b) => a.file.localeCompare(b.file) || a.name.localeCompare(b.name));
 	writeInventory(root, result.decisions);
 	if (!result.swapped.length && !result.styled.length) return result;
 	if (packages.size) {
 		const pm = project.packageManager;
 		spawnSync(pm, pm === 'npm' ? ['install', ...packages] : ['add', ...packages], { cwd: root, stdio: 'ignore' });
-	}
-	if (chakra) {
-		const setup = installChakraProvider(new Writer(root), project);
-		if (setup.warning) result.warnings = [...(result.warnings ?? []), setup.warning];
 	}
 	// An adapter that introduces type errors goes back: that component is restyled instead.
 	const before = typeErrorsOf(root, backups);
@@ -353,6 +332,14 @@ export function recordStyledSelectors(root: string, styled: { file: string; sele
 	const kept = decisions.filter((d) => !d.file.match(/\.(css|scss|less)$/));
 	const added = styled.map((x): Decision => ({ file: x.file, name: x.selector, item: x.kind, confidence: 1, signals: [`class names a ${x.kind}`], uses: 0, action: 'style', reason: `its CSS takes the brand's ${x.kind} styling (the element layer)` }));
 	if (kept.length || added.length) writeInventory(root, [...kept, ...added]);
+}
+
+function previousDecisions(root: string): Decision[] {
+	try {
+		return JSON.parse(readFileSync(join(root, '.ds', 'components.json'), 'utf8')).components ?? [];
+	} catch {
+		return [];
+	}
 }
 
 /** The decisions, for the agent's tasks and `look`: what each component is, what was done, and why. */

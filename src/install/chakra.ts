@@ -13,23 +13,19 @@ const PROVIDER = () => `${brand().name.replace(/[^A-Za-z0-9]/g, '')}ChakraProvid
 export const chakraPackages = () => CHAKRA_PACKAGES;
 export const providerName = () => PROVIDER();
 
-const VERSIONS: Record<string, string> = { '@chakra-ui/react': '@3.37.0', '@emotion/react': '@^11.14.0', '@emotion/cache': '@^11.14.0' };
+/** Next renders on the server: Emotion's styles are collected per render (@emotion/cache) so hydration matches. */
+const packagesFor = (next: boolean) => (next ? [...CHAKRA_PACKAGES, '@emotion/cache'] : CHAKRA_PACKAGES);
 
-/** The packages Chakra needs in this project: a Next App Router root also imports Emotion's cache for its server styles. */
-export function missingChakraPackages(root: string, project?: Pick<Project, 'framework'>) {
+export function missingChakraPackages(root: string, next = false) {
 	let installed: Record<string, string> = {};
 	try { const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')); installed = { ...pkg.dependencies, ...pkg.devDependencies }; } catch {}
-	const next = project ? project.framework === 'next' : !!installed.next;
-	return [...CHAKRA_PACKAGES, ...(next ? ['@emotion/cache'] : [])].filter(name => !installed[name] || (name === '@chakra-ui/react' && !/^(\^|~)?3\./.test(installed[name]))).map(name => `${name}${VERSIONS[name]}`);
+	return packagesFor(next).filter(name => !installed[name] || (name === '@chakra-ui/react' && !/^(\^|~)?3\./.test(installed[name]))).map(name => `${name}${name === '@chakra-ui/react' ? '@3.37.0' : '@^11.14.0'}`);
 }
 
-// The provider files earlier versions wrote, replaced on the next run; a provider the app edited is kept.
-const plainProvider = (tsx: boolean) => `"use client";\n\nimport { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";\n\nconst brandSystem = createSystem(defaultConfig, { preflight: false });\n\nexport function ${PROVIDER()}({ children }${tsx ? ': { children: React.ReactNode }' : ''}) {\n  return <ChakraProvider value={brandSystem}>{children}</ChakraProvider>;\n}\n`;
-
-// Chakra styles through Emotion, which writes <style> tags inline while the server renders; in the Next App Router that
-// breaks hydration on every page. The registry collects them and hands them to useServerInsertedHTML for the head.
-const nextProvider = (tsx: boolean) => {
-	const t = (ts: string) => (tsx ? ts : '');
+/** The provider file: Chakra without its global reset, and in Next, an Emotion registry so server and client agree. */
+function providerSource(tsx: boolean, next: boolean) {
+	const t = (s: string) => (tsx ? s : '');
+	if (!next) return `"use client";\n\nimport { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";\n\nconst brandSystem = createSystem(defaultConfig, { preflight: false });\n\nexport function ${PROVIDER()}({ children }${t(': { children: React.ReactNode }')}) {\n  return <ChakraProvider value={brandSystem}>{children}</ChakraProvider>;\n}\n`;
 	return `"use client";
 
 import * as React from "react";
@@ -40,8 +36,8 @@ import { useServerInsertedHTML } from "next/navigation";
 
 const brandSystem = createSystem(defaultConfig, { preflight: false });
 
-// Emotion writes Chakra's styles inline while the server renders, so hydration would not match. Collect them and put
-// them in the head through useServerInsertedHTML.
+// Chakra styles through Emotion, which writes <style> tags inline while the server renders and moves them on the
+// client, so hydration would not match. Each server render's styles go to the head once, through Next.
 function EmotionRegistry({ children }${t(': { children: React.ReactNode }')}) {
   const [registry] = React.useState(() => {
     const cache = createCache({ key: "ck" });
@@ -77,7 +73,7 @@ export function ${PROVIDER()}({ children }${t(': { children: React.ReactNode }')
   );
 }
 `;
-};
+}
 
 function moduleName(from: string, to: string) {
 	const value = relative(dirname(from), to).split('\\').join('/');
@@ -97,13 +93,13 @@ function addImport(source: string, spec: string) {
 export function installChakraProvider(w: Writer, project: Project) {
 	const config = componentConfig(w.root, project);
 	const providerPath = `${relative(w.root, resolveAlias(w.root, `${config.aliases.ui}/provider`))}${config.tsx ? '.tsx' : '.jsx'}`;
-	const layout = project.layouts.find(file => /\/layout\.(tsx|jsx|js)$/.test(`/${file}`));
-	const appRouter = project.framework === 'next' && !!layout;
-	const providerSource = appRouter ? nextProvider(config.tsx) : plainProvider(config.tsx);
 	const existingProvider = w.read(providerPath);
 	if (existingProvider && !existingProvider.includes(PROVIDER())) return { providerPath, warning: `${providerPath} already exists; merge ${PROVIDER()} into it before using Chakra components.` };
-	if (!existingProvider || existingProvider === plainProvider(config.tsx) || existingProvider === nextProvider(config.tsx)) w.write(providerPath, providerSource);
+	// A provider this CLI wrote (any version) is brought up to date; one the app edited is kept as the app wrote it.
+	const generated = [false, true].flatMap((next) => [providerSource(config.tsx, next), `"use client";\n\nimport { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";\n\nconst brandSystem = createSystem(defaultConfig, { preflight: false });\n\nexport function ${PROVIDER()}({ children }${config.tsx ? ': { children: React.ReactNode }' : ''}) {\n  return <ChakraProvider value={brandSystem}>{children}</ChakraProvider>;\n}\n`]);
+	if (!existingProvider || generated.includes(existingProvider)) w.write(providerPath, providerSource(config.tsx, project.framework === 'next'));
 
+	const layout = project.layouts.find(file => /\/layout\.(tsx|jsx|js)$/.test(`/${file}`));
 	if (layout) {
 		const source = w.read(layout) ?? '';
 		const ast = parse(source, { sourceType: 'module', plugins: ['typescript', 'jsx'] });
@@ -116,6 +112,7 @@ export function installChakraProvider(w: Writer, project: Project) {
 			}
 		};
 		visit(ast);
+		// Set up on an earlier run: nothing to wrap again.
 		if (source.includes(PROVIDER())) return { providerPath, entry: layout };
 		if (body) {
 			const start = body.openingElement.end, end = body.closingElement.start;
@@ -143,7 +140,7 @@ export function installChakraProvider(w: Writer, project: Project) {
 			}
 		};
 		visit(ast);
-		if (root && source.includes(PROVIDER())) return { providerPath, entry };
+		if (source.includes(PROVIDER())) return { providerPath, entry };
 		if (!root) continue;
 		const wrapped = `${source.slice(0, root.start)}<${PROVIDER()}>${source.slice(root.start, root.end)}</${PROVIDER()}>${source.slice(root.end)}`;
 		w.write(entry, addImport(wrapped, moduleName(entry, providerPath.replace(/\.(tsx|jsx)$/, ''))));

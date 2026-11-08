@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { dirname, posix, relative } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, join, posix, relative } from 'node:path';
 import { type NextFont, brand, tokens } from '../lib/brand.js';
 import { pkgPath } from '../lib/paths.js';
 import type { Project } from '../project/detect.js';
@@ -17,7 +18,135 @@ export type StyleInstall = { stylesDir: string; brandCss: string; imported?: str
 const STYLE_DIR = (bin: string) => `_${bin}`;
 const IMPORT_RE = (bin: string) => new RegExp(`@import\\s+["']\\./_?${bin}/(?:brand|theme)\\.css["'];\\n?`, 'g');
 
-export function installStyles(w: Writer, project: Project, surface: Surface, styleText: string, { restyle = false } = {}): StyleInstall {
+/**
+ * The brand stylesheet for a selection (plan/scope.ts): its tokens, keyframes, fonts and its own ds- classes, without
+ * the base layer and the global rules that restyle every element on every page (body type, headings, links, focus,
+ * motion), so only the named components and pages change.
+ */
+export function tokensOnly(css: string): string {
+	const blocks: string[] = [];
+	let depth = 0;
+	let start = 0;
+	for (let i = 0; i < css.length; i++) {
+		const c = css[i];
+		if (c === '/' && css[i + 1] === '*') {
+			const end = css.indexOf('*/', i + 2);
+			i = end < 0 ? css.length : end + 1;
+			continue;
+		}
+		if (c === '{') depth++;
+		else if (c === '}' && --depth === 0) {
+			blocks.push(css.slice(start, i + 1));
+			start = i + 1;
+		} else if (c === ';' && depth === 0) {
+			blocks.push(css.slice(start, i + 1));
+			start = i + 1;
+		}
+	}
+	const keep = (block: string) => {
+		const head = block.replace(/\/\*[\s\S]*?\*\//g, '').trim().split('{')[0].trim();
+		if (/^@(import|charset|font-face|keyframes|-webkit-keyframes|property|theme)\b/.test(head)) return true;
+		if (/^:root\b/.test(head)) return true;
+		if (/^\.ds-[\w-]+(\s*,\s*\.ds-[\w-]+)*$/.test(head)) return true;
+		// A media query that only re-declares tokens (a system dark theme).
+		if (/^@media\b/.test(head)) return !block.slice(block.indexOf('{') + 1, block.lastIndexOf('}')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/:root\s*\{[^{}]*\}/g, '').trim();
+		return false;
+	};
+	return `${blocks.filter(keep).map((b) => b.trim()).join('\n\n')}\n`;
+}
+
+// shadcn's theme roles and the brand theme names they take (build/theme.css), for restyling an app built on shadcn.
+const SHADCN_ROLES: [string, string][] = [
+	['background', 'page'], ['foreground', 'fg'], ['card', 'surface'], ['card-foreground', 'fg'], ['popover', 'surface'], ['popover-foreground', 'fg'],
+	['primary-foreground', 'on-primary'], ['secondary', 'subtle'], ['secondary-foreground', 'fg'], ['muted', 'subtle'], ['muted-foreground', 'fg-muted'],
+	['accent', 'subtle'], ['accent-foreground', 'fg'], ['destructive', 'danger'], ['border', 'line'], ['input', 'line-field'], ['ring', 'line-ring'],
+];
+const SHADCN_RADII: [string, string][] = [['md', 'control'], ['lg', 'control'], ['xl', 'panel'], ['2xl', 'panel'], ['3xl', 'dialog'], ['4xl', 'dialog']];
+
+/** The shadcn theme variables mapped to the brand's values, read from the brand theme's own aliases. */
+export function shadcnBridge(aliases: string) {
+	const value = (name: string) => aliases.match(new RegExp(`(?:^|\\n)\\s*${name}:\\s*([^;]+);`))?.[1].trim();
+	const out: [string, string][] = [];
+	for (const [role, theme] of SHADCN_ROLES) { const v = value(`--color-${theme}`); if (v) out.push([`--color-${role}`, v]); }
+	for (const [size, theme] of SHADCN_RADII) { const v = value(`--radius-${theme}`); if (v) out.push([`--radius-${size}`, v]); }
+	return out;
+}
+
+/** The stylesheet with every `@layer base { ... }` replaced by its rules. */
+export function unlayer(css: string): string {
+	let out = '';
+	let i = 0;
+	for (const m of css.matchAll(/@layer\s+base\s*\{/g)) {
+		if (m.index! < i) continue;
+		let depth = 1;
+		let j = m.index! + m[0].length;
+		for (; j < css.length && depth; j++) {
+			if (css[j] === '{') depth++;
+			else if (css[j] === '}') depth--;
+		}
+		out += css.slice(i, m.index) + css.slice(m.index! + m[0].length, j - 1).replace(/^\t/gm, '');
+		i = j;
+	}
+	return out + css.slice(i);
+}
+
+/** The `--name: value` declarations of a CSS text's @theme blocks (Tailwind's own, or an app's). */
+function themeDeclarations(css: string): Map<string, string> {
+	const out = new Map<string, string>();
+	const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+	for (const m of text.matchAll(/@theme\b[^{;]*\{/g)) {
+		// The block's own declarations, without nested ones (@keyframes inside Tailwind's theme).
+		let depth = 1;
+		let body = '';
+		for (let i = m.index! + m[0].length; i < text.length && depth; i++) {
+			if (text[i] === '{') depth++;
+			else if (text[i] === '}') depth--;
+			else if (depth === 1) body += text[i];
+		}
+		for (const d of body.matchAll(/(--[\w.\\-]+)\s*:\s*([^;]+);/g)) out.set(d[1], d[2].replace(/\s+/g, ' ').trim());
+	}
+	return out;
+}
+
+/**
+ * The theme for a selection. Where the brand's theme renames a key Tailwind or the app already has (font-sans,
+ * font-bold, leading-tight, rounded-sm), the key points at a scoped variable: the app's own value on its pages, the
+ * brand's inside the library's components (every one carries data-slot). So a swapped button is the brand's, and the
+ * pages around it keep their type, weights and corners.
+ */
+export function scopeTheme(theme: string, appTheme: Map<string, string>, defaults: Map<string, string>): { theme: string; css: string; scoped: Map<string, string> } {
+	const scoped = new Map<string, string>();
+	const app: string[] = [];
+	const lib: string[] = [];
+	const name = (key: string) => `--ds-scope-${key.slice(2).replace(/[^\w-]/g, '-')}`;
+	const out = theme.replace(/@theme inline\s*\{([^{}]*)\}/, (block) =>
+		block.replace(/^(\s*)(--[\w.\\-]+)\s*:\s*([^;]+);/gm, (line, pad: string, key: string, value: string) => {
+			// Without the key Tailwind computes the value (p-2.5 is 2.5 steps of --spacing, duration-150 is 150ms).
+			const step = key.match(/^--spacing-(\d+(?:\\?\.\d+)?)$/)?.[1]?.replace('\\', '');
+			const ms = key.match(/^--transition-duration-(\d+)$/)?.[1];
+			const computed = step ? `calc(${appTheme.get('--spacing') ?? defaults.get('--spacing') ?? '0.25rem'} * ${step})` : ms ? `${ms}ms` : undefined;
+			const own = appTheme.get(key) ?? defaults.get(key) ?? (defaults.size ? computed : undefined);
+			if (own === undefined || own.trim() === value.trim()) return line;
+			scoped.set(key, `var(${name(key)})`);
+			app.push(`\t${name(key)}: ${own};`);
+			lib.push(`\t${name(key)}: ${value.trim()};`);
+			return `${pad}${key}: var(${name(key)});`;
+		}),
+	);
+	const css = scoped.size ? `\n/* Theme keys the app has too: its own value on its pages, the brand's inside the library's components. */\n:root {\n${app.join('\n')}\n}\n\n:where([data-slot]) {\n${lib.join('\n')}\n}\n` : '';
+	return { theme: out, css, scoped };
+}
+
+/** Tailwind's default theme, from the app's own copy of tailwindcss. */
+function tailwindDefaults(root: string): Map<string, string> {
+	try {
+		return themeDeclarations(readFileSync(createRequire(join(root, 'package.json')).resolve('tailwindcss/theme.css'), 'utf8'));
+	} catch {
+		return new Map();
+	}
+}
+
+export function installStyles(w: Writer, project: Project, surface: Surface, styleText: string, { scoped = false, restyle = false } = {}): StyleInstall {
 	const bin = brand().bin;
 	const notes: string[] = [];
 	const main = project.mainStylesheet;
@@ -31,7 +160,22 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 		const dark = Object.entries(tokens().dark).map(([k, v]) => `\t\t${k}: ${v};`).join('\n');
 		css += `\n@media (prefers-color-scheme: dark) {\n\t:root {\n${dark}\n\t}\n}\n`;
 	}
-	css += groundAliases(styleText);
+	// A selection: the theme's renamed keys follow the app outside the library's components (see scopeTheme).
+	const appTheme = themeDeclarations(styleText.replace(/\/\* [\w-]+:theme:start \*\/[\s\S]*?\/\* [\w-]+:theme:end \*\//g, ''));
+	let themeCss = readFileSync(pkgPath('build', 'theme.css'), 'utf8');
+	let scopedKeys = new Map<string, string>();
+	let scopeCss = '';
+	if (scoped && tailwind4) {
+		const s = scopeTheme(themeCss, appTheme, tailwindDefaults(project.root));
+		themeCss = s.theme;
+		scopedKeys = s.scoped;
+		scopeCss = s.css;
+	}
+	// Tailwind 3 compiles each imported stylesheet on its own and rejects an @layer base without its @tailwind base:
+	// the defaults go unlayered there, imported before the app's own rules (which still win, as later rules).
+	if (project.tailwindMajor && project.tailwindMajor < 4) css = unlayer(css);
+	if (scoped) css = `/* A selection was applied (.ds/state.json): tokens, theme and fonts only, no base layer. Applying the whole app adds it. */\n${tokensOnly(css)}${scopeCss}`;
+	else css += groundAliases(styleText);
 	// Next self-hosts the fonts through next/font; everything else loads them at the top of the brand stylesheet.
 	if (!next && (!main || !tailwind4)) css = `${readFileSync(pkgPath('build', 'fonts.css'), 'utf8').split('\n').filter((l) => l.startsWith('@import')).join('\n')}\n${css}`;
 	// A licensed face the brand ships itself sits beside the brand stylesheet, so every bundler resolves it.
@@ -41,11 +185,8 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 		css += `\n${faces.replace(/url\("\/fonts\//g, 'url("./fonts/')}\n`;
 		for (const file of Object.values(local.files)) w.copy(`${dir}/fonts/${file}`, pkgPath('brand', 'fonts', file));
 	}
-	// Tailwind 3 claims `@layer base` and fails the build unless the same file has `@tailwind base`; a layer of the brand's
-	// own name keeps the same cascade (the app's unlayered rules and utilities still win) without touching Tailwind's.
-	if (project.tailwindMajor && project.tailwindMajor < 4) css = css.replace(/@layer base\b/g, `@layer ${bin}-base`);
 	w.write(`${dir}/brand.css`, css);
-	if (tailwind4) w.write(`${dir}/theme.css`, readFileSync(pkgPath('build', 'theme.css'), 'utf8'));
+	if (tailwind4) w.write(`${dir}/theme.css`, themeCss);
 
 	let imported: string | undefined;
 	const linked: string[] = [];
@@ -72,9 +213,10 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 			const previous = after.indexOf(start), finish = after.indexOf(end);
 			if (previous >= 0 && finish >= previous) after = after.slice(0, previous).trimEnd() + after.slice(finish + end.length);
 			const aliases = readFileSync(pkgPath('build', 'theme.css'), 'utf8').match(/@theme inline\s*\{([^}]+)\}/)?.[1] ?? '';
-			const overrides = aliases.split('\n').filter(line => { const key = line.match(/(--[\w.-]+):/)?.[1]; return key && after.includes(`${key}:`); });
-			// Restyling a shadcn app: its theme's roles point at the brand's, so every shadcn component takes the brand.
-			if (restyle) {
+			const overrides = aliases.split('\n').filter(line => { const key = line.match(/(--[\w.-]+):/)?.[1]; return key && after.includes(`${key}:`); }).map(line => { const key = line.match(/(--[\w.-]+):/)![1]; return scopedKeys.has(key) ? line.replace(/:.*$/, `: ${scopedKeys.get(key)};`) : line; });
+			// Restyling a whole shadcn app: its theme's roles point at the brand's, so every shadcn component takes the
+			// brand. A selection leaves them: they would restyle every shadcn component outside it.
+			if (restyle && !scoped) {
 				const own = new Set(overrides.map(line => line.match(/(--[\w.-]+):/)?.[1]));
 				for (const [key, value] of shadcnBridge(aliases)) if (!own.has(key) && new RegExp(`${key}\\s*:`).test(after)) overrides.push(`\t${key}: ${value};`);
 			}
@@ -98,23 +240,6 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 	const fonts = next ? wireNextFonts(w, project) : project.native ? 'app fonts' : 'brand.css';
 	if (project.native) notes.push(`${brand().fonts.native}.`);
 	return { stylesDir, brandCss: `${dir}/brand.css`, imported, linked, fonts, notes };
-}
-
-// shadcn's theme roles and the brand theme names they take (build/theme.css), for restyling an app built on shadcn.
-const SHADCN_ROLES: [string, string][] = [
-	['background', 'page'], ['foreground', 'fg'], ['card', 'surface'], ['card-foreground', 'fg'], ['popover', 'surface'], ['popover-foreground', 'fg'],
-	['primary-foreground', 'on-primary'], ['secondary', 'subtle'], ['secondary-foreground', 'fg'], ['muted', 'subtle'], ['muted-foreground', 'fg-muted'],
-	['accent', 'subtle'], ['accent-foreground', 'fg'], ['destructive', 'danger'], ['border', 'line'], ['input', 'line-field'], ['ring', 'line-ring'],
-];
-const SHADCN_RADII: [string, string][] = [['md', 'control'], ['lg', 'control'], ['xl', 'panel'], ['2xl', 'panel'], ['3xl', 'dialog'], ['4xl', 'dialog']];
-
-/** The shadcn theme variables mapped to the brand's values, read from the brand theme's own aliases. */
-export function shadcnBridge(aliases: string) {
-	const value = (name: string) => aliases.match(new RegExp(`(?:^|\\n)\\s*${name}:\\s*([^;]+);`))?.[1].trim();
-	const out: [string, string][] = [];
-	for (const [role, theme] of SHADCN_ROLES) { const v = value(`--color-${theme}`); if (v) out.push([`--color-${role}`, v]); }
-	for (const [size, theme] of SHADCN_RADII) { const v = value(`--radius-${theme}`); if (v) out.push([`--radius-${size}`, v]); }
-	return out;
 }
 
 /**

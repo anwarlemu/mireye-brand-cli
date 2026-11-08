@@ -1,12 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { isAbsolute, join, relative } from 'node:path';
-import { type Approval, formatFinding, overrideKey, readApprovals, onlyNewFindings, runCheck, writeApprovals } from '../check/engine.js';
+import { type Approval, formatFinding, onlyNewFindings, overrideKey, readApprovals, runCheck, writeApprovals } from '../check/engine.js';
 import { brand, cli, elements, tokens } from '../lib/brand.js';
 import { color, emit } from '../lib/output.js';
 import { findProjectRoot } from '../lib/paths.js';
 import { elementsIn, renderElement } from '../plan/elements.js';
 import { readState, writeState } from '../plan/state.js';
+import { describeScope } from '../plan/scope.js';
 import { type Surface, surfaceOf } from '../project/surface.js';
 
 const relTo = (root: string, p: string) => relative(root, isAbsolute(p) ? p : join(process.cwd(), p)).split('\\').join('/');
@@ -55,17 +56,19 @@ export function look(target: string | undefined, opts: { surface?: string; json?
 }
 
 /** `check [files]`: the deterministic value check used by hooks, pre-commit and CI. */
-export function check(paths: string[], opts: { fix?: boolean; changed?: boolean; json?: boolean }) {
+export function check(paths: string[], opts: { fix?: boolean; changed?: boolean; json?: boolean; all?: boolean }) {
 	const root = findProjectRoot();
 	const onlyNew = !!opts.changed && !paths.length && onlyNewFindings(root);
-	const result = runCheck(root, { paths: paths.map((p) => relTo(root, p)), fix: opts.fix, changed: opts.changed, onlyNew });
+	const result = runCheck(root, { paths: paths.map((p) => relTo(root, p)), fix: opts.fix, changed: opts.changed, all: opts.all, onlyNew });
+	const scope = opts.all ? undefined : readState(root)?.scope;
 	emit(opts, result, () =>
 		[
 			...result.findings.slice(0, 200).map(formatFinding),
 			result.findings.length > 200 ? `...and ${result.findings.length - 200} more` : '',
-			result.findings.length ? color.red(`${result.findings.length} values are not brand tokens (${result.files} files, ${result.ms}ms).`) : color.green(`Every style value is a brand token (${result.files} files, ${result.ms}ms).`),
+			result.findings.length ? color.red(`${result.findings.length} values are not brand tokens (${result.files} files, ${result.ms}ms).`) : color.green(`Every style value${scope ? ' in the applied selection' : ''} is a brand token (${result.files} files, ${result.ms}ms).`),
 			onlyNew ? `Checked the values these changes add: the app's existing styles stay its own until \`${cli()} apply\` converts them.` : '',
 			result.fixed ? `Applied ${result.fixed} token fixes.` : '',
+			scope && result.outside ? color.dim(`${result.outside} files are outside the applied selection (${describeScope(scope)}) and keep their own styles; \`${cli()} check --all\` checks them too.`) : '',
 		]
 			.filter(Boolean)
 			.join('\n'),

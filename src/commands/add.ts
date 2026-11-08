@@ -8,11 +8,11 @@ import { Writer } from '../install/files.js';
 import { installStyles } from '../install/styles.js';
 import { installAgents } from '../install/agents.js';
 import { componentConfig, componentFile, configureRegistry, prepareTransforms } from '../install/config.js';
-import { installChakraProvider, missingChakraPackages } from '../install/chakra.js';
+import { installChakraProvider } from '../install/chakra.js';
 import { closure, loadIndex, loadIndexSync } from '../library/registry.js';
 import { MARKUP, STYLES, detectProject, styledFiles } from '../project/detect.js';
 import { profile } from '../project/surface.js';
-import { selfInstall, type RunOptions } from './run.js';
+import { notMonorepoRoot, selfInstall, type RunOptions } from './run.js';
 
 type AddOptions = RunOptions & { overwrite?: boolean; all?: boolean; path?: string; diff?: boolean | string; view?: boolean | string };
 
@@ -21,14 +21,16 @@ export function readPackage(root: string): { dependencies?: Record<string, strin
 }
 
 export async function add(names: string[], opts: AddOptions) {
-	const root = findProjectRoot(), project = detectProject(root), pkg = readPackage(root);
+	const root = findProjectRoot();
+	notMonorepoRoot(root, 'add');
+	const project = detectProject(root), pkg = readPackage(root);
 	const deps = { ...pkg.dependencies, ...pkg.devDependencies };
 	let reactVersion = deps.react ?? '';
 	try { reactVersion = JSON.parse(readFileSync(join(root, 'node_modules/react/package.json'), 'utf8')).version; } catch {}
 	const minimum = loadIndexSync().map((item: any) => item.requirements?.react).find(Boolean) ?? '>=19.0';
 	const required = minimum.match(/(\d+)\.(\d+)/), actual = reactVersion.match(/(\d+)\.(\d+)/);
 	if (!actual || (required && (Number(actual[1]) < Number(required[1]) || (actual[1] === required[1] && Number(actual[2]) < Number(required[2])))) || (project.tailwindMajor ?? 0) < 4) {
-		throw new Error(`Cannot add components: React ${reactVersion || 'not detected'} and Tailwind CSS ${project.tailwindMajor ? `${project.tailwindMajor}.x` : 'not detected'}. Run from the target React ${minimum.replace('>=', '')}+ and Tailwind 4 app${project.tailwindMajor && project.tailwindMajor < 4 ? ' (upgrade with npx @tailwindcss/upgrade)' : ''}. Use ${cli()} create --template vite --name my-app for a new project, or ${cli()} apply --dry-run for existing styles.`);
+		throw new Error(`Cannot add components: React ${reactVersion || 'not detected'} and Tailwind CSS ${project.tailwindMajor ? `${project.tailwindMajor}.x` : 'not detected'}. Run from the target React ${minimum.replace('>=', '')}+ and Tailwind 4 app. Use ${cli()} create --template vite --name my-app for a new project, or ${cli()} apply --dry-run for existing styles.`);
 	}
 	if (opts.surface && !['site', 'product'].includes(opts.surface)) throw new Error('--surface is site or product.');
 	if (opts.all) names = (await loadIndex()).map(item => item.name);
@@ -57,7 +59,9 @@ export async function add(names: string[], opts: AddOptions) {
 		}
 	}
 	if (chakraNeeded) {
-		for (const spec of missingChakraPackages(root, project)) if (![...npm].some(name => spec.startsWith(`${name.replace(/(.)@.*$/, '$1')}@`))) npm.add(spec);
+		if (!deps['@chakra-ui/react']) npm.add('@chakra-ui/react@3.37.0');
+		if (!deps['@emotion/react']) npm.add('@emotion/react@^11.14.0');
+		if (project.framework === 'next' && !deps['@emotion/cache']) npm.add('@emotion/cache@^11.14.0');
 	}
 	if (!readonly) selfInstall(root, opts);
 	let packagesInstalled = npm.size === 0;
