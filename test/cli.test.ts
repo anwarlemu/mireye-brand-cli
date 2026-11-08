@@ -543,6 +543,16 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(result.decisions.find((d) => d.name === 'CardAction')).toMatchObject({ item: 'card' });
 		} finally { rmSync(dir, { recursive: true }); }
 	});
+	it('a Tailwind 3 app gets a brand stylesheet its build accepts, and add says how to upgrade', () => {
+		const dir = project({ 'package.json': JSON.stringify({ dependencies: { next: '14.2.0', react: '18.3.1', tailwindcss: '^3.4.1' } }), 'app/globals.css': '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n', 'app/layout.tsx': 'export default function RootLayout({ children }: { children: React.ReactNode }) {\n  return <html lang="en"><body>{children}</body></html>;\n}\n' });
+		try {
+			run(dir, 'init');
+			const css = readFileSync(join(dir, 'app/_mireye-ds/brand.css'), 'utf8');
+			expect(css).not.toMatch(/@layer base\b/);
+			expect(css).toContain('@layer mireye-ds-base');
+			expect(() => execFileSync(process.execPath, [BIN, 'add', 'button', '--no-install'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' })).toThrow(/npx @tailwindcss\/upgrade/);
+		} finally { rmSync(dir, { recursive: true }); }
+	});
 	it('apply points a shadcn theme at the brand; init leaves the app its own', () => {
 		const css = '@import "tailwindcss";\n\n@theme inline {\n  --color-background: var(--background);\n  --color-primary: var(--primary);\n  --color-border: var(--border);\n  --radius-lg: var(--radius);\n}\n\n:root {\n  --background: oklch(1 0 0);\n  --primary: oklch(0.2 0 0);\n  --border: oklch(0.9 0 0);\n  --radius: 0.625rem;\n}\n';
 		const files = { 'package.json': JSON.stringify({ dependencies: { react: '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0' } }), 'components.json': JSON.stringify({ tsx: true, tailwind: { css: 'app/globals.css' }, aliases: { components: '@/components', ui: '@/components/ui', utils: '@/lib/utils', lib: '@/lib', hooks: '@/hooks' } }), 'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }), 'app/globals.css': css };

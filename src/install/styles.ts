@@ -41,6 +41,9 @@ export function installStyles(w: Writer, project: Project, surface: Surface, sty
 		css += `\n${faces.replace(/url\("\/fonts\//g, 'url("./fonts/')}\n`;
 		for (const file of Object.values(local.files)) w.copy(`${dir}/fonts/${file}`, pkgPath('brand', 'fonts', file));
 	}
+	// Tailwind 3 claims `@layer base` and fails the build unless the same file has `@tailwind base`; a layer of the brand's
+	// own name keeps the same cascade (the app's unlayered rules and utilities still win) without touching Tailwind's.
+	if (project.tailwindMajor && project.tailwindMajor < 4) css = css.replace(/@layer base\b/g, `@layer ${bin}-base`);
 	w.write(`${dir}/brand.css`, css);
 	if (tailwind4) w.write(`${dir}/theme.css`, readFileSync(pkgPath('build', 'theme.css'), 'utf8'));
 
