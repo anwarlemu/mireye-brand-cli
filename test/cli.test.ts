@@ -554,7 +554,7 @@ export function Button({ variant = "primary", size, loading, className, children
 			expect(readFileSync(join(dir, 'apps/web/.cursor/hooks.json'), 'utf8')).toContain('$CURSOR_PROJECT_DIR/../../node_modules/mireye-ds/bin.js');
 			expect(readFileSync(join(dir, 'apps/web/.codex/hooks.json'), 'utf8')).toContain('|| pwd)/node_modules/mireye-ds/bin.js');
 			const hook = readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8');
-			expect(hook).toContain('# ds:pre-commit:start apps/web');
+			expect(hook).toContain('# ds:pre-commit(apps/web):start');
 			expect(hook).toContain('(cd "apps/web" && node ../../node_modules/mireye-ds/bin.js check --changed');
 			run(join(dir, 'apps/web'), 'init');
 			expect(readFileSync(join(dir, '.git/hooks/pre-commit'), 'utf8')).toBe(hook);

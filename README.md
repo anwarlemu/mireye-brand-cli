@@ -46,6 +46,12 @@ npx mireye-ds guide
 ```
 
 `init` does not convert existing components. The bare command does; see "Update an existing interface" below.
+
+`init` and `add` install what the library's components need: brand tokens, the Tailwind theme, the Gilroy fonts and
+the Chakra provider they render in. The components render fully styled (Gilroy, the cut corners and the brand colors
+inside them), and the app's existing pages keep their look. The base layer (the page's type, colors, headings, links
+and focus on every element) comes only with a decision to brand the whole app: `apply` with no targets, `create`, or
+`init` in an app with no pages yet. An app set up with the base layer keeps it on every later `add` or selection.
 Requires Node.js 20 or later. Read [the agent guide](https://mireye-ds.agencidev.com/agents.md) with any coding agent.
 The same guide is installed at `.ds/agent-guide.md`. Agents that do not auto-load project instructions should read it explicitly.
 
@@ -137,6 +143,12 @@ npx mireye-ds apply button --pages /settings    # buttons on the settings page o
 npx mireye-ds apply /settings --with-shared     # also the layout and shell files it shares
 npx mireye-ds apply button --dry-run --json     # each file it would change, with the reason
 ```
+
+A named page renders in the brand: its root element takes the `ds-page` class (Gilroy, the brand's text color and
+ground on that page), its values convert to tokens, and its uses of components other pages share take the library's
+look at the use site (`className` with important classes), while the shared components stay as they are. A page can
+be a route, a file, or, in an app that routes without a router, its page component by name (`Settings`). Naming a
+library component also restyles a component the app built on its own cva (shadcn's `button.tsx`), in its own file.
 
 Nothing outside the selection changes apart from the shared setup (brand tokens, theme and the Gilroy fonts, without
 the base layer, and the Chakra provider the library's components render in): pages outside it render as before. A name
