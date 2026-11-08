@@ -534,6 +534,24 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     expect(out.block).not.toMatch(/position:|display:|width:/);
     expect(elementLayer('select.css', '.select-content { color: red } .select-item { color: red }', 'site').styled).toEqual([{selector:'.select-content',kind:'menu-panel'},{selector:'.select-item',kind:'menu-item'}]);
   });
+  it('before apply, check --changed and the stop hook hold only the values a change adds', () => {
+    const page = 'export default function Page() {\n  return <main className="bg-gray-50 text-gray-900">Acme</main>;\n}\n';
+    const dir = project({ 'package.json': JSON.stringify({ dependencies: { react: '19.2.0', tailwindcss: '4.1.0' } }), 'app/page.tsx': page });
+    try {
+      execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@acme.com', 'commit', '-qam', 'base', '--allow-empty'], { cwd: dir });
+      execFileSync('git', ['add', '-A'], { cwd: dir });
+      execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@acme.com', 'commit', '-qm', 'app'], { cwd: dir });
+      writeFileSync(join(dir, 'app/page.tsx'), page.replace('Acme', 'Acme <span className="text-fg">ships</span>'));
+      expect(run(dir, 'check', '--changed')).toMatch(/existing styles stay its own/);
+      expect(stop(dir, { session_id: 's1' } as any)).toEqual({});
+      writeFileSync(join(dir, 'app/page.tsx'), page.replace('Acme', 'Acme <span className="text-red-500">ships</span>'));
+      const result = execFileSync(process.execPath, [BIN, 'check', '--changed', '--json'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' }).toString();
+      expect.unreachable(result);
+    } catch (error: any) {
+      const findings = JSON.parse(error.stdout).findings;
+      expect(findings.map((f: any) => f.snippet)).toEqual([expect.stringContaining('text-red-500')]);
+    } finally { rmSync(dir, { recursive: true }); }
+  });
   it('finds library items by any spelling of their name and suggests close names', () => {
     expect(['AlertDialog', 'alert_dialog', 'Alert Dialog', 'alert-dialog', 'InputOTP'].map(canonicalName)).toEqual(['alert-dialog', 'alert-dialog', 'alert-dialog', 'alert-dialog', 'input-otp']);
     expect(suggestNames('buton', ['button', 'badge', 'card'])).toEqual(['button']);

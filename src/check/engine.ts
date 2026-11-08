@@ -75,7 +75,23 @@ function expandPath(root: string, rel: string): string[] {
 	return styledFiles(abs).map((f) => relative(root, join(abs, f)));
 }
 
-export function runCheck(root: string, opts: { paths?: string[]; fix?: boolean; changed?: boolean; colorSurface?: Surface } = {}): CheckResult {
+/** The file as the last commit has it, or undefined for a file git does not have yet. */
+function committedText(root: string, rel: string) {
+	try {
+		return execFileSync('git', ['show', `HEAD:./${rel}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * Whether checks hold only what a change adds: true while the app has not been converted (set up with init or add
+ * only). Its existing styles are the app's own until `apply` converts them, so a commit or an agent that touches one
+ * line of an old file is held to that line, not to every value the file already had. New files are checked in full.
+ */
+export const onlyNewFindings = (root: string) => !readState(root);
+
+export function runCheck(root: string, opts: { paths?: string[]; fix?: boolean; changed?: boolean; colorSurface?: Surface; onlyNew?: boolean } = {}): CheckResult {
 	const started = performance.now();
 	const state = readState(root);
 	const colorsFor = (rel: string) => opts.colorSurface ?? (state?.colors === 'components' ? surfaceOf(rel, { surface: state.surface, mixed: state.mixed, product: 0, site: 0, reasons: [] }) : undefined);
@@ -97,7 +113,8 @@ export function runCheck(root: string, opts: { paths?: string[]; fix?: boolean; 
 				result = checkText(rel, text, colorsFor(rel));
 			}
 		}
-		findings.push(...result.findings);
+		const before = opts.onlyNew ? committedText(root, rel) : undefined;
+		findings.push(...(before === undefined ? result.findings : newFindings(checkText(rel, before, colorsFor(rel)).findings, result.findings)));
 		overrides.push(...result.overrides);
 	}
 	// A ds-override is an exception a person signs off. Until `approve` records it, it counts as an error.
