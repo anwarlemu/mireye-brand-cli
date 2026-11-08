@@ -217,13 +217,31 @@ export function adaptComponent(text: string, c: AppComponent, item: string, surf
 	const local = `Ds${item.replace(/(^|-)([a-z])/g, (_, __, ch: string) => ch.toUpperCase())}`;
 	const adapter = make({ c, surface, local, values });
 	if (!adapter) return undefined;
-	const body = c.body.expression ? `(${adapter.body})` : `{\n  return ${adapter.body};\n}`;
+	// A JavaScript file gets the same adapter without its type annotations.
+	const js = /\.(jsx|js)$/.test(c.file);
+	const plain = (code: string) => (js ? stripTypes(code) : code);
+	const body = c.body.expression ? `(${plain(adapter.body)})` : `{\n  return ${plain(adapter.body)};\n}`;
 	let out = text.slice(0, c.body.start) + body + text.slice(c.body.end);
-	if (adapter.prelude) out = out.slice(0, c.span.start) + `${adapter.prelude}\n\n` + out.slice(c.span.start);
+	if (adapter.prelude) out = out.slice(0, c.span.start) + `${plain(adapter.prelude)}\n\n` + out.slice(c.span.start);
 	const names = [`${adapter.exportName} as ${local}`, ...(adapter.extraImports ?? [])];
-	const imports = [`import { ${names.join(', ')} } from "${importFrom}";`, ...(adapter.prelude ? ['import type { ComponentProps as DsComponentProps } from "react";'] : [])];
-	return insertImports(dropOrphanStyles(text, out), imports);
+	const imports = [`import { ${names.join(', ')} } from "${importFrom}";`, ...(adapter.prelude && !js ? ['import type { ComponentProps as DsComponentProps } from "react";'] : [])];
+	const result = insertImports(dropOrphanStyles(text, out), imports);
+	if (js) {
+		try {
+			parse(result, { sourceType: 'module', plugins: ['jsx'] });
+		} catch {
+			return undefined;
+		}
+	}
+	return result;
 }
+
+/** The adapters' TypeScript-only syntax removed: the variant maps' types and the casts to the library's prop types. */
+const stripTypes = (code: string) =>
+	code
+		.replace(/(const \w+): Record<string, string> =/g, '$1 =')
+		.replace(/new Set<string>\(/g, 'new Set(')
+		.replace(/ as DsComponentProps<typeof \w+>\["\w+"\]/g, '');
 
 /**
  * The class maps the old body read (const styles = { primary: 'bg-indigo-600 ...' }) are unused once it renders the

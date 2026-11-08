@@ -32,6 +32,7 @@ import { groundAliases } from '../src/install/styles.js';
 import { patchUtils } from '../src/library/swap.js';
 import { missingChakraPackages } from '../src/install/chakra.js';
 import { canonicalName, suggestNames } from '../src/library/registry.js';
+import { componentConfig, prepareTransforms } from '../src/install/config.js';
 
 const ROOT = join(import.meta.dirname, '..');
 const BIN = join(ROOT, 'bin.js');
@@ -509,6 +510,24 @@ export function Button({ variant = "primary", size, loading, className, children
 		// A class map something else still reads stays.
 		const kept = 'const styles = { a: "x" };\nexport const B = () => <b className={styles.a} />;\nexport const C = () => <i className={styles.a} />;\n';
 		expect(dropOrphanStyles(kept, kept)).toBe(kept);
+	});
+	it('swaps in a JavaScript app with an adapter that has no type syntax', async () => {
+		const button = "const styles = {\n  primary: 'bg-indigo-600 text-white',\n  danger: 'bg-red-600 text-white',\n};\n\nexport function PrimaryButton({ variant = 'primary', className = '', ...props }) {\n  return <button className={`rounded-lg px-4 py-2 ${styles[variant]} ${className}`} {...props} />;\n}\n";
+		const deps = { react: '19.0.0', vite: '7.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', 'class-variance-authority': '*', clsx: '*', 'tailwind-merge': '*' };
+		const dir = project({ 'package.json': JSON.stringify({ dependencies: deps }), 'src/index.css': '@import "tailwindcss";', 'src/components/PrimaryButton.jsx': button, 'src/App.jsx': 'import { PrimaryButton } from "./components/PrimaryButton";\nexport default function App() { return <PrimaryButton variant="danger">Delete</PrimaryButton>; }\n', 'src/main.jsx': 'import { createRoot } from "react-dom/client";\nimport App from "./App";\ncreateRoot(document.getElementById("root")).render(<App />);\n' });
+		try {
+			await prepareTransforms(componentConfig(dir, detectProject(dir)));
+			const result = applyComponents(detectProject(dir), () => 'site', {})!;
+			expect(result.swapped).toEqual(['src/components/PrimaryButton.jsx']);
+			const adapted = readFileSync(join(dir, 'src/components/PrimaryButton.jsx'), 'utf8');
+			expect(adapted).toContain('from "./ds/button"');
+			expect(adapted).toContain('"danger": "destructive"');
+			// The destructured default is a value too: a use without a variant stays the primary key.
+			expect(adapted).toContain('"primary": "default"');
+			expect(adapted).not.toMatch(/Record<|DsComponentProps|<string>/);
+			expect(() => parseTs(adapted, { sourceType: 'module', plugins: ['jsx'] })).not.toThrow();
+			expect(existsSync(join(dir, 'src/components/ds/button.jsx'))).toBe(true);
+		} finally { rmSync(dir, { recursive: true }); }
 	});
 	it('restyling a root leaves separators such as join(" ") alone', () => {
 		const text = 'export function Tag({ on }: { on: boolean }) { return <span className={["rounded-full bg-green-100 px-2", on ? "font-bold" : undefined].filter(Boolean).join(" ")}>x</span>; }';

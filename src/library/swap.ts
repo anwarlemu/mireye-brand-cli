@@ -161,7 +161,8 @@ export function applyComponents(project: Project, surfaceOf: (rel: string) => Su
 	});
 
 	const result: SwapResult = { swapped: [], styled: [], reverted: [], added: [], packages: [], checked: false, decisions: [] };
-	const canAdapt = !!layout && project.typescript;
+	// TypeScript files are type-checked after the swap; JavaScript files get adapters without types (adapt.ts).
+	const canAdapt = !!layout;
 	const backups = new Map<string, string | undefined>();
 	const current = new Map(texts);
 	const write = (rel: string, content: string) => {

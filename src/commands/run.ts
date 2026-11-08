@@ -1,4 +1,4 @@
-import { configureRegistry } from '../install/config.js';
+import { componentConfig, configureRegistry, prepareTransforms } from '../install/config.js';
 import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -24,7 +24,7 @@ import { mainScreens, pickMain, renderBatch, renderTask, taskStatus, touchNote }
 
 export type RunOptions = { colors?: 'components'; surface?: string; theme?: string; redo?: boolean; dryRun?: boolean; install?: boolean; json?: boolean };
 
-export function run(opts: RunOptions) {
+export async function run(opts: RunOptions) {
 	const root = findProjectRoot();
 	selfInstall(root, opts);
 	const existing = readState(root);
@@ -64,7 +64,7 @@ export function selfInstall(root: string, opts: RunOptions, handoff = true) {
 	process.exit(handOff.status ?? 1);
 }
 
-function setUp(root: string, opts: RunOptions, previous?: State) {
+async function setUp(root: string, opts: RunOptions, previous?: State) {
 	const project = detectProject(root);
 	const files = styledFiles(root);
 	const found = profile(root, files);
@@ -82,7 +82,10 @@ function setUp(root: string, opts: RunOptions, previous?: State) {
 			return {};
 		}
 	})();
-	const swap = (pkgJson.dependencies?.react || pkgJson.devDependencies?.react) && (project.tailwindMajor ?? 0) >= 4 ? applyComponents(project, (rel) => (mixed ? surfaceOf(rel, found) : surface), { dryRun: opts.dryRun }) : undefined;
+	const reactTailwind = !!(pkgJson.dependencies?.react || pkgJson.devDependencies?.react) && (project.tailwindMajor ?? 0) >= 4;
+	// A JavaScript app's library files are written without types: load that transform first.
+	if (reactTailwind) await prepareTransforms(componentConfig(root, project));
+	const swap = reactTailwind ? applyComponents(project, (rel) => (mixed ? surfaceOf(rel, found) : surface), { dryRun: opts.dryRun }) : undefined;
 	const converted = convertProject(project, files, mixed ? 'site' : surface, { dryRun: opts.dryRun, theme });
 	const w = new Writer(root, opts.dryRun);
 	const styleText = files.filter((f) => STYLES.test(f) || MARKUP.test(f)).map((f) => readFileSync(join(root, f), 'utf8')).join('\n');
