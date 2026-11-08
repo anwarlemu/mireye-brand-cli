@@ -9,9 +9,10 @@ import { scopeTheme, tokensOnly, unlayer } from '../src/install/styles.js';
 import { missingChakraPackages } from '../src/install/chakra.js';
 import { binCommand, installPreCommit } from '../src/install/agents.js';
 import { Writer } from '../src/install/files.js';
-import { adaptComponent, dropOrphanStyles, restyleCva, restyleRoot } from '../src/library/adapt.js';
+import { adaptComponent, dropOrphanStyles, restyleCva, restyleRoot, useSiteLook } from '../src/library/adapt.js';
 import { componentsIn, identify } from '../src/library/components.js';
 import { applyComponentColors, componentColorEdits } from '../src/convert/components.js';
+import { brandStep } from '../src/convert/looks.js';
 import { newStats } from '../src/convert/css.js';
 import { loadItem, loadItemSync } from '../src/library/registry.js';
 import { brand } from '../src/lib/brand.js';
@@ -154,7 +155,7 @@ describe('apply to a selection', () => {
 			const hook = read(dir, '.git/hooks/pre-commit');
 			expect(hook).toContain('(cd "apps/web" && node ');
 			const page = join(dir, 'apps/web/app/team/page.tsx');
-			writeFileSync(page, readFileSync(page, 'utf8').replace('rounded-md bg-primary', 'rounded-md bg-[#ff0000]'));
+			writeFileSync(page, readFileSync(page, 'utf8').replace('</main>', '<button type="button" className="bg-[#ff0000] text-white">X</button></main>'));
 			expect(changedFiles(join(dir, 'apps/web'))).toContain('app/team/page.tsx');
 			expect(spawnSync('sh', ['.git/hooks/pre-commit'], { cwd: dir, encoding: 'utf8' }).status).toBe(1);
 		} finally {
@@ -198,7 +199,7 @@ describe('apply to a selection', () => {
 			const touched = changed(dir, APP).filter((f) => !SHARED_SETUP.test(f));
 			expect(touched.sort()).toEqual(['app/page.tsx', 'app/settings/profile-form.tsx', 'app/team/page.tsx', 'components/primary-button.tsx']);
 			// The buttons take the brand; every other value in those files is the app's own.
-			expect(read(dir, 'app/team/page.tsx')).toContain('bg-primary');
+			expect(read(dir, 'app/team/page.tsx')).toContain('[--ds-shape-fill:var(--ds-color-action-primary)]');
 			expect(read(dir, 'app/team/page.tsx')).toContain('p-[13px]');
 			expect(read(dir, 'app/settings/profile-form.tsx')).toContain('border-[#cbd5e1]');
 			expect(read(dir, 'components/primary-button.tsx')).toContain(`components/ds/button`);
@@ -252,9 +253,10 @@ describe('apply to a selection', () => {
 		const dir = project(APP);
 		try {
 			expect(cli(dir, 'apply', 'button', '--pages', '/settings').status).toBe(0);
-			expect(changed(dir, APP).filter((f) => !SHARED_SETUP.test(f)).sort()).toEqual(['app/settings/profile-form.tsx']);
+			// The form's own button, and the shared button's use on the page (at the use site).
+			expect(changed(dir, APP).filter((f) => !SHARED_SETUP.test(f)).sort()).toEqual(['app/settings/page.tsx', 'app/settings/profile-form.tsx']);
 			const form = read(dir, 'app/settings/profile-form.tsx');
-			expect(form).toContain('bg-primary');
+			expect(form).toContain('[--ds-shape-fill:var(--ds-color-action-primary)]');
 			expect(form).toContain('border-[#cbd5e1]');
 		} finally {
 			rmSync(dir, { recursive: true });
@@ -616,12 +618,11 @@ describe('pre-commit blocks for several apps in one repository', () => {
 
 describe('what a page-limited component matched', () => {
 	it('says the component is outside the named pages, not missing from the app', () => {
-		const dir = project({ ...APP, 'app/about/page.tsx': 'import { PrimaryButton } from "@/components/primary-button";\n\nexport default function About() {\n  return <main><PrimaryButton>Contact</PrimaryButton></main>;\n}\n' });
+		const dir = project({ ...APP, 'app/about/page.tsx': 'export default function About() {\n  return <main>Acme</main>;\n}\n' });
 		try {
 			const out = cli(dir, 'apply', 'button', '--pages', '/about', '--dry-run').stdout;
 			expect(out).not.toContain('nothing in the app is a button');
 			expect(out).toMatch(/button: none inside the selection; \d+ files? outside it/);
-			expect(out).toContain('components/primary-button.tsx');
 		} finally {
 			rmSync(dir, { recursive: true });
 		}
@@ -707,12 +708,105 @@ describe('converted colors in an app with its own theme', () => {
 		const whole = project(APP);
 		try {
 			cli(dir, 'apply', 'button');
-			expect(read(dir, 'app/team/page.tsx')).toContain('bg-[var(--ds-color-action-primary)]');
+			// Mireye's buttons fill a cut shape through a variable, never a theme color name.
+			expect(read(dir, 'app/team/page.tsx')).toContain('[--ds-shape-fill:var(--ds-color-action-primary)]');
+			expect(read(dir, 'app/team/page.tsx')).not.toMatch(/\bbg-primary\b/);
 			cli(whole, 'apply', 'button');
-			expect(read(whole, 'app/team/page.tsx')).toMatch(/\bbg-primary\b/);
+			expect(read(whole, 'app/team/page.tsx')).toContain('[--ds-shape-fill:var(--ds-color-action-primary)]');
 		} finally {
 			rmSync(dir, { recursive: true });
 			rmSync(whole, { recursive: true });
+		}
+	});
+});
+
+describe('combined selections, a widened base layer and use-site clearing', () => {
+	it('apply button --pages /settings restyles the uses of the shared button on that page, and nothing else there', () => {
+		const dir = project(APP);
+		try {
+			expect(cli(dir, 'apply', 'button', '--pages', '/settings').status).toBe(0);
+			const page = read(dir, 'app/settings/page.tsx');
+			expect(page).toMatch(/<PrimaryButton className="[^"]*ds-cut![^"]*" variant="secondary">Export<\/PrimaryButton>/);
+			expect(page).not.toContain('ds-page');
+			expect(page).toContain('text-[#0f172a]');
+			expect(read(dir, 'components/primary-button.tsx')).toBe(APP['components/primary-button.tsx']);
+			expect(read(dir, 'app/page.tsx')).toBe(APP['app/page.tsx']);
+		} finally {
+			rmSync(dir, { recursive: true });
+		}
+	});
+	it('a bare apply that widens a selection records the base layer at once', () => {
+		const dir = project(APP);
+		try {
+			cli(dir, 'add', 'button');
+			cli(dir, 'apply', '/settings');
+			expect(JSON.parse(read(dir, '.ds/config.json')).baseLayer).toBe(false);
+			cli(dir, 'apply');
+			expect(JSON.parse(read(dir, '.ds/config.json')).baseLayer).toBe(true);
+		} finally {
+			rmSync(dir, { recursive: true });
+		}
+	});
+	it('a use-site look clears the component ground only where the library draws its own cut shape', () => {
+		const button = loadItemSync('button')!.files![0].content;
+		const own = useSiteLook('button', button, 'site', 'primary')!;
+		// Mireye's button draws a cut shape: its use-site look clears the component's own ground; a look without one does not.
+		expect(own).toEqual(expect.arrayContaining(['ds-cut', 'bg-transparent', 'border-0', 'rounded-none', 'shadow-none']));
+		expect(useSiteLook('button', 'const v = cva("rounded-full", { variants: { variant: { default: "bg-primary" } } });', 'site')).not.toContain('bg-transparent');
+		const cut = 'const v = cva("ds-cut relative", { variants: { variant: { default: "text-fg" } } });';
+		expect(useSiteLook('button', cut, 'site')).toEqual(expect.arrayContaining(['ds-cut', 'bg-transparent', 'border-0', 'rounded-none', 'shadow-none']));
+	});
+});
+
+describe('raw elements take the brand look, and classes its steps', () => {
+	const HOME = 'export default function Home() {\n  return (\n    <main className="mx-auto max-w-2xl p-8">\n      <h1 className="text-3xl font-bold text-slate-900">Acme dashboard</h1>\n      <p className="mt-2 text-sm text-slate-600 uppercase tracking-wide">Everything in one place.</p>\n      <div className="mt-6 flex gap-3">\n        <button className="rounded-md bg-indigo-600 px-4 py-2 text-white">Get started</button>\n        <button className="rounded-md border border-slate-300 px-4 py-2 text-slate-900">Learn more</button>\n        <button className="rounded-md px-3 py-1.5 text-sm text-indigo-600">Docs</button>\n      </div>\n      <div className="mt-8 rounded-xl border border-slate-200 p-6 shadow-sm">\n        <input className="mt-3 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" placeholder="name@acme.test" />\n        <input type="checkbox" className="size-4 accent-indigo-600" />\n        <textarea rows={3} className="mt-3 w-full rounded-md border border-slate-300 px-3 py-2" />\n      </div>\n    </main>\n  );\n}\n';
+	it('maps default steps to the nearest brand step, deterministically', () => {
+		expect(brandStep('text-sm')).toBe('text-body-lg');
+		expect(brandStep('md:text-xs')).toBe('md:text-body-sm');
+		expect(brandStep('text-3xl', undefined, 1)).toBe('text-h1');
+		// Mireye has no rounding: every radius is none.
+		expect(brandStep('rounded-md')).toBe('rounded-none');
+		expect(brandStep('rounded-full')).toBe('rounded-none');
+		expect(brandStep('rounded-t-lg')).toBe('rounded-t-none');
+		expect(brandStep('font-bold')).toBe('font-medium');
+		expect(brandStep('shadow-sm')).toBe('shadow-card');
+		expect(brandStep('shadow-lg')).toBe('shadow-floating');
+		expect(brandStep('uppercase')).toBe('normal-case');
+		expect(brandStep('tracking-wide')).toBe('tracking-normal');
+		expect(brandStep('mt-2')).toBe('mt-2');
+	});
+	it('a whole apply gives buttons, inputs, checkboxes and headings their full look, keeps layout and intent, and leaves nothing to check', () => {
+		const dir = project({ ...APP, 'app/page.tsx': HOME });
+		try {
+			expect(cli(dir, 'apply').status).toBe(0);
+			const out = read(dir, 'app/page.tsx');
+			expect(out).toMatch(/<h1 className="[^"]*font-display text-h1 font-normal leading-heading[^"]*">/);
+			expect(out).not.toMatch(/text-3xl|font-bold|rounded-md|px-4 py-2|shadow-sm/);
+			expect(out).toMatch(/<button className="[^"]* ds-cut text-on-primary \[--ds-shape-fill:var\(--ds-color-action-primary\)\][^"]*h-9 px-4 bg-transparent border-0 rounded-none shadow-none">Get started/);
+			expect(out).toMatch(/<button className="[^"]* ds-cut-frame text-fg[^"]*">Learn more/);
+			expect(out).toMatch(/<button className="[^"]*text-fg-secondary[^"]*h-8 px-3[^"]*">Docs/);
+			expect(out).toMatch(/<input className="mt-3 w-full h-9 px-3 border border-line bg-surface/);
+			expect(out).toContain('<input type="checkbox" className="size-4 accent-primary" />');
+			expect(out).toMatch(/<textarea rows=\{3\} className="mt-3 w-full px-3 border border-line bg-surface/);
+			expect(out).not.toMatch(/<textarea[^>]*\bh-9\b/);
+			expect(out).toContain('className="mt-6 flex gap-3"');
+			expect(JSON.parse(cli(dir, 'check', 'app/page.tsx', '--json').stdout).findings).toEqual([]);
+			cli(dir, 'apply', '--redo');
+			expect(read(dir, 'app/page.tsx')).toBe(out);
+		} finally {
+			rmSync(dir, { recursive: true });
+		}
+	});
+	it('a selection of buttons gives only the buttons their look', () => {
+		const dir = project({ ...APP, 'app/page.tsx': HOME });
+		try {
+			cli(dir, 'apply', 'button');
+			const out = read(dir, 'app/page.tsx');
+			expect(out).toMatch(/ds-cut text-on-primary/);
+			expect(out).toContain('<h1 className="text-3xl font-bold text-slate-900">');
+			expect(out).toContain('rounded-md border border-slate-300 px-3 py-2 text-sm');
+		} finally {
+			rmSync(dir, { recursive: true });
 		}
 	});
 });
