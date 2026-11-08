@@ -716,6 +716,10 @@ export function Picker(props: any) { return <Select.Root name="card" value={prop
     const bare = project({ 'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0' } }) });
     try { expect(missingChakraPackages(bare)).toEqual(['@chakra-ui/react@3.37.0', '@emotion/react@^11.14.0', '@emotion/cache@^11.14.0']); } finally { rmSync(bare, { recursive: true }); }
   });
+  it('every registry item lists only installable npm package names', () => {
+    const items = JSON.parse(readFileSync(join(ROOT, 'apps/www/public/r/index.json'), 'utf8')).items as { name: string; packages?: string[] }[];
+    for (const item of items) for (const pkg of item.packages ?? []) expect(pkg, item.name).toMatch(/^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/);
+  });
   it('CLI add ships the corrected components, dependencies and theme', () => {
     const dir = project({ 'package.json': JSON.stringify({ dependencies: { react: '19.0.0', 'react-dom': '19.0.0', tailwindcss: '4.1.0', '@chakra-ui/react': '^3.37.0', '@emotion/react': '^11.14.0', 'radix-ui': '*', '@phosphor-icons/react': '*', clsx: '*', 'tailwind-merge': '*', 'class-variance-authority': '*' } }), 'tsconfig.json': JSON.stringify({compilerOptions:{paths:{'@/*':['./*']}}}), 'app/globals.css': '@import "tailwindcss";' });
     try {
