@@ -15,6 +15,8 @@ For new applications, `create --template vite --name <directory>` scaffolds the 
 
 Read `guide` for brand rules and `tokens <term> --json` for custom styling. Keep colors scoped to component roles; preserve artwork, chart data and unrelated palettes. Use `check --json` and the application's build and interaction tests to verify the result.
 
+Render Open Graph and social images with `npx {{bin}} image --list --json`, then `npx {{bin}} image --format og --template headline --title "..." --json`. Formats: og (1200 by 630), square (1080 by 1080), portrait (1080 by 1350), landscape (1200 by 675). Templates: headline, subtext, frame, quote, announcement. The command writes PNG and SVG from the brand tokens, fonts and logo. Pass `--image` for a screenshot in the frame template. Do not invent a separate social layout.
+
 The standard shadcn registry is `{{registryHost}}/r/shadcn/{name}.json`, under `@{{bin}}` in components.json. Use `npx shadcn@4.22.1 add @{{bin}}/theme @{{bin}}/<name>` for shadcn's workspace routing and ecosystem integrations. The same registry works with its MCP server. Component references are at `{{registry}}/components`.
 
 With the upstream installer, include the theme explicitly so existing shadcn font and color aliases are updated. Native add applies it automatically.

@@ -62,6 +62,23 @@ The component reference states its source. `{{registryHost}}/r/audit.json` recor
 - Connect every action to its intended behavior. Handle empty, loading, disabled, invalid, success and error states. Preserve keyboard controls, focus return, accessible names and native form semantics. Never present a preview's local demo action as a completed backend operation.
 - Use the provided portal behavior. Surface is for an isolated preview or a scoped theme; ordinary pages do not need an extra Surface wrapper. Mount one Toaster per application when using toast notifications.
 
+## Render images
+
+The CLI renders Open Graph and social images from the brand tokens, the brand fonts and the logo. It does not open a browser. Use it for link previews and posts instead of inventing a layout or fetching a different font.
+
+```sh
+{{cli}} image --list --json
+{{cli}} image --format og --template headline --title "Parcel survey" --json
+{{cli}} image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access." --out ./images --json
+{{cli}} image --format landscape --template frame --title "Parcel 18" --image ./screen.png --json
+{{cli}} image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review" --json
+{{cli}} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --theme enterprise --export png,svg --json
+```
+
+`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file.
+
+Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `landscape` 1200 by 675. Templates: `headline`, `subtext`, `frame`, `quote`, `announcement`. Themes are the brand's own palettes (`--theme`, default on `--list`). `frame` places a PNG or JPEG in the cut frame; without `--image` it draws a survey plate. Keep the words plain and short. The sheet uses the brand ground, ink, type, mark and cut corner, so do not restyle the export.
+
 ## Interaction and motion rules
 
 - Rare triggers (onboarding, occasional feedback, celebrations) may use expressive animation. Keep it interruptible and respect reduced motion; never make an action wait for it. Repeated feedback is a frequent interaction, even if it is called a celebration.
@@ -88,8 +105,8 @@ The component reference states its source. `{{registryHost}}/r/audit.json` recor
 
 `init` and conversion install AGENTS.md and a local `.ds/agent-guide.md`, plus supported agent instruction files and hook configuration. Agents that do not load those files automatically should read them explicitly. Hooks support Claude Code, Codex and Cursor when enabled by that tool; other agents run the CLI checks directly. Codex hook activation may require the user's `/hooks` trust step. No hook integration is required to use the components correctly.
 
-Read-only commands: `guide`, `list`, `show`, `look`, `tokens`, `check` without `--fix`.
-Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. Installation/build failures return a nonzero exit code.
+Read-only commands: `guide`, `list`, `show`, `look`, `tokens`, `check` without `--fix`, and `image --list`.
+Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, `image` (PNG and SVG), and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. Installation/build failures return a nonzero exit code.
 
 ## Project configuration and agent handoff
 

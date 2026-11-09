@@ -18,5 +18,6 @@ Each is in force today; each names where it lives, so a change is one edit.
    hover; this library keeps icons still, an Agencidev rule for every brand.
 6. Enterprise · Earth swaps the roles the palette board names (ink, inverse fills, strong lines, the main action and
    its hover) for Umber and Bark. Figma has no Enterprise UI boards. `brand/tokens.css`.
-7. The wordmark is not final, so the docs show the mark with the name set in Gilroy. `apps/www/components/logo.tsx`.
-8. The site URL (https://mireye.com) is a placeholder until the product's domain is confirmed. `brand/brand.json`.
+7. The wordmark is not final, so the docs show the mark with the name set in Gilroy. `apps/www/components/logo.tsx`. The image command uses the same lockup.
+8. The site URL (https://mireye.com) is a placeholder until the product's domain is confirmed. `brand/brand.json`. Imagery uses its host as the default footer.
+9. Social and Open Graph sheets are not in the Figma file. `image` composes them from the tokens, Gilroy, DM Mono and the logomark, at the export size (1200 by 630, 1080 by 1080, 1080 by 1350, 1200 by 675). Poster type and the cut are larger than the product UI so the signature still reads. DM Mono is vendored under the SIL Open Font License (`brand/fonts/DMMono-OFL.txt`) so a render does not fetch a font.

@@ -37,10 +37,12 @@
     "get-tsconfig": "4.14.3",
     "@babel/core": "7.29.7",
     "@babel/plugin-transform-typescript": "7.29.9",
-    "diff": "^8.0.2"
+    "diff": "^8.0.2",
+    "fontkit": "^2.0.4"
   },
   "optionalDependencies": {
-    "playwright-core": "^1.63.0"
+    "playwright-core": "^1.63.0",
+    "@resvg/resvg-js": "^2.6.2"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",

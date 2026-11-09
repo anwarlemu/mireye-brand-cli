@@ -24,7 +24,7 @@ await build({
 	format: 'esm',
 	target: 'node20',
 	// Babel's optional external config loader is disabled by configFile:false and babelrc:false.
-	external: ['playwright-core', '@babel/preset-typescript'],
+	external: ['playwright-core', '@babel/preset-typescript', '@resvg/resvg-js'],
 	banner: { js: "import { createRequire as __ds_require } from 'node:module'; const require = __ds_require(import.meta.url);" },
 	logLevel: 'warning',
 });

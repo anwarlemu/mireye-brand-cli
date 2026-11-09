@@ -33,6 +33,14 @@
 			},
 			"license": "Paid (Radomir Tinkov); the license for Mireye's use is still to be confirmed. Keep this repo private."
 		},
+		"mono": {
+			"family": "DM Mono",
+			"files": {
+				"400": "DMMono-Regular.ttf",
+				"500": "DMMono-Medium.ttf"
+			},
+			"license": "SIL Open Font License 1.1 (brand/fonts/DMMono-OFL.txt). Vendored so image rendering does not fetch a font."
+		},
 		"native": "Add Gilroy Regular and Medium (all text) and DM Mono (coordinates, IDs, values and code) to the app as fonts and set them on its text styles"
 	},
 	"icons": {

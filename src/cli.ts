@@ -5,6 +5,7 @@ import { review, snapshot } from './commands/review.js';
 import { run } from './commands/run.js';
 import { guide } from './commands/guide.js';
 import { workflow } from './commands/workflow.js';
+import { imageCommand } from './commands/image.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
 import { readHookInput } from './hooks/payload.js';
@@ -33,6 +34,27 @@ program.command('review [url]').description('Screenshot a page at desktop and ph
 program.command('look [target]').description('The brand styling (CSS, Tailwind, states) for every element in a file, or for one element kind').option('--surface <surface>', 'site or product').option('--json', 'JSON output').action((target, _opts, command) => look(target, command.optsWithGlobals()));
 program.command('check [files...]').description('Check component colors and style tokens (used by hooks, pre-commit and CI)').option('--fix', 'apply safe token fixes').option('--changed', 'only files changed in git').option('--all', 'also check files outside the applied selection').option('--json', 'JSON output').action((files, _opts, command) => check(files ?? [], command.optsWithGlobals()));
 program.command('tokens [term]').description('Find a brand token by name or value').option('--json', 'JSON output').action((term, _opts, command) => tokensCommand(term, command.optsWithGlobals()));
+program
+	.command('image')
+	.description('Render an Open Graph or social image from the brand tokens, type and logo')
+	.option('--list', 'list formats, templates and themes')
+	.option('--format <id>', 'og (1200x630), square (1080x1080), portrait (1080x1350) or landscape (1200x675)')
+	.option('--template <id>', 'headline, subtext, frame, quote or announcement')
+	.option('--theme <id>', 'a brand theme (see --list)')
+	.option('--title <text>', 'headline')
+	.option('--subtitle <text>', 'supporting line')
+	.option('--kicker <text>', 'short label above an announcement')
+	.option('--quote <text>', 'quotation')
+	.option('--attribution <text>', 'who said the quotation')
+	.option('--image <path>', 'PNG or JPEG for the frame template')
+	.option('--footer <text>', 'footer line (defaults to the brand site)')
+	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
+	.option('--out <dir>', 'output directory (default: .ds/images in the project)')
+	.option('--name <base>', 'file name without an extension')
+	.option('--export <kinds>', 'png, svg, or png,svg', 'png,svg')
+	.option('--json', 'JSON output listing the files written')
+	.addHelpText('after', () => `\nExamples:\n  ${cli()} image --list --json\n  ${cli()} image --format og --template headline --title "Parcel survey" --json\n  ${cli()} image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access."\n  ${cli()} image --format landscape --template frame --title "Parcel 18" --image ./screen.png\n  ${cli()} image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"\n  ${cli()} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --export png,svg\n`)
+	.action((_opts, command) => imageCommand(command.optsWithGlobals()));
 program.command('approve').description('Approve ds-override comments (a person, in a terminal)').option('--all', 'approve every pending override').action((opts) => approve(opts));
 program.command('snapshot [url]').description('Save how each main screen looks before hand edits (run once, with the app running); reviews compare against it').action((url) => snapshot(url));
 program.command('skip <screen>').description('Leave a screen as it is when it cannot pass without changing words or elements; the person sees the reason').requiredOption('--reason <text>', 'why').action((id, opts) => skip(id, opts.reason));
@@ -74,4 +96,3 @@ program.parseAsync().catch((error: Error) => {
 	else process.stderr.write(`${error.message}\n`);
 	process.exit(1);
 });
-void cli;

@@ -81,6 +81,7 @@ Build this page using the Mireye design system at https://mireye-ds.agencidev.co
 Read https://mireye-ds.agencidev.com/agents.md first.
 Run npx mireye-ds show <name> --json for exact exports, usage rules, examples and source.
 Add existing components with the CLI. Use design tokens for custom layout and styling.
+Render Open Graph and social images with npx mireye-ds image. Run image --list --json for formats and templates.
 Connect every control to its intended behavior. Include validation, loading, empty and error states where needed.
 Run the project checks and the CLI token check. Test keyboard interaction and desktop and phone layouts.
 ```
@@ -111,12 +112,27 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `list` | List the available components. |
 | `look <file\|element>` | Show component and token guidance for a file or element type. |
 | `tokens [term]` | Find a token by name or role. |
+| `image` | Render an Open Graph or social image (PNG and SVG) from the brand tokens, type and logo. |
 | `check [files...]` | Check style values. Use `--changed` for Git changes or `--fix` for exact token replacements. |
 | `review <url> --any` | Review a page that is not part of an existing conversion task list. |
 | `review <url>` | Review a tracked screen and mark its task complete when it passes. |
 | `approve` | Approve a `ds-override` comment in a human-operated terminal. |
 | `done <screen>` | Mark a native screen task complete. Web screen tasks use `review`. |
 | `skip <screen> --reason "..."` | Record why a tracked screen was left unchanged. |
+
+## Render images
+
+`image` draws a brand sheet at a social size. It uses the tokens, Gilroy, DM Mono and the logomark. No browser.
+
+```sh
+npx mireye-ds image --list --json
+npx mireye-ds image --format og --template headline --title "Parcel survey" --json
+npx mireye-ds image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access."
+npx mireye-ds image --format landscape --template frame --title "Parcel 18" --image ./screen.png
+npx mireye-ds image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"
+```
+
+Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate.
 
 ## Update an existing interface
 
