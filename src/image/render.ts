@@ -63,12 +63,12 @@ function cutPoly(x: number, y: number, w: number, h: number, cut: number): strin
 	return `M${num(x + c)} ${num(y)}H${num(x + w)}V${num(y + h)}H${num(x)}V${num(y + c)}Z`;
 }
 
-/** A hairline cut frame. The stroke is a filled band, so the diagonal matches the straight edges. */
+/** A hairline cut frame. The stroke is a filled band, so the diagonal matches the straight edges. Antialiased, so the 45° cut does not stair. */
 function cutFrame(x: number, y: number, w: number, h: number, cut: number, color: string, stroke = 2): string {
 	const innerCut = cut + stroke * (Math.SQRT2 - 1);
 	const outer = cutPoly(x, y, w, h, cut);
 	const inner = `M${num(x + innerCut)} ${num(y + stroke)}H${num(x + w - stroke)}V${num(y + h - stroke)}H${num(x + stroke)}V${num(y + innerCut)}Z`;
-	return `<path d="${outer}${inner}" fill="${color}" fill-rule="evenodd" shape-rendering="crispEdges"/>`;
+	return `<path d="${outer}${inner}" fill="${color}" fill-rule="evenodd"/>`;
 }
 
 function diamond(cx: number, cy: number, r: number, fill: string): string {
@@ -146,10 +146,15 @@ function footer(sheet: Sheet, mono: Font, text: string): string {
 
 type Piece = { drawn: Drawn; gapBefore: number };
 
+function columnHeight(items: Piece[]): number {
+	const visible = items.filter((item) => item.drawn.height > 0 && item.drawn.svg);
+	return visible.reduce((sum, item, index) => sum + item.drawn.height + (index > 0 ? item.gapBefore : 0), 0);
+}
+
 /** Move a column of blocks onto the footer rule. Each block was drawn at the top of the body. */
 function stack(sheet: Sheet, items: Piece[]): string {
 	const visible = items.filter((item) => item.drawn.height > 0 && item.drawn.svg);
-	const height = visible.reduce((sum, item, index) => sum + item.drawn.height + (index > 0 ? item.gapBefore : 0), 0);
+	const height = columnHeight(visible);
 	let y = sheet.body.y + Math.max(0, sheet.body.h - height);
 	return visible
 		.map((item, index) => {
@@ -160,6 +165,17 @@ function stack(sheet: Sheet, items: Piece[]): string {
 			return svg;
 		})
 		.join('');
+}
+
+/** Shrink the column until it sits in the body. A block taller than the body would paint through the footer rule. */
+function fitColumn(sheet: Sheet, make: (scale: number) => Piece[]): string {
+	let scale = 1;
+	let pieces = make(scale);
+	while (columnHeight(pieces) > sheet.body.h && scale > 0.5) {
+		scale = Math.round((scale - 0.05) * 100) / 100;
+		pieces = make(scale);
+	}
+	return stack(sheet, pieces);
 }
 
 function atBody(font: Font, text: string | undefined, size: number, sheet: Sheet, fill: string, opts: { leading: number; maxLines: number; minSize: number; maxHeight?: number; x?: number; width?: number }): Drawn {
@@ -174,86 +190,98 @@ function atBody(font: Font, text: string | undefined, size: number, sheet: Sheet
 }
 
 function headline(sheet: Sheet, sans: Font, content: ImageContent): string {
-	const title = atBody(sans, content.title, sheet.metrics.title, sheet, sheet.colors.ink, {
-		leading: leading('tight'),
-		maxLines: sheet.height < 800 ? 3 : 4,
-		minSize: Math.round(sheet.metrics.title * 0.62),
+	const lines = sheet.height < 800 ? 3 : 4;
+	return fitColumn(sheet, (scale) => {
+		const title = atBody(sans, content.title, Math.round(sheet.metrics.title * scale), sheet, sheet.colors.ink, {
+			leading: leading('tight'),
+			maxLines: lines,
+			minSize: Math.round(sheet.metrics.title * scale),
+		});
+		return [{ drawn: title, gapBefore: 0 }];
 	});
-	return stack(sheet, [{ drawn: title, gapBefore: 0 }]);
 }
 
 function subtext(sheet: Sheet, sans: Font, content: ImageContent): string {
-	const title = atBody(sans, content.title, sheet.metrics.title, sheet, sheet.colors.ink, {
-		leading: leading('tight'),
-		maxLines: sheet.height < 800 ? 2 : 3,
-		minSize: Math.round(sheet.metrics.title * 0.66),
-		maxHeight: sheet.body.h * 0.62,
+	const lines = sheet.height < 800 ? 2 : 3;
+	return fitColumn(sheet, (scale) => {
+		const title = atBody(sans, content.title, Math.round(sheet.metrics.title * scale), sheet, sheet.colors.ink, {
+			leading: leading('tight'),
+			maxLines: lines,
+			minSize: Math.round(sheet.metrics.title * scale),
+			maxHeight: sheet.body.h * 0.62,
+		});
+		const sub = atBody(sans, content.subtitle, Math.max(16, Math.round(sheet.metrics.sub * scale)), sheet, sheet.colors.secondary, {
+			leading: leading('body'),
+			maxLines: 3,
+			minSize: Math.max(16, Math.round(sheet.metrics.sub * scale)),
+			maxHeight: sheet.body.h * 0.32,
+		});
+		return [
+			{ drawn: title, gapBefore: 0 },
+			{ drawn: sub, gapBefore: Math.round(sheet.metrics.sub * 0.75) },
+		];
 	});
-	const sub = atBody(sans, content.subtitle, sheet.metrics.sub, sheet, sheet.colors.secondary, {
-		leading: leading('body'),
-		maxLines: 3,
-		minSize: Math.max(16, sheet.metrics.sub - 6),
-		maxHeight: sheet.body.h * 0.38,
-	});
-	return stack(sheet, [
-		{ drawn: title, gapBefore: 0 },
-		{ drawn: sub, gapBefore: Math.round(sheet.metrics.sub * 0.75) },
-	]);
 }
 
 function announcement(sheet: Sheet, sans: Font, mono: Font, content: ImageContent): string {
-	const kicker = atBody(mono, content.kicker, sheet.metrics.kicker, sheet, sheet.colors.secondary, { leading: leading('body'), maxLines: 1, minSize: 13 });
-	const tickH = content.kicker ? Math.round(sheet.metrics.kicker * 0.7) : 0;
-	const tick: Drawn = {
-		svg: content.kicker ? ticks(sheet.body.x, sheet.body.y, 12, 6, tickH, 5, sheet.colors.ink, sheet.colors.line) : '',
-		width: 67,
-		height: tickH,
-		size: sheet.metrics.kicker,
-		lines: [],
-	};
-	const title = atBody(sans, content.title, sheet.metrics.title, sheet, sheet.colors.ink, {
-		leading: leading('tight'),
-		maxLines: sheet.height < 800 ? 3 : 4,
-		minSize: Math.round(sheet.metrics.title * 0.62),
+	const lines = sheet.height < 800 ? 3 : 4;
+	return fitColumn(sheet, (scale) => {
+		const kicker = atBody(mono, content.kicker, sheet.metrics.kicker, sheet, sheet.colors.secondary, { leading: leading('body'), maxLines: 1, minSize: 13 });
+		const tickH = content.kicker ? Math.round(sheet.metrics.kicker * 0.7) : 0;
+		const tick: Drawn = {
+			svg: content.kicker ? ticks(sheet.body.x, sheet.body.y, 12, 6, tickH, 5, sheet.colors.ink, sheet.colors.line) : '',
+			width: 67,
+			height: tickH,
+			size: sheet.metrics.kicker,
+			lines: [],
+		};
+		const title = atBody(sans, content.title, Math.round(sheet.metrics.title * scale), sheet, sheet.colors.ink, {
+			leading: leading('tight'),
+			maxLines: lines,
+			minSize: Math.round(sheet.metrics.title * scale),
+		});
+		const sub = atBody(sans, content.subtitle, Math.max(16, Math.round(sheet.metrics.sub * scale)), sheet, sheet.colors.secondary, {
+			leading: leading('body'),
+			maxLines: 2,
+			minSize: Math.max(16, Math.round(sheet.metrics.sub * scale)),
+		});
+		return [
+			{ drawn: kicker, gapBefore: 0 },
+			{ drawn: tick, gapBefore: content.kicker ? Math.round(sheet.metrics.kicker * 0.7) : 0 },
+			{ drawn: title, gapBefore: content.kicker ? Math.round(sheet.metrics.title * 0.42) : 0 },
+			{ drawn: sub, gapBefore: sub.height ? Math.round(sheet.metrics.sub * 0.7) : 0 },
+		];
 	});
-	const sub = atBody(sans, content.subtitle, sheet.metrics.sub, sheet, sheet.colors.secondary, {
-		leading: leading('body'),
-		maxLines: 3,
-		minSize: Math.max(16, sheet.metrics.sub - 6),
-	});
-	return stack(sheet, [
-		{ drawn: kicker, gapBefore: 0 },
-		{ drawn: tick, gapBefore: content.kicker ? Math.round(sheet.metrics.kicker * 0.7) : 0 },
-		{ drawn: title, gapBefore: content.kicker ? Math.round(sheet.metrics.title * 0.42) : 0 },
-		{ drawn: sub, gapBefore: sub.height ? Math.round(sheet.metrics.sub * 0.7) : 0 },
-	]);
 }
 
 function quote(sheet: Sheet, sans: Font, mono: Font, content: ImageContent): string {
-	const size = sheet.metrics.quote;
-	const r = Math.max(5, Math.round(size * 0.16));
-	const inset = r * 2 + Math.round(size * 0.42);
-	const text = atBody(sans, content.quote, size, sheet, sheet.colors.ink, {
-		leading: leading('display'),
-		maxLines: sheet.height < 800 ? 4 : 6,
-		minSize: Math.round(size * 0.64),
-		x: sheet.body.x + inset,
-		width: sheet.body.w - inset,
+	const lines = sheet.height < 800 ? 4 : 6;
+	return fitColumn(sheet, (scale) => {
+		const size = Math.round(sheet.metrics.quote * scale);
+		const r = Math.max(5, Math.round(size * 0.16));
+		const inset = r * 2 + Math.round(size * 0.42);
+		const text = atBody(sans, content.quote, size, sheet, sheet.colors.ink, {
+			leading: leading('display'),
+			maxLines: lines,
+			minSize: size,
+			x: sheet.body.x + inset,
+			width: sheet.body.w - inset,
+		});
+		const metrics = lineMetrics(sans, text.size, leading('display'));
+		const baseline = sheet.body.y + (metrics.lineHeight - metrics.em) / 2 + metrics.ascent;
+		const node = diamond(sheet.body.x + r, baseline - metrics.ascent * 0.38, r, sheet.colors.ink);
+		const by = atBody(mono, content.attribution, sheet.metrics.attr, sheet, sheet.colors.secondary, {
+			leading: leading('body'),
+			maxLines: 1,
+			minSize: 13,
+			x: sheet.body.x + inset,
+			width: sheet.body.w - inset,
+		});
+		return [
+			{ drawn: { ...text, svg: `${node}${text.svg}` }, gapBefore: 0 },
+			{ drawn: by, gapBefore: by.height ? Math.round(sheet.metrics.attr) : 0 },
+		];
 	});
-	const metrics = lineMetrics(sans, text.size, leading('display'));
-	const baseline = sheet.body.y + (metrics.lineHeight - metrics.em) / 2 + metrics.ascent;
-	const node = diamond(sheet.body.x + r, baseline - metrics.ascent * 0.38, r, sheet.colors.ink);
-	const by = atBody(mono, content.attribution, sheet.metrics.attr, sheet, sheet.colors.secondary, {
-		leading: leading('body'),
-		maxLines: 1,
-		minSize: 13,
-		x: sheet.body.x + inset,
-		width: sheet.body.w - inset,
-	});
-	return stack(sheet, [
-		{ drawn: { ...text, svg: `${node}${text.svg}` }, gapBefore: 0 },
-		{ drawn: by, gapBefore: by.height ? Math.round(sheet.metrics.attr) : 0 },
-	]);
 }
 
 function imageMime(buf: Buffer): string | undefined {
@@ -324,7 +352,7 @@ function frame(sheet: Sheet, sans: Font, mono: Font, content: ImageContent): str
 		parts.push(sub.svg);
 		cursor += sub.height + gap;
 	}
-	const plateH = sheet.body.y + sheet.body.h - cursor;
+	const plateH = Math.max(1, sheet.body.y + sheet.body.h - cursor);
 	const cut = Math.max(16, Math.round(sheet.cut * 0.75));
 	const clip = `<clipPath id="plate"><path d="${cutPoly(sheet.body.x, cursor, sheet.body.w, plateH, cut)}"/></clipPath>`;
 	let picture: string;
@@ -352,6 +380,7 @@ function compose(format: FormatId, template: TemplateId, theme: string, content:
 		: frame(sheet, faces.sans, faces.mono, content);
 	const title = [content.kicker, content.title, content.subtitle, content.quote, content.attribution, footerText].filter(Boolean).join('. ');
 	const desc = content.image ? 'Screenshot in a cut frame.' : template === 'frame' ? 'Survey plate.' : 'Brand sheet.';
+	const clipped = `<clipPath id="sheet-body"><rect x="${num(sheet.body.x)}" y="${num(sheet.body.y)}" width="${num(sheet.body.w)}" height="${num(sheet.body.h)}"/></clipPath><g clip-path="url(#sheet-body)">${body}</g>`;
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${sheet.width}" height="${sheet.height}" viewBox="0 0 ${sheet.width} ${sheet.height}" role="img">
 <title>${escapeXml(title)}</title>
@@ -359,7 +388,7 @@ function compose(format: FormatId, template: TemplateId, theme: string, content:
 <rect width="${sheet.width}" height="${sheet.height}" fill="${colors.ground}"/>
 ${cutFrame(sheet.frame.x, sheet.frame.y, sheet.frame.w, sheet.frame.h, sheet.cut, colors.line)}
 ${lockup(sheet, faces.sans)}
-${body}
+${clipped}
 ${footer(sheet, faces.mono, footerText)}
 </svg>
 `;

@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { inflateSync } from 'node:zlib';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -16,6 +17,89 @@ function pngSize(buf: Buffer) {
 	expect(buf.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
 	expect(buf.subarray(12, 16).toString('ascii')).toBe('IHDR');
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+}
+
+type Raster = { w: number; h: number; ch: number; rows: Buffer[] };
+
+function decodePng(buf: Buffer): Raster {
+	const w = buf.readUInt32BE(16);
+	const h = buf.readUInt32BE(20);
+	const ct = buf[25];
+	const ch = ct === 6 ? 4 : ct === 2 ? 3 : 0;
+	if (!ch) throw new Error(`Unsupported PNG color type ${ct}.`);
+	const idats: Buffer[] = [];
+	let off = 8;
+	while (off < buf.length) {
+		const len = buf.readUInt32BE(off);
+		const type = buf.toString('ascii', off + 4, off + 8);
+		if (type === 'IDAT') idats.push(buf.subarray(off + 8, off + 8 + len));
+		if (type === 'IEND') break;
+		off += 12 + len;
+	}
+	const raw = inflateSync(Buffer.concat(idats));
+	const stride = w * ch;
+	const rows: Buffer[] = [];
+	let prev = Buffer.alloc(stride);
+	let p = 0;
+	const paeth = (a: number, b: number, c: number) => {
+		const pa = Math.abs(b - c);
+		const pb = Math.abs(a - c);
+		const pc = Math.abs(a + b - 2 * c);
+		return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+	};
+	for (let y = 0; y < h; y++) {
+		const filter = raw[p++];
+		const row = Buffer.from(raw.subarray(p, p + stride));
+		p += stride;
+		for (let i = 0; i < stride; i++) {
+			const left = i >= ch ? row[i - ch] : 0;
+			const up = prev[i];
+			const ul = i >= ch ? prev[i - ch] : 0;
+			const x = row[i];
+			if (filter === 1) row[i] = (x + left) & 255;
+			else if (filter === 2) row[i] = (x + up) & 255;
+			else if (filter === 3) row[i] = (x + Math.floor((left + up) / 2)) & 255;
+			else if (filter === 4) row[i] = (x + paeth(left, up, ul)) & 255;
+		}
+		rows.push(row);
+		prev = row;
+	}
+	return { w, h, ch, rows };
+}
+
+function pixel(img: Raster, x: number, y: number) {
+	const i = x * img.ch;
+	const row = img.rows[y];
+	return [row[i], row[i + 1], row[i + 2]] as const;
+}
+
+function isInk(c: readonly number[]) {
+	return c[0] < 100 && c[1] < 110 && c[2] < 100;
+}
+
+/** Rows of clear ground between the last body ink and the footer rule. */
+function clearRowsAboveRule(img: Raster): number {
+	let ruleY = -1;
+	let best = 0;
+	for (let y = Math.round(img.h * 0.55); y < img.h - 28; y++) {
+		let run = 0;
+		for (let x = 80; x < img.w - 80; x++) {
+			const c = pixel(img, x, y);
+			if (c[0] > 150 && c[0] < 210 && Math.abs(c[0] - c[1]) < 16 && Math.abs(c[1] - c[2]) < 16) run++;
+		}
+		if (run > best && run < img.w - 140) {
+			best = run;
+			ruleY = y;
+		}
+	}
+	expect(ruleY).toBeGreaterThan(0);
+	let lastInk = 0;
+	for (let y = 80; y < ruleY - 1; y++) {
+		for (let x = 70; x < img.w - 180; x += 2) {
+			if (isInk(pixel(img, x, y))) lastInk = y;
+		}
+	}
+	return ruleY - lastInk;
 }
 
 function contentFor(template: TemplateId): ImageContent {
@@ -36,6 +120,7 @@ describe('image catalog', () => {
 			['landscape', 1200, 675],
 		]);
 		expect(data.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement']);
+		expect(data.templates.find((template) => template.id === 'headline')?.optional).toEqual(['footer']);
 		expect(data.exports).toEqual(['png', 'svg']);
 		expect(data.themes.some((theme) => theme.default)).toBe(true);
 	});
@@ -92,6 +177,40 @@ describe('image render', () => {
 		expect(pngA.files[0].bytes).toBe(pngB.files[0].bytes);
 	}, 60000);
 
+	it('keeps long copy above the footer rule and antialiases the cut', async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'ds-image-'));
+		const long = {
+			kicker: 'Field note',
+			title: 'The ground the boundary the access the parcel the sheet the review the mark',
+			subtitle: 'Boundaries access constraints citations coordinates and the way an agent reads the sheet before the map.',
+		};
+		await renderImage({ format: 'og', template: 'announcement', theme: 'api', content: long, exports: ['png'], outDir: dir, name: 'long' });
+		const img = decodePng(readFileSync(join(dir, 'long.png')));
+		expect(clearRowsAboveRule(img)).toBeGreaterThanOrEqual(8);
+		const quote = await renderImage({
+			format: 'landscape',
+			template: 'quote',
+			theme: 'api',
+			content: { quote: 'Read the sheet before you read the map, and cite the boundary before you cite the guess. The parcel is the record.', attribution: 'Field review' },
+			exports: ['png'],
+			outDir: dir,
+			name: 'quote',
+		});
+		expect(quote.ok).toBe(true);
+		expect(clearRowsAboveRule(decodePng(readFileSync(join(dir, 'quote.png'))))).toBeGreaterThanOrEqual(8);
+		await renderImage({ format: 'og', template: 'headline', theme: 'api', content: { title: 'Road edge.' }, exports: ['png'], outDir: dir, name: 'cut' });
+		const letters = decodePng(readFileSync(join(dir, 'cut.png')));
+		const across = new Set<string>();
+		for (let x = 40; x < 60; x++) across.add(pixel(letters, x, 50).join(','));
+		expect(across.size).toBeGreaterThan(2);
+	});
+
+	it('embeds a JPEG screenshot in the frame', () => {
+		const svg = svgDocument('square', 'frame', 'api', { title: 'Parcel 18', image: join(ROOT, 'brand/reference/site-buttons-desktop.jpg') });
+		expect(svg).toContain('data:image/jpeg;base64,');
+		expect(svg).toContain('width="1080"');
+	});
+
 	it('refuses a frame image that is not a PNG or JPEG', async () => {
 		const dir = mkdtempSync(join(tmpdir(), 'ds-image-'));
 		const file = join(dir, 'notes.txt');
@@ -135,5 +254,27 @@ describe('image command', () => {
 		expect(result.files[0].path).toMatch(/merged\.svg$/);
 		expect(readFileSync(join(dir, 'merged.svg'), 'utf8')).toContain('From the flag');
 		expect(readFileSync(join(dir, 'merged.svg'), 'utf8')).toContain('File line');
+	});
+
+	it('reads an image path in a content file relative to that file', async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'ds-image-'));
+		const nest = join(dir, 'cards');
+		mkdirSync(nest);
+		const tiny = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+		writeFileSync(join(nest, 'shot.png'), tiny);
+		writeFileSync(join(nest, 'card.json'), JSON.stringify({ title: 'Parcel 18', image: 'shot.png' }));
+		const logs: string[] = [];
+		const write = process.stdout.write.bind(process.stdout);
+		process.stdout.write = ((chunk: string) => {
+			logs.push(String(chunk));
+			return true;
+		}) as typeof process.stdout.write;
+		try {
+			await imageCommand({ content: join(nest, 'card.json'), format: 'og', template: 'frame', out: dir, name: 'rel', export: 'svg', json: true });
+		} finally {
+			process.stdout.write = write;
+		}
+		expect(JSON.parse(logs.join('')).ok).toBe(true);
+		expect(readFileSync(join(dir, 'rel.svg'), 'utf8')).toContain('data:image/png;base64,');
 	});
 });

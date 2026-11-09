@@ -75,7 +75,7 @@ The CLI renders Open Graph and social images from the brand tokens, the brand fo
 {{cli}} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --theme enterprise --export png,svg --json
 ```
 
-`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file.
+`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file. An `image` path in that file is read relative to the file. Long copy shrinks so it stays above the footer rule.
 
 Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `landscape` 1200 by 675. Templates: `headline`, `subtext`, `frame`, `quote`, `announcement`. Themes are the brand's own palettes (`--theme`, default on `--list`). `frame` places a PNG or JPEG in the cut frame; without `--image` it draws a survey plate. Keep the words plain and short. The sheet uses the brand ground, ink, type, mark and cut corner, so do not restyle the export.
 

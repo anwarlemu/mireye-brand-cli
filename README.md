@@ -132,7 +132,7 @@ npx mireye-ds image --format landscape --template frame --title "Parcel 18" --im
 npx mireye-ds image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"
 ```
 
-Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate.
+Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate. `--content` reads a JSON file, and an `image` path in it is relative to that file. Long copy shrinks so the type stays above the footer rule.
 
 ## Update an existing interface
 

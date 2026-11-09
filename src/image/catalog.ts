@@ -16,7 +16,7 @@ export const TEMPLATES = {
 	headline: {
 		description: 'A headline on the sheet.',
 		required: ['title'],
-		optional: ['kicker', 'footer'],
+		optional: ['footer'],
 	},
 	subtext: {
 		description: 'A headline and one supporting line.',

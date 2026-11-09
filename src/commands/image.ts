@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { catalog, cleanContent, defaultTheme, isFormat, isTemplate, requireContent, themes, type ImageContent } from '../image/catalog.js';
 import { renderImage, type ExportKind } from '../image/render.js';
 import { cli } from '../lib/brand.js';
@@ -41,7 +41,10 @@ function fileContent(file: string): ImageContent {
 	} catch {
 		throw new Error('--content must be a JSON object.');
 	}
-	return cleanContent(parsed);
+	const content = cleanContent(parsed);
+	// A picture named in the file sits next to that file. Flag paths stay relative to the working directory.
+	if (file !== '-' && content.image && !isAbsolute(content.image)) content.image = resolve(dirname(resolve(file)), content.image);
+	return content;
 }
 
 function safeName(name: string): string {
