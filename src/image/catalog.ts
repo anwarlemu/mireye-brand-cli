@@ -148,12 +148,15 @@ export function leading(name: 'tight' | 'display' | 'body'): number {
 
 const FIELD = /^(title|subtitle|kicker|quote|attribution|image|footer)$/;
 
-/** Trim text fields and reject anything past the limit. Unknown keys are ignored. */
-export function cleanContent(input: unknown): ImageContent {
+/** Trim text fields and reject anything past the limit. Unknown keys are an error. `allowed` narrows the fields a caller accepts. */
+export function cleanContent(input: unknown, allowed?: readonly ContentKey[]): ImageContent {
 	if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Image content must be an object of strings.');
+	const allow = allowed ?? (Object.keys(LIMITS) as ContentKey[]);
+	const allowSet = new Set<string>(allow);
 	const out: ImageContent = {};
 	for (const [key, value] of Object.entries(input)) {
-		if (!FIELD.test(key) || value === undefined || value === null || value === '') continue;
+		if (!allowSet.has(key)) throw new Error(`Unknown field "${key}". Fields: ${allow.join(', ')}.`);
+		if (value === undefined || value === null || value === '') continue;
 		if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
 		const text = key === 'image' ? value.trim() : value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').trim();
 		if (!text) continue;
@@ -183,6 +186,10 @@ export function catalog() {
 		templates: (Object.entries(TEMPLATES) as [TemplateId, (typeof TEMPLATES)[TemplateId]][]).map(([id, template]) => ({ id, description: template.description, required: template.required, optional: template.optional })),
 		themes: themes().map(({ id, label, default: isDefault }) => ({ id, label, default: isDefault })),
 		exports: ['png', 'svg'],
+		content: {
+			fields: (Object.keys(LIMITS) as ContentKey[]).map((id) => ({ id, type: 'string', maxLength: LIMITS[id] })),
+			unknownFields: 'error',
+		},
 		defaults: { theme: defaultTheme(), out: '.ds/images', export: ['png', 'svg'], footer: defaultFooter() },
 	};
 }

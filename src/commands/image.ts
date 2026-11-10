@@ -72,10 +72,12 @@ export async function imageCommand(opts: Options) {
 		});
 		return;
 	}
-	if (!opts.format || !isFormat(opts.format)) throw new Error('--format is required: og, square, portrait, landscape.');
-	if (!opts.template || !isTemplate(opts.template)) throw new Error('--template is required: headline, subtext, frame, quote or announcement.');
+	if (!opts.format) throw new Error('--format is required: og, square, portrait, landscape.');
+	if (!isFormat(opts.format)) throw new Error(`Unknown format "${opts.format}". Formats: og, square, portrait, landscape.`);
+	if (!opts.template) throw new Error('--template is required: headline, subtext, frame, quote or announcement.');
+	if (!isTemplate(opts.template)) throw new Error(`Unknown template "${opts.template}". Templates: headline, subtext, frame, quote, announcement.`);
 	const theme = opts.theme ?? defaultTheme();
-	if (!themes().some((item) => item.id === theme)) throw new Error(`Unknown theme "${theme}". Run \`${cli()} image --list\` for the themes.`);
+	if (!themes().some((item) => item.id === theme)) throw new Error(`Unknown theme "${theme}". Themes: ${themes().map((item) => item.id).join(', ')}.`);
 	const content = { ...((opts.content ? fileContent(opts.content) : {}) as ImageContent), ...flagContent(opts) };
 	requireContent(opts.template, content);
 	const format = opts.format;

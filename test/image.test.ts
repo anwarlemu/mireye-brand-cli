@@ -127,7 +127,8 @@ describe('image catalog', () => {
 
 	it('rejects copy past the field limit and unknown themes', () => {
 		expect(() => cleanContent({ title: 'a'.repeat(161) })).toThrow(/title is longer/);
-		expect(cleanContent({ title: '  Parcel survey  ', extra: 'ignored' })).toEqual({ title: 'Parcel survey' });
+		expect(cleanContent({ title: '  Parcel survey  ' })).toEqual({ title: 'Parcel survey' });
+		expect(() => cleanContent({ title: 'Parcel survey', extra: 'nope' })).toThrow(/Unknown field "extra"/);
 		expect(() => paletteFor('nope')).toThrow(/Unknown theme/);
 		expect(paletteFor('enterprise').ink).toBe('#1F1813');
 		expect(paletteFor('api').ink).toBe('#1E231C');
