@@ -622,7 +622,7 @@ describe('what a page-limited component matched', () => {
 		try {
 			const out = cli(dir, 'apply', 'button', '--pages', '/about', '--dry-run').stdout;
 			expect(out).not.toContain('nothing in the app is a button');
-			expect(out).toMatch(/button: none inside the selection; \d+ files? outside it/);
+			expect(out.replace(/\u001b\[[0-9;]*m/g, '')).toMatch(/button: none inside the selection; \d+ files? outside it/);
 		} finally {
 			rmSync(dir, { recursive: true });
 		}

@@ -5,9 +5,11 @@ description: Build or restyle interfaces with the {{brand}} design system. Use w
 
 Use the project's configured components and brand tokens. Preserve the user's requested content and behavior.
 
-Read project context with `npx {{bin}} info --json`. It reports the framework, stylesheet, aliases, installed components and registry. If the CLI is missing, use `npx -y {{source}}` in its place.
+Read project context with `npx {{bin}} manifest --json`, then `npx {{bin}} info --json`. Manifest lists every command, template, size, component and rule. Info reports the framework, stylesheet, aliases, installed components and registry. If the CLI is missing, use `npx -y {{source}}` in its place. Do not guess a name that manifest does not list.
 
-Find suitable components with `search <term> --json`, then read `view <names...> --json`. The response contains exact source and working examples. Inspect variant names, callback signatures and example dependencies instead of assuming another library's API.
+Find suitable components with `component list --json` or `search <term> --json`, then read `component inspect <name> --json` and `view <names...> --json`. Emit example markup with `component emit <name> --state <State> --json`. The response contains exact source and working examples. Inspect variant names, callback signatures and example dependencies instead of assuming another library's API. An unknown component or state is an error.
+
+Read tokens with `brand tokens --group <color|type|spacing|radii|motion> --json`, fonts with `brand fonts --json`, logos with `brand logos --json`, and voice with `brand voice --json`. Read product and website rules with `principles --json`. Product and website share one look. Radius tokens are 0. The shape is the cut corner.
 
 Install with `add <names...> --dry-run --json`, then `add <names...> --json`. Existing local files are preserved. Use `add <names...> --diff` to compare updates; use `--overwrite` only when replacing those local changes is intended.
 
@@ -15,7 +17,9 @@ For new applications, `create --template vite --name <directory>` scaffolds the 
 
 Read `guide` for brand rules and `tokens <term> --json` for custom styling. Keep colors scoped to component roles; preserve artwork, chart data and unrelated palettes. Use `check --json` and the application's build and interaction tests to verify the result.
 
-Render Open Graph and social images with `npx {{bin}} image --list --json`, then `npx {{bin}} image --format og --template headline --title "..." --json`. Formats: og (1200 by 630), square (1080 by 1080), portrait (1080 by 1350), landscape (1200 by 675). Templates: headline, subtext, frame, quote, announcement. The command writes PNG and SVG from the brand tokens, fonts and logo. Pass `--image` for a screenshot in the frame template. Do not invent a separate social layout.
+Render Open Graph and social images with `npx {{bin}} image --list --json`, then `npx {{bin}} image --format og --template headline --title "..." --json`. Formats: og (1200 by 630), square (1080 by 1080), portrait (1080 by 1350), landscape (1200 by 675). Templates: headline, subtext, frame, quote, announcement. The command writes PNG and SVG from the brand tokens, fonts and logo. Pass `--image` for a screenshot in the frame template. Unknown fields are an error. Do not invent a separate social layout.
+
+Render a short video with `npx {{bin}} video --list --json`, then `npx {{bin}} video --format square --template social --title "..." --json`. Formats: square (1080 by 1080), vertical (1080 by 1920), landscape (1920 by 1080). Templates: social, announcement, product. The file is an APNG from the same tokens, fonts and logo. The same inputs write the same bytes. There is no frame-rate flag.
 
 The standard shadcn registry is `{{registryHost}}/r/shadcn/{name}.json`, under `@{{bin}}` in components.json. Use `npx shadcn@4.22.1 add @{{bin}}/theme @{{bin}}/<name>` for shadcn's workspace routing and ecosystem integrations. The same registry works with its MCP server. Component references are at `{{registry}}/components`.
 

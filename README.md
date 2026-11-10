@@ -6,6 +6,20 @@ Reference: https://mireye-ds.agencidev.com
 
 ## Consistent CLI workflow
 
+Hand the CLI to an agent. The agent starts with one document and does not invent templates, sizes, components or tokens:
+
+```sh
+npx mireye-ds manifest --json
+npx mireye-ds brand --json
+npx mireye-ds principles --json
+npx mireye-ds component inspect button --json
+npx mireye-ds component emit button --state Preview --json
+npx mireye-ds image --list --json
+npx mireye-ds video --list --json
+```
+
+`describe` is an alias of `manifest`. Unknown names exit 1. With `--json` the error is `{"ok":false,"error":"..."}`.
+
 ```sh
 npx mireye-ds info --json
 npx mireye-ds search button --json
@@ -79,9 +93,11 @@ Include this with the page requirements:
 ```text
 Build this page using the Mireye design system at https://mireye-ds.agencidev.com.
 Read https://mireye-ds.agencidev.com/agents.md first.
-Run npx mireye-ds show <name> --json for exact exports, usage rules, examples and source.
+Run npx mireye-ds manifest --json and use only names it lists.
+Run npx mireye-ds component inspect <name> --json for props and states, and component emit <name> --json for example markup.
+Run npx mireye-ds brand tokens --json, brand voice --json and principles --json before writing copy or custom styles.
 Add existing components with the CLI. Use design tokens for custom layout and styling.
-Render Open Graph and social images with npx mireye-ds image. Run image --list --json for formats and templates.
+Render Open Graph and social images with npx mireye-ds image. Render short videos with npx mireye-ds video.
 Connect every control to its intended behavior. Include validation, loading, empty and error states where needed.
 Run the project checks and the CLI token check. Test keyboard interaction and desktop and phone layouts.
 ```
@@ -105,6 +121,10 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 
 | Command | Purpose |
 |---|---|
+| `manifest` | List every command, template, size, component and rule. `describe` is the same command. |
+| `brand` | Tokens (`brand tokens --group color\|type\|spacing\|radii\|motion`), fonts, logos and voice. |
+| `principles [surface]` | Product and website rules, including do and don't. `site` means the website. |
+| `component` | `list`, `inspect <name>` and `emit <name> [--state Preview]`. Emit copies a registry example. |
 | `init` | Install styles, fonts and agent instructions without converting existing components. |
 | `guide` | Read the portable agent workflow, including setup and verification. |
 | `show <item>` | Read usage rules, exports, examples and source. Use `--json` for structured output. |
@@ -113,6 +133,7 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `look <file\|element>` | Show component and token guidance for a file or element type. |
 | `tokens [term]` | Find a token by name or role. |
 | `image` | Render an Open Graph or social image (PNG and SVG) from the brand tokens, type and logo. |
+| `video` | Render a short APNG (square, 9:16 or 16:9) from the same tokens, fonts and logo. |
 | `check [files...]` | Check style values. Use `--changed` for Git changes or `--fix` for exact token replacements. |
 | `review <url> --any` | Review a page that is not part of an existing conversion task list. |
 | `review <url>` | Review a tracked screen and mark its task complete when it passes. |
@@ -132,7 +153,20 @@ npx mireye-ds image --format landscape --template frame --title "Parcel 18" --im
 npx mireye-ds image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"
 ```
 
-Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate. `--content` reads a JSON file, and an `image` path in it is relative to that file. Long copy shrinks so the type stays above the footer rule.
+Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate. `--content` reads a JSON file, and an `image` path in it is relative to that file. Unknown content fields are an error. Long copy shrinks so the type stays above the footer rule.
+
+## Render video
+
+`video` draws the same sheet in motion and writes an APNG. Frames are SVG from the tokens, the Gilroy and DM Mono files, and the logomark, rasterized with resvg. No browser. The same inputs write the same bytes. Timing is fixed: ten times `--ds-duration-base`, at 12 frames a second, played once. There is no flag to change that.
+
+```sh
+npx mireye-ds video --list --json
+npx mireye-ds video --format square --template social --title "Parcel survey" --json
+npx mireye-ds video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."
+npx mireye-ds video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."
+```
+
+Formats are `square` (1080 by 1080), `vertical` (1080 by 1920) and `landscape` (1920 by 1080). Templates are `social`, `announcement` and `product`. `--export apng` is the default. `png` and `svg` write the frames. Output goes to `.ds/videos` unless `--out` is set. Unknown formats, templates, themes and fields are an error. Sample frames and clips are in `samples/`.
 
 ## Update an existing interface
 
@@ -185,7 +219,7 @@ commits. Adding individual components with `add` does not run this conversion.
 - `/r/<name>.md` and `/r/<name>.json`: usage rules, exports, dependencies, examples and exact source.
 
 All references are generated from the same registry the CLI installs. Prefer individual component references to
-the complete file. `guide`, `list`, `show`, `look`, `tokens` and `check` without `--fix` are read-only. `init` and
+the complete file. `manifest`, `describe`, `brand`, `principles`, `component`, `guide`, `list`, `show`, `look`, `tokens` and `check` without `--fix` are read-only, as are `image --list` and `video --list`. `init` and
 `add` accept `--dry-run`; add `--json` for structured results. JSON goes to stdout; progress goes to stderr.
 
 ## Source

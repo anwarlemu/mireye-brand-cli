@@ -6,6 +6,11 @@ import { run } from './commands/run.js';
 import { guide } from './commands/guide.js';
 import { workflow } from './commands/workflow.js';
 import { imageCommand } from './commands/image.js';
+import { brandCommand } from './commands/brand.js';
+import { principlesCommand } from './commands/principles.js';
+import { componentCommand } from './commands/component.js';
+import { videoCommand } from './commands/video.js';
+import { manifestCommand } from './commands/manifest.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
 import { readHookInput } from './hooks/payload.js';
@@ -13,6 +18,9 @@ import { brand, cli, hasProduct } from './lib/brand.js';
 import { findProjectRoot } from './lib/paths.js';
 
 const program = new Command();
+// Subcommands copy these at creation, so they have to be set before any .command().
+program.exitOverride();
+if (process.argv.includes('--json')) program.configureOutput({ outputError: () => {} });
 const b = brand();
 
 program.name(b.bin).description(`Build ${b.name} pages and interfaces with the component library and design tokens. Use add, look, check and review during implementation.`);
@@ -29,6 +37,9 @@ program
 	.action((opts) => run(opts));
 
 program.command('guide').description('Read the portable agent workflow').action((_opts, command) => guide(command.optsWithGlobals()));
+program.command('manifest').description('List every capability, template, size, component and rule').option('--json', 'JSON output').action((_opts, command) => manifestCommand(command.optsWithGlobals()));
+program.command('describe').description('Alias of manifest').option('--json', 'JSON output').action((_opts, command) => manifestCommand(command.optsWithGlobals()));
+program.command('principles [surface]').description('Read product and website design rules').option('--surface <surface>', 'product or website (site is the website)').option('--json', 'JSON output').action((surface: string | undefined, _opts, command) => principlesCommand(surface ?? command.optsWithGlobals().surface, command.optsWithGlobals()));
 
 program.command('review [url]').description('Screenshot a page at desktop and phone width and score it against the brand; a task is done when it passes').option('--threshold <n>', 'minimum score').option('--submit <dir>', 'record the scorecard an agent wrote itself (when no separate reviewer is available)').option('--all', 'review every task screen that is not done yet, at once (pass the app\'s address)').option('--any', 'review a page that is not a task').option('--json', 'JSON output').action((url, _opts, command) => review(url, command.optsWithGlobals()));
 program.command('look [target]').description('The brand styling (CSS, Tailwind, states) for every element in a file, or for one element kind').option('--surface <surface>', 'site or product').option('--json', 'JSON output').action((target, _opts, command) => look(target, command.optsWithGlobals()));
@@ -55,6 +66,26 @@ program
 	.option('--json', 'JSON output listing the files written')
 	.addHelpText('after', () => `\nExamples:\n  ${cli()} image --list --json\n  ${cli()} image --format og --template headline --title "Parcel survey" --json\n  ${cli()} image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access."\n  ${cli()} image --format landscape --template frame --title "Parcel 18" --image ./screen.png\n  ${cli()} image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"\n  ${cli()} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --export png,svg\n`)
 	.action((_opts, command) => imageCommand(command.optsWithGlobals()));
+program
+	.command('video')
+	.description('Render a short on-brand video from the brand tokens, type and logo')
+	.option('--list', 'list formats, templates, timing and themes')
+	.option('--format <id>', 'square (1080x1080), vertical (1080x1920) or landscape (1920x1080)')
+	.option('--template <id>', 'social, announcement or product')
+	.option('--theme <id>', 'a brand theme (see --list)')
+	.option('--title <text>', 'headline')
+	.option('--subtitle <text>', 'supporting line')
+	.option('--kicker <text>', 'short label above an announcement')
+	.option('--footer <text>', 'footer line (defaults to the brand site)')
+	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
+	.option('--out <dir>', 'output directory (default: .ds/videos in the project)')
+	.option('--name <base>', 'file name without an extension')
+	.option('--export <kinds>', 'apng, png, svg, or a comma-separated list', 'apng')
+	.option('--json', 'JSON output listing the files written')
+	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n`)
+	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
+brandCommand(program);
+componentCommand(program);
 program.command('approve').description('Approve ds-override comments (a person, in a terminal)').option('--all', 'approve every pending override').action((opts) => approve(opts));
 program.command('snapshot [url]').description('Save how each main screen looks before hand edits (run once, with the app running); reviews compare against it').action((url) => snapshot(url));
 program.command('skip <screen>').description('Leave a screen as it is when it cannot pass without changing words or elements; the person sees the reason').requiredOption('--reason <text>', 'why').action((id, opts) => skip(id, opts.reason));
@@ -91,8 +122,14 @@ program
 
 workflow(program);
 
-program.parseAsync().catch((error: Error) => {
-	if (program.opts().json || process.argv.includes('--json')) process.stdout.write(`${JSON.stringify({ ok: false, error: error.message })}\n`);
+const fail = (error: Error & { exitCode?: number }) => {
+	if (error.exitCode === 0) process.exit(0);
+	if (process.argv.includes('--json')) process.stdout.write(`${JSON.stringify({ ok: false, error: error.message })}\n`);
 	else process.stderr.write(`${error.message}\n`);
-	process.exit(1);
-});
+	process.exit(error.exitCode && error.exitCode > 0 ? error.exitCode : 1);
+};
+try {
+	await program.parseAsync();
+} catch (error) {
+	fail(error as Error & { exitCode?: number });
+}

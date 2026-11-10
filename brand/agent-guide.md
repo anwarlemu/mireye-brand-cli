@@ -4,9 +4,10 @@ Use this system to build {{brand}} pages and interfaces from the user's brief. T
 
 ## Start here
 
-1. Read the project instructions and package.json. Identify the framework, package manager, stylesheet and import aliases. Use the user's requirements to decide whether to build new UI or restyle existing UI.
-2. Read this guide, then the relevant component references. The library is at {{registry}}/components. Plain text is at {{registry}}/llms.txt; a complete copy is at {{registry}}/llms-full.txt.
-3. Reuse the library's components and variants. Do not recreate them from screenshots or guess their props. Each reference contains the actual exports, dependencies, working examples and source code.
+1. Run `{{cli}} manifest --json` before anything else. It lists every command, token group, image template, video template, component and rule. `{{cli}} describe --json` is the same document. Do not guess a template, size, component, token or option that is not in it.
+2. Read the project instructions and package.json. Identify the framework, package manager, stylesheet and import aliases. Use the user's requirements to decide whether to build new UI or restyle existing UI.
+3. Read this guide, then the relevant component references. The library is at {{registry}}/components. Plain text is at {{registry}}/llms.txt; a complete copy is at {{registry}}/llms-full.txt.
+4. Reuse the library's components and variants. Do not recreate them from screenshots or guess their props. `{{cli}} component inspect <name> --json` is the props and states. `{{cli}} component emit <name> --json` is markup copied from the registry example.
 
 ## Install and prepare a project
 
@@ -33,14 +34,18 @@ The apply command can adapt matching components, convert style values, and insta
 ## Find, inspect and add components
 
 ```sh
+{{cli}} component list --json
+{{cli}} component inspect button --json
+{{cli}} component emit button --state Preview --json
 {{cli}} list --json
-{{cli}} show select
 {{cli}} show select --json
 {{cli}} add field select button --dry-run --json
 {{cli}} add field select button --json
 ```
 
-The add command above is an example, not the list required for every page. Choose items from `list`. `show` is read-only and works offline using the registry bundled with the CLI. `show --json` returns source, examples, usage rules, exports, dependencies and links. Hooks and helper libraries are included in the JSON index.
+The add command above is an example, not the list required for every page. Choose items from `component list` or `list`. `component inspect` reads the registry docs and source in this package and returns the variant props, other props, example states and the source. `component emit` returns one example function and its imports. Pass `--state` with an export name from the inspect result. An unknown component or state is an error. Items with no example file (helpers such as `utils`) cannot be emitted; read the source from inspect and do not invent markup.
+
+`show` is read-only and works offline using the registry bundled with the CLI. `show --json` returns source, examples, usage rules, exports, dependencies and links. Hooks and helper libraries are included in the JSON index.
 
 `add` copies source files and their transitive dependencies, installs missing npm packages, and wires the theme. Existing files are kept. Use `--overwrite` only when intentionally replacing local component changes. Read the returned file list and warnings. Generated imports and target files follow components.json and the project alias configuration. Existing utility files are preserved; brand helpers use their own names.
 
@@ -54,13 +59,43 @@ The component reference states its source. `{{registryHost}}/r/audit.json` recor
 - Use component props and variants shown in the source. Read the named example functions before composing compound components. Keep client state inside a client component when using Next.js; imports of client components can still be rendered by server pages.
 - Apply color tokens by component and state (primary action, field, panel, selected, invalid), using the component reference. The restyle installs the color definitions and Tailwind aliases, then maps identified uses. Preserve shared palette definitions, chart data, artwork, gradients and unrelated colors; do not replace every occurrence of a color or repurpose a shared variable. Leave ambiguous dynamic styling for review.
 - `init`, `add` and restyle install the complete token set: colors, typography, spacing, layout, radii, shadows, blur and motion. Tailwind utilities read those variables, including fractional spacing, font weights and transition durations. Keep shared values in these tokens so edits remain consistent across components.
-- Use design tokens for custom styles. `{{cli}} tokens <term> --json` finds values; `{{cli}} look <element-or-file> --json` explains styling by role. Use `var(--ds-*)` in CSS or the matching Tailwind utilities.
+- Use design tokens for custom styles. `{{cli}} brand tokens --json` lists every group. `{{cli}} brand tokens --group color --json` is one group. `{{cli}} brand tokens --name --ds-color-bone --json` is one token and errors if the name is unknown. `{{cli}} tokens <term> --json` searches by substring. `{{cli}} look <element-or-file> --json` explains styling by role. Use `var(--ds-*)` in CSS or the matching Tailwind utilities. Do not invent a token name.
 - Every word is Gilroy, Regular or Medium: 13px for body and controls, 12px for labels and chips, 16 to 24px regular for titles. Coordinates, IDs, values and code are DM Mono. Use the Forest cut key for the one main action, Bone cut frames with 1px Stone lines for fields, cards and panels, diamonds and ticks for state, and the Bone ground. Nothing is rounded and nothing casts a shadow. Do not introduce unrelated colors, shadows or type scales.
 - Icons are Phosphor at the regular weight (`@phosphor-icons/react`, from `@phosphor-icons/react/ssr` in server components; `phosphor-react-native` in native apps), plus Mireye's own arrow, check, plus and parcel glyphs from the library. Status and progress never get icons: use Diamond and Ticks. Do not add another icon library.
 - The installed stylesheet imports `./_{{bin}}/brand.css` and `./_{{bin}}/theme.css` beside the main stylesheet. `brand.css` includes tokens and base styles. Keep both imports after `@import "tailwindcss"`. Let the installer configure fonts; do not add a second font loader.
 - Put one control in each Field. Field connects labels, help, errors and required state. Validation and submission belong to your form. For Select use `value` and `onValueChange`, SelectTrigger with SelectValue, and SelectContent with SelectItem; values must be non-empty strings. Give the root a `name` for FormData. Use `defaultValue` only for uncontrolled input.
 - Connect every action to its intended behavior. Handle empty, loading, disabled, invalid, success and error states. Preserve keyboard controls, focus return, accessible names and native form semantics. Never present a preview's local demo action as a completed backend operation.
 - Use the provided portal behavior. Surface is for an isolated preview or a scoped theme; ordinary pages do not need an extra Surface wrapper. Mount one Toaster per application when using toast notifications.
+
+## Read the brand system
+
+These commands only report what is in the brand files. A missing font file, wordmark or clear-space rule is reported as missing. Do not fill the gap.
+
+```sh
+{{cli}} brand --json
+{{cli}} brand tokens --group color --json
+{{cli}} brand tokens --group type --json
+{{cli}} brand tokens --group spacing --json
+{{cli}} brand tokens --group radii --json
+{{cli}} brand tokens --group motion --json
+{{cli}} brand fonts --json
+{{cli}} brand logos --json
+{{cli}} brand voice --json
+```
+
+Groups are `color`, `type`, `spacing`, `radii`, `motion` and `other`. Radius tokens are 0. The cut-corner sizes live in the radii group as `--ds-cut`. Voice includes the banned words. Logos are the files in `brand/logo` plus the sentences in the brand files that mention the mark.
+
+## Read the design rules
+
+Product and website share one look. Query either surface. `site` means the website.
+
+```sh
+{{cli}} principles --json
+{{cli}} principles product --json
+{{cli}} principles website --json
+```
+
+Follow the returned `do` and `dont` lists. Do not add a rule that is not in the response.
 
 ## Render images
 
@@ -75,9 +110,22 @@ The CLI renders Open Graph and social images from the brand tokens, the brand fo
 {{cli}} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --theme enterprise --export png,svg --json
 ```
 
-`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file. An `image` path in that file is read relative to the file. Long copy shrinks so it stays above the footer rule.
+`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file. An `image` path in that file is read relative to the file. Unknown fields in that file are an error. Long copy shrinks so it stays above the footer rule.
 
-Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `landscape` 1200 by 675. Templates: `headline`, `subtext`, `frame`, `quote`, `announcement`. Themes are the brand's own palettes (`--theme`, default on `--list`). `frame` places a PNG or JPEG in the cut frame; without `--image` it draws a survey plate. Keep the words plain and short. The sheet uses the brand ground, ink, type, mark and cut corner, so do not restyle the export.
+Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `landscape` 1200 by 675. Templates: `headline`, `subtext`, `frame`, `quote`, `announcement`. Themes are the brand's own palettes (`--theme`, default on `--list`). An unknown format, template or theme is an error. `frame` places a PNG or JPEG in the cut frame; without `--image` it draws a survey plate. Keep the words plain and short. The sheet uses the brand ground, ink, type, mark and cut corner, so do not restyle the export.
+
+## Render video
+
+`video` renders a short clip from the same tokens, font files and logo. It does not open a browser. Each frame is an SVG, rasterized with resvg, then muxed into an APNG. The same inputs write the same bytes. There is no frame-rate flag. Timing is ten times `--ds-duration-base`, at 12 frames a second, and the clip plays once.
+
+```sh
+{{cli}} video --list --json
+{{cli}} video --format square --template social --title "Parcel survey" --json
+{{cli}} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note." --json
+{{cli}} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access." --json
+```
+
+Formats: `square` 1080 by 1080, `vertical` 1080 by 1920 (9:16), `landscape` 1920 by 1080 (16:9). Templates: `social`, `announcement`, `product`. `--export apng` is the default. `png` writes the frames and `svg` writes the frame sources. Output goes to `.ds/videos` unless `--out` is set. Unknown formats, templates, themes and content fields are errors.
 
 ## Interaction and motion rules
 
@@ -86,8 +134,8 @@ Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `land
 - Hundreds of uses per day, keyboard shortcuts and command palette toggles have no animation, transition or smooth-scroll wait. Use `data-ds-motion="instant"` on custom high-frequency surfaces, including portaled content. The command components already do this.
 - Show press feedback on pointer-down with `:active` (or `onPointerDown` for custom drawing), never after click/touch-up. Keep the actual action on accessible click/keyboard activation. Use `touch-action: manipulation` on ordinary controls to avoid the tap delay while preserving zoom.
 - Keep dimensions, padding, gaps and font metrics identical across hover, focus and pressed states. Never scale a button or change font weight from 400 to 500/600 on interaction. Change visual styling instead.
-- Buttons and compact controls use `rounded-pill`; cards use `rounded-dialog` (24px), including small cards and cards with footers. Multi-select fields also use 24px corners; their individual chips remain pills.
-- All dropdown menus and popup panels use the shared 16px `rounded-panel` radius, including submenus, command palettes, date pickers, hover cards, tooltips, dialogs and toasts. Sheets and drawers use it on their exposed corners.
+- Nothing is rounded. Every `--ds-radius-*` token is 0. The only shape is the cut corner (`ds-cut`, `ds-cut-frame`) at `--ds-cut`, `--ds-cut-sm`, `--ds-cut-md` and `--ds-cut-lg`. Small parts (checks, rows, tags, avatars) are square. Do not use a pill, a circle or a nonzero border radius.
+- Panels, menus, dialogs, sheets and drawers use the cut corner and a 1px line. They do not use a shadow.
 - Use shared components, size variants and spacing tokens. Equivalent sections share a gutter; equivalent controls share padding. Do not invent separate hover treatments or per-instance spacing for the same component role.
 - Audit every debounce, timeout, transition wait and artificial latency. Update controlled inputs and local filtering immediately. Debounce only necessary network/background work, with immediate local feedback and stale-result cancellation. Never wait for an exit animation before accepting input or opening the next view.
 - `check` reports UI timers for review. Remove artificial waits. For an essential nonblocking timer, put `// ds-latency: <specific reason>` immediately above the call, explaining what it delays and why typing/actions remain immediate. This documents an audit, not a general exemption for delayed input.
@@ -105,12 +153,12 @@ Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `land
 
 `init` and conversion install AGENTS.md and a local `.ds/agent-guide.md`, plus supported agent instruction files and hook configuration. Agents that do not load those files automatically should read them explicitly. Hooks support Claude Code, Codex and Cursor when enabled by that tool; other agents run the CLI checks directly. Codex hook activation may require the user's `/hooks` trust step. No hook integration is required to use the components correctly.
 
-Read-only commands: `guide`, `list`, `show`, `look`, `tokens`, `check` without `--fix`, and `image --list`.
-Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, `image` (PNG and SVG), and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. Installation/build failures return a nonzero exit code.
+Read-only commands: `manifest`, `describe`, `guide`, `brand` and its subcommands, `principles`, `component list`, `component inspect`, `component emit`, `list`, `show`, `look`, `tokens`, `check` without `--fix`, `image --list` and `video --list`.
+Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, `image` (PNG and SVG), `video` (APNG, and frame PNG or SVG when asked), and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. A validation error with `--json` is `{"ok":false,"error":"..."}` and a nonzero exit. Installation/build failures return a nonzero exit code.
 
 ## Project configuration and agent handoff
 
-Start with `{{cli}} info --json`, then `search <term> --json` and `view <names...> --json`. These commands are read-only. `show` and `inspect` remain aliases of `view`.
+Start with `{{cli}} manifest --json`, then `{{cli}} info --json`, `search <term> --json` and `view <names...> --json`. These commands are read-only. `show` and `inspect` remain aliases of `view`. `component inspect` is the props and states view and does not install anything.
 
 `add` respects components.json, inherited TypeScript or JavaScript aliases, the target stylesheet and the package manager. It emits JSX/JS when `tsx` is false, installs the theme and agent guidance, and preserves differing local files. Use `add <names...> --diff` to review changes before `--overwrite`. Use `--cwd <app>` from a repository root. For shared workspace packages, use the upstream installer described below.
 

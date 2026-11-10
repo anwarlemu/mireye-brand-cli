@@ -400,7 +400,7 @@ function displayPath(file: string): string {
 	return rel.split('\\').join('/');
 }
 
-async function rasterize(svg: string, width: number): Promise<Buffer> {
+export async function rasterize(svg: string, width: number): Promise<Buffer> {
 	let Resvg: typeof import('@resvg/resvg-js').Resvg;
 	try {
 		({ Resvg } = await import('@resvg/resvg-js'));

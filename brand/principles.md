@@ -50,6 +50,30 @@ enterprise: flat color, one ink, no gradients and no shadows.
   semibold type, decorative icons for status (use diamonds and ticks), stock imagery, more than one Forest key in a
   view.
 
+## The website
+
+The website uses the same look as the product. `brand/brand.json` lists one surface, `site`, and the engine treats that as the single look for pages and for product screens. The Enterprise theme (`data-brand="enterprise"`) swaps Forest for Umber. It is not a second design system.
+
+The rules below are the ones already in `brand/site.css` and the `hero` element in `brand/elements.json`.
+
+- The page ground is Bone (`--ds-color-bg-page`). Body type is the sans face at `--ds-text-body`.
+- Titles use the display face at regular weight (`--ds-font-weight-heading`). Hierarchy comes from size, color and space, never weight.
+- A page opens with its head: a 24px regular title and a 13px muted line, ruled off from the page by a 1px Stone line.
+- Links are the ink, underlined.
+- Focus is a 1px ink outline 2px outside the control, and it is square.
+- Coordinates, IDs, values and code use the mono face.
+- The hero rule says a 24px title. The hero-title prose says "20px regular ink". The hero-title CSS sets `font-size` to `--ds-text-h1`. All three are in `brand/elements.json`. This section does not choose between the 20px line and the 24px line.
+
+### Do
+
+- Build pages with the same components, tokens and cut corner as the product.
+- Keep one filled key for the main action on a view.
+
+### Don't
+
+- Do not invent a marketing palette, a second typeface, rounded corners, pills or shadows.
+- Do not set a nonzero corner radius. The radius tokens are 0. The only shape is the cut corner.
+
 ## Voice (for any text the agent must write, such as an alt text)
 
 Plain, short and concrete. Sentence case, American spelling, no em dashes. Never "seamless", "revolutionary",
