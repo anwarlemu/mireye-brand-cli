@@ -30,8 +30,8 @@ describe('manifest', () => {
 		expect(data.entry).toBe('manifest');
 		expect(data.registry.theme).toBe('theme');
 		expect(data.commands.map((command) => command.name)).toEqual(expect.arrayContaining(['manifest', 'describe', 'brand', 'principles', 'component emit', 'image', 'video']));
-		expect(data.images.formats.map((format) => format.id)).toEqual(['og', 'square', 'portrait', 'landscape']);
-		expect(data.images.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement']);
+		expect(data.images.formats.map((format) => format.id).slice(0, 7)).toEqual(['og', 'square', 'portrait', 'landscape', 'story', 'x-banner', 'linkedin-banner']);
+		expect(data.images.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement', 'identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner']);
 		expect(data.videos.formats.map((format) => format.id)).toEqual(['square', 'vertical', 'landscape']);
 		expect(data.videos.templates.map((template) => template.id)).toEqual(['social', 'announcement', 'product']);
 		expect(data.videos.formats.find((format) => format.id === 'vertical')).toMatchObject({ width: 1080, height: 1920, ratio: '9:16' });
@@ -206,6 +206,6 @@ describe('agent cli', () => {
 		expect(option.stdout).toMatch(/unknown option/i);
 		const image = run(['image', '--format', 'poster', '--template', 'headline', '--title', 'Parcel survey', '--json']);
 		expect(image.status).not.toBe(0);
-		expect(image.stdout).toMatch(/Unknown format/);
+		expect(image.stdout).toMatch(/Unknown size/);
 	});
 });

@@ -1,23 +1,21 @@
 import { readFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
-import { catalog, cleanContent, defaultTheme, isFormat, isTemplate, requireContent, themes, type ImageContent } from '../image/catalog.js';
+import { FORMATS, GROUNDS, POSTERS, catalog, cleanContent, defaultTheme, isPoster, requireContent, resolveFormat, templateIds, themes, type ContentKey, type ImageContent } from '../image/catalog.js';
 import { renderImage, type ExportKind } from '../image/render.js';
 import { cli } from '../lib/brand.js';
+import { helpRow } from '../lib/help-row.js';
+import { pickName, unknownName } from '../lib/names.js';
 import { emit } from '../lib/output.js';
 import { findProjectRoot } from '../lib/paths.js';
 
-type Options = {
+type Options = Partial<Record<ContentKey, string>> & {
 	list?: boolean;
 	format?: string;
+	size?: string;
 	template?: string;
 	theme?: string;
-	title?: string;
-	subtitle?: string;
-	kicker?: string;
-	quote?: string;
-	attribution?: string;
-	image?: string;
-	footer?: string;
+	ground?: string;
+	sample?: boolean;
 	content?: string;
 	out?: string;
 	name?: string;
@@ -25,6 +23,7 @@ type Options = {
 	json?: boolean;
 };
 
+const FIELDS: ContentKey[] = ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'image', 'footer', 'callout', 'chart', 'partner', 'scene'];
 const KINDS = new Set<ExportKind>(['png', 'svg']);
 
 function exportsOf(value: string | undefined): ExportKind[] {
@@ -47,7 +46,7 @@ function fileContent(file: string): ImageContent {
 	return content;
 }
 
-function safeName(name: string): string {
+export function safeName(name: string): string {
 	const clean = name.trim().toLowerCase().replace(/[^a-z0-9-_]+/g, '-').replace(/^-+|-+$/g, '');
 	if (!clean) throw new Error('--name needs letters or numbers.');
 	return clean;
@@ -55,37 +54,57 @@ function safeName(name: string): string {
 
 function flagContent(opts: Options): ImageContent {
 	const picked: ImageContent = {};
-	for (const key of ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'image', 'footer'] as const) {
-		if (opts[key]) picked[key] = opts[key];
-	}
+	for (const key of FIELDS) if (opts[key]) picked[key] = opts[key];
 	return cleanContent(picked);
+}
+
+export function listText() {
+	const data = catalog();
+	const formats = data.formats.map((f) => helpRow(f.id, `${String(f.width).padStart(4)} x ${String(f.height).padEnd(4)}  ${f.use}${f.aliases.length ? ` (also ${f.aliases.join(', ')})` : ''}`, 18));
+	const templates = data.templates.map((t) => helpRow(t.id, `${t.family === 'poster' ? 'poster' : 'sheet '}  ${t.description} Requires: ${t.required.join(', ') || 'none'}.`, 16));
+	const grounds = data.grounds.map((g) => helpRow(g.id, g.label, 12));
+	const themeLines = data.themes.map((theme) => helpRow(theme.id, `${theme.label}${theme.default ? ' (default)' : ''}`, 14));
+	return [
+		'Sizes',
+		...formats,
+		'',
+		'Templates (sheet: the cut-frame sheet, bone only, sizes at least 600px tall; poster: the brand layouts, every size and ground)',
+		...templates,
+		'',
+		'Grounds (posters)',
+		...grounds,
+		'',
+		'Themes',
+		...themeLines,
+		'',
+		`Export: ${data.exports.join(', ')}. Default output: ${data.defaults.out}. ${data.content.sample}`,
+		`Run \`${cli()} image --format og --template window --title "..." --json\`.`,
+	].join('\n');
 }
 
 export async function imageCommand(opts: Options) {
 	if (opts.list) {
-		const data = catalog();
-		emit(opts, data, () => {
-			const formats = data.formats.map((format) => `  ${format.id.padEnd(12)} ${String(format.width).padStart(4)} x ${String(format.height).padEnd(4)}  ${format.use}`);
-			const templates = data.templates.map((template) => `  ${template.id.padEnd(12)} ${template.description} Requires: ${template.required.join(', ') || 'none'}.`);
-			const themeLines = data.themes.map((theme) => `  ${theme.id.padEnd(12)} ${theme.label}${theme.default ? ' (default)' : ''}`);
-			return [`Formats`, ...formats, '', `Templates`, ...templates, '', `Themes`, ...themeLines, '', `Export: ${data.exports.join(', ')}. Default output: ${data.defaults.out}.`, `Run \`${cli()} image --format og --template headline --title "..." --json\`.`].join('\n');
-		});
+		emit(opts, catalog(), listText);
 		return;
 	}
-	if (!opts.format) throw new Error('--format is required: og, square, portrait, landscape.');
-	if (!isFormat(opts.format)) throw new Error(`Unknown format "${opts.format}". Formats: og, square, portrait, landscape.`);
-	if (!opts.template) throw new Error('--template is required: headline, subtext, frame, quote or announcement.');
-	if (!isTemplate(opts.template)) throw new Error(`Unknown template "${opts.template}". Templates: headline, subtext, frame, quote, announcement.`);
+	const sizeName = opts.size ?? opts.format;
+	if (!sizeName) throw new Error(`--size is required: ${Object.keys(FORMATS).join(', ')}.`);
+	const format = resolveFormat(sizeName);
+	if (!format) throw unknownName('size', sizeName, Object.keys(FORMATS));
+	if (!opts.template) throw new Error(`--template is required: ${templateIds().join(', ')}.`);
+	const template = pickName('template', opts.template, templateIds());
 	const theme = opts.theme ?? defaultTheme();
-	if (!themes().some((item) => item.id === theme)) throw new Error(`Unknown theme "${theme}". Themes: ${themes().map((item) => item.id).join(', ')}.`);
-	const content = { ...((opts.content ? fileContent(opts.content) : {}) as ImageContent), ...flagContent(opts) };
-	requireContent(opts.template, content);
-	const format = opts.format;
-	const template = opts.template;
+	if (!themes().some((item) => item.id === theme)) throw unknownName('theme', theme, themes().map((item) => item.id));
+	const ground = opts.ground ? pickName('ground', opts.ground, Object.keys(GROUNDS())) : undefined;
+	const sample = opts.sample ? (isPoster(template) ? cleanContent(POSTERS()[template].sample) : {}) : {};
+	if (opts.sample && !isPoster(template)) throw new Error('--sample fills poster templates only.');
+	const content = { ...sample, ...((opts.content ? fileContent(opts.content) : {}) as ImageContent), ...flagContent(opts) };
+	requireContent(template, content);
 	const result = await renderImage({
 		format,
 		template,
 		theme,
+		ground,
 		content,
 		exports: exportsOf(opts.export),
 		outDir: opts.out ? resolve(opts.out) : resolve(findProjectRoot(), '.ds', 'images'),

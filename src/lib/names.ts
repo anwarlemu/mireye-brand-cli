@@ -27,3 +27,16 @@ export function suggest(target: string, pool: string[]) {
 		.map((x) => x.p);
 }
 
+
+/** The error for a name that is not one of `pool`: the nearest names first, then every choice. Callers exit 1. */
+export function unknownName(kind: string, typed: string, pool: string[]): Error {
+	const near = suggest(typed, pool);
+	return new Error(`Unknown ${kind} "${typed}".${near.length ? ` Did you mean ${near.join(', ')}?` : ''} Choices: ${pool.join(', ')}.`);
+}
+
+/** The pool entry `typed` names exactly (ignoring case, dashes and spaces), or an unknownName error. */
+export function pickName(kind: string, typed: string, pool: string[]): string {
+	const hit = pool.find((p) => p === typed) ?? matchName(typed, pool);
+	if (!hit) throw unknownName(kind, typed, pool);
+	return hit;
+}

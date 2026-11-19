@@ -1,0 +1,113 @@
+{
+	"$comment": "Share images and social posts. Sizes are the agd-playground Mireye tool's (src/components/mireye-og/draw.ts OG, banner, social and post sizes, at 4536d86) plus the shared social set. Grounds are the tool's themes (brand.ts THEMES) with every color taken from brand/tokens.css; where the tool and the tokens disagree the tokens win and the note says so. Poster templates are the tool's own layouts (draw.ts layoutFor), redrawn as vectors by src/image/poster.ts; sheet templates are this repo's earlier cut-frame sheets. Sample copy is the tool's occasions (content.ts), shown only with --sample; every word is meant to be replaced.",
+	"source": "agd-playground src/components/mireye-og at 4536d86 (layouts.ts, draw.ts, brand.ts, content.ts, iso.ts, contours.ts, app.ts)",
+	"sizes": {
+		"og": { "width": 1200, "height": 630, "use": "Open Graph and link previews, including Facebook and LinkedIn", "aliases": ["link"] },
+		"square": { "width": 1080, "height": 1080, "use": "Instagram and LinkedIn square posts", "aliases": [] },
+		"portrait": { "width": 1080, "height": 1350, "use": "Instagram portrait posts (4:5)", "aliases": [] },
+		"landscape": { "width": 1200, "height": 675, "use": "X and LinkedIn landscape posts (16:9), the X card", "aliases": ["card", "wide", "x"] },
+		"story": { "width": 1080, "height": 1920, "use": "Instagram and LinkedIn stories, reels covers (9:16)", "aliases": [] },
+		"x-banner": { "width": 1500, "height": 500, "use": "X profile header", "aliases": ["x-header", "twitter-banner"] },
+		"linkedin-banner": { "width": 1584, "height": 396, "use": "LinkedIn profile banner", "aliases": ["li-profile"] },
+		"linkedin": { "width": 1200, "height": 627, "use": "LinkedIn link and post image", "aliases": ["li-link", "li-post"] },
+		"linkedin-square": { "width": 1200, "height": 1200, "use": "LinkedIn square post", "aliases": ["li-square"] },
+		"linkedin-page": { "width": 1128, "height": 191, "use": "LinkedIn company page cover", "aliases": ["li-page"] },
+		"youtube": { "width": 2560, "height": 1440, "use": "YouTube channel art", "aliases": ["yt"] },
+		"email": { "width": 1200, "height": 300, "use": "Email header", "aliases": [] }
+	},
+	"grounds": {
+		"bone": {
+			"label": "Bone",
+			"ground": "--ds-color-bg-default",
+			"ink": "--ds-color-text-default",
+			"muted": "--ds-color-text-secondary",
+			"window": "--ds-color-bg-inverse",
+			"windowInk": "--ds-color-text-inverse",
+			"windowMuted": "--ds-color-text-inverse-muted",
+			"grid": { "token": "--ds-color-text-default", "alpha": 0.22 },
+			"dark": false,
+			"note": "The tool's bone is #f3f0eb and its ink #000000; the tokens' Bone #F4F1EA and Forest ink #1E231C win. Grid alpha 0.22 is the tool's."
+		},
+		"green": {
+			"label": "Green",
+			"ground": "--ds-color-forest",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-text-inverse-muted",
+			"window": "--ds-color-bone",
+			"windowInk": "--ds-color-forest",
+			"windowMuted": "--ds-color-text-secondary",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.2 },
+			"dark": true,
+			"note": "The tool's green is #262b26 (also the illustration skill's ground); the tokens' Forest #1E231C wins. The tool's sage #b3bbad muted becomes the inverse muted token #C9CDC8."
+		},
+		"brown": {
+			"label": "Brown",
+			"ground": "--ds-color-earth",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-sand",
+			"window": "--ds-color-bone",
+			"windowInk": "--ds-color-earth",
+			"windowMuted": "--ds-color-bark",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.18 },
+			"dark": true,
+			"note": "Earth #2A2119 matches the tool's brown. Its muted #c9bfb2 has no token; Sand #D9CDB8 is the nearest warm token."
+		},
+		"black": {
+			"label": "Black",
+			"ground": "--ds-color-black",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-text-inverse-muted",
+			"window": "--ds-color-earth",
+			"windowInk": "--ds-color-bone",
+			"windowMuted": "--ds-color-sand",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.16 },
+			"dark": true,
+			"note": "The tool's black ground is #060606; the token black #000000 wins. The tool's white theme is left out: the illustration skill says finished designs never use pure white."
+		}
+	},
+	"art": {
+		"post": "residential",
+		"panel": "apicore",
+		"note": "The tool draws mireye.com's land drawings as tinted PNGs (art/residential.png, art/mcp.png). They are the illustration skill's residential and apicore scenes, so images draw those scenes as vectors instead."
+	},
+	"photo": {
+		"shade": { "token": "--ds-color-black", "alpha": 0.56 },
+		"note": "The tool darkens an aerial with rgba(14,12,9,0.56) over a stock photo (photos/farm.jpg). Stock photos are not shipped: pass --image. The shade uses the black token at the tool's 0.56. Without a picture the template draws the dense contours on the ground."
+	},
+	"app": {
+		"bg": "--ds-color-black",
+		"ink": "--ds-color-bone",
+		"muted": "--ds-color-text-inverse-muted",
+		"line": "--ds-color-track-dark",
+		"accent": "--ds-color-forest",
+		"accentInk": "--ds-color-bone",
+		"note": "The Ask panel (app.ts) uses #000000, #f3f0eb, #b3bbad, #3a3a36 and #262b26; each maps to the nearest token (the line to Track dark #5E645E, the darkest gray the product uses on a dark fill)."
+	},
+	"type": {
+		"note": "The tool sets every word in Gilroy (headline 400, -14/1000 em, 1.04 leading; line under it 400 at 1.42), Geist for interface text and Geist Mono for data. The repo ships Gilroy 400 and 500 and DM Mono, so Geist becomes Gilroy, Geist Mono becomes DM Mono, the chart numbers (Gilroy Light 300) are Regular and the partner name (600) is Medium, the heaviest weight the brand uses."
+	},
+	"lockup": {
+		"note": "The tool's lockup is the logomark beside mireye.com's lowercase wordmark. This repo's approved lockup (ASSUMPTIONS 7: the wordmark is not final) is the logomark with the name set in Gilroy, so images use that in the same box."
+	},
+	"posters": {
+		"identity": { "label": "Logo", "description": "The lockup in a clear window on the dense contours, the grid along its edges and diamonds at its corners. No words.", "required": [], "optional": [], "ground": "bone", "sample": {} },
+		"window": { "label": "Window", "description": "A clear window framed by the grid on the sparse contours: the lockup, the headline and a line under it, centered.", "required": ["title"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Physical world context for AI agents.", "subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals." } },
+		"post": { "label": "Post", "description": "The headline top left, a wireframe drawing in the middle (residential by default, any scene with --scene), the line at the foot, the logomark bottom right.", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "Residential land", "subtitle": "Ownership, flood, terrain and utilities for any U.S. parcel, every field cited." } },
+		"parcels": { "label": "Parcels", "description": "Three surveyed parcels on the contours and grid, one filled, a callout tag over them.", "required": ["title"], "optional": ["subtitle", "callout"], "ground": "bone", "sample": { "title": "Find the parcels that fit.", "subtitle": "Send hundreds of locations in one call, and one bad address does not fail the rest.", "callout": "38.6 ac\n37.5407, −77.4360" } },
+		"scene": { "label": "Isometric", "description": "The headline top left, a quick isometric line drawing with one parcel picked out (solar by default; residential, datacenter, warehouse, hub or parcels with --scene), the grid in thirds.", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "Physical world context for AI agents" } },
+		"photo": { "label": "Aerial", "description": "Your aerial picture (--image) darkened, the headline in bone on it, a crosshair ending in a target, a parcel outlined and its callout.", "required": ["title"], "optional": ["subtitle", "image", "callout"], "ground": "black", "sample": { "title": "Find the parcels that fit.", "subtitle": "Send hundreds of locations in one call, and one bad address does not fail the rest.", "callout": "Central Iowa\n41.9, −93.5" } },
+		"tag": { "label": "Tag", "description": "The words in a solid tag with its corner cut, beside a crosshair and target on the sparse contours, the lockup top left.", "required": ["title"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Physical world context for AI agents.", "subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals." } },
+		"panel": { "label": "Panel", "description": "An inset panel with a hairline and corner diamonds, contours in the margin, the headline in it, the lockup at its foot and a wireframe drawing (the API core by default).", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "One API with MCP tools.", "subtitle": "Search, enrich and ask about any U.S. location from your agent, every value cited." } },
+		"chart": { "label": "Chart", "description": "The headline top left, the logomark top right and a hatched column chart (--chart, one row a line: label | number).", "required": ["title", "chart"], "optional": [], "ground": "bone", "sample": { "title": "Fields returned by each preset.", "chart": "data_center_siting | 138\nsite_selection | 64\nutilities | 42\ngrid_interconnect | 38" } },
+		"app": { "label": "Ask", "description": "The words beside (or above) the product's Ask panel: a contour map strip, the question, suggestions and the ask box.", "required": ["title"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "One API with MCP tools.", "subtitle": "Search, enrich and ask about any U.S. location from your agent, every value cited." } },
+		"partner": { "label": "Lockup", "description": "The lockup × a partner's name in a clear window on the dense contours, the headline under it.", "required": ["title", "partner"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Mireye now works with Acme.", "subtitle": "Acme agents can ask about any U.S. location and get cited facts back in one call.", "partner": "Acme" } }
+	},
+	"appPanel": {
+		"title": "Ask Mireye",
+		"question": "What do you want to know about this site?",
+		"suggestions": ["Who owns this parcel?", "Is it in a flood zone?", "How steep is the terrain?"],
+		"placeholder": "Ask about any U.S. location",
+		"coords": "39.7392, -104.9903",
+		"button": "Ask"
+	}
+}

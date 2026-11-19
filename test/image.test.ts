@@ -5,12 +5,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { imageCommand } from '../src/commands/image.js';
-import { FORMATS, TEMPLATES, type FormatId, type ImageContent, type TemplateId, catalog, cleanContent, paletteFor } from '../src/image/catalog.js';
+import { FORMATS, SHEET_FORMATS, TEMPLATES, type FormatId, type ImageContent, type TemplateId, catalog, cleanContent, paletteFor } from '../src/image/catalog.js';
 import { renderImage, svgDocument } from '../src/image/render.js';
 
 const ROOT = join(import.meta.dirname, '..');
 const BIN = join(ROOT, 'bin.js');
-const FORMATS_IDS = Object.keys(FORMATS) as FormatId[];
+const FORMATS_IDS = SHEET_FORMATS as FormatId[];
 const TEMPLATE_IDS = Object.keys(TEMPLATES) as TemplateId[];
 
 function pngSize(buf: Buffer) {
@@ -118,8 +118,17 @@ describe('image catalog', () => {
 			['square', 1080, 1080],
 			['portrait', 1080, 1350],
 			['landscape', 1200, 675],
+			['story', 1080, 1920],
+			['x-banner', 1500, 500],
+			['linkedin-banner', 1584, 396],
+			['linkedin', 1200, 627],
+			['linkedin-square', 1200, 1200],
+			['linkedin-page', 1128, 191],
+			['youtube', 2560, 1440],
+			['email', 1200, 300],
 		]);
-		expect(data.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement']);
+		expect(data.templates.filter((template) => template.family === 'sheet').map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement']);
+		expect(data.templates.filter((template) => template.family === 'poster').map((template) => template.id)).toEqual(['identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner']);
 		expect(data.templates.find((template) => template.id === 'headline')?.optional).toEqual(['footer']);
 		expect(data.exports).toEqual(['png', 'svg']);
 		expect(data.themes.some((theme) => theme.default)).toBe(true);
@@ -223,8 +232,8 @@ describe('image render', () => {
 describe('image command', () => {
 	it('answers --list --json and --help, and reports a missing title as JSON', () => {
 		const listed = JSON.parse(execFileSync(process.execPath, [BIN, 'image', '--list', '--json'], { encoding: 'utf8' }));
-		expect(listed.formats).toHaveLength(4);
-		expect(listed.templates).toHaveLength(5);
+		expect(listed.formats).toHaveLength(12);
+		expect(listed.templates).toHaveLength(16);
 		expect(execFileSync(process.execPath, [BIN, 'image', '--help'], { encoding: 'utf8' })).toMatch(/--format/);
 		let failed = '';
 		try {
