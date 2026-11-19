@@ -142,7 +142,7 @@ function asHex(token: string, table: Record<string, string>): string {
 	return `#${[rgb[1], rgb[2], rgb[3]].map((part) => Number(part).toString(16).padStart(2, '0')).join('')}`.toUpperCase();
 }
 
-function themeTable(themeId: string): Record<string, string> {
+export function themeTable(themeId: string): Record<string, string> {
 	const known = themes();
 	const theme = known.find((item) => item.id === themeId);
 	if (!theme) throw new Error(`Unknown theme "${themeId}". Themes: ${known.map((item) => item.id).join(', ')}.`);
