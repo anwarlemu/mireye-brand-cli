@@ -1,0 +1,425 @@
+{
+  "generated": "scripts/build-gallery.mjs",
+  "entries": [
+    {
+      "group": "posters",
+      "label": "Logo",
+      "command": "npx mireye-ds image --size og --template identity --sample --export png --name poster-identity",
+      "files": [
+        "poster-identity.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Window",
+      "command": "npx mireye-ds image --size og --template window --sample --export png --name poster-window",
+      "files": [
+        "poster-window.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Post",
+      "command": "npx mireye-ds image --size og --template post --sample --export png --name poster-post",
+      "files": [
+        "poster-post.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Parcels",
+      "command": "npx mireye-ds image --size og --template parcels --sample --export png --name poster-parcels",
+      "files": [
+        "poster-parcels.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Isometric",
+      "command": "npx mireye-ds image --size og --template scene --sample --export png --name poster-scene",
+      "files": [
+        "poster-scene.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Aerial",
+      "command": "npx mireye-ds image --size og --template photo --sample --export png --name poster-photo --image ./farmland-aerial.jpg",
+      "files": [
+        "poster-photo.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Tag",
+      "command": "npx mireye-ds image --size og --template tag --sample --export png --name poster-tag",
+      "files": [
+        "poster-tag.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Panel",
+      "command": "npx mireye-ds image --size og --template panel --sample --export png --name poster-panel",
+      "files": [
+        "poster-panel.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Chart",
+      "command": "npx mireye-ds image --size og --template chart --sample --export png --name poster-chart",
+      "files": [
+        "poster-chart.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Ask",
+      "command": "npx mireye-ds image --size og --template app --sample --export png --name poster-app",
+      "files": [
+        "poster-app.png"
+      ]
+    },
+    {
+      "group": "posters",
+      "label": "Lockup",
+      "command": "npx mireye-ds image --size og --template partner --sample --export png --name poster-partner",
+      "files": [
+        "poster-partner.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "parcels, story, green",
+      "command": "npx mireye-ds image --size story --template parcels --ground green --sample --export png --name size-story-parcels",
+      "files": [
+        "size-story-parcels.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "post, portrait, bone",
+      "command": "npx mireye-ds image --size portrait --template post --ground bone --sample --export png --name size-portrait-post",
+      "files": [
+        "size-portrait-post.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "tag, square, brown",
+      "command": "npx mireye-ds image --size square --template tag --ground brown --sample --export png --name size-square-tag",
+      "files": [
+        "size-square-tag.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "identity, x-banner, bone",
+      "command": "npx mireye-ds image --size x-banner --template identity --ground bone --sample --export png --name size-x-banner-identity",
+      "files": [
+        "size-x-banner-identity.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "window, linkedin-banner, green",
+      "command": "npx mireye-ds image --size linkedin-banner --template window --ground green --sample --export png --name size-linkedin-banner-window",
+      "files": [
+        "size-linkedin-banner-window.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "chart, landscape, black",
+      "command": "npx mireye-ds image --size landscape --template chart --ground black --sample --export png --name size-landscape-chart",
+      "files": [
+        "size-landscape-chart.png"
+      ]
+    },
+    {
+      "group": "sheets",
+      "label": "headline",
+      "command": "npx mireye-ds image --size og --template headline --title \"Parcel survey\" --export png --name sheet-headline",
+      "files": [
+        "sheet-headline.png"
+      ]
+    },
+    {
+      "group": "sheets",
+      "label": "subtext",
+      "command": "npx mireye-ds image --size og --template subtext --title \"Site survey\" --subtitle \"Boundaries, access and utilities for every parcel.\" --export png --name sheet-subtext",
+      "files": [
+        "sheet-subtext.png"
+      ]
+    },
+    {
+      "group": "sheets",
+      "label": "announcement",
+      "command": "npx mireye-ds image --size og --template announcement --kicker \"Field note\" --title \"The sheet is ready.\" --export png --name sheet-announcement",
+      "files": [
+        "sheet-announcement.png"
+      ]
+    },
+    {
+      "group": "sheets",
+      "label": "quote",
+      "command": "npx mireye-ds image --size og --template quote --quote \"Read the sheet first.\" --attribution \"Field review\" --export png --name sheet-quote",
+      "files": [
+        "sheet-quote.png"
+      ]
+    },
+    {
+      "group": "deck",
+      "label": "Sample deck",
+      "command": "npx mireye-ds deck --sample --out deck",
+      "files": [
+        "deck-slide-01-cover.png",
+        "deck-slide-02-section.png",
+        "deck-slide-03-statement.png",
+        "deck-slide-04-bullets.png",
+        "deck-slide-05-stat.png",
+        "deck-slide-06-quote.png",
+        "deck-slide-07-image.png",
+        "deck-slide-08-chart.png",
+        "deck-slide-09-poster.png",
+        "deck-slide-10-closing.png",
+        "deck.pdf"
+      ]
+    },
+    {
+      "group": "video",
+      "label": "Poster reveal",
+      "command": "npx mireye-ds video --format square --template poster --poster parcels --title \"Find the parcels that fit.\" --callout \"38.6 ac\\n37.5407, −77.4360\" --export mp4,still --name video-parcels",
+      "files": [
+        "video-parcels.mp4",
+        "video-parcels-still.png"
+      ]
+    },
+    {
+      "group": "video",
+      "label": "Announcement clip",
+      "command": "npx mireye-ds video --format landscape --template announcement --kicker \"Field note\" --title \"The sheet is ready.\" --export mp4,still --name video-announcement",
+      "files": [
+        "video-announcement.mp4",
+        "video-announcement-still.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "tee-front, on-light",
+      "command": "npx mireye-ds merch tee-front --variant on-light --dpi 72 --format png",
+      "files": [
+        "tee-front-on-light.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "tee-back, on-dark",
+      "command": "npx mireye-ds merch tee-back --variant on-dark --dpi 72 --format png",
+      "files": [
+        "tee-back-on-dark.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "hoodie-front, on-light",
+      "command": "npx mireye-ds merch hoodie-front --variant on-light --dpi 72 --format png",
+      "files": [
+        "hoodie-front-on-light.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "tote, on-light",
+      "command": "npx mireye-ds merch tote --variant on-light --dpi 72 --format png",
+      "files": [
+        "tote-on-light.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "cap-front, on-light",
+      "command": "npx mireye-ds merch cap-front --variant on-light --dpi 72 --format png",
+      "files": [
+        "cap-front-on-light.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "mug-wrap, green",
+      "command": "npx mireye-ds merch mug-wrap --variant green --dpi 72 --format png",
+      "files": [
+        "mug-wrap-green.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "sticker, green",
+      "command": "npx mireye-ds merch sticker --variant green --dpi 72 --format png",
+      "files": [
+        "sticker-green.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "poster, bone",
+      "command": "npx mireye-ds merch poster --variant bone --dpi 72 --format png",
+      "files": [
+        "poster-bone.png"
+      ]
+    },
+    {
+      "group": "merch",
+      "label": "socks, brown",
+      "command": "npx mireye-ds merch socks --variant brown --dpi 72 --format png",
+      "files": [
+        "socks-brown.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Data center",
+      "command": "npx mireye-ds illustrate datacenter --ground green --format png --name wire-datacenter",
+      "files": [
+        "wire-datacenter.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Data center, post scale",
+      "command": "npx mireye-ds illustrate datacenter-post --ground green --format png --name wire-datacenter-post",
+      "files": [
+        "wire-datacenter-post.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Grid interconnect",
+      "command": "npx mireye-ds illustrate substation --ground green --format png --name wire-substation",
+      "files": [
+        "wire-substation.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Renewable energy siting",
+      "command": "npx mireye-ds illustrate solar --ground green --format png --name wire-solar",
+      "files": [
+        "wire-solar.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Commercial lending",
+      "command": "npx mireye-ds illustrate warehouse --ground brown --format png --name wire-warehouse",
+      "files": [
+        "wire-warehouse.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Residential land",
+      "command": "npx mireye-ds illustrate residential --ground green --format png --name wire-residential",
+      "files": [
+        "wire-residential.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "Land section",
+      "command": "npx mireye-ds illustrate landsection --ground green --format png --name wire-landsection",
+      "files": [
+        "wire-landsection.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "One API hub",
+      "command": "npx mireye-ds illustrate oneapi --ground green --format png --name wire-oneapi",
+      "files": [
+        "wire-oneapi.png"
+      ]
+    },
+    {
+      "group": "wire",
+      "label": "One API core",
+      "command": "npx mireye-ds illustrate apicore --ground bone --format png --name wire-apicore",
+      "files": [
+        "wire-apicore.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "residential",
+      "command": "npx mireye-ds illustrate --style iso residential --ground bone --format png --name iso-residential",
+      "files": [
+        "iso-residential.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "solar",
+      "command": "npx mireye-ds illustrate --style iso solar --ground bone --format png --name iso-solar",
+      "files": [
+        "iso-solar.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "datacenter",
+      "command": "npx mireye-ds illustrate --style iso datacenter --ground bone --format png --name iso-datacenter",
+      "files": [
+        "iso-datacenter.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "warehouse",
+      "command": "npx mireye-ds illustrate --style iso warehouse --ground bone --format png --name iso-warehouse",
+      "files": [
+        "iso-warehouse.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "hub",
+      "command": "npx mireye-ds illustrate --style iso hub --ground bone --format png --name iso-hub",
+      "files": [
+        "iso-hub.png"
+      ]
+    },
+    {
+      "group": "iso",
+      "label": "parcels",
+      "command": "npx mireye-ds illustrate --style iso parcels --ground bone --format png --name iso-parcels",
+      "files": [
+        "iso-parcels.png"
+      ]
+    },
+    {
+      "group": "contours",
+      "label": "dense",
+      "command": "npx mireye-ds illustrate --style contours dense --ground green --width 1200 --format png --name contours-dense",
+      "files": [
+        "contours-dense.png"
+      ]
+    },
+    {
+      "group": "contours",
+      "label": "sparse",
+      "command": "npx mireye-ds illustrate --style contours sparse --ground bone --width 1200 --format png --name contours-sparse",
+      "files": [
+        "contours-sparse.png"
+      ]
+    },
+    {
+      "group": "trace",
+      "label": "Farmland aerial as contours",
+      "command": "npx mireye-ds illustrate --image ./farmland-aerial.jpg --ground green --format png --name trace-farmland",
+      "files": [
+        "trace-farmland.png"
+      ]
+    }
+  ]
+}

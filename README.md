@@ -132,8 +132,12 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `list` | List the available components. |
 | `look <file\|element>` | Show component and token guidance for a file or element type. |
 | `tokens [term]` | Find a token by name or role. |
-| `image` | Render an Open Graph or social image (PNG and SVG) from the brand tokens, type and logo. |
-| `video` | Render a short APNG (square, 9:16 or 16:9) from the same tokens, fonts and logo. |
+| `image` | Share images and social posts (PNG and SVG): the brand's poster layouts at twelve sizes and four grounds, plus the cut-frame sheets. |
+| `deck` | Slides at 1920 by 1080 from a JSON file: a PNG per slide and one PDF. |
+| `video` | Short clips (square, 9:16 or 16:9) as APNG, MP4 or WebM, plus a still frame. |
+| `merch` | Print files at real size with bleed, safe area and a cut-corner die line. |
+| `illustrate` | Brand illustrations as SVG and PNG: wireframe scenes, isometric scenes, contours, or a picture as contours. |
+| `figma` | `tokens`, `push`, `pull` and `check`: files and the Figma MCP calls in order. The CLI never calls Figma. |
 | `check [files...]` | Check style values. Use `--changed` for Git changes or `--fix` for exact token replacements. |
 | `review <url> --any` | Review a page that is not part of an existing conversion task list. |
 | `review <url>` | Review a tracked screen and mark its task complete when it passes. |
@@ -141,32 +145,30 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `done <screen>` | Mark a native screen task complete. Web screen tasks use `review`. |
 | `skip <screen> --reason "..."` | Record why a tracked screen was left unchanged. |
 
-## Render images
+## Render assets
 
-`image` draws a brand sheet at a social size. It uses the tokens, Gilroy, DM Mono and the logomark. No browser.
-
-```sh
-npx mireye-ds image --list --json
-npx mireye-ds image --format og --template headline --title "Parcel survey" --json
-npx mireye-ds image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access."
-npx mireye-ds image --format landscape --template frame --title "Parcel 18" --image ./screen.png
-npx mireye-ds image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"
-```
-
-Formats are `og` (1200 by 630), `square` (1080 by 1080), `portrait` (1080 by 1350) and `landscape` (1200 by 675). Templates are `headline`, `subtext`, `frame`, `quote` and `announcement`. `--theme enterprise` uses the earth palette. `--export png,svg` is the default. `--json` lists the files and their pixel size. Output goes to `.ds/images` unless `--out` is set. `frame` takes a PNG or JPEG; without one it draws a survey plate. `--content` reads a JSON file, and an `image` path in it is relative to that file. Unknown content fields are an error. Long copy shrinks so the type stays above the footer rule.
-
-## Render video
-
-`video` draws the same sheet in motion and writes an APNG. Frames are SVG from the tokens, the Gilroy and DM Mono files, and the logomark, rasterized with resvg. No browser. The same inputs write the same bytes. Timing is fixed: ten times `--ds-duration-base`, at 12 frames a second, played once. There is no flag to change that.
+Every asset is drawn from the tokens, Gilroy, DM Mono, the mark and the brand's own layouts and illustrations, with no browser. The same input writes the same bytes. `--list --json` on each command is read-only and lists every name; an unknown name exits 1 with the nearest choices. The docs site's Assets, Illustrations and Figma pages show every example with its command.
 
 ```sh
-npx mireye-ds video --list --json
-npx mireye-ds video --format square --template social --title "Parcel survey" --json
-npx mireye-ds video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."
-npx mireye-ds video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."
+npx mireye-ds image --size og --template window --title "Physical world context for AI agents." --json
+npx mireye-ds image --size story --template parcels --ground green --sample
+npx mireye-ds image --size x-banner --template identity
+npx mireye-ds deck --sample --out deck
+npx mireye-ds video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,still
+npx mireye-ds merch tee-front --variant on-dark
+npx mireye-ds illustrate datacenter --ground green
+npx mireye-ds illustrate --image ./site.jpg
+npx mireye-ds figma tokens --out figma
 ```
 
-Formats are `square` (1080 by 1080), `vertical` (1080 by 1920) and `landscape` (1920 by 1080). Templates are `social`, `announcement` and `product`. `--export apng` is the default. `png` and `svg` write the frames. Output goes to `.ds/videos` unless `--out` is set. Unknown formats, templates, themes and fields are an error. Sample frames and clips are in `samples/`.
+- `image`: posters (`identity`, `window`, `post`, `parcels`, `scene`, `photo`, `tag`, `panel`, `chart`, `app`, `partner`) at `og`, `square`, `portrait`, `landscape`, `story`, `x-banner`, `linkedin-banner`, `linkedin`, `linkedin-square`, `linkedin-page`, `youtube` and `email`, on `bone`, `green`, `brown` or `black`; sheets (`headline`, `subtext`, `frame`, `quote`, `announcement`) on bone. `--image` takes your PNG or JPEG. Layouts and sources: `brand/assets/image.json`.
+- `deck`: `cover`, `section`, `statement`, `bullets`, `stat`, `quote`, `image`, `chart`, `poster`, `closing` (`brand/assets/deck.json`).
+- `video`: `social`, `announcement`, `product` and `poster`; APNG by default, MP4 and WebM through ffmpeg, `still` for the last frame. Timing is fixed: ten times `--ds-duration-base` at 12 frames a second, played once.
+- `merch`: tee front and back, hoodie, cap, tote, mug wrap, sticker, poster and socks (`brand/assets/merch.json`). Sizes are vendor conventions; confirm with the vendor.
+- `illustrate`: the illustration skill's wireframe scenes (vendored unchanged in `brand/illustrate/wire`), isometric scenes, contour fields and traced pictures. Rules: `brand/illustration.md`.
+- `figma`: tokens as variables, push of drawn assets, components and pages, pull steps and an off-brand check.
+
+To refresh the docs gallery after a change: `npm run build && node scripts/build-gallery.mjs`.
 
 ## Update an existing interface
 

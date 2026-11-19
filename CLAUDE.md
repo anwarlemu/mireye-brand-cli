@@ -27,7 +27,7 @@ npm run ci           # build, limits, registry, tests; must pass before you push
   `ds-cut` / `ds-cut-frame` utilities from `brand/utilities.css`; nothing is rounded.
 - `apps/www/`: the docs site (Next.js), laid out like the other Agencidev design-system sites (a rail and page heads), deployed to the Vercel project
   `mireye-ds` (Agencidev team, root apps/www, install `cd ../.. && npm install`, toolbar off: its script breaks the sandboxed
-  preview frames; deployment protection on, because the repo ships a licensed font) with `vercel deploy --prod --scope agencidev-dev` from the repo root; it renders every item from
+  preview frames; deployment protection off since the owner made the docs public) with `vercel deploy --prod --scope agencidev-dev` from the repo root; it renders every item from
   source. Browser checks: `DOCS_URL=<url> npm run test:docs`, `test:library`, `test:reference` (against the Figma
   measurements in `test/fixtures/reference-styles.json`). In `next dev`, use localhost: Next blocks 127.0.0.1.
 - `src/library/`: loading registry items (`registry.ts`) and swap mode (`swap.ts`); `src/commands/add.ts` (add, list).
@@ -73,6 +73,6 @@ npm run ci           # build, limits, registry, tests; must pass before you push
 
 ## Public registry
 
-The library site is behind Vercel login, so the registry files (`/r/`) are also published to a public project, the
+The library site was behind Vercel login (it is public now, by the owner's choice), so the registry files (`/r/`) are also published to a public project, the
 `registryHost` in `brand/brand.json`. The CLI, components.json, shadcn, MCP and the agent guide read `/r/` from there;
 page links stay on `registryUrl`. After every registry change: `sh scripts/deploy-registry.sh` (after `registry`).
