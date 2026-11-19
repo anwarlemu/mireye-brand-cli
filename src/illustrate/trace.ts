@@ -158,5 +158,6 @@ export async function traceContours(file: string, width: number, opts: TraceOpti
 		}
 		if (parts.length) paths.push(parts.join(''));
 	}
+	if (!count) throw new Error(`${file} has too little contrast to trace: no contour lines came out. Use a picture with light and dark areas, or raise --levels or lower --smooth.`);
 	return { paths, width: Math.round(width), height, lines: count };
 }

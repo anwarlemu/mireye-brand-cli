@@ -113,6 +113,13 @@ describe('illustrate', () => {
 		expect(Number(a.parts.lines)).toBeGreaterThan(3);
 	});
 
+	it('refuses a picture too flat to trace instead of writing an empty drawing', async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'ds-trace-'));
+		const { Resvg } = await import('@resvg/resvg-js');
+		writeFileSync(join(dir, 'flat.png'), new Resvg('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="#808080"/></svg>').render().asPng());
+		await expect(buildIllustration({ style: 'trace', ground: 'bone', image: join(dir, 'flat.png'), background: true })).rejects.toThrow(/too little contrast/);
+	});
+
 	it('answers unknown subjects with the nearest names', () => {
 		const r = run(['illustrate', 'solr', '--json']);
 		expect(r.status).toBe(1);
