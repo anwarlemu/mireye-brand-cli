@@ -18,7 +18,8 @@ export default async function ExamplePage({ params }: { params: Promise<{ name: 
   const Example = examples[name]?.[example];
   if (!item || !Example) notFound();
   return (
-    <Surface data-preview-root="" className="min-h-120 bg-page p-6 sm:p-10">
+    // Blocks are whole sections, pages and app shells: they run edge to edge with no stage padding.
+    <Surface data-preview-root="" className={item.type === "block" ? "bg-page" : "min-h-120 bg-page p-6 sm:p-10"}>
       <Example />
       <PreviewHeight />
     </Surface>

@@ -28,6 +28,8 @@ const docsSchema = z.object({
 	use_for: z.string(),
 	never: z.array(z.string()).default([]),
 	source: z.string().optional(),
+	// Blocks only: where the docs rail lists the item (section blocks, page templates or app shells).
+	group: z.enum(['blocks', 'pages', 'shells']).optional(),
 	files: z.array(z.string()).optional(),
 	dependencies: z.array(z.string()).default([]),
 });

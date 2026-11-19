@@ -19,6 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   return item ? { title: item.title, description: item.description, alternates: { canonical: `/components/${item.name}`, types: { "text/markdown": `/r/${item.name}.md`, "application/json": `/r/${item.name}.json` } } } : {};
 }
 
+const EYEBROW: Record<string, string> = { blocks: "Block", pages: "Page", shells: "App shell" };
+
 function exampleLabel(name: string) {
   const words = name.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
   return words.charAt(0).toUpperCase() + words.slice(1);
@@ -36,7 +38,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   const next = at < items.length - 1 ? items[at + 1] : undefined;
   return (
     <>
-      <PageHead eyebrow="Component" title={item.title} description={<Prose text={item.description} />}>
+      <PageHead eyebrow={EYEBROW[item.group ?? ""] ?? (item.type === "block" ? "Block" : "Component")} title={item.title} description={<Prose text={item.description} />}>
         <a href={`/r/${item.name}.md`} className="text-body text-fg underline decoration-line underline-offset-4 outline-none transition-[text-decoration-color] duration-150 ease-out hover:decoration-line-strong focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none">Text reference</a>
       </PageHead>
       <PageBody className="max-w-240">
