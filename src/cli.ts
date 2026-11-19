@@ -13,6 +13,7 @@ import { videoCommand } from './commands/video.js';
 import { manifestCommand } from './commands/manifest.js';
 import { registerIllustrate } from './commands/illustrate.js';
 import { registerDeck } from './commands/deck.js';
+import { registerMerch } from './commands/merch.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
 import { readHookInput } from './hooks/payload.js';
@@ -95,6 +96,7 @@ program
 	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
 registerIllustrate(program);
 registerDeck(program);
+registerMerch(program);
 brandCommand(program);
 componentCommand(program);
 program.command('approve').description('Approve ds-override comments (a person, in a terminal)').option('--all', 'approve every pending override').action((opts) => approve(opts));
