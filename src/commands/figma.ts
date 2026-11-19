@@ -229,7 +229,7 @@ function checkAction(paths: string[], flags: Flags) {
 
 export function registerFigma(program: Command) {
 	program.command('figma [action] [args...]')
-		.description('Work in Figma through its MCP tools: tokens (variables), push <illustration|image|slide|asset|component|page>, pull <url>, check <files...>. The CLI never calls Figma: it writes files and prints the calls')
+		.description('Work in Figma through its MCP tools: tokens, push <kind>, pull <url>, check <files>. It never calls Figma: it writes files and prints the calls')
 		.option('--out <dir>', 'where to write the files (default ./figma)')
 		.option('--file <key>', 'an existing Figma file key (skips the create-file steps)')
 		.option('--style <id>', 'push illustration: wire, iso, contours or trace')

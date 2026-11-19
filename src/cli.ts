@@ -20,6 +20,7 @@ import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart
 import { readHookInput } from './hooks/payload.js';
 import { brand, cli, hasProduct } from './lib/brand.js';
 import { findProjectRoot } from './lib/paths.js';
+import { unknownName } from './lib/names.js';
 
 const program = new Command();
 // Subcommands copy these at creation, so they have to be set before any .command().
@@ -150,7 +151,13 @@ const fail = (error: Error & { exitCode?: number }) => {
 	else process.stderr.write(`${error.message}\n`);
 	process.exit(error.exitCode && error.exitCode > 0 ? error.exitCode : 1);
 };
+// A first word that is not a command gets the nearest commands, not commander's "too many arguments".
+const firstWord = process.argv.slice(2).find((arg) => !arg.startsWith('-'));
+const commandNames = program.commands.flatMap((command) => [command.name(), ...command.aliases()]);
+const optionValues = new Set(['--cwd', '-c']);
+const firstIndex = firstWord ? process.argv.indexOf(firstWord) : -1;
 try {
+	if (firstWord && !commandNames.includes(firstWord) && !optionValues.has(process.argv[firstIndex - 1] ?? '')) throw unknownName('command', firstWord, commandNames.filter((name) => name !== 'hook'));
 	await program.parseAsync();
 } catch (error) {
 	fail(error as Error & { exitCode?: number });
