@@ -28,11 +28,16 @@ export const VIDEO_TEMPLATES = {
 		required: ['title'],
 		optional: ['subtitle', 'footer'],
 	},
+	poster: {
+		description: 'Poster reveal. Any share-image layout (--poster window, parcels, scene, ...) uncovered left to right over its ground, as the website reveals its survey fills.',
+		required: ['poster'],
+		optional: ['title', 'subtitle', 'callout', 'chart', 'partner', 'scene', 'image'],
+	},
 } as const;
 
 export type VideoTemplateId = keyof typeof VIDEO_TEMPLATES;
 
-export type VideoExport = 'apng' | 'png' | 'svg';
+export type VideoExport = 'apng' | 'mp4' | 'webm' | 'png' | 'svg' | 'still';
 
 const BEZIER = /^cubic-bezier\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\)$/;
 
@@ -71,7 +76,11 @@ export function videoFields(template: VideoTemplateId): ContentKey[] {
 }
 
 export function cleanVideoContent(template: VideoTemplateId, input: unknown): ImageContent {
-	const content = cleanContent(input, videoFields(template));
+	const raw = { ...(input as Record<string, unknown>) };
+	const poster = typeof raw.poster === 'string' ? raw.poster : undefined;
+	delete raw.poster;
+	const content = cleanContent(raw, videoFields(template).filter((key) => (key as string) !== 'poster')) as ImageContent & { poster?: string };
+	if (poster) content.poster = poster;
 	const missing = VIDEO_TEMPLATES[template].required.filter((key) => !content[key as ContentKey]);
 	if (missing.length) throw new Error(`${template} needs ${missing.map((key) => `--${key}`).join(' and ')}.`);
 	return content;
@@ -82,11 +91,13 @@ export function videoCatalog() {
 	return {
 		schemaVersion: 1 as const,
 		renderer: 'svg-resvg-apng',
-		rendererNote: 'Each frame is an SVG drawn from the brand tokens, font files and logo, rasterized with resvg, then muxed into an APNG. No browser and no random values. The same inputs write the same bytes.',
+		rendererNote: 'Each frame is an SVG drawn from the brand tokens, font files and logo, rasterized with resvg, then muxed into an APNG, or encoded to MP4 (H.264) or WebM (VP9) by ffmpeg with bit-exact flags. No browser and no random values. The same inputs write the same bytes. --export still writes the settled last frame as PNG and SVG.',
 		formats: (Object.entries(VIDEO_FORMATS) as [VideoFormatId, (typeof VIDEO_FORMATS)[VideoFormatId]][]).map(([id, format]) => ({ id, width: format.width, height: format.height, ratio: format.ratio, use: format.use })),
 		templates: (Object.entries(VIDEO_TEMPLATES) as [VideoTemplateId, (typeof VIDEO_TEMPLATES)[VideoTemplateId]][]).map(([id, template]) => ({ id, description: template.description, required: template.required, optional: template.optional })),
 		themes: themes().map(({ id, label, default: isDefault }) => ({ id, label, default: isDefault })),
-		exports: ['apng', 'png', 'svg'],
+		exports: ['apng', 'mp4', 'webm', 'png', 'svg', 'still'],
+		encoders: { mp4: 'ffmpeg libx264, yuv420p, faststart', webm: 'ffmpeg libvpx-vp9', note: 'mp4 and webm need ffmpeg on the PATH.' },
+		motion: 'One eased progress per frame from --ds-easing-out (a strong ease-out), never ease-in: pieces arrive in order and settle on the last frame, then hold. Icons and the mark never move.',
 		timing: { fps: timing.fps, frameCount: timing.frameCount, durationMs: timing.durationMs, plays: timing.plays, durationToken: timing.durationToken, easingToken: timing.easingToken },
 		defaults: { theme: defaultTheme(), out: '.ds/videos', export: ['apng'], footer: defaultFooter() },
 	};

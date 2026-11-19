@@ -46,7 +46,7 @@ npm run ci           # build, limits, registry, tests; must pass before you push
 - `src/plan/`: the task queue (`state.json` in the app), element detection and `look` output.
 - `src/check/`: the value check (rules.ts), used by hooks, pre-commit and `check`.
 - `src/review/`, `src/hooks/`, `src/commands/`.
-- `src/brand/`, `src/library/emit.ts`, `src/video/`: the agent-facing brand, principles, component emit and video commands. `manifest` (alias `describe`) is the index. Video frames are SVG plus resvg, muxed to APNG. Do not add a second renderer or a frame-rate flag.
+- `src/brand/`, `src/library/emit.ts`, `src/video/`: the agent-facing brand, principles, component emit and video commands. `manifest` (alias `describe`) is the index. Video frames are SVG plus resvg, muxed to APNG or encoded to MP4 and WebM by ffmpeg (an encoder, not a renderer). Do not add a second renderer or a frame-rate flag.
 
 ## Rules
 

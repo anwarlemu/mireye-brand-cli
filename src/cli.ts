@@ -81,8 +81,15 @@ program
 	.description('Render a short on-brand video from the brand tokens, type and logo')
 	.option('--list', 'list formats, templates, timing and themes')
 	.option('--format <id>', 'square (1080x1080), vertical (1080x1920) or landscape (1920x1080)')
-	.option('--template <id>', 'social, announcement or product')
+	.option('--template <id>', 'social, announcement, product or poster')
+	.option('--poster <id>', 'poster template: which share-image layout to reveal (window, parcels, scene, ...)')
+	.option('--ground <id>', 'poster template: bone, green, brown or black')
 	.option('--theme <id>', 'a brand theme (see --list)')
+	.option('--callout <text>', 'poster template: the callout tag')
+	.option('--chart <rows>', 'poster template: chart rows')
+	.option('--partner <name>', 'poster template: the partner name')
+	.option('--scene <id>', 'poster template: the drawing')
+	.option('--image <path>', 'poster template: your picture (photo)')
 	.option('--title <text>', 'headline')
 	.option('--subtitle <text>', 'supporting line')
 	.option('--kicker <text>', 'short label above an announcement')
@@ -90,9 +97,9 @@ program
 	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
 	.option('--out <dir>', 'output directory (default: .ds/videos in the project)')
 	.option('--name <base>', 'file name without an extension')
-	.option('--export <kinds>', 'apng, png, svg, or a comma-separated list', 'apng')
+	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), or a comma-separated list', 'apng')
 	.option('--json', 'JSON output listing the files written')
-	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n`)
+	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n  ${cli()} video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,webm,still\n`)
 	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
 registerIllustrate(program);
 registerDeck(program);
