@@ -1,0 +1,23 @@
+{
+	"$comment": "The hidden-line isometric wireframe drawings, from the brand's illustration skill (mireye-wireframe-illustrations: scripts/engine.js, fill.js, kit.js and scenes/, vendored unchanged in brand/illustrate/wire). style is the skill's fixed series style (wire.js STYLE and mksvg.js): true isometric at azimuth 45, S 2.6 px per world unit (a scene may export its own S), weights 1.0, 0.7 and 0.5 px, x-ray 0.45 px, tones for a dark ground (mixes of Earth #2A2119 toward #F4EFE6) and for bone. pad is the skill's Figma pad (4). Scene labels and uses are the skill's own table.",
+	"style": {
+		"S": 2.6,
+		"az": 45,
+		"widths": { "E": 1, "D": 0.7, "F": 0.5 },
+		"hidW": 0.45,
+		"pad": 4,
+		"dark": { "lit": "#FBF8F2", "hi": "#E0DAD2", "mid": "#BBB5AD", "lo": "#8F8880", "faint": "#6D655D", "hid": "#524A42" },
+		"light": { "lit": "#000000", "hi": "#181817", "mid": "#444342", "lo": "#7A7975", "faint": "#A3A19D", "hid": "#C3C1BB" }
+	},
+	"scenes": {
+		"datacenter": { "label": "Data center", "file": "scenes/datacenter.js", "use": "A data center campus: shell with parapet, facade seams, roof equipment, yards, fences, parking. The reference scene." },
+		"datacenter-post": { "label": "Data center, post scale", "file": "scenes/datacenter_post.js", "use": "The same campus redrawn for a 1080 by 1350 post at S 1.67, thinned rather than scaled." },
+		"substation": { "label": "Grid interconnect", "file": "scenes/substation.js", "use": "A substation yard with transformers and a transmission tower." },
+		"solar": { "label": "Renewable energy siting", "file": "scenes/solar.js", "use": "A solar farm on three graded terraces, with inverter skids and an access track." },
+		"warehouse": { "label": "Commercial lending", "file": "scenes/warehouse.js", "use": "A logistics warehouse with loading docks." },
+		"residential": { "label": "Residential land", "file": "scenes/residential.js", "use": "Parcels and lots with houses, poles and wires." },
+		"landsection": { "label": "Land section", "file": "scenes/landsection.js", "use": "A single soil block with strata, ruler and parcel." },
+		"oneapi": { "label": "One API hub", "file": "scenes/oneapi.js", "use": "A central hall with eight agent units on pads, wired by ground trunking." },
+		"apicore": { "label": "One API core", "file": "scenes/apicore.js", "use": "A core block and die on a board, with eight agent cubes joined by cables (MCP tools)." }
+	}
+}

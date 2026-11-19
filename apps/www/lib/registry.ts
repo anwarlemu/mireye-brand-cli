@@ -13,6 +13,8 @@ export type Item = {
   use_for: string;
   never: string[];
   source?: string;
+  /** Blocks only: the rail group (section blocks, page templates or app shells). */
+  group?: "blocks" | "pages" | "shells";
   paths: string[];
   dependencies: string[];
   npm: string[];
@@ -38,4 +40,5 @@ export const exampleSource = (name: string) => sourceOf(`examples/${name}.tsx`);
 
 // These demos open overlays, lock scrolling or take the whole viewport. Keep those effects inside a frame.
 const FRAMED = new Set(["alert-dialog", "combobox", "command", "context-menu", "date-picker", "dialog", "drawer", "dropdown-menu", "hover-card", "menubar", "navigation-menu", "popover", "select", "sheet", "sidebar", "sonner", "toast", "tooltip"]);
-export const needsPreviewFrame = (item: Pick<Item, "name">) => FRAMED.has(item.name);
+// Blocks (sections, pages and app shells) render in a frame too, so their breakpoints follow the frame's width.
+export const needsPreviewFrame = (item: Pick<Item, "name" | "type">) => FRAMED.has(item.name) || item.type === "block";

@@ -5,7 +5,7 @@ import { pkgPath } from '../lib/paths.js';
 
 export type { Font };
 
-export type Faces = { sans: Font; mono: Font };
+export type Faces = { sans: Font; mono: Font; medium: Font };
 
 let faces: Faces | undefined;
 
@@ -19,9 +19,11 @@ function load(file: string): Font {
 export function loadFaces(): Faces {
 	if (faces) return faces;
 	const local = brand().fonts.local?.files['400'];
+	const medium = brand().fonts.local?.files['500'];
 	const mono = brand().fonts.mono?.files['400'];
 	if (!local || !mono) throw new Error('Imagery needs the brand sans and mono regular font files.');
-	faces = { sans: load(local), mono: load(mono) };
+	const sans = load(local);
+	faces = { sans, mono: load(mono), medium: medium ? load(medium) : sans };
 	return faces;
 }
 
@@ -29,11 +31,13 @@ export function num(value: number, digits = 2): string {
 	return value.toFixed(digits).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
 }
 
-export function measure(font: Font, text: string, size: number): number {
+/** Advance width of a line. `tracking` is letter spacing in em, added after every glyph as canvas does. */
+export function measure(font: Font, text: string, size: number, tracking = 0): number {
 	if (!text) return 0;
 	const scale = size / font.unitsPerEm;
 	let width = 0;
-	for (const pos of font.layout(text).positions) width += pos.xAdvance * scale;
+	const positions = font.layout(text).positions;
+	for (const pos of positions) width += pos.xAdvance * scale + tracking * size;
 	return width;
 }
 
@@ -48,7 +52,7 @@ export function lineMetrics(font: Font, size: number, leading: number): LineMetr
 }
 
 /** Greedy wrap on spaces. A word wider than the column breaks on characters. Blank lines are kept. */
-export function wrap(font: Font, text: string, size: number, maxWidth: number): string[] {
+export function wrap(font: Font, text: string, size: number, maxWidth: number, tracking = 0): string[] {
 	const lines: string[] = [];
 	for (const paragraph of text.split('\n')) {
 		if (!paragraph.trim()) {
@@ -58,19 +62,19 @@ export function wrap(font: Font, text: string, size: number, maxWidth: number): 
 		let current = '';
 		for (const word of paragraph.split(' ').filter(Boolean)) {
 			const next = current ? `${current} ${word}` : word;
-			if (measure(font, next, size) <= maxWidth) {
+			if (measure(font, next, size, tracking) <= maxWidth) {
 				current = next;
 				continue;
 			}
 			if (current) lines.push(current);
-			if (measure(font, word, size) <= maxWidth) {
+			if (measure(font, word, size, tracking) <= maxWidth) {
 				current = word;
 				continue;
 			}
 			let chunk = '';
 			for (const char of [...word]) {
 				const trial = chunk + char;
-				if (measure(font, trial, size) <= maxWidth) chunk = trial;
+				if (measure(font, trial, size, tracking) <= maxWidth) chunk = trial;
 				else {
 					if (chunk) lines.push(chunk);
 					chunk = char;
@@ -95,7 +99,8 @@ export type DrawOptions = { leading: number; maxWidth: number; maxLines: number;
 
 export type Drawn = { svg: string; width: number; height: number; size: number; lines: string[] };
 
-function glyphPaths(font: Font, line: string, size: number, x: number, baseline: number, fill: string): string {
+/** One line of type as filled glyph paths, its baseline at `baseline`. */
+export function glyphPaths(font: Font, line: string, size: number, x: number, baseline: number, fill: string, tracking = 0): string {
 	if (!line) return '';
 	const scale = size / font.unitsPerEm;
 	const run = font.layout(line);
@@ -110,7 +115,7 @@ function glyphPaths(font: Font, line: string, size: number, x: number, baseline:
 			// Font paths are y-up. Scale first (SVG applies transforms right to left), then move the origin to the baseline.
 			parts.push(`<path d="${data}" fill="${fill}" transform="translate(${num(tx)} ${num(ty)}) scale(${num(scale, 5)} ${num(-scale, 5)})"/>`);
 		}
-		pen += pos.xAdvance * scale;
+		pen += pos.xAdvance * scale + tracking * size;
 	}
 	return parts.join('');
 }

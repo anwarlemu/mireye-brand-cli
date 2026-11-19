@@ -3,6 +3,7 @@ import { brand } from '../lib/brand.js';
 import { pkgPath } from '../lib/paths.js';
 import { defaultFooter, leading, paletteFor, type ImageContent, type Palette } from '../image/catalog.js';
 import { drawText, lineMetrics, loadFaces, measure, num, type Font } from '../image/type.js';
+import { groundColors, imageDocument, posterBody } from '../image/poster.js';
 import { VIDEO_FORMATS, type VideoFormatId, type VideoTemplateId, videoTiming } from './catalog.js';
 
 const METRICS: Record<VideoFormatId, { pad: number; cut: number; inner: number; mark: number; title: number; sub: number; kicker: number; footer: number }> = {
@@ -216,8 +217,28 @@ function escapeXml(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+/** A poster revealed left to right over its ground: the clip widens with the eased progress. */
+function posterFrame(format: VideoFormatId, theme: string, content: ImageContent & { poster?: string; ground?: string }, progress: number): string {
+	const { width, height } = VIDEO_FORMATS[format];
+	const template = content.poster ?? '';
+	const doc = imageDocument();
+	if (!doc.posters[template]) throw new Error(`Unknown poster "${template}". Posters: ${Object.keys(doc.posters).join(', ')}.`);
+	const ground = content.ground ?? doc.posters[template].ground;
+	const { poster: _p, ground: _g, ...words } = content;
+	const body = posterBody({ template, width, height, ground, theme, content: words });
+	const bg = groundColors(ground, theme).bg;
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img">
+<title>${escapeXml(content.title ?? template)}</title>
+<rect width="${width}" height="${height}" fill="${bg}"/>
+<clipPath id="reveal"><rect width="${num(width * progress)}" height="${height}"/></clipPath><g clip-path="url(#reveal)">${body}</g>
+</svg>
+`;
+}
+
 /** One frame of a template. `index` is the only thing that changes between frames. */
 export function frameSvg(format: VideoFormatId, template: VideoTemplateId, theme: string, content: ImageContent, index: number, frameCount: number): string {
+	if (template === 'poster') return posterFrame(format, theme, content, frameProgress(index, frameCount));
 	const colors = paletteFor(theme);
 	const faces = loadFaces();
 	const sheet = sheetFor(format, colors);

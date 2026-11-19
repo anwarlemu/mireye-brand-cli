@@ -11,11 +11,16 @@ import { principlesCommand } from './commands/principles.js';
 import { componentCommand } from './commands/component.js';
 import { videoCommand } from './commands/video.js';
 import { manifestCommand } from './commands/manifest.js';
+import { registerIllustrate } from './commands/illustrate.js';
+import { registerDeck } from './commands/deck.js';
+import { registerMerch } from './commands/merch.js';
+import { registerFigma } from './commands/figma.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
 import { readHookInput } from './hooks/payload.js';
 import { brand, cli, hasProduct } from './lib/brand.js';
 import { findProjectRoot } from './lib/paths.js';
+import { unknownName } from './lib/names.js';
 
 const program = new Command();
 // Subcommands copy these at creation, so they have to be set before any .command().
@@ -47,32 +52,46 @@ program.command('check [files...]').description('Check component colors and styl
 program.command('tokens [term]').description('Find a brand token by name or value').option('--json', 'JSON output').action((term, _opts, command) => tokensCommand(term, command.optsWithGlobals()));
 program
 	.command('image')
-	.description('Render an Open Graph or social image from the brand tokens, type and logo')
-	.option('--list', 'list formats, templates and themes')
-	.option('--format <id>', 'og (1200x630), square (1080x1080), portrait (1080x1350) or landscape (1200x675)')
-	.option('--template <id>', 'headline, subtext, frame, quote or announcement')
+	.description('Render a share image or social post (PNG and SVG) from the brand layouts, tokens, type and logo')
+	.option('--list', 'list sizes, templates, grounds and themes')
+	.option('--size <id>', 'og, square, portrait, landscape, story, x-banner, linkedin-banner, ... (see --list)')
+	.option('--format <id>', 'same as --size')
+	.option('--template <id>', 'a poster (window, post, parcels, ...) or a sheet (headline, quote, ...)')
+	.option('--ground <id>', 'posters: bone (default), green, brown or black')
 	.option('--theme <id>', 'a brand theme (see --list)')
 	.option('--title <text>', 'headline')
-	.option('--subtitle <text>', 'supporting line')
+	.option('--subtitle <text>', 'the line under it')
 	.option('--kicker <text>', 'short label above an announcement')
 	.option('--quote <text>', 'quotation')
 	.option('--attribution <text>', 'who said the quotation')
-	.option('--image <path>', 'PNG or JPEG for the frame template')
-	.option('--footer <text>', 'footer line (defaults to the brand site)')
+	.option('--image <path>', 'your PNG or JPEG (frame and photo)')
+	.option('--callout <text>', 'parcels and photo: the tag, two lines (what, then where)')
+	.option('--chart <rows>', 'chart: one row a line, "label | number"')
+	.option('--partner <name>', 'partner: the partner\'s name')
+	.option('--scene <id>', 'post and panel: a wireframe scene; scene: an isometric preset')
+	.option('--footer <text>', 'sheet footer line (defaults to the brand site)')
+	.option('--sample', 'posters: fill unset words with the sample copy (replace it)')
 	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
 	.option('--out <dir>', 'output directory (default: .ds/images in the project)')
 	.option('--name <base>', 'file name without an extension')
 	.option('--export <kinds>', 'png, svg, or png,svg', 'png,svg')
 	.option('--json', 'JSON output listing the files written')
-	.addHelpText('after', () => `\nExamples:\n  ${cli()} image --list --json\n  ${cli()} image --format og --template headline --title "Parcel survey" --json\n  ${cli()} image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access."\n  ${cli()} image --format landscape --template frame --title "Parcel 18" --image ./screen.png\n  ${cli()} image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review"\n  ${cli()} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --export png,svg\n`)
+	.addHelpText('after', () => `\nExamples:\n  ${cli()} image --list --json\n  ${cli()} image --size og --template window --title "Physical world context for AI agents." --json\n  ${cli()} image --size portrait --template post --title "Residential land" --subtitle "Every field cited." --scene residential\n  ${cli()} image --size story --template parcels --ground green --sample\n  ${cli()} image --size x-banner --template identity\n  ${cli()} image --size landscape --template photo --title "Central Iowa" --image ./aerial.jpg\n  ${cli()} image --size og --template headline --title "Parcel survey"\n`)
 	.action((_opts, command) => imageCommand(command.optsWithGlobals()));
 program
 	.command('video')
 	.description('Render a short on-brand video from the brand tokens, type and logo')
 	.option('--list', 'list formats, templates, timing and themes')
 	.option('--format <id>', 'square (1080x1080), vertical (1080x1920) or landscape (1920x1080)')
-	.option('--template <id>', 'social, announcement or product')
+	.option('--template <id>', 'social, announcement, product or poster')
+	.option('--poster <id>', 'poster template: which share-image layout to reveal (window, parcels, scene, ...)')
+	.option('--ground <id>', 'poster template: bone, green, brown or black')
 	.option('--theme <id>', 'a brand theme (see --list)')
+	.option('--callout <text>', 'poster template: the callout tag')
+	.option('--chart <rows>', 'poster template: chart rows')
+	.option('--partner <name>', 'poster template: the partner name')
+	.option('--scene <id>', 'poster template: the drawing')
+	.option('--image <path>', 'poster template: your picture (photo)')
 	.option('--title <text>', 'headline')
 	.option('--subtitle <text>', 'supporting line')
 	.option('--kicker <text>', 'short label above an announcement')
@@ -80,10 +99,14 @@ program
 	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
 	.option('--out <dir>', 'output directory (default: .ds/videos in the project)')
 	.option('--name <base>', 'file name without an extension')
-	.option('--export <kinds>', 'apng, png, svg, or a comma-separated list', 'apng')
+	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), or a comma-separated list', 'apng')
 	.option('--json', 'JSON output listing the files written')
-	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n`)
+	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n  ${cli()} video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,webm,still\n`)
 	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
+registerIllustrate(program);
+registerDeck(program);
+registerMerch(program);
+registerFigma(program);
 brandCommand(program);
 componentCommand(program);
 program.command('approve').description('Approve ds-override comments (a person, in a terminal)').option('--all', 'approve every pending override').action((opts) => approve(opts));
@@ -128,7 +151,13 @@ const fail = (error: Error & { exitCode?: number }) => {
 	else process.stderr.write(`${error.message}\n`);
 	process.exit(error.exitCode && error.exitCode > 0 ? error.exitCode : 1);
 };
+// A first word that is not a command gets the nearest commands, not commander's "too many arguments".
+const firstWord = process.argv.slice(2).find((arg) => !arg.startsWith('-'));
+const commandNames = program.commands.flatMap((command) => [command.name(), ...command.aliases()]);
+const optionValues = new Set(['--cwd', '-c']);
+const firstIndex = firstWord ? process.argv.indexOf(firstWord) : -1;
 try {
+	if (firstWord && !commandNames.includes(firstWord) && !optionValues.has(process.argv[firstIndex - 1] ?? '')) throw unknownName('command', firstWord, commandNames.filter((name) => name !== 'hook'));
 	await program.parseAsync();
 } catch (error) {
 	fail(error as Error & { exitCode?: number });

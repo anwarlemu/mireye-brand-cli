@@ -28,6 +28,8 @@ const docsSchema = z.object({
 	use_for: z.string(),
 	never: z.array(z.string()).default([]),
 	source: z.string().optional(),
+	// Blocks only: where the docs rail lists the item (section blocks, page templates or app shells).
+	group: z.enum(['blocks', 'pages', 'shells']).optional(),
 	files: z.array(z.string()).optional(),
 	dependencies: z.array(z.string()).default([]),
 });
@@ -201,7 +203,7 @@ const catalog = `# ${brand.name} design system\n\n> Components, tokens and instr
 writeFileSync(join(publicDir, 'llms.txt'), catalog);
 writeFileSync(join(publicDir, 'llms-full.txt'), `${guide}\n\n${references.join('\n\n')}\n`);
 writeFileSync(join(publicDir, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /preview/\nSitemap: ${brand.registryUrl}/sitemap.xml\n`);
-const routes = ['', '/theme', '/components', ...docs.filter(d => d.type !== 'lib' && d.type !== 'hook').map(d => `/components/${d.name}`)];
+const routes = ['', '/theme', '/assets', '/illustrations', '/figma', '/components', ...docs.filter(d => d.type !== 'lib' && d.type !== 'hook').map(d => `/components/${d.name}`)];
 writeFileSync(join(publicDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${routes.map(route => `<url><loc>${brand.registryUrl}${route}</loc></url>`).join('')}</urlset>\n`);
 mkdirSync(join(ROOT, 'apps', 'www', 'lib'), { recursive: true });
 writeFileSync(join(ROOT, 'apps', 'www', 'lib', 'registry-index.json'), `${JSON.stringify({ name: brand.name, url: brand.registryUrl, items: index }, null, 2)}\n`);

@@ -2,15 +2,18 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { brand } from '../lib/brand.js';
 import { pkgPath } from '../lib/paths.js';
-import { FORMATS, type FormatId, type ImageContent, type Palette, type TemplateId, defaultFooter, leading, paletteFor } from './catalog.js';
+import { FORMATS, POSTERS, SHEET_FORMATS, isPoster, type FormatId, type ImageContent, type Palette, type TemplateId, defaultFooter, leading, paletteFor } from './catalog.js';
+import { posterBody } from './poster.js';
 import { drawText, lineMetrics, loadFaces, measure, num, type Drawn, type Font } from './type.js';
 
 export type ExportKind = 'png' | 'svg';
 
 export type RenderRequest = {
 	format: FormatId;
-	template: TemplateId;
+	template: TemplateId | string;
 	theme: string;
+	/** Poster templates only: bone, green, brown or black. Sheet templates are drawn on bone. */
+	ground?: string;
 	content: ImageContent;
 	exports: ExportKind[];
 	outDir: string;
@@ -23,8 +26,9 @@ export type RenderResult = {
 	schemaVersion: 1;
 	ok: true;
 	format: FormatId;
-	template: TemplateId;
+	template: string;
 	theme: string;
+	ground: string;
 	width: number;
 	height: number;
 	files: WrittenFile[];
@@ -34,15 +38,27 @@ export type RenderResult = {
  * Poster metrics. Type and the cut are larger than the product UI so the same signature still reads at social size.
  * The sheet stays the brand's: one ground, a hairline cut frame, the mark and a mono footer.
  */
-const METRICS: Record<FormatId, { pad: number; cut: number; inner: number; mark: number; title: number; sub: number; kicker: number; quote: number; footer: number; attr: number }> = {
+type SheetMetrics = { pad: number; cut: number; inner: number; mark: number; title: number; sub: number; kicker: number; quote: number; footer: number; attr: number };
+
+const METRICS: Record<string, SheetMetrics> = {
 	og: { pad: 36, cut: 28, inner: 48, mark: 28, title: 64, sub: 24, kicker: 16, quote: 44, footer: 16, attr: 16 },
 	square: { pad: 56, cut: 40, inner: 64, mark: 36, title: 76, sub: 28, kicker: 18, quote: 52, footer: 18, attr: 18 },
 	portrait: { pad: 64, cut: 44, inner: 68, mark: 36, title: 80, sub: 30, kicker: 18, quote: 56, footer: 18, attr: 18 },
 	landscape: { pad: 40, cut: 28, inner: 48, mark: 28, title: 60, sub: 24, kicker: 16, quote: 42, footer: 16, attr: 16 },
 };
 
+/** Metrics for a size without its own row: the nearest shape's row (wide, square or tall) scaled by the area. */
+function metricsFor(format: FormatId): SheetMetrics {
+	if (METRICS[format]) return METRICS[format];
+	const { width, height } = FORMATS[format];
+	const ref = width / height > 1.25 ? 'og' : height / width > 1.15 ? 'portrait' : 'square';
+	const base = FORMATS[ref];
+	const k = Math.sqrt((width * height) / (base.width * base.height));
+	return Object.fromEntries(Object.entries(METRICS[ref]).map(([key, value]) => [key, Math.round(value * k)])) as SheetMetrics;
+}
+
 type Box = { x: number; y: number; w: number; h: number };
-type Metrics = (typeof METRICS)[FormatId];
+type Metrics = SheetMetrics;
 
 type Sheet = {
 	format: FormatId;
@@ -77,7 +93,7 @@ function diamond(cx: number, cy: number, r: number, fill: string): string {
 
 function sheetFor(format: FormatId, colors: Palette): Sheet {
 	const size = FORMATS[format];
-	const metrics = METRICS[format];
+	const metrics = metricsFor(format);
 	const frame = { x: metrics.pad, y: metrics.pad, w: size.width - metrics.pad * 2, h: size.height - metrics.pad * 2 };
 	const content = { x: frame.x + metrics.inner, y: frame.y + metrics.inner, w: frame.w - metrics.inner * 2, h: frame.h - metrics.inner * 2 };
 	const footerText = Math.round(metrics.footer * leading('body'));
@@ -418,9 +434,27 @@ export async function rasterize(svg: string, width: number): Promise<Buffer> {
 }
 
 /** Render one image to SVG, PNG, or both. Paths in the result are relative to the working directory when they can be. */
+/** A poster as a whole SVG document: the brand's layout at this size, with a title and description for screen readers. */
+export function posterDocument(format: FormatId, template: string, theme: string, ground: string, content: ImageContent): string {
+	const { width, height } = FORMATS[format];
+	const body = posterBody({ template, width, height, ground, theme, content });
+	const title = [content.title, content.subtitle, content.partner, content.callout?.replace(/\n/g, ', ')].filter(Boolean).join('. ') || brand().name;
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img">
+<title>${escapeXml(title)}</title>
+<desc>${escapeXml(`${template} on ${ground}.`)}</desc>
+${body}
+</svg>
+`;
+}
+
 export async function renderImage(request: RenderRequest): Promise<RenderResult> {
 	const { width, height } = FORMATS[request.format];
-	const svg = compose(request.format, request.template, request.theme, request.content);
+	const poster = isPoster(request.template);
+	const ground = request.ground ?? (poster ? POSTERS()[request.template].ground : 'bone');
+	if (!poster && ground !== 'bone') throw new Error(`${request.template} is a sheet template and draws on bone only. Poster templates take --ground: ${Object.keys(POSTERS()).join(', ')}.`);
+	if (!poster && !SHEET_FORMATS.includes(request.format)) throw new Error(`${request.template} needs a taller size (${SHEET_FORMATS.join(', ')}). Poster templates fit every size.`);
+	const svg = poster ? posterDocument(request.format, request.template, request.theme, ground, request.content) : compose(request.format, request.template as TemplateId, request.theme, request.content);
 	mkdirSync(request.outDir, { recursive: true });
 	const files: WrittenFile[] = [];
 	for (const kind of request.exports) {
@@ -429,7 +463,7 @@ export async function renderImage(request: RenderRequest): Promise<RenderResult>
 		else writeFileSync(file, await rasterize(svg, width));
 		files.push({ path: displayPath(file), format: kind, width, height, bytes: readFileSync(file).length });
 	}
-	return { schemaVersion: 1, ok: true, format: request.format, template: request.template, theme: request.theme, width, height, files };
+	return { schemaVersion: 1, ok: true, format: request.format, template: request.template, theme: request.theme, ground, width, height, files };
 }
 
 export function svgDocument(format: FormatId, template: TemplateId, theme: string, content: ImageContent): string {

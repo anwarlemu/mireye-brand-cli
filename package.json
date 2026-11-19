@@ -11,7 +11,9 @@
     "dist",
     "brand",
     "build",
-    "r"
+    "r",
+    "registry/docs",
+    "registry/examples"
   ],
   "engines": {
     "node": ">=20"

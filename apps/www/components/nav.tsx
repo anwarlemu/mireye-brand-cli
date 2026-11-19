@@ -3,18 +3,22 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenTextIcon, ListIcon, MagnifyingGlassIcon, PaletteIcon, SquaresFourIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { BookOpenTextIcon, ImagesIcon, PenNibIcon, ListIcon, MagnifyingGlassIcon, PaletteIcon, PencilLineIcon, SquaresFourIcon, XIcon } from "@phosphor-icons/react/ssr";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Lockup } from "@www/components/logo";
 
-type Entry = { name: string; title: string; type?: string };
+type Entry = { name: string; title: string; type?: string; group?: string };
 
-// Rail groups by registry type: the shadcn set, then Mireye's own parts.
-const GROUPS = [
-  { label: "Components", types: ["ui", "site", "visual", "block"] },
-  { label: "Mireye", types: ["product"] },
+// Rail groups by registry type: the shadcn set, then Mireye's own parts, then the blocks split by their docs
+// frontmatter `group` (section blocks, page templates, app shells). A block without a group lists under Blocks.
+const GROUPS: { label: string; match: (e: Entry) => boolean }[] = [
+  { label: "Components", match: (e) => ["ui", "site", "visual"].includes(e.type ?? "ui") },
+  { label: "Mireye", match: (e) => e.type === "product" },
+  { label: "Blocks", match: (e) => e.type === "block" && (e.group ?? "blocks") === "blocks" },
+  { label: "Pages", match: (e) => e.type === "block" && e.group === "pages" },
+  { label: "App shells", match: (e) => e.type === "block" && e.group === "shells" },
 ];
 
 // A rail row: 32px and square, 12px in, a 16px glyph 8px before the 13px Forest label. A row under the pointer fills
@@ -28,6 +32,9 @@ const PAGES = [
   { href: "/", label: "Introduction", icon: BookOpenTextIcon },
   { href: "/components", label: "All components", icon: SquaresFourIcon },
   { href: "/theme", label: "Theme", icon: PaletteIcon },
+  { href: "/assets", label: "Assets", icon: ImagesIcon },
+  { href: "/illustrations", label: "Illustrations", icon: PencilLineIcon },
+  { href: "/figma", label: "Figma", icon: PenNibIcon },
 ];
 
 /** A section label in the rail: a 12px chip in the 1px Stone line. */
@@ -57,7 +64,7 @@ function Groups({ entries, query, onNavigate }: { entries: Entry[]; query: strin
         </div>
       )}
       {GROUPS.map((group) => {
-        const list = shown.filter((e) => group.types.includes(e.type ?? "ui"));
+        const list = shown.filter(group.match);
         if (!list.length) return null;
         return (
           <div key={group.label}>

@@ -99,33 +99,98 @@ Follow the returned `do` and `dont` lists. Do not add a rule that is not in the 
 
 ## Render images
 
-The CLI renders Open Graph and social images from the brand tokens, the brand fonts and the logo. It does not open a browser. Use it for link previews and posts instead of inventing a layout or fetching a different font.
+`image` draws share images and social posts from the brand tokens, the brand fonts, the mark and the brand's own layouts. It does not open a browser. Use it for link previews, posts and banners instead of inventing a layout or fetching a different font. Every file is PNG and SVG (real vector shapes, the type drawn as outlines); the same input writes the same bytes.
 
 ```sh
 {{cli}} image --list --json
-{{cli}} image --format og --template headline --title "Parcel survey" --json
-{{cli}} image --format square --template subtext --title "Site survey" --subtitle "Boundaries and access." --out ./images --json
-{{cli}} image --format landscape --template frame --title "Parcel 18" --image ./screen.png --json
-{{cli}} image --format portrait --template quote --quote "Read the sheet first." --attribution "Field review" --json
-{{cli}} image --format og --template announcement --kicker "Field note" --title "The sheet is ready." --theme enterprise --export png,svg --json
+{{cli}} image --size og --template window --title "Physical world context for AI agents." --subtitle "One API for physical world data." --json
+{{cli}} image --size portrait --template post --title "Residential land" --subtitle "Every field cited." --scene residential --json
+{{cli}} image --size story --template parcels --ground green --title "Find the parcels that fit." --callout "38.6 ac" --json
+{{cli}} image --size x-banner --template identity --json
+{{cli}} image --size landscape --template photo --title "Central Iowa" --image ./aerial.jpg --json
+{{cli}} image --size og --template headline --title "Parcel survey" --json
 ```
 
-`--list` is read-only. A render writes files, PNG and SVG by default, under `.ds/images` unless `--out` is set. `--json` lists each file with its pixel size. Pass copy with flags or a JSON file (`--content <file>`, or `--content -` for stdin). Flags override the file. An `image` path in that file is read relative to the file. Unknown fields in that file are an error. Long copy shrinks so it stays above the footer rule.
+- Posters (the brand layouts, every size and ground): `identity` (the lockup alone), `window`, `post` (a wireframe scene, `--scene`), `parcels` (`--callout`), `scene` (an isometric preset, `--scene`), `photo` (your `--image`, darkened), `tag`, `panel`, `chart` (`--chart "label | number"` rows), `app` (the Ask panel), `partner` (`--partner`).
+- Sheets (the cut-frame sheet, bone only, sizes at least 600px tall): `headline`, `subtext`, `frame`, `quote`, `announcement`.
+- Sizes: `og` 1200x630, `square` 1080x1080, `portrait` 1080x1350, `landscape` 1200x675, `story` 1080x1920, `x-banner` 1500x500, `linkedin-banner` 1584x396, `linkedin` 1200x627, `linkedin-square` 1200x1200, `linkedin-page` 1128x191, `youtube` 2560x1440, `email` 1200x300 (`--format` is the same flag).
+- Grounds (`--ground`, posters): `bone` (default), `green`, `brown`, `black`. Themes (`--theme`) swap the ink.
+- `--sample` fills a poster with sample copy for a first look; replace every word before publishing. Copy also comes from `--content <file>` (or `-` for stdin); flags override it, and an `image` path in the file is relative to the file.
+- Unknown sizes, templates, grounds, themes and fields exit 1 and name the nearest choices. Layouts, grounds and the notes on each value's source are in `brand/assets/image.json`.
 
-Formats: `og` 1200 by 630, `square` 1080 by 1080, `portrait` 1080 by 1350, `landscape` 1200 by 675. Templates: `headline`, `subtext`, `frame`, `quote`, `announcement`. Themes are the brand's own palettes (`--theme`, default on `--list`). An unknown format, template or theme is an error. `frame` places a PNG or JPEG in the cut frame; without `--image` it draws a survey plate. Keep the words plain and short. The sheet uses the brand ground, ink, type, mark and cut corner, so do not restyle the export.
+## Render slides
+
+`deck` draws slides at 1920x1080 and writes a PNG per slide and one PDF.
+
+```sh
+{{cli}} deck --list --json
+{{cli}} deck --sample --out ./deck --json
+{{cli}} deck --input deck.json --out ./deck --json
+{{cli}} deck cover --title "Physical world context for AI agents" --scene datacenter
+```
+
+`deck.json` is `{ "ground"?: "bone", "slides": [ { "type": "cover", "title": "..." } ] }`. Types: `cover`, `section`, `statement`, `bullets` (`items` split by `|`), `stat` (`stat`, `progress` 0 to 1 fills the tick row), `quote`, `image` (your `image`, or a wireframe `scene`), `chart`, `poster` (any poster `template`), `closing`. A slide may set its own `ground`. Unknown types and slots are errors.
 
 ## Render video
 
-`video` renders a short clip from the same tokens, font files and logo. It does not open a browser. Each frame is an SVG, rasterized with resvg, then muxed into an APNG. The same inputs write the same bytes. There is no frame-rate flag. Timing is ten times `--ds-duration-base`, at 12 frames a second, and the clip plays once.
+`video` renders a short clip from the same tokens, font files and logo. It does not open a browser. Each frame is an SVG rasterized with resvg, muxed into an APNG or encoded to MP4 (H.264) and WebM (VP9) with ffmpeg. The same inputs write the same bytes. There is no frame-rate flag: timing is ten times `--ds-duration-base` at 12 frames a second, eased with `--ds-easing-out`, and the clip plays once and holds its last frame.
 
 ```sh
 {{cli}} video --list --json
 {{cli}} video --format square --template social --title "Parcel survey" --json
-{{cli}} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note." --json
-{{cli}} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access." --json
+{{cli}} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --export mp4,webm,still --json
+{{cli}} video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,still --json
 ```
 
-Formats: `square` 1080 by 1080, `vertical` 1080 by 1920 (9:16), `landscape` 1920 by 1080 (16:9). Templates: `social`, `announcement`, `product`. `--export apng` is the default. `png` writes the frames and `svg` writes the frame sources. Output goes to `.ds/videos` unless `--out` is set. Unknown formats, templates, themes and content fields are errors.
+Formats: `square` 1080x1080, `vertical` 1080x1920, `landscape` 1920x1080. Templates: `social`, `announcement`, `product`, `poster` (any poster revealed left to right, `--poster`, `--ground`). Exports: `apng` (default), `mp4`, `webm` (both need ffmpeg), `png` and `svg` (the frames), `still` (the last frame as PNG and SVG).
+
+## Make merch
+
+`merch` writes print files at real size with bleed and safe area: SVG in inches and PNG at `--dpi` (default 300).
+
+```sh
+{{cli}} merch --list --json
+{{cli}} merch tee-front --variant on-dark --json
+{{cli}} merch sticker --variant green --json
+{{cli}} merch --all --out ./merch
+```
+
+Items: `cap-front`, `tee-front`, `tee-back`, `hoodie-front`, `tote`, `mug-wrap`, `sticker` (cut on the brand's cut corner; the `CutContour` path is in the SVG only), `poster`, `socks`. Variants: `on-light` and `on-dark` (the art alone for garments), `bone`, `green`, `brown`, `black` (the ground to the bleed). Sizes are common vendor conventions: confirm against the vendor's template before ordering. Only the approved mark and lockup are used; the brand defines no clear-space or minimum-size rule.
+
+## Draw illustrations
+
+`illustrate` draws the brand's illustration styles as SVG (real vector shapes) and PNG. Rules and sources are in `brand/illustration.md`.
+
+```sh
+{{cli}} illustrate --list --json
+{{cli}} illustrate datacenter --ground green --json
+{{cli}} illustrate apicore --ground bone --tile --json
+{{cli}} illustrate --style iso residential --count 5 --json
+{{cli}} illustrate --style contours sparse --size 1920x1080 --ground green --json
+{{cli}} illustrate --image ./site.jpg --ground bone --json
+```
+
+Styles: `wire` (the illustration skill's hidden-line scenes: `datacenter`, `datacenter-post`, `substation`, `solar`, `warehouse`, `residential`, `landsection`, `oneapi`, `apicore`; grounds green, brown, bone), `iso` (quick isometric presets, or your own scene text with `--spec`), `contours` (`dense`, `sparse`), `trace` (your picture as contours). Never draw a new wireframe scene by hand: new scenes come from the skill.
+
+## Work in Figma
+
+`figma` prepares files for the Figma MCP tools and prints the calls to make, in order. It never calls Figma itself.
+
+```sh
+{{cli}} figma tokens --out figma --json
+{{cli}} figma push illustration apicore --ground bone --json
+{{cli}} figma push image parcels --size square --json
+{{cli}} figma push slide cover --json
+{{cli}} figma push component button --json
+{{cli}} figma pull "https://figma.com/design/<fileKey>/<name>?node-id=1-2" --json
+{{cli}} figma check figma/variables-1-2.json figma/design-1-2.txt --json
+```
+
+`tokens` writes the tokens as variables (one mode per theme) and `use_figma` scripts that are safe to rerun. `push` writes an SVG (type outlined, so Gilroy never has to load in Figma) plus an import script when it fits one call, or HTML for `html_to_figma`. `pull` prints the read steps and where to save each result; `check` names every off-brand color, font, size, radius or gap with the nearest token and exits 1 when there is any. Build from library components and tokens, never from the raw values in Figma output.
+
+## Build pages and app screens
+
+The library has page templates, section blocks and app shells, all built from library components: `{{cli}} component list --json` lists them (type `block`). Sections: `hero-section`, `feature-grid`, `logo-strip`, `testimonial-section`, `pricing-table`, `faq-section`, `cta-section`, `site-header`, `site-footer`, `page-section`, `survey-plate`. Pages: `home-page`, `pricing-page`, `product-page`, `about-page`, `blog-page`, `blog-post-page`, `changelog-page`, `contact-page`, `legal-page`, `not-found-page`. App shells: `app-shell`, `dashboard-page`, `settings-page`, `list-detail-page`, `auth-page`. Add one with `{{cli}} add <name>` and pass real content through props; placeholder names are Acme.
 
 ## Interaction and motion rules
 

@@ -1,5 +1,6 @@
-@import "tailwindcss";
+/* Fonts first: build/fonts.css starts with a remote @import, which must precede every other rule once inlined. */
 @import "../../../build/fonts.css";
+@import "tailwindcss";
 @import "../../../build/tokens.css";
 @import "../../../build/theme.css";
 
