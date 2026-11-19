@@ -235,7 +235,7 @@ const MARK_Y = 13.11;
 
 type Ctx = { d: Design; c: GroundColors; f: Faces; content: PosterContent; theme: string; ids: number };
 
-function baselineIn(font: Font, top: number, size: number, lh: number): number {
+export function baselineIn(font: Font, top: number, size: number, lh: number): number {
 	const m = lineMetrics(font, size, 1);
 	return top + (size * lh - m.em) / 2 + m.ascent;
 }
@@ -243,7 +243,7 @@ function baselineIn(font: Font, top: number, size: number, lh: number): number {
 const op = (alpha: number) => (alpha >= 1 ? '' : ` fill-opacity="${num(alpha, 3)}"`);
 const sop = (alpha: number) => (alpha >= 1 ? '' : ` stroke-opacity="${num(alpha, 3)}"`);
 
-function diamond(x: number, y: number, r: number, color: string): string {
+export function diamond(x: number, y: number, r: number, color: string): string {
 	return `<path d="M${num(x)} ${num(y - r)}L${num(x + r)} ${num(y)}L${num(x)} ${num(y + r)}L${num(x - r)} ${num(y)}Z" fill="${color}"/>`;
 }
 
@@ -251,7 +251,7 @@ function target(x: number, y: number, r: number, color: string, bg: string): str
 	return `<path d="M${num(x)} ${num(y - r)}L${num(x + r)} ${num(y)}L${num(x)} ${num(y + r)}L${num(x - r)} ${num(y)}Z" fill="${bg}" stroke="${color}" stroke-width="${num(Math.max(0.8, r * 0.16), 3)}"/>${diamond(x, y, r * 0.38, color)}`;
 }
 
-function chamfer(x: number, y: number, w: number, h: number, c: number): string {
+export function chamfer(x: number, y: number, w: number, h: number, c: number): string {
 	return `M${num(x + c)} ${num(y)}L${num(x + w)} ${num(y)}L${num(x + w)} ${num(y + h)}L${num(x)} ${num(y + h)}L${num(x)} ${num(y + c)}Z`;
 }
 
@@ -315,6 +315,11 @@ function fittedSize(x: Ctx): number {
 	return size;
 }
 
+/** A contour field covering a box (or the whole frame), clipped to it, in one color at an alpha. */
+export function contourSvg(id: string, frameW: number, frameH: number, u: number, kind: 'dense' | 'sparse', alpha: number, color: string, box?: Rect): string {
+	return contourLayer({ d: { W: frameW, H: frameH, u } as Design, ids: 0, idName: id } as unknown as Ctx, kind, alpha, color, box);
+}
+
 function contourLayer(x: Ctx, kind: 'dense' | 'sparse', alpha: number, color: string, box?: Rect): string {
 	const { d } = x;
 	const data = contours();
@@ -323,7 +328,7 @@ function contourLayer(x: Ctx, kind: 'dense' | 'sparse', alpha: number, color: st
 	const k = Math.max(W / data.width, H / data.height);
 	const cw = data.width * k;
 	const ch = data.height * k;
-	const id = `ct${x.ids++}`;
+	const id = (x as Ctx & { idName?: string }).idName ?? `ct${x.ids++}`;
 	const ox = (box?.x ?? 0) + (W - cw) / 2;
 	const oy = (box?.y ?? 0) + (H - ch) / 2;
 	const paths = (kind === 'sparse' ? data.sparse : data.dense).map((p) => `<path d="${p}"/>`).join('');

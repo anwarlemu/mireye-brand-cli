@@ -12,6 +12,7 @@ import { componentCommand } from './commands/component.js';
 import { videoCommand } from './commands/video.js';
 import { manifestCommand } from './commands/manifest.js';
 import { registerIllustrate } from './commands/illustrate.js';
+import { registerDeck } from './commands/deck.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
 import { readHookInput } from './hooks/payload.js';
@@ -93,6 +94,7 @@ program
 	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n`)
 	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
 registerIllustrate(program);
+registerDeck(program);
 brandCommand(program);
 componentCommand(program);
 program.command('approve').description('Approve ds-override comments (a person, in a terminal)').option('--all', 'approve every pending override').action((opts) => approve(opts));
