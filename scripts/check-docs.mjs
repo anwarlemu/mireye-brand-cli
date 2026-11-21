@@ -136,6 +136,15 @@ try {
   await nav.getByRole('textbox', { name: 'Filter components' }).fill('');
   await checkFade(railList(), 'mobile rail');
   await page.getByRole('button', { name: 'Close the library' }).click();
+  // compare-matrix: only the end edge fades, and cells fade under the pinned column once scrolled (snap off to hold mid-scroll).
+  await page.goto(`${base}/preview/compare-matrix/Preview`);
+  const region = page.locator('.group\\/region').first();
+  await region.waitFor();
+  const matrix = left => region.evaluate((el, x) => new Promise(resolve => { el.style.scrollSnapType = 'none'; el.scrollLeft = x; requestAnimationFrame(() => requestAnimationFrame(() => resolve([getComputedStyle(el).getPropertyValue('--fade-x-end').trim(), getComputedStyle(el.querySelector('[data-col="label"]'), '::after').opacity]))); }), left);
+  assert.deepEqual(await matrix(0), ['24px', '0'], 'compare-matrix at rest: end edge fades, no shade under the pinned column');
+  assert.deepEqual(await matrix(30), ['24px', '1'], 'compare-matrix scrolled: end edge fades and cells fade under the pinned column');
+  assert.deepEqual(await matrix(1e6), ['0px', '1'], 'compare-matrix at the end: no end fade');
+  console.log('PASS: compare-matrix fades at its end edge and under its pinned column, never a hard cut.');
   await checkOverlays(page, base);
   await checkInteractions(page, base);
   assert.deepEqual(errors, [], 'Browser errors');

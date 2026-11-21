@@ -364,3 +364,44 @@
 		--fade-x-end: 8px;
 	}
 }
+
+/*
+ * A row that scrolls sideways under a sticky first column (compare-matrix). `fade-x-end` on the scroller fades only
+ * its end edge and names its scroll (--fade-x) for the column inside. `fade-under` on the sticky cells shows their
+ * trailing shade (their ::after, drawn by the component) with the first 24px of scroll, so cells fade under the
+ * column instead of being sliced. Without scroll timelines, or under reduced motion, the component's own scrolled
+ * state shows the shade.
+ */
+@keyframes fade-under {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@utility fade-x-end {
+	scroll-timeline: --fade-x inline;
+	mask-image: linear-gradient(to right, black calc(100% - var(--fade-x-end)), transparent);
+
+	@supports (animation-timeline: scroll()) {
+		animation: fade-x-end linear both;
+		animation-timeline: --fade-x;
+		animation-range: calc(100% - 24px) 100%;
+	}
+
+	@supports not (animation-timeline: scroll()) {
+		--fade-x-end: 8px;
+	}
+}
+
+@utility fade-under {
+	@supports (animation-timeline: scroll()) {
+		&::after {
+			animation: fade-under linear both;
+			animation-timeline: --fade-x;
+			animation-range: 0px 24px;
+		}
+	}
+}

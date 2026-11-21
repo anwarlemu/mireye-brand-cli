@@ -30,7 +30,7 @@ import { usePrefersReducedMotion } from "@/lib/use-loop-frame";
  * - Under the requirements: notes that are not judged (county signals, owner), then the summary
  *   ("4 requirements · 2 sites · Ellis County"), whose counts roll when they change.
  * - Narrow screens: the table scrolls sideways inside its own region with the requirement column
- *   pinned; a 1px Stone edge shows on the pinned column only while scrolled. Columns snap to the
+ *   pinned; a 1px Stone edge and a short fade show on the pinned column only while scrolled, and the end edge fades. Columns snap to the
  *   pinned edge. The page itself never scrolls sideways.
  * - Pointing (fine pointers only): a 10px diamond in the frame's left margin, centered between
  *   its edge and the table, marks the row under the pointer and glides from row to row (150ms,
@@ -118,9 +118,12 @@ const cell = "px-1.5 pt-2.5 pb-3 align-top text-left border-b border-line-subtle
 const failMark =
   "relative before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:origin-top before:bg-line-strong before:scale-y-0 before:transition-transform before:duration-250 before:ease-(--ds-easing-out) motion-reduce:before:transition-none";
 const failCell = "bg-subtle before:scale-y-100 [&_[data-slot=source-ref]:not([data-active])]:[--ds-shape-fill:var(--ds-color-mist)]";
+// The pinned column's trailing shade: a 1px Stone edge and a 24px fade of the column's own background just past it,
+// so cells scrolling under the column fade instead of being sliced. It grows with the first 24px of scroll
+// (fade-under); without scroll timelines it shows once scrolled.
 const pinned = cn(
-  "sticky left-0 z-10 bg-surface",
-  "after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-line after:opacity-0 after:transition-opacity after:duration-150 after:ease-out",
+  "sticky left-0 z-10 bg-surface fade-under",
+  "after:pointer-events-none after:absolute after:inset-y-0 after:left-full after:w-6 after:border-l after:border-line after:bg-linear-to-r after:from-surface after:to-transparent after:opacity-0",
   "group-data-[scrolled]/region:after:opacity-100",
 );
 
@@ -328,8 +331,9 @@ export function CompareMatrix({
         }}
         style={{ scrollPaddingLeft: `calc(var(--spacing) * ${pinUnits})` }}
         className={cn(
-          "group/region overflow-x-auto overscroll-x-contain bg-surface snap-x snap-proximity",
-          "outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+          "group/region overflow-x-auto overscroll-x-contain fade-x-end bg-surface snap-x snap-proximity",
+          // Inset: the end fade's mask would hide a ring drawn outside the region.
+          "outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong",
         )}
       >
         <table
