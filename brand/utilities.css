@@ -269,13 +269,13 @@
 	initial-value: 0px;
 }
 
-@property --fade-inline-start {
+@property --fade-x-start {
 	syntax: "<length>";
 	inherits: false;
 	initial-value: 0px;
 }
 
-@property --fade-inline-end {
+@property --fade-x-end {
 	syntax: "<length>";
 	inherits: false;
 	initial-value: 0px;
@@ -299,21 +299,21 @@
 	}
 }
 
-@keyframes fade-inline-start {
+@keyframes fade-x-start {
 	from {
-		--fade-inline-start: 0px;
+		--fade-x-start: 0px;
 	}
 	to {
-		--fade-inline-start: 24px;
+		--fade-x-start: 24px;
 	}
 }
 
-@keyframes fade-inline-end {
+@keyframes fade-x-end {
 	from {
-		--fade-inline-end: 24px;
+		--fade-x-end: 24px;
 	}
 	to {
-		--fade-inline-end: 0px;
+		--fade-x-end: 0px;
 	}
 }
 
@@ -348,11 +348,11 @@
 }
 
 @utility fade-xy {
-	mask-image: linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent), linear-gradient(to right, transparent, black var(--fade-inline-start), black calc(100% - var(--fade-inline-end)), transparent);
+	mask-image: linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent), linear-gradient(to right, transparent, black var(--fade-x-start), black calc(100% - var(--fade-x-end)), transparent);
 	mask-composite: intersect;
 
 	@supports (animation-timeline: scroll()) {
-		animation: fade-start linear both, fade-end linear both, fade-inline-start linear both, fade-inline-end linear both;
+		animation: fade-start linear both, fade-end linear both, fade-x-start linear both, fade-x-end linear both;
 		animation-timeline: scroll(self block), scroll(self block), scroll(self inline), scroll(self inline);
 		animation-range: 0px 24px, calc(100% - 24px) 100%, 0px 24px, calc(100% - 24px) 100%;
 	}
@@ -360,7 +360,7 @@
 	@supports not (animation-timeline: scroll()) {
 		--fade-start: 8px;
 		--fade-end: 8px;
-		--fade-inline-start: 8px;
-		--fade-inline-end: 8px;
+		--fade-x-start: 8px;
+		--fade-x-end: 8px;
 	}
 }

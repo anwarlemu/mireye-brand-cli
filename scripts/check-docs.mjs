@@ -90,6 +90,11 @@ try {
     await box.waitFor();
     await checkFade(box, slot, step);
   }
+  await page.goto(`${base}/components/sidebar`);
+  const code = page.locator('[data-slot="code-block-content"]').nth(await page.evaluate(() => [...document.querySelectorAll('[data-slot="code-block-content"]')].findIndex(el => el.scrollHeight - el.clientHeight > 200 && el.scrollWidth - el.clientWidth > 100)));
+  const both = (top, left) => code.evaluate((el, [y, x]) => new Promise(resolve => { el.scrollTop = y; el.scrollLeft = x; requestAnimationFrame(() => requestAnimationFrame(() => { const s = getComputedStyle(el); resolve(['--fade-start', '--fade-end', '--fade-x-start', '--fade-x-end'].map(n => s.getPropertyValue(n).trim())); })); }), [top, left]);
+  assert.deepEqual(await both(0, 0), ['0px', '24px', '0px', '24px'], 'code block at rest: top and left whole, bottom and right fade');
+  assert.deepEqual(await both(100, 100), ['24px', '24px', '24px', '24px'], 'code block mid-scroll: all four edges fade');
   console.log('PASS: the rail and scrolling library items fade at their edges with the scroll, never a hard cut.');
 
   await page.goto(`${base}/components/dialog`);
