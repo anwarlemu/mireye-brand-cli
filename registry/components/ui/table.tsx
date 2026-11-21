@@ -14,7 +14,7 @@ function Table({ className, variant = "default", ...props }: React.ComponentProp
       data-slot="table-container"
       data-variant={variant}
       className={cn(
-        "relative w-full overflow-x-auto",
+        "relative w-full overflow-x-auto fade-x",
         variant === "framed" && "ds-cut-frame px-2 pt-1 pb-2 [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]",
       )}
     >

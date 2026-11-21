@@ -149,7 +149,7 @@ export function AppShell({ nav = NAV, current, onNavigate, breadcrumb, title, me
           </div>
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </header>
-        <div data-slot="app-shell-content" className={cn("min-h-0 flex-1 overflow-y-auto", contentClassName)}>
+        <div data-slot="app-shell-content" className={cn("min-h-0 flex-1 overflow-y-auto fade-y", contentClassName)}>
           {children}
         </div>
       </SidebarInset>

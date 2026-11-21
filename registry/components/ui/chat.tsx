@@ -176,7 +176,7 @@ export function ChatInput({
         // Merged, so a className in textareaProps can't drop `peer` or the padding the
         // placeholder overlay is aligned to. field-sizing grows the area with its text.
         className={cn(
-          "peer min-h-0 w-full flex-1 resize-none bg-transparent px-3 pt-3.5 outline-none [field-sizing:content] max-h-30 overflow-y-auto",
+          "peer min-h-0 w-full flex-1 resize-none bg-transparent px-3 pt-3.5 outline-none [field-sizing:content] max-h-30 overflow-y-auto fade-y",
           "text-body font-normal text-fg placeholder:text-transparent",
           textareaProps?.className,
         )}

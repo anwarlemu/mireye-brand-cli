@@ -61,7 +61,7 @@ function TypographyInlineCode({ className, ...props }: React.ComponentProps<"cod
 /** A plain table in running text: caption-size head labels over a Stone rule, Mist rules between rows. For data, use Table. */
 function TypographyTable({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div data-slot="typography-table" className="my-4 w-full overflow-x-auto">
+    <div data-slot="typography-table" className="my-4 w-full overflow-x-auto fade-x">
       <table
         className={cn(
           "w-full border-collapse font-sans text-body leading-body text-fg [&_td]:border-b [&_td]:border-line-subtle [&_td]:px-3 [&_td]:py-2.5 [&_th]:border-b [&_th]:border-line [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-caption [&_th]:font-normal [&_th]:text-fg-secondary",

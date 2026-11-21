@@ -121,7 +121,7 @@ export function ListDetailPage({ sites = SITES, defaultSelected, onAsk, ...shell
           <MagnifyingGlassIcon aria-hidden className="pointer-events-none absolute top-1/2 left-6 z-10 size-4 -translate-y-1/2 text-fg-subtle" />
           <Input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter sites" aria-label="Filter sites" className="pl-9" />
         </div>
-        <ul className="min-h-0 flex-1 overflow-y-auto max-lg:max-h-72">
+        <ul className="min-h-0 flex-1 overflow-y-auto fade-y max-lg:max-h-72">
           {shown.map((s) => (
             <li key={s.id}>
               <button type="button" aria-current={s.id === site?.id} onClick={() => setSelected(s.id)} className={ROW}>
@@ -137,7 +137,7 @@ export function ListDetailPage({ sites = SITES, defaultSelected, onAsk, ...shell
         </ul>
       </aside>
       {site && (
-        <article aria-label={site.name} className="min-w-0 flex-1 lg:overflow-y-auto">
+        <article aria-label={site.name} className="min-w-0 flex-1 lg:overflow-y-auto lg:fade-y">
           <div className="grid gap-6 p-4 sm:p-6">
             <header className="flex flex-wrap items-start justify-between gap-4">
               <div className="grid gap-1.5">

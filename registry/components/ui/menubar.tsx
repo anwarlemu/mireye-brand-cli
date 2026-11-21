@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 // panel that lingered would dismiss the next one, and the move is made by keyboard and pointer many times).
 const CONTENT =
   "ds-cut-frame z-50 flex max-h-(--radix-menubar-content-available-height) min-w-48 flex-col p-px text-fg outline-none [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=open]:animate-pop-in";
-const SCROLL = "min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain p-1";
+const SCROLL = "min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain fade-y p-1";
 const ITEM =
   "relative flex min-h-8 cursor-default items-center gap-2 px-3 py-1.5 font-sans text-body leading-tight font-normal text-fg outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:text-fg-subtle data-[highlighted]:bg-subtle data-[highlighted]:active:bg-subtle-hover data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-']):not([data-slot])]:size-4";
 const CHECK = "pointer-events-none ml-auto flex size-4 shrink-0 items-center justify-center pl-1";

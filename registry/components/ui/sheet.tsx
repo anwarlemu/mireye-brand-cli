@@ -55,10 +55,14 @@ function SheetContent({ className, children, side = "right", showCloseButton = t
         data-slot="sheet-content"
         data-ds-motion={instant ? "instant" : undefined}
         data-side={side}
-        className={cn("fixed z-50 flex flex-col overflow-y-auto bg-surface text-fg outline-none", SIDES[side], className)}
+        className={cn("fixed z-50 flex flex-col overflow-hidden bg-surface text-fg outline-none", SIDES[side], className)}
         {...props}
       >
-        {children}
+        {/* The scrolling box sits inside the panel: its edges fade where more scrolls past them, the close button stays
+            put, and the panel's own slide animations stay on the panel. */}
+        <div data-slot="sheet-body" className="flex min-h-0 flex-1 flex-col overflow-y-auto fade-y">
+          {children}
+        </div>
         {showCloseButton && (
           <SheetPrimitive.Close
             data-slot="sheet-close"

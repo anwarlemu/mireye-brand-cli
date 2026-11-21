@@ -11,11 +11,13 @@
  transition-delay: 0s !important;
 }
 
-/* Keyboard feedback and explicitly high-frequency surfaces never wait for motion. */
-:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible,
-:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible *,
-:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]),
-:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *,
+/* Keyboard feedback and explicitly high-frequency surfaces never wait for motion. The scroll edge fades (fade-y,
+   fade-x, fade-xy) are exempt here and under reduced motion: they follow the scroll position, not time, and without
+   them content is cut off by a hard edge. */
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible:where(:not(.fade-y, .fade-x, .fade-xy, [class*=":fade-x"], [class*=":fade-y"])),
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible *:where(:not(.fade-y, .fade-x, .fade-xy, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]):where(:not(.fade-y, .fade-x, .fade-xy, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *:where(:not(.fade-y, .fade-x, .fade-xy, [class*=":fade-x"], [class*=":fade-y"])),
 :where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::before,
 :where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::after,
 :where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"])::before,
@@ -26,7 +28,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
- *, ::before, ::after {
+ *:where(:not(.fade-y, .fade-x, .fade-xy, [class*=":fade-x"], [class*=":fade-y"])), ::before, ::after {
   animation: none !important;
   transition: none !important;
   scroll-behavior: auto !important;

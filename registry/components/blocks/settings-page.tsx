@@ -115,7 +115,7 @@ export function SettingsPage({ workspaceName = "Acme Energy", members = MEMBERS,
 
           <Section id="members" title="Members" description="Who can see and edit searches in this workspace.">
             <Card>
-              <CardContent className="overflow-x-auto">
+              <CardContent className="overflow-x-auto fade-x">
                 <Table className="min-w-120">
                   <TableHeader>
                     <TableRow>

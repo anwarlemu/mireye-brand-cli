@@ -54,7 +54,7 @@ function Toaster({ toastOptions, ...props }: ToasterProps) {
           icon: "m-0! flex h-4! w-auto! shrink-0 items-center justify-center",
           content: "grid min-w-0 flex-1 gap-1 pr-6",
           title: "text-body! leading-tight font-medium! text-fg",
-          description: "max-h-40 overflow-y-auto text-body! leading-body text-fg-secondary! whitespace-pre-line wrap-anywhere",
+          description: "max-h-40 overflow-y-auto fade-y text-body! leading-body text-fg-secondary! whitespace-pre-line wrap-anywhere",
           actionButton: `${KEY} bg-primary! text-on-primary! hover:bg-primary-hover! active:bg-primary!`,
           cancelButton: `${KEY} border! border-line! bg-surface! text-fg! hover:bg-subtle! active:bg-subtle-hover!`,
           closeButton:

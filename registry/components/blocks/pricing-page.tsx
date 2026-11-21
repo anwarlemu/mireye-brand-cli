@@ -53,7 +53,7 @@ export function PricingPage({
         <PricingTable label={null} title={null} intro={null} {...plans} />
         {rows && (
           <PageSection label="Compare" title="What every plan includes.">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto fade-x">
               <Table className="min-w-160">
                 <TableHeader>
                   <TableRow>

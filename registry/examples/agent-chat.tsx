@@ -170,7 +170,7 @@ export function Preview() {
             const el = e.currentTarget;
             stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
           }}
-          className="flex min-h-0 flex-1 flex-col gap-7 overflow-y-auto px-3.5 py-5"
+          className="flex min-h-0 flex-1 flex-col gap-7 overflow-y-auto fade-y px-3.5 py-5"
         >
           {turns.map((t) => {
             const live = t === last;

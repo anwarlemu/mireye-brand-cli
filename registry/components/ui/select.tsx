@@ -67,7 +67,7 @@ function SelectContent({ className, children, position = "popper", align = "cent
         {...props}
       >
         <SelectScrollUpButton />
-        <SelectPrimitive.Viewport data-position={position} className={cn("flex flex-col gap-px p-1 *:data-[slot=select-group]:flex *:data-[slot=select-group]:flex-col *:data-[slot=select-group]:gap-px", position === "popper" && "h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1")}>
+        <SelectPrimitive.Viewport data-position={position} className={cn("fade-y flex flex-col gap-px p-1 *:data-[slot=select-group]:flex *:data-[slot=select-group]:flex-col *:data-[slot=select-group]:gap-px", position === "popper" && "h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1")}>
           {children}
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />

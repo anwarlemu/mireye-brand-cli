@@ -136,7 +136,7 @@ export function DashboardPage({ title = "Overview", stats = STATS, usage = { use
             <CardHeader>
               <CardTitle>Latest runs</CardTitle>
             </CardHeader>
-            <CardContent className="overflow-x-auto">
+            <CardContent className="overflow-x-auto fade-x">
               <Table className="min-w-140">
                 <TableHeader>
                   <TableRow>

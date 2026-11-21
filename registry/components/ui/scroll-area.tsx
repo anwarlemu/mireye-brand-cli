@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 function ScrollArea({ className, children, ...props }: React.ComponentProps<typeof ChakraScrollArea.Root>) {
   return (
     <ChakraScrollArea.Root unstyled data-slot="scroll-area" className={cn("relative overflow-hidden", className)} {...props}>
-      <ChakraScrollArea.Viewport unstyled data-slot="scroll-area-viewport" className="size-full outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong">
+      <ChakraScrollArea.Viewport unstyled data-slot="scroll-area-viewport" className="size-full fade-xy outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong">
         {children}
       </ChakraScrollArea.Viewport>
       <ScrollBar />

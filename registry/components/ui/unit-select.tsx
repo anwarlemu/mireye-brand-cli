@@ -72,7 +72,7 @@ export function UnitSelect<T extends string>({
             "data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in motion-reduce:animate-none",
           )}
         >
-          <SelectPrimitive.Viewport className="flex flex-col gap-px p-1">
+          <SelectPrimitive.Viewport className="fade-y flex flex-col gap-px p-1">
             {units.map((u) => (
               <SelectPrimitive.Item
                 key={u.value}
