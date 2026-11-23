@@ -9,7 +9,11 @@ declare module 'fontkit' {
 		unitsPerEm: number;
 		ascent: number;
 		descent: number;
+		capHeight: number;
+		xHeight: number;
+		hasGlyphForCodePoint(code: number): boolean;
 		layout(text: string): {
+			bbox: { minX: number; minY: number; maxX: number; maxY: number };
 			glyphs: { path: { toSVG(): string } }[];
 			positions: { xAdvance: number; yAdvance: number; xOffset: number; yOffset: number }[];
 		};

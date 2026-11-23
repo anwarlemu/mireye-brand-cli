@@ -132,7 +132,8 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `list` | List the available components. |
 | `look <file\|element>` | Show component and token guidance for a file or element type. |
 | `tokens [term]` | Find a token by name or role. |
-| `image` | Share images and social posts (PNG and SVG): the brand's poster layouts at twelve sizes and four grounds, plus the cut-frame sheets. |
+| `image` | Share images, banners and social posts (PNG, SVG, JPG, WebP, PDF): the brand's poster layouts and the cut-frame sheets at every platform size and four grounds; several sizes at once; carousels. |
+| `design` | A design file you revise: `new`, `revise` (plain words), `edit`, `undo`, `redo`, `history`, `variants`, `sizes`, `compare`, `render`, `check`. Every write is checked. |
 | `deck` | Slides at 1920 by 1080 from a JSON file: a PNG per slide and one PDF. |
 | `video` | Short clips (square, 9:16 or 16:9) as APNG, MP4 or WebM, plus a still frame. |
 | `merch` | Print files at real size with bleed, safe area and a cut-corner die line. |
@@ -150,9 +151,11 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 Every asset is drawn from the tokens, Gilroy, DM Mono, the mark and the brand's own layouts and illustrations, with no browser. The same input writes the same bytes. `--list --json` on each command is read-only and lists every name; an unknown name exits 1 with the nearest choices. The docs site's Assets, Illustrations and Figma pages show every example with its command.
 
 ```sh
-npx mireye-ds image --size og --template window --title "Physical world context for AI agents." --json
-npx mireye-ds image --size story --template parcels --ground green --sample
-npx mireye-ds image --size x-banner --template identity
+npx mireye-ds image window --size og --headline "Physical world context for AI agents." --json
+npx mireye-ds image parcels --size story,square,x-banner --theme green --sample
+npx mireye-ds image identity --size avatar
+npx mireye-ds design new post --size x-banner --headline "Physical world context for AI agents" -o banner.design.json
+npx mireye-ds design revise banner.design.json "darker theme, logo top right, bigger headline"
 npx mireye-ds deck --sample --out deck
 npx mireye-ds video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,still
 npx mireye-ds merch tee-front --variant on-dark
@@ -161,9 +164,13 @@ npx mireye-ds illustrate --image ./site.jpg
 npx mireye-ds figma tokens --out figma
 ```
 
-- `image`: posters (`identity`, `window`, `post`, `parcels`, `scene`, `photo`, `tag`, `panel`, `chart`, `app`, `partner`) at `og`, `square`, `portrait`, `landscape`, `story`, `x-banner`, `linkedin-banner`, `linkedin`, `linkedin-square`, `linkedin-page`, `youtube` and `email`, on `bone`, `green`, `brown` or `black`; sheets (`headline`, `subtext`, `frame`, `quote`, `announcement`) on bone. `--image` takes your PNG or JPEG. Layouts and sources: `brand/assets/image.json`.
+- `image`: posters (`identity`, `window`, `post`, `parcels`, `scene`, `photo`, `tag`, `panel`, `chart`, `app`, `partner`) and sheets (`headline`, `subtext`, `frame`, `quote`, `announcement`) at `og`, `square`, `portrait`, `story`, `landscape`, `x-banner`, `linkedin`, `linkedin-banner`, `linkedin-page`, `linkedin-square`, `youtube`, `youtube-thumbnail`, `email`, `avatar` (the mark) and `custom`, on `bone`, `green`, `brown` or `black`. Only the words passed are drawn, whole, or the command says what to shorten. `--image` takes your PNG or JPEG. Layouts and sources: `brand/assets/image.json`.
+
+### Revising a design
+
+Make the picture as a design file, look at the PNG, change it with `design revise` (plain words) or `design edit` (exact flags), and repeat until it is right; `undo`, `variants`, `sizes` and `compare` help. Every write is checked against the brand and an error changes nothing. Never hand-edit the PNG or SVG. `design help --json` lists every template, layer, phrase and rule.
 - `deck`: `cover`, `section`, `statement`, `bullets`, `stat`, `quote`, `image`, `chart`, `poster`, `closing` (`brand/assets/deck.json`).
-- `video`: `social`, `announcement`, `product` and `poster`; APNG by default, MP4 and WebM through ffmpeg, `still` for the last frame. Timing is fixed: ten times `--ds-duration-base` at 12 frames a second, played once.
+- `video`: `social`, `announcement`, `product` and `poster` (`--size square`, `story` or `landscape`); APNG by default, MP4 and WebM through ffmpeg, `still` for the last frame. Timing is fixed: ten times `--ds-duration-base` at 12 frames a second, played once.
 - `merch`: tee front and back, hoodie, cap, tote, mug wrap, sticker, poster and socks (`brand/assets/merch.json`). Sizes are vendor conventions; confirm with the vendor.
 - `illustrate`: the illustration skill's wireframe scenes (vendored unchanged in `brand/illustrate/wire`), isometric scenes, contour fields and traced pictures. Rules: `brand/illustration.md`.
 - `figma`: tokens as variables, push of drawn assets, components and pages, pull steps and an off-brand check.
@@ -221,7 +228,7 @@ commits. Adding individual components with `add` does not run this conversion.
 - `/r/<name>.md` and `/r/<name>.json`: usage rules, exports, dependencies, examples and exact source.
 
 All references are generated from the same registry the CLI installs. Prefer individual component references to
-the complete file. `manifest`, `describe`, `brand`, `principles`, `component`, `guide`, `list`, `show`, `look`, `tokens` and `check` without `--fix` are read-only, as are `image --list` and `video --list`. `init` and
+the complete file. `manifest`, `describe`, `brand`, `principles`, `component`, `guide`, `list`, `show`, `look`, `tokens` and `check` without `--fix` are read-only, as are `image --list`, `video --list` and `design check`. `init` and
 `add` accept `--dry-run`; add `--json` for structured results. JSON goes to stdout; progress goes to stderr.
 
 ## Source

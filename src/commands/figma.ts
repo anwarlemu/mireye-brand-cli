@@ -6,7 +6,7 @@ import { figmaSvg, parseFigmaUrl, svgScript } from '../figma/push.js';
 import { figmaTokens, figmaTokenScripts } from '../figma/tokens.js';
 import { STYLES, WIRE_GROUNDS, buildIllustration, defaultSubject, styleOf, subjectsFor, type Style } from '../illustrate/build.js';
 import { cleanSlide, sampleDeck, slideSvg, slideTypes } from '../deck/slides.js';
-import { FORMATS, POSTERS, cleanContent, resolveFormat } from '../image/catalog.js';
+import { FORMATS, POSTERS, cleanContent, requireContent, resolveFormat } from '../image/catalog.js';
 import { posterDocument } from '../image/render.js';
 import { groundIds } from '../image/poster.js';
 import { brand } from '../lib/brand.js';
@@ -135,11 +135,12 @@ async function pushAction(kind: string | undefined, target: string | undefined, 
 		const size = resolveFormat(typeof flags.size === 'string' ? flags.size : 'og');
 		if (!size) throw unknownName('size', String(flags.size), Object.keys(FORMATS));
 		const ground = typeof flags.ground === 'string' ? pickName('ground', flags.ground, groundIds()) : POSTERS()[template].ground;
-		const content = cleanContent({ ...POSTERS()[template].sample, ...(typeof flags.title === 'string' ? { title: flags.title } : {}), ...(typeof flags.subtitle === 'string' ? { subtitle: flags.subtitle } : {}) });
+		const content = cleanContent({ ...(flags.sample ? POSTERS()[template].sample : {}), ...(typeof (flags.headline ?? flags.title) === 'string' ? { title: (flags.headline ?? flags.title) as string } : {}), ...(typeof flags.subtitle === 'string' ? { subtitle: flags.subtitle } : {}) });
+		requireContent(template, content, size, Boolean(flags.sample));
 		pushSvg(posterDocument(size, template, typeof flags.theme === 'string' ? flags.theme : 'api', ground, content), `image-${template}-${size}-${ground}`, `Image / ${template} / ${size}`);
 	} else if (kind === 'slide' && target && slideTypes().includes(target)) {
 		const sample = sampleDeck().find((x) => x.type === target)!;
-		const slide = cleanSlide({ ...sample, ...(typeof flags.title === 'string' ? { title: flags.title } : {}), ...(typeof flags.ground === 'string' ? { ground: pickName('ground', flags.ground, groundIds()) } : {}) }, 0);
+		const slide = cleanSlide({ ...sample, ...(typeof (flags.headline ?? flags.title) === 'string' ? { title: (flags.headline ?? flags.title) as string } : {}), ...(typeof flags.ground === 'string' ? { ground: pickName('ground', flags.ground, groundIds()) } : {}) }, 0);
 		pushSvg(slideSvg(slide), `slide-${target}`, `Slide / ${target}`);
 	} else if (kind === 'asset' || kind === 'slide') {
 		if (!target) throw new Error(`Pass the file to push (SVG, PNG, JPEG, WebP, GIF or HTML)${kind === 'slide' ? `, or a slide type (${slideTypes().join(', ')})` : ''}`);
@@ -237,7 +238,9 @@ export function registerFigma(program: Command) {
 		.option('--ground <id>', 'push illustration, image or slide: bone, green, brown or black')
 		.option('--transparent', 'push illustration: no ground rectangle')
 		.option('--size <id>', 'push image: a share-image size (default og)')
-		.option('--title <text>', 'push image or slide: the headline (default the sample copy)')
+		.option('--headline <text>', 'push image or slide: the headline')
+		.option('--title <text>', 'same as --headline')
+		.option('--sample', 'push image: fill unset words with the sample copy')
 		.option('--subtitle <text>', 'push image: the line under it')
 		.option('--theme <id>', 'push image: a brand theme')
 		.option('--example <name>', 'push component: which example (default the first)')

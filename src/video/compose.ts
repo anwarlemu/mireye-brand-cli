@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { brand } from '../lib/brand.js';
-import { pkgPath } from '../lib/paths.js';
-import { defaultFooter, leading, paletteFor, type ImageContent, type Palette } from '../image/catalog.js';
-import { drawText, lineMetrics, loadFaces, measure, num, type Font } from '../image/type.js';
-import { groundColors, imageDocument, posterBody } from '../image/poster.js';
+import { cleanContent, defaultFooter, leading, paletteFor, requireContent, type ImageContent, type Palette, type Size } from '../image/catalog.js';
+import { CopyError, fitOrFail, loadFaces, num, placeWords, requireGlyphs, setAt, type Faces, type Fitted, type Font } from '../image/type.js';
+import { cross, frameOf, type DrawnLayer } from '../image/layers.js';
+import { lockupSvg, lockupWidth } from '../image/logo.js';
+import { groundColors, imageDocument, posterDraw, posterFloors } from '../image/poster.js';
+import { cutFrame, cutPoly, ticks } from '../image/sheet.js';
 import { VIDEO_FORMATS, type VideoFormatId, type VideoTemplateId, videoTiming } from './catalog.js';
 
 const METRICS: Record<VideoFormatId, { pad: number; cut: number; inner: number; mark: number; title: number; sub: number; kicker: number; footer: number }> = {
@@ -25,6 +25,10 @@ type Sheet = {
 	body: Box;
 	footer: Box;
 	ruleY: number;
+	small: number;
+	large: number;
+	mark: number;
+	layers: DrawnLayer[];
 };
 
 function bezier(x1: number, y1: number, x2: number, y2: number, t: number): number {
@@ -61,36 +65,24 @@ function span(progress: number, start: number, end: number): number {
 	return (progress - start) / (end - start);
 }
 
-function cutPoly(x: number, y: number, w: number, h: number, cut: number): string {
-	const c = Math.max(0, Math.min(cut, w / 3, h / 3));
-	return `M${num(x + c)} ${num(y)}H${num(x + w)}V${num(y + h)}H${num(x)}V${num(y + c)}Z`;
-}
-
-function cutFrame(x: number, y: number, w: number, h: number, cut: number, color: string, stroke = 2): string {
-	const innerCut = cut + stroke * (Math.SQRT2 - 1);
-	const outer = cutPoly(x, y, w, h, cut);
-	const inner = `M${num(x + innerCut)} ${num(y + stroke)}H${num(x + w - stroke)}V${num(y + h - stroke)}H${num(x + stroke)}V${num(y + innerCut)}Z`;
-	return `<path d="${outer}${inner}" fill="${color}" fill-rule="evenodd"/>`;
-}
-
 function diamond(cx: number, cy: number, r: number, fill: string): string {
 	return `<polygon points="${num(cx)},${num(cy - r)} ${num(cx + r)},${num(cy)} ${num(cx)},${num(cy + r)} ${num(cx - r)},${num(cy)}" fill="${fill}"/>`;
 }
 
-function logo(): { d: string; w: number; h: number } {
-	const svg = readFileSync(pkgPath('brand', 'logo', 'mark.svg'), 'utf8');
-	const box = svg.match(/viewBox="([\d.\s-]+)"/)?.[1].trim().split(/\s+/).map(Number) ?? [];
-	const d = svg.match(/\sd="([^"]+)"/)?.[1];
-	if (!d || !box[2] || !box[3]) throw new Error('The logo mark has no path.');
-	return { d, w: box[2], h: box[3] };
+/** The picture a clip's frames are drawn as: a vertical clip keeps clear of the bars a story lays over it. */
+export function videoSize(format: VideoFormatId): Size {
+	const { width, height } = VIDEO_FORMATS[format];
+	return { id: format === 'vertical' ? 'story' : format === 'square' ? 'square' : 'video', width, height };
 }
 
 function sheetFor(format: VideoFormatId, colors: Palette): Sheet {
 	const size = VIDEO_FORMATS[format];
 	const metrics = METRICS[format];
 	const frame = { x: metrics.pad, y: metrics.pad, w: size.width - metrics.pad * 2, h: size.height - metrics.pad * 2 };
-	const content = { x: frame.x + metrics.inner, y: frame.y + metrics.inner, w: frame.w - metrics.inner * 2, h: frame.h - metrics.inner * 2 };
-	const footerText = Math.round(metrics.footer * leading('body'));
+	const F = frameOf(videoSize(format), posterFloors());
+	const content = cross({ x: frame.x + metrics.inner, y: frame.y + metrics.inner, w: frame.w - metrics.inner * 2, h: frame.h - metrics.inner * 2 }, F.live);
+	const footSize = Math.max(metrics.footer, F.small);
+	const footerText = Math.round(footSize * leading('body'));
 	const ruleGap = Math.max(18, Math.round(metrics.inner * 0.42));
 	const belowRule = Math.max(16, Math.round(metrics.inner * 0.36));
 	const footerH = ruleGap + belowRule + footerText;
@@ -98,84 +90,98 @@ function sheetFor(format: VideoFormatId, colors: Palette): Sheet {
 	const header = { x: content.x, y: content.y, w: content.w, h: metrics.mark };
 	const footer = { x: content.x, y: content.y + content.h - footerH, w: content.w, h: footerH };
 	const body = { x: content.x, y: header.y + header.h + headerGap, w: content.w, h: Math.max(40, content.h - header.h - headerGap - footerH) };
-	return { width: size.width, height: size.height, cut: metrics.cut, metrics, colors, frame, header, body, footer, ruleY: footer.y + ruleGap };
+	return { width: size.width, height: size.height, cut: metrics.cut, metrics: { ...metrics, footer: footSize, kicker: Math.max(metrics.kicker, F.small), sub: Math.max(metrics.sub, F.small) }, colors, frame, header, body, footer, ruleY: footer.y + ruleGap, small: F.small, large: F.large, mark: F.mark, layers: [] };
 }
 
 function lockup(sheet: Sheet, sans: Font, opacity: number): string {
-	const glyph = logo();
-	const height = sheet.header.h;
-	const scale = height / glyph.h;
-	const nameSize = Math.round(height * 0.72);
-	const gap = Math.round(height * 0.46);
-	const name = brand().name;
-	const nameWidth = measure(sans, name, nameSize);
-	const x = sheet.header.x + sheet.header.w - (glyph.w * scale + gap + nameWidth);
-	const em = lineMetrics(sans, nameSize, 1).em;
-	const drawn = drawText(sans, name, nameSize, x + glyph.w * scale + gap, sheet.header.y + (height - em) / 2, sheet.colors.ink, {
-		leading: 1,
-		maxWidth: Math.max(nameWidth + 4, 40),
-		maxLines: 1,
-	});
-	return `<g opacity="${num(opacity, 4)}"><g transform="translate(${num(x)} ${num(sheet.header.y)}) scale(${num(scale, 5)})"><path d="${glyph.d}" fill="${sheet.colors.ink}" fill-rule="evenodd"/></g>${drawn.svg}</g>`;
+	const mh = Math.max(sheet.mark, sheet.header.h);
+	const w = lockupWidth(sans, mh);
+	const x = sheet.header.x + sheet.header.w - w;
+	sheet.layers.push({ id: 'logo', kind: 'logo', box: { x, y: sheet.header.y, w, h: mh }, over: ['panel'], logo: { clear: mh * imageDocument().logoRules.clear, min: sheet.mark }, can: {} });
+	return `<g opacity="${num(opacity, 4)}">${lockupSvg(sans, x, sheet.header.y, mh, sheet.colors.ink).svg}</g>`;
 }
 
-function ticks(x: number, y: number, count: number, pitch: number, height: number, on: number, ink: string, off: string): string {
-	let body = '';
-	for (let i = 0; i < count; i++) body += `<rect x="${num(x + i * pitch)}" y="${num(y)}" width="1" height="${num(height)}" fill="${i < on ? ink : off}" shape-rendering="crispEdges"/>`;
-	return body;
+function say(sheet: Sheet, id: string, asked: string, set: Fitted, x: number, y: number, fill: string, own = false): string {
+	const p = placeWords(set, x, y, fill);
+	sheet.layers.push({ id, kind: 'text', box: p.box, ink: p.ink, over: ['panel'], text: { asked, drawn: set.drawn, size: set.size, color: fill, ground: [sheet.colors.ground], own: own || undefined }, can: {} });
+	return p.svg;
 }
 
-function footer(sheet: Sheet, mono: Font, text: string, progress: number): string {
+function footer(sheet: Sheet, mono: Font, text: string, progress: number, own: boolean): string {
 	const size = sheet.metrics.footer;
-	const metrics = lineMetrics(mono, size, leading('body'));
-	const textTop = sheet.footer.y + sheet.footer.h - metrics.lineHeight;
-	const drawn = drawText(mono, text, size, sheet.footer.x, textTop, sheet.colors.secondary, {
-		leading: leading('body'),
-		maxWidth: sheet.footer.w * 0.62,
-		maxLines: 1,
-		minSize: Math.max(12, size - 4),
-	});
+	const set = fitOrFail(mono, text, { size, min: sheet.small, maxWidth: sheet.footer.w, maxLines: 1, leading: leading('body') }, 'footer', 'the clip');
+	const textTop = sheet.footer.y + sheet.footer.h - set.height;
 	const pitch = 6;
 	const count = 18;
 	const height = Math.round(size * 0.9);
 	const width = (count - 1) * pitch + 1;
 	const rule = `<path d="M${num(sheet.footer.x)} ${num(sheet.ruleY)}H${num(sheet.footer.x + sheet.footer.w)}" stroke="${sheet.colors.line}" stroke-width="1" shape-rendering="crispEdges"/>`;
-	const showTicks = drawn.width + 32 + width <= sheet.footer.w;
-	const tickY = textTop + Math.max(0, (drawn.height - height) / 2);
+	const showTicks = set.width + 32 + width <= sheet.footer.w;
+	const tickY = textTop + Math.max(0, (set.height - height) / 2);
 	const marks = showTicks ? ticks(sheet.footer.x + sheet.footer.w - width, tickY, count, pitch, height, Math.round(progress * count), sheet.colors.ink, sheet.colors.line) : '';
-	return `${rule}${drawn.svg}${marks}`;
+	return `${rule}${say(sheet, 'footer', text, set, sheet.footer.x, textTop, sheet.colors.secondary, own)}${marks}`;
 }
 
-function textBlock(font: Font, text: string | undefined, size: number, x: number, y: number, fill: string, width: number, maxLines: number, lead: number, opacity: number): { svg: string; height: number } {
-	if (!text) return { svg: '', height: 0 };
-	const drawn = drawText(font, text, size, x, y, fill, { leading: lead, maxWidth: width, maxLines, minSize: Math.max(13, Math.round(size * 0.62)) });
-	if (!drawn.svg) return { svg: '', height: 0 };
-	return { svg: `<g opacity="${num(opacity, 4)}">${drawn.svg}</g>`, height: drawn.height };
+type Row = { id: string; text: string; font: Font; size: number; min: number; lead: number; fill: string; width: number };
+
+/** Sizes every block of a clip so they all stand in `room`, whole: each steps down to its floor, then the words are too long. */
+function fitRows(rows: Row[], room: number, gaps: number): Fitted[] {
+	for (const r of rows) requireGlyphs(r.font, r.text, r.id);
+	for (let k = 1; k > 0.3; k -= 0.03) {
+		const sets = rows.map((r) => {
+			const size = Math.max(r.min, r.size * k);
+			return setAt(r.font, r.text, size, { size, min: size, maxWidth: r.width, leading: r.lead }, size <= r.min + 0.01);
+		});
+		if (sets.every(Boolean) && sets.reduce((sum, s) => sum + s!.height, 0) + gaps * k <= room) return sets as Fitted[];
+	}
+	throw new CopyError(`The words do not fit the clip at a readable size. Shorten ${rows.map((r) => `--${r.id}`).join(' or ')}.`);
 }
 
-function social(sheet: Sheet, sans: Font, content: ImageContent, progress: number): string {
-	const titleIn = span(progress, 0.12, 0.62);
-	const subIn = span(progress, 0.4, 0.9);
-	const title = textBlock(sans, content.title, sheet.metrics.title, sheet.body.x, sheet.body.y, sheet.colors.ink, sheet.body.w, 4, leading('tight'), titleIn);
-	const sub = textBlock(sans, content.subtitle, sheet.metrics.sub, sheet.body.x, sheet.body.y + title.height + Math.round(sheet.metrics.sub * 0.7), sheet.colors.secondary, sheet.body.w, 3, leading('body'), subIn);
-	return `${title.svg}${sub.svg}`;
+function social(sheet: Sheet, f: Faces, content: ImageContent, progress: number): string {
+	const rows: Row[] = [{ id: 'headline', text: content.title!, font: f.sans, size: sheet.metrics.title, min: sheet.large, lead: leading('tight'), fill: sheet.colors.ink, width: sheet.body.w }];
+	if (content.subtitle) rows.push({ id: 'body', text: content.subtitle, font: f.sans, size: sheet.metrics.sub, min: sheet.small, lead: leading('body'), fill: sheet.colors.secondary, width: sheet.body.w });
+	const gap = Math.round(sheet.metrics.sub * 0.7);
+	const sets = fitRows(rows, sheet.body.h, gap);
+	const at = [span(progress, 0.12, 0.62), span(progress, 0.4, 0.9)];
+	let y = sheet.body.y;
+	return sets
+		.map((set, i) => {
+			const svg = `<g opacity="${num(at[i], 4)}">${say(sheet, rows[i].id, rows[i].text, set, sheet.body.x, y, rows[i].fill)}</g>`;
+			y += set.height + gap;
+			return svg;
+		})
+		.join('');
 }
 
-function announcement(sheet: Sheet, sans: Font, mono: Font, content: ImageContent, progress: number): string {
+function announcement(sheet: Sheet, f: Faces, content: ImageContent, progress: number): string {
 	const kickerIn = span(progress, 0.05, 0.35);
 	const titleIn = span(progress, 0.28, 0.7);
 	const subIn = span(progress, 0.55, 0.95);
-	const kicker = textBlock(mono, content.kicker, sheet.metrics.kicker, sheet.body.x, sheet.body.y, sheet.colors.secondary, sheet.body.w, 1, leading('body'), kickerIn);
-	const tickH = Math.round(sheet.metrics.kicker * 0.7);
-	const tickY = sheet.body.y + kicker.height + (content.kicker ? 8 : 0);
-	const tickMarks = content.kicker && kickerIn > 0 ? `<g opacity="${num(kickerIn, 4)}">${ticks(sheet.body.x, tickY, 12, 6, tickH, Math.round(kickerIn * 12), sheet.colors.ink, sheet.colors.line)}</g>` : '';
-	const titleY = content.kicker ? tickY + tickH + Math.round(sheet.metrics.title * 0.35) : sheet.body.y;
 	const inset = Math.round(sheet.metrics.kicker * 1.8);
-	const r = Math.max(5, Math.round(sheet.metrics.kicker * 0.42)) * titleIn;
-	const node = r > 0.5 ? diamond(sheet.body.x + inset * 0.32, titleY + sheet.metrics.title * 0.42, r, sheet.colors.ink) : '';
-	const title = textBlock(sans, content.title, sheet.metrics.title, sheet.body.x + inset, titleY, sheet.colors.ink, sheet.body.w - inset, 4, leading('tight'), titleIn);
-	const sub = textBlock(sans, content.subtitle, sheet.metrics.sub, sheet.body.x, titleY + title.height + Math.round(sheet.metrics.sub * 0.7), sheet.colors.secondary, sheet.body.w, 3, leading('body'), subIn);
-	return `${kicker.svg}${tickMarks}${node}${title.svg}${sub.svg}`;
+	const tickH = content.kicker ? Math.round(sheet.metrics.kicker * 0.7) : 0;
+	const afterKicker = content.kicker ? 8 + tickH + Math.round(sheet.metrics.title * 0.35) : 0;
+	const gap = Math.round(sheet.metrics.sub * 0.7);
+	const rows: Row[] = [];
+	if (content.kicker) rows.push({ id: 'badge', text: content.kicker, font: f.mono, size: sheet.metrics.kicker, min: sheet.small, lead: leading('body'), fill: sheet.colors.secondary, width: sheet.body.w });
+	rows.push({ id: 'headline', text: content.title!, font: f.sans, size: sheet.metrics.title, min: sheet.large, lead: leading('tight'), fill: sheet.colors.ink, width: sheet.body.w - inset });
+	if (content.subtitle) rows.push({ id: 'body', text: content.subtitle, font: f.sans, size: sheet.metrics.sub, min: sheet.small, lead: leading('body'), fill: sheet.colors.secondary, width: sheet.body.w });
+	const sets = fitRows(rows, sheet.body.h, afterKicker + (content.subtitle ? gap : 0));
+	let y = sheet.body.y;
+	let out = '';
+	sets.forEach((set, i) => {
+		const r = rows[i];
+		if (r.id === 'badge') {
+			out += `<g opacity="${num(kickerIn, 4)}">${say(sheet, r.id, r.text, set, sheet.body.x, y, r.fill)}</g>`;
+			if (kickerIn > 0) out += `<g opacity="${num(kickerIn, 4)}">${ticks(sheet.body.x, y + set.height + 8, 12, 6, tickH, Math.round(kickerIn * 12), sheet.colors.ink, sheet.colors.line)}</g>`;
+			y += set.height + afterKicker;
+		} else if (r.id === 'headline') {
+			const rr = Math.max(5, Math.round(sheet.metrics.kicker * 0.42)) * titleIn;
+			if (rr > 0.5) out += diamond(sheet.body.x + inset * 0.32, y + set.line * 0.5, rr, sheet.colors.ink);
+			out += `<g opacity="${num(titleIn, 4)}">${say(sheet, r.id, r.text, set, sheet.body.x + inset, y, r.fill)}</g>`;
+			y += set.height + gap;
+		} else out += `<g opacity="${num(subIn, 4)}">${say(sheet, r.id, r.text, set, sheet.body.x, y, r.fill)}</g>`;
+	});
+	return out;
 }
 
 function plate(x: number, y: number, w: number, h: number, colors: Palette, progress: number): string {
@@ -200,64 +206,83 @@ function plate(x: number, y: number, w: number, h: number, colors: Palette, prog
 	return `<rect x="${num(x)}" y="${num(y)}" width="${num(w)}" height="${num(h)}" fill="${colors.fog}"/>${lines.join('')}${node}${open}`;
 }
 
-function product(sheet: Sheet, sans: Font, content: ImageContent, progress: number): string {
-	const titleIn = span(progress, 0, 0.4);
-	const titleSize = Math.round(sheet.metrics.title * 0.72);
-	const title = textBlock(sans, content.title, titleSize, sheet.body.x, sheet.body.y, sheet.colors.ink, sheet.body.w, 2, leading('tight'), titleIn);
-	let cursor = sheet.body.y + title.height + Math.round(sheet.metrics.kicker * 0.55);
-	const subIn = span(progress, 0.2, 0.55);
-	const sub = textBlock(sans, content.subtitle, sheet.metrics.kicker, sheet.body.x, cursor, sheet.colors.secondary, sheet.body.w, 2, leading('body'), subIn);
-	if (content.subtitle) cursor += sub.height + Math.round(sheet.metrics.kicker * 0.8);
+function product(sheet: Sheet, f: Faces, content: ImageContent, progress: number): string {
+	const rows: Row[] = [{ id: 'headline', text: content.title!, font: f.sans, size: Math.round(sheet.metrics.title * 0.72), min: sheet.large, lead: leading('tight'), fill: sheet.colors.ink, width: sheet.body.w }];
+	if (content.subtitle) rows.push({ id: 'body', text: content.subtitle, font: f.sans, size: sheet.metrics.kicker * 1.15, min: sheet.small, lead: leading('body'), fill: sheet.colors.secondary, width: sheet.body.w });
+	const gap = Math.round(sheet.metrics.kicker * 0.6);
+	const sets = fitRows(rows, sheet.body.h * 0.5, gap);
+	const at = [span(progress, 0, 0.4), span(progress, 0.2, 0.55)];
+	let cursor = sheet.body.y;
+	let out = '';
+	sets.forEach((set, i) => {
+		out += `<g opacity="${num(at[i], 4)}">${say(sheet, rows[i].id, rows[i].text, set, sheet.body.x, cursor, rows[i].fill)}</g>`;
+		cursor += set.height + gap;
+	});
+	cursor += gap;
 	const plateH = Math.max(1, sheet.body.y + sheet.body.h - cursor);
 	const cut = Math.max(16, Math.round(sheet.cut * 0.75));
-	return `${title.svg}${sub.svg}<clipPath id="plate"><path d="${cutPoly(sheet.body.x, cursor, sheet.body.w, plateH, cut)}"/></clipPath><g clip-path="url(#plate)">${plate(sheet.body.x, cursor, sheet.body.w, plateH, sheet.colors, progress)}</g>${cutFrame(sheet.body.x, cursor, sheet.body.w, plateH, cut, sheet.colors.line)}`;
+	sheet.layers.push({ id: 'art', kind: 'art', box: { x: sheet.body.x, y: cursor, w: sheet.body.w, h: plateH }, over: ['panel'], can: {} });
+	return `${out}<clipPath id="plate"><path d="${cutPoly(sheet.body.x, cursor, sheet.body.w, plateH, cut)}"/></clipPath><g clip-path="url(#plate)">${plate(sheet.body.x, cursor, sheet.body.w, plateH, sheet.colors, progress)}</g>${cutFrame(sheet.body.x, cursor, sheet.body.w, plateH, cut, sheet.colors.line)}`;
 }
 
 function escapeXml(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+type VideoContent = ImageContent & { poster?: string; ground?: string };
+export type VideoFrame = { svg: string; layers: DrawnLayer[] };
+
 /** A poster revealed left to right over its ground: the clip widens with the eased progress. */
-function posterFrame(format: VideoFormatId, theme: string, content: ImageContent & { poster?: string; ground?: string }, progress: number): string {
-	const { width, height } = VIDEO_FORMATS[format];
+function posterFrame(format: VideoFormatId, theme: string, content: VideoContent, progress: number, seed?: number): VideoFrame {
+	const size = videoSize(format);
+	const { width, height } = size;
 	const template = content.poster ?? '';
 	const doc = imageDocument();
 	if (!doc.posters[template]) throw new Error(`Unknown poster "${template}". Posters: ${Object.keys(doc.posters).join(', ')}.`);
 	const ground = content.ground ?? doc.posters[template].ground;
 	const { poster: _p, ground: _g, ...words } = content;
-	const body = posterBody({ template, width, height, ground, theme, content: words });
+	const clean = cleanContent(words);
+	requireContent(template, clean);
+	const drawn = posterDraw({ template, size, ground, theme, content: clean, seed });
 	const bg = groundColors(ground, theme).bg;
-	return `<?xml version="1.0" encoding="UTF-8"?>
+	return {
+		svg: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img">
 <title>${escapeXml(content.title ?? template)}</title>
 <rect width="${width}" height="${height}" fill="${bg}"/>
-<clipPath id="reveal"><rect width="${num(width * progress)}" height="${height}"/></clipPath><g clip-path="url(#reveal)">${body}</g>
+<clipPath id="reveal"><rect width="${num(width * progress)}" height="${height}"/></clipPath><g clip-path="url(#reveal)">${drawn.svg}</g>
 </svg>
-`;
+`,
+		layers: drawn.layers,
+	};
 }
 
-/** One frame of a template. `index` is the only thing that changes between frames. */
-export function frameSvg(format: VideoFormatId, template: VideoTemplateId, theme: string, content: ImageContent, index: number, frameCount: number): string {
-	if (template === 'poster') return posterFrame(format, theme, content, frameProgress(index, frameCount));
+/** One frame of a template and what it drew. `index` is the only thing that changes between frames. */
+export function videoFrame(format: VideoFormatId, template: VideoTemplateId, theme: string, content: VideoContent, index: number, frameCount: number, seed?: number): VideoFrame {
+	if (template === 'poster') return posterFrame(format, theme, content, frameProgress(index, frameCount), seed);
 	const colors = paletteFor(theme);
 	const faces = loadFaces();
 	const sheet = sheetFor(format, colors);
 	const progress = frameProgress(index, frameCount);
 	const footerText = content.footer || defaultFooter();
-	const body =
-		template === 'social' ? social(sheet, faces.sans, content, progress)
-		: template === 'announcement' ? announcement(sheet, faces.sans, faces.mono, content, progress)
-		: product(sheet, faces.sans, content, progress);
+	sheet.layers.push({ id: 'panel', kind: 'panel', box: sheet.frame, can: {} });
+	const mark = lockup(sheet, faces.sans, span(progress, 0, 0.45));
+	const body = template === 'social' ? social(sheet, faces, content, progress) : template === 'announcement' ? announcement(sheet, faces, content, progress) : product(sheet, faces, content, progress);
 	const title = [content.kicker, content.title, content.subtitle, footerText].filter(Boolean).join('. ');
-	const clipped = `<clipPath id="sheet-body"><rect x="${num(sheet.body.x)}" y="${num(sheet.body.y)}" width="${num(sheet.body.w)}" height="${num(sheet.body.h)}"/></clipPath><g clip-path="url(#sheet-body)">${body}</g>`;
-	return `<?xml version="1.0" encoding="UTF-8"?>
+	const foot = footer(sheet, faces.mono, footerText, progress, !content.footer);
+	return {
+		svg: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${sheet.width}" height="${sheet.height}" viewBox="0 0 ${sheet.width} ${sheet.height}" role="img">
 <title>${escapeXml(title)}</title>
 <rect width="${sheet.width}" height="${sheet.height}" fill="${colors.ground}"/>
 ${cutFrame(sheet.frame.x, sheet.frame.y, sheet.frame.w, sheet.frame.h, sheet.cut, colors.line)}
-${lockup(sheet, faces.sans, span(progress, 0, 0.45))}
-${clipped}
-${footer(sheet, faces.mono, footerText, progress)}
+${mark}
+${body}
+${foot}
 </svg>
-`;
+`,
+		layers: sheet.layers,
+	};
 }
+
+export const frameSvg = (format: VideoFormatId, template: VideoTemplateId, theme: string, content: VideoContent, index: number, frameCount: number, seed?: number): string => videoFrame(format, template, theme, content, index, frameCount, seed).svg;

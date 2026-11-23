@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } fro
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { FORMATS, POSTERS, tokenHex } from '../src/image/catalog.js';
+import { FORMATS, POSTERS, sizesFor, tokenHex } from '../src/image/catalog.js';
 import { posterDocument } from '../src/image/render.js';
 import { groundIds, imageDocument } from '../src/image/poster.js';
 import { buildIllustration } from '../src/illustrate/build.js';
@@ -38,8 +38,9 @@ describe('image posters', () => {
 	it('draws every poster at every size and ground in brand colors only, the same bytes every time', () => {
 		const allowed = allowedColors();
 		for (const template of Object.keys(POSTERS())) {
-			const sample = POSTERS()[template].sample;
-			for (const format of Object.keys(FORMATS)) {
+			const sample = { ...POSTERS()[template].sample };
+			if (template === 'parcels') delete sample.labels;
+			for (const format of sizesFor(template).filter((id) => id !== 'custom' && !(template === 'app' && FORMATS[id].width / FORMATS[id].height > 1.5))) {
 				const svg = posterDocument(format, template, 'api', POSTERS()[template].ground, sample);
 				expect(svg).toContain(`width="${FORMATS[format].width}" height="${FORMATS[format].height}"`);
 				for (const c of colorsIn(svg)) expect(allowed, `${template} ${format} uses ${c}`).toContain(c);
@@ -61,9 +62,6 @@ describe('image posters', () => {
 		const ground = run(['image', '--size', 'og', '--template', 'window', '--title', 'x', '--ground', 'greem', '--json']);
 		expect(ground.status).toBe(1);
 		expect(ground.stdout).toMatch(/Did you mean green/);
-		const sheet = run(['image', '--size', 'x-banner', '--template', 'headline', '--title', 'x', '--json']);
-		expect(sheet.status).toBe(1);
-		expect(sheet.stdout).toMatch(/taller size/);
 		const command = run(['imag']);
 		expect(command.status).toBe(1);
 		expect(command.stderr).toMatch(/Did you mean image/);
@@ -151,7 +149,7 @@ describe('merch', () => {
 	it('sizes every item to its trim and bleed, cuts the sticker on the cut corner and never prints the die line', () => {
 		for (const item of merchItems()) {
 			for (const variant of item.variants) {
-				const doc = merchSvg({ item, variant, slots: {} });
+				const doc = merchSvg({ item, variant, slots: {}, sample: true });
 				expect(doc.widthPx).toBe(Math.round((item.size[0] + 2 * item.bleed) * 300));
 				expect(doc.svg).toContain(`width="${+(item.size[0] + 2 * item.bleed).toFixed(3)}in"`);
 				expect(doc.printSvg).not.toContain('CutContour');

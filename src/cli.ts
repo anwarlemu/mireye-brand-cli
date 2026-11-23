@@ -1,11 +1,11 @@
 import { appendFileSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { Command } from 'commander';
 import { review, snapshot } from './commands/review.js';
 import { run } from './commands/run.js';
 import { guide } from './commands/guide.js';
 import { workflow } from './commands/workflow.js';
-import { imageCommand } from './commands/image.js';
+import { registerImage } from './commands/image.js';
 import { brandCommand } from './commands/brand.js';
 import { principlesCommand } from './commands/principles.js';
 import { componentCommand } from './commands/component.js';
@@ -50,59 +50,41 @@ program.command('review [url]').description('Screenshot a page at desktop and ph
 program.command('look [target]').description('The brand styling (CSS, Tailwind, states) for every element in a file, or for one element kind').option('--surface <surface>', 'site or product').option('--json', 'JSON output').action((target, _opts, command) => look(target, command.optsWithGlobals()));
 program.command('check [files...]').description('Check component colors and style tokens (used by hooks, pre-commit and CI)').option('--fix', 'apply safe token fixes').option('--changed', 'only files changed in git').option('--all', 'also check files outside the applied selection').option('--json', 'JSON output').action((files, _opts, command) => check(files ?? [], command.optsWithGlobals()));
 program.command('tokens [term]').description('Find a brand token by name or value').option('--json', 'JSON output').action((term, _opts, command) => tokensCommand(term, command.optsWithGlobals()));
+registerImage(program);
 program
-	.command('image')
-	.description('Render a share image or social post (PNG and SVG) from the brand layouts, tokens, type and logo')
-	.option('--list', 'list sizes, templates, grounds and themes')
-	.option('--size <id>', 'og, square, portrait, landscape, story, x-banner, linkedin-banner, ... (see --list)')
-	.option('--format <id>', 'same as --size')
-	.option('--template <id>', 'a poster (window, post, parcels, ...) or a sheet (headline, quote, ...)')
-	.option('--ground <id>', 'posters: bone (default), green, brown or black')
-	.option('--theme <id>', 'a brand theme (see --list)')
-	.option('--title <text>', 'headline')
-	.option('--subtitle <text>', 'the line under it')
-	.option('--kicker <text>', 'short label above an announcement')
-	.option('--quote <text>', 'quotation')
-	.option('--attribution <text>', 'who said the quotation')
-	.option('--image <path>', 'your PNG or JPEG (frame and photo)')
-	.option('--callout <text>', 'parcels and photo: the tag, two lines (what, then where)')
-	.option('--chart <rows>', 'chart: one row a line, "label | number"')
-	.option('--partner <name>', 'partner: the partner\'s name')
-	.option('--scene <id>', 'post and panel: a wireframe scene; scene: an isometric preset')
-	.option('--footer <text>', 'sheet footer line (defaults to the brand site)')
-	.option('--sample', 'posters: fill unset words with the sample copy (replace it)')
-	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
-	.option('--out <dir>', 'output directory (default: .ds/images in the project)')
-	.option('--name <base>', 'file name without an extension')
-	.option('--export <kinds>', 'png, svg, or png,svg', 'png,svg')
-	.option('--json', 'JSON output listing the files written')
-	.addHelpText('after', () => `\nExamples:\n  ${cli()} image --list --json\n  ${cli()} image --size og --template window --title "Physical world context for AI agents." --json\n  ${cli()} image --size portrait --template post --title "Residential land" --subtitle "Every field cited." --scene residential\n  ${cli()} image --size story --template parcels --ground green --sample\n  ${cli()} image --size x-banner --template identity\n  ${cli()} image --size landscape --template photo --title "Central Iowa" --image ./aerial.jpg\n  ${cli()} image --size og --template headline --title "Parcel survey"\n`)
-	.action((_opts, command) => imageCommand(command.optsWithGlobals()));
-program
-	.command('video')
+	.command('video [template]')
 	.description('Render a short on-brand video from the brand tokens, type and logo')
 	.option('--list', 'list formats, templates, timing and themes')
-	.option('--format <id>', 'square (1080x1080), vertical (1080x1920) or landscape (1920x1080)')
+	.option('--size <id>', 'square (1080x1080), vertical or story (1080x1920), or landscape (1920x1080)')
+	.option('--format <id>', 'the files to write (apng, mp4, webm, png, svg, still); a size also works here')
+	.option('--seed <n>', 'poster template: another arrangement')
+	.option('--headline <text>', 'the headline')
+	.option('--body <text>', 'the line under it')
+	.option('--badge <text>', 'announcement: the short label above the headline')
+	.option('--labels <text>', 'poster template: tags on the parcels')
+	.option('--question <text>', 'poster template: the ask panel question')
+	.option('--suggestions <text>', 'poster template: the ask panel suggestions')
+	.option('--place <text>', 'poster template: the ask panel place')
 	.option('--template <id>', 'social, announcement, product or poster')
 	.option('--poster <id>', 'poster template: which share-image layout to reveal (window, parcels, scene, ...)')
 	.option('--ground <id>', 'poster template: bone, green, brown or black')
-	.option('--theme <id>', 'a brand theme (see --list)')
+	.option('--theme <id>', 'a brand theme (see --list), or for the poster template a ground')
 	.option('--callout <text>', 'poster template: the callout tag')
 	.option('--chart <rows>', 'poster template: chart rows')
 	.option('--partner <name>', 'poster template: the partner name')
 	.option('--scene <id>', 'poster template: the drawing')
 	.option('--image <path>', 'poster template: your picture (photo)')
-	.option('--title <text>', 'headline')
-	.option('--subtitle <text>', 'supporting line')
-	.option('--kicker <text>', 'short label above an announcement')
+	.option('--title <text>', 'same as --headline')
+	.option('--subtitle <text>', 'same as --body')
+	.option('--kicker <text>', 'same as --badge')
 	.option('--footer <text>', 'footer line (defaults to the brand site)')
 	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
-	.option('--out <dir>', 'output directory (default: .ds/videos in the project)')
+	.option('--out <path>', 'output directory (default: .ds/videos in the project), or a file name that also sets the format')
 	.option('--name <base>', 'file name without an extension')
-	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), or a comma-separated list', 'apng')
+	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), or a comma-separated list (default apng)')
 	.option('--json', 'JSON output listing the files written')
 	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n  ${cli()} video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,webm,still\n`)
-	.action((_opts, command) => videoCommand(command.optsWithGlobals()));
+	.action((template: string | undefined, _opts, command) => videoCommand({ ...command.optsWithGlobals(), ...(template ? { template } : {}) }));
 registerIllustrate(program);
 registerDeck(program);
 registerMerch(program);
@@ -144,6 +126,7 @@ program
 	});
 
 workflow(program);
+program.command('design [args...]').description('Make a design and revise it: new, revise (plain words), edit, undo, redo, variants, sizes, compare, check, render').allowUnknownOption().helpOption(false);
 
 const fail = (error: Error & { exitCode?: number }) => {
 	if (error.exitCode === 0) process.exit(0);
@@ -158,7 +141,16 @@ const optionValues = new Set(['--cwd', '-c']);
 const firstIndex = firstWord ? process.argv.indexOf(firstWord) : -1;
 try {
 	if (firstWord && !commandNames.includes(firstWord) && !optionValues.has(process.argv[firstIndex - 1] ?? '')) throw unknownName('command', firstWord, commandNames.filter((name) => name !== 'hook'));
-	await program.parseAsync();
+	if (firstWord === 'design') {
+		// The design command reads its own words and flags, untouched.
+		const [{ runDesign }, { adapter, paint }] = await Promise.all([import('./design/index.js'), import('./design/adapter.js')]);
+		const argv = process.argv.slice(2);
+		const at = argv.indexOf('design');
+		const cwdAt = argv.slice(0, at).findIndex((arg) => arg === '--cwd' || arg === '-c');
+		const cwd = cwdAt >= 0 && argv[cwdAt + 1] ? resolve(argv[cwdAt + 1]) : process.cwd();
+		const rest = [...argv.slice(at + 1), ...argv.slice(0, at).filter((arg) => arg === '--json')];
+		process.exitCode = await runDesign(rest, adapter(), { cwd, bin: cli(), out: (text) => console.log(text), err: (text) => console.error(text), paint });
+	} else await program.parseAsync();
 } catch (error) {
 	fail(error as Error & { exitCode?: number });
 }

@@ -1,5 +1,5 @@
 import { num } from '../image/type.js';
-import { pictureHref } from '../image/poster.js';
+import { coverSvg, loadPicture } from '../image/picture.js';
 
 // A picture as topographic contours: its brightness read as height, smoothed, and cut into isolines with marching
 // squares, so any photo or drawing comes out in the brand's contour line. Pixels are decoded by resvg (the same
@@ -11,11 +11,11 @@ export type TraceOptions = { levels: number; detail: number; smooth: number; inv
 type Field = { w: number; h: number; v: Float32Array };
 
 async function decode(file: string, detail: number): Promise<Field> {
-	const pic = pictureHref(file);
+	const pic = loadPicture(file);
 	const w = Math.max(16, Math.min(600, Math.round(detail)));
 	const h = Math.max(16, Math.round((w * pic.height) / pic.width));
 	const { Resvg } = await import('@resvg/resvg-js');
-	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="#ffffff"/><image href="${pic.href}" width="${w}" height="${h}" preserveAspectRatio="none"/></svg>`;
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="#ffffff"/>${coverSvg(pic, { x: 0, y: 0, w, h }, 'pic', `<rect width="${w}" height="${h}"/>`)}</svg>`;
 	const img = new Resvg(svg, { fitTo: { mode: 'width', value: w }, font: { loadSystemFonts: false }, logLevel: 'off' }).render();
 	const px = img.pixels;
 	const v = new Float32Array(w * h);

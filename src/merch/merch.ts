@@ -3,8 +3,9 @@ import { pkgPath } from '../lib/paths.js';
 import { wireDrawing, wireScenes } from '../illustrate/wire.js';
 import { defaultTheme, tokenHex } from '../image/catalog.js';
 import { lockupWidth, lockupSvg, markSvg, markWidth } from '../image/logo.js';
-import { chamfer, contourSvg, groundColors, posterBody } from '../image/poster.js';
-import { glyphPaths, lineMetrics, loadFaces, measure, num, wrap } from '../image/type.js';
+import { cross, type DrawnLayer, type Rect } from '../image/layers.js';
+import { chamfer, contourSvg, diamond, groundColors, imageDocument, posterDraw } from '../image/poster.js';
+import { CopyError, fitOrFail, loadFaces, num, placeWords } from '../image/type.js';
 
 // Merch print files (brand/assets/merch.json): each item's trim, bleed and safe area in inches and a layout of
 // logo, contours, wireframe scene and words in inches from the trim. A file is the item with its bleed: SVG at
@@ -23,7 +24,7 @@ type Layer =
 
 export type MerchItem = { id: string; name: string; size: [number, number]; bleed: number; safe: number; method: string; source: string; cut?: { corner: number }; variants: string[]; layers: Layer[] };
 type Variant = { ground: string | null; tones?: 'light' | 'dark'; ink?: string; note: string };
-type MerchDoc = { dpi: number; slots: Record<string, string>; variants: Record<string, Variant>; items: MerchItem[] };
+type MerchDoc = { dpi: number; slots: Record<string, { text: string; own?: boolean; note: string }>; variants: Record<string, Variant>; items: MerchItem[] };
 
 let doc: MerchDoc | undefined;
 export const merchDoc = (): MerchDoc => (doc ??= JSON.parse(readFileSync(pkgPath('brand', 'assets', 'merch.json'), 'utf8')) as MerchDoc);
@@ -42,7 +43,8 @@ export function merchCatalog() {
 			variants: i.variants,
 			pixels: { width: Math.round((i.size[0] + 2 * i.bleed) * PX_PER_IN), height: Math.round((i.size[1] + 2 * i.bleed) * PX_PER_IN), dpi: PX_PER_IN },
 			dieCut: Boolean(i.cut),
-			slots: [...new Set(i.layers.flatMap((l) => (l.type === 'text' ? [l.slot] : l.type === 'poster' ? ['headline'] : [])))],
+			slots: merchSlots(i).map((x) => x.id),
+			required: merchSlots(i).filter((x) => x.required).map((x) => x.id),
 			source: i.source,
 		})),
 		variants: Object.entries(merchDoc().variants).map(([id, v]) => ({ id, ground: v.ground, note: v.note })),
@@ -51,10 +53,19 @@ export function merchCatalog() {
 	};
 }
 
-export type MerchRequest = { item: MerchItem; variant: string; slots: Record<string, string>; theme?: string; guides?: boolean };
+/** The word slots an item carries, and whether it must have them. */
+export function merchSlots(item: MerchItem): { id: string; required: boolean }[] {
+	const ids = [...new Set(item.layers.flatMap((l) => (l.type === 'text' ? [l.slot] : l.type === 'poster' ? ['headline'] : [])))];
+	return ids.map((id) => ({ id, required: item.layers.some((l) => l.type === 'poster') && id === 'headline' }));
+}
+
+export type MerchRequest = { item: MerchItem; variant: string; slots: Record<string, string>; theme?: string; guides?: boolean; sample?: boolean; scene?: string; seed?: number };
+
+/** The smallest printed type: about 8 points. */
+const PRINT_MIN = (8 / 72) * PX_PER_IN;
 
 /** One print file: the SVG (with the die line when the item has one) and the SVG to rasterize (without it). */
-export function merchSvg(req: MerchRequest): { svg: string; printSvg: string; widthPx: number; heightPx: number; widthIn: number; heightIn: number } {
+export function merchSvg(req: MerchRequest): { svg: string; printSvg: string; widthPx: number; heightPx: number; widthIn: number; heightIn: number; layers: DrawnLayer[] } {
 	const { item } = req;
 	const theme = req.theme ?? defaultTheme();
 	const v = merchDoc().variants[req.variant];
@@ -69,13 +80,30 @@ export function merchSvg(req: MerchRequest): { svg: string; printSvg: string; wi
 	const tones = g ? (g.dark ? 'dark' : 'light') : v.tones!;
 	const gridAlpha = g ? g.gridAlpha : groundColors(tones === 'dark' ? 'green' : 'bone', theme).gridAlpha;
 	const box = (b: Box) => ({ x: bleed + b[0] * PX_PER_IN, y: bleed + b[1] * PX_PER_IN, w: b[2] * PX_PER_IN, h: b[3] * PX_PER_IN });
+	const layers: DrawnLayer[] = [];
+	const logoRules = imageDocument().logoRules;
+	const slots = merchSlots(item);
+	for (const key of Object.keys(req.slots)) if (req.slots[key] && !slots.some((s) => s.id === key)) throw new Error(`${item.id} carries no ${key}.${slots.length ? ` Its words: ${slots.map((s) => s.id).join(', ')}.` : ' It has no words.'}`);
+	/** Only the words asked for, the brand's own address, or (with --sample) the sample copy. */
+	const words = (slot: string): { text: string; own: boolean; sample: boolean } | undefined => {
+		const asked = req.slots[slot];
+		if (asked) return { text: asked, own: false, sample: false };
+		const fallback = merchDoc().slots[slot];
+		if (fallback && (fallback.own || req.sample)) return { text: fallback.text, own: Boolean(fallback.own), sample: !fallback.own };
+		return undefined;
+	};
+	const ground = g ? g.bg : tones === 'dark' ? '#000000' : '#FFFFFF';
 	const parts: string[] = [];
 	if (g) parts.push(`<rect width="${W}" height="${H}" fill="${g.bg}"/>`);
 	let ids = 0;
 	for (const layer of item.layers) {
 		if (layer.type === 'poster') {
 			if (!g) throw new Error(`${item.id} needs a ground variant.`);
-			parts.push(posterBody({ template: layer.template, width: W, height: H, ground: g.id, theme, content: { title: req.slots.headline ?? merchDoc().slots.headline } }));
+			const head = words('headline');
+			if (!head) throw new CopyError(`${item.id} needs --headline (or --sample for a first look).`);
+			const drawn = posterDraw({ template: layer.template, size: { id: 'merch', width: W, height: H }, ground: g.id, theme, content: { title: head.text, scene: req.scene }, sample: head.sample, seed: req.seed });
+			parts.push(drawn.svg);
+			layers.push(...drawn.layers.map((l) => ({ ...l, can: {} })));
 			continue;
 		}
 		const r = box(layer.box);
@@ -85,31 +113,34 @@ export function merchSvg(req: MerchRequest): { svg: string; printSvg: string; wi
 			const x = layer.align === 'left' ? r.x : r.x + (r.w - w) / 2;
 			const y = r.y + (r.h - mh) / 2;
 			parts.push(layer.part === 'mark' ? markSvg(x, y, mh, ink) : lockupSvg(f.sans, x, y, mh, ink).svg);
+			layers.push({ id: 'logo', kind: 'logo', box: { x, y, w, h: mh }, over: ['pattern'], logo: { clear: mh * logoRules.clear, min: PRINT_MIN }, can: {} });
 		} else if (layer.type === 'wire') {
-			if (!wireScenes().includes(layer.scene)) throw new Error(`Unknown scene "${layer.scene}".`);
-			const art = wireDrawing(layer.scene, tones);
+			const scene = req.scene ?? (req.seed ? wireScenes()[(wireScenes().indexOf(layer.scene) + req.seed) % wireScenes().length] : layer.scene);
+			if (!wireScenes().includes(scene)) throw new Error(`Unknown scene "${scene}". Scenes: ${wireScenes().join(', ')}.`);
+			const art = wireDrawing(scene, tones);
 			const k = Math.min(r.w / art.width, r.h / art.height);
 			parts.push(`<g transform="translate(${num(r.x + (r.w - art.width * k) / 2)} ${num(r.y + (r.h - art.height * k) / 2)}) scale(${num(k, 5)})">${art.inner}</g>`);
+			layers.push({ id: 'art', kind: 'art', box: { x: r.x + (r.w - art.width * k) / 2, y: r.y + (r.h - art.height * k) / 2, w: art.width * k, h: art.height * k }, can: {} });
 		} else if (layer.type === 'contours') {
 			// Contours at print scale: the line weight is the unit of a 1200 by 630 frame grown with the area.
 			const u = Math.sqrt((r.w * r.h) / (1200 * 630));
 			parts.push(contourSvg(`m${ids++}`, W, H, u, layer.kind, gridAlpha, ink, r));
-		} else if (layer.type === 'text') {
-			const text = req.slots[layer.slot] ?? merchDoc().slots[layer.slot] ?? '';
-			if (!text) continue;
-			const font = layer.face === 'mono' ? f.mono : f.sans;
-			let size = layer.size * PX_PER_IN;
-			let lines = wrap(font, text, size, r.w);
-			while (lines.length * size * 1.2 > r.h && size > 12) {
-				size -= 2;
-				lines = wrap(font, text, size, r.w);
+			const full = r.x <= 0.5 && r.y <= 0.5 && r.x + r.w >= W - 0.5 && r.y + r.h >= H - 0.5;
+			if (!full) {
+				// A field that stops on the item ends at a frame with the brand's corner diamonds, not at a bare cut.
+				const lw = Math.max(2, 1.4 * u);
+				parts.push(`<rect x="${num(r.x)}" y="${num(r.y)}" width="${num(r.w)}" height="${num(r.h)}" fill="none" stroke="${ink}" stroke-width="${num(lw)}"/>${[[r.x, r.y], [r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h]].map(([px, py]) => diamond(px, py, 5 * u, ink)).join('')}`);
 			}
-			const m = lineMetrics(font, size, 1.2);
-			lines.forEach((l, i) => {
-				const lw = measure(font, l, size);
-				const x = layer.align === 'center' ? r.x + (r.w - lw) / 2 : r.x;
-				parts.push(glyphPaths(font, l, size, x, r.y + i * m.lineHeight + (m.lineHeight - m.em) / 2 + m.ascent, ink));
-			});
+			layers.push({ id: 'pattern', kind: 'art', box: cross(r, { x: 0, y: 0, w: W, h: H }) as Rect, bleeds: full, can: {} });
+		} else if (layer.type === 'text') {
+			const said = words(layer.slot);
+			if (!said) continue;
+			const font = layer.face === 'mono' ? f.mono : f.sans;
+			const size = layer.size * PX_PER_IN;
+			const set = fitOrFail(font, said.text, { size, min: Math.min(size, PRINT_MIN), maxWidth: r.w, maxHeight: r.h, leading: 1.2 }, layer.slot, item.id);
+			const p = placeWords(set, r.x, r.y, ink, layer.align === 'center' ? 'center' : 'left', r.w);
+			parts.push(p.svg);
+			layers.push({ id: layer.slot, kind: 'text', box: p.box, ink: p.ink, over: ['pattern'], text: { asked: said.text, drawn: set.drawn, size: set.size, color: ink, ground: [ground], own: said.own || undefined, sample: said.sample || undefined }, can: {} });
 		}
 	}
 	if (req.guides) {
@@ -125,5 +156,5 @@ export function merchSvg(req: MerchRequest): { svg: string; printSvg: string; wi
 ${inner}
 </svg>
 `;
-	return { svg: wrapDoc(body + cut), printSvg: wrapDoc(body), widthPx: W, heightPx: H, widthIn, heightIn };
+	return { svg: wrapDoc(body + cut), printSvg: wrapDoc(body), widthPx: W, heightPx: H, widthIn, heightIn, layers };
 }

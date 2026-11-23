@@ -15,13 +15,13 @@ export default function AssetsPage() {
       <PageHead title="Assets" eyebrow="Guide" description="Share images, social posts, slides, clips and print files, drawn from the brand tokens, Gilroy and DM Mono, the mark and the brand's own layouts. Every example below is the command under it, run as is. Same input, same bytes." />
       <PageBody className="max-w-300">
         <Command command={`${CLI_COMMAND} manifest --json`} />
-        <Section title="Posters" description="The brand's share-image layouts, each a fixed composition that redraws at any size: window, logo, post, parcels, isometric, aerial, tag, panel, chart, ask and partner lockup. --sample fills the words; replace every one.">
+        <Section title="Posters" description="The brand's share-image layouts, each a fixed composition that redraws at any size: window, logo, post, parcels, isometric, aerial, tag, panel, chart, ask and partner lockup. Only the words you pass are drawn, whole; --sample fills them for a first look.">
           <ShotGrid entries={inGroup("posters")} />
         </Section>
-        <Section title="Sizes and grounds" description="Twelve sizes: link preview, square, portrait, landscape, story, the X and LinkedIn banners, LinkedIn post, square and page cover, YouTube and email. Four grounds from the tokens: bone (the default), green, brown and black.">
+        <Section title="Sizes and grounds" description="Every platform size: link preview, square, portrait, story, landscape, the X header, LinkedIn post, profile cover and page cover, YouTube channel art and thumbnail, email, profile picture, and any custom size. Words and the logo keep out of what each platform covers. Four grounds from the tokens: bone (the default), green, brown and black.">
           <ShotGrid entries={inGroup("sizes")} />
         </Section>
-        <Section title="Sheets" description="The cut-frame sheet: one hairline frame with the brand's cut corner, the lockup, a mono footer and its tick row. Bone only, at sizes 600px tall or more.">
+        <Section title="Sheets" description="The cut-frame sheet: one hairline frame with the brand's cut corner, the lockup, a mono footer and its tick row. Every size and ground; on banners the words sit beside the lockup.">
           <ShotGrid entries={inGroup("sheets")} cols="sm:grid-cols-2" />
         </Section>
         {deck && (

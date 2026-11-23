@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { isAbsolute, join, relative } from 'node:path';
-import { rasterize } from './render.js';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
+import { rasterize } from './encode.js';
 
 // Writing asset files: the SVG as drawn and a PNG rasterized by resvg at a whole-number scale. Every file is reported
 // with its size and a sha256, so an agent (and the tests) can see that the same inputs wrote the same bytes.
@@ -22,6 +22,7 @@ export function writeFile(file: string, data: Buffer | string, format: string, w
 
 export function exportsOf(value: string | undefined, allowed: string[], fallback: string): string[] {
 	const parts = (value ?? fallback).split(',').map((part) => part.trim()).filter(Boolean);
+	parts.forEach((part, i) => (parts[i] = part.toLowerCase() === 'jpeg' ? 'jpg' : part.toLowerCase()));
 	if (!parts.length || parts.some((part) => !allowed.includes(part))) throw new Error(`--format is ${allowed.join(', ')} or a comma-separated list of those.`);
 	return [...new Set(parts)];
 }
@@ -45,4 +46,31 @@ export function parseSize(value: string, flag = '--size'): { width: number; heig
 	const height = Number(m[2]);
 	if (width > 8000 || height > 8000) throw new Error(`${flag} is at most 8000 pixels a side.`);
 	return { width, height };
+}
+
+/** --out as a folder, or as a file: `banner.jpg` sets the folder, the name and (when none is asked for) the format. */
+export function outTarget(out: string | undefined, fallback: string, kinds: readonly string[]): { dir: string; name?: string; kind?: string } {
+	if (!out) return { dir: fallback };
+	const path = isAbsolute(out) ? out : resolve(out);
+	const ext = extname(path).slice(1).toLowerCase().replace('jpeg', 'jpg');
+	if (!ext) return { dir: path };
+	if (!kinds.includes(ext)) {
+		if (existsSync(path) && statSync(path).isDirectory()) return { dir: path };
+		throw new Error(`--out ${out}: .${ext} is not a format this writes (${kinds.join(', ')}). Name a folder, or a file ending in one of those.`);
+	}
+	return { dir: dirname(path), name: basename(path, extname(path)), kind: ext };
+}
+
+export function scaleOf(value: string | undefined): number {
+	if (value === undefined) return 1;
+	const n = Number(value);
+	if (!Number.isFinite(n) || n < 0.25 || n > 4) throw new Error('--scale is a number from 0.25 to 4.');
+	return n;
+}
+
+export function seedOf(value: string | number | undefined): number | undefined {
+	if (value === undefined) return undefined;
+	const n = Number(value);
+	if (!Number.isInteger(n) || n < 0 || n > 9999) throw new Error('--seed is a whole number from 0 to 9999.');
+	return n || undefined;
 }

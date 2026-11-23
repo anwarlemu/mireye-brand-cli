@@ -1,22 +1,57 @@
 import { readFileSync } from 'node:fs';
 import { brand, tokens } from '../lib/brand.js';
+import { PLATFORMS, type Zone } from '../design/platforms.js';
+import { unknownName } from '../lib/names.js';
 import { pkgPath } from '../lib/paths.js';
 
-type SizeDoc = Record<string, { width: number; height: number; use: string; aliases: string[] }>;
-const sizeDoc = (): SizeDoc => (JSON.parse(readFileSync(pkgPath('brand', 'assets', 'image.json'), 'utf8')) as { sizes: SizeDoc }).sizes;
+export type SizeInfo = { width: number; height: number; use: string; aliases: string[]; shown: number; avoid: Zone[]; safe?: Zone };
+type SizesDoc = { extra: Record<string, { width: number; height: number; use: string; aliases: string[]; shown: number }>; aliases: Record<string, string>; custom: { min: number; max: number } };
+const sizesDoc = (): SizesDoc => (JSON.parse(readFileSync(pkgPath('brand', 'assets', 'image.json'), 'utf8')) as { sizes: SizesDoc }).sizes;
 
-/** Pixel sizes agents ask for by name (brand/assets/image.json). The numbers are the export size, one pixel per unit. */
-export const FORMATS: Record<string, { width: number; height: number; use: string; aliases: string[] }> = sizeDoc();
+/** Pixel sizes agents ask for by name: the shared platform sizes and this brand's extras. The numbers are the export size, one pixel per unit. */
+export const FORMATS: Record<string, SizeInfo> = (() => {
+	const doc = sizesDoc();
+	const own = (id: string) => Object.entries(doc.aliases).filter(([, to]) => to === id).map(([from]) => from);
+	const out: Record<string, SizeInfo> = {};
+	for (const p of PLATFORMS) {
+		const taken = p.aliases.filter((a) => !(a in doc.aliases));
+		out[p.id] = { width: p.width, height: p.height, use: p.label, aliases: [...taken, ...own(p.id)], shown: p.shown, avoid: p.avoid, safe: p.safe };
+	}
+	for (const [id, e] of Object.entries(doc.extra)) out[id] = { ...e, avoid: [] };
+	return out;
+})();
 
 export type FormatId = string;
 
-/** Sizes the cut-frame sheet templates fit: a header, a body and a footer need at least 500px of height. */
-export const SHEET_FORMATS = Object.keys(FORMATS).filter((id) => FORMATS[id].height >= 600);
+/** One size to draw at: a named one, or any pixel size as `custom`. */
+export type Size = { id: string; width: number; height: number };
+
+export const isBanner = (s: { width: number; height: number }) => s.width / s.height >= 2.4;
+
+export function sizeOf(id: string, width?: number, height?: number): Size {
+	if (id === 'custom') {
+		const { min, max } = sizesDoc().custom;
+		if (!width || !height) throw new Error('custom needs --width and --height in pixels.');
+		for (const [flag, v] of [['--width', width], ['--height', height]] as const) if (!Number.isInteger(v) || v < min || v > max) throw new Error(`${flag} is a whole number of pixels from ${min} to ${max}.`);
+		if (width / height > 8 || height / width > 3) throw new Error('custom is at most 8 times as wide as tall, or 3 times as tall as wide.');
+		return { id, width, height };
+	}
+	const f = FORMATS[id];
+	if (!f) throw unknownName('size', id, [...Object.keys(FORMATS), 'custom']);
+	if (width !== undefined || height !== undefined) throw new Error(`${id} is ${f.width}x${f.height}. --width and --height go with --size custom.`);
+	return { id, width: f.width, height: f.height };
+}
+
+/** What is known about a size: its zones and the width it is shown at. Custom sizes have no zones. */
+export function sizeInfo(size: Size): SizeInfo {
+	return FORMATS[size.id] ?? { width: size.width, height: size.height, use: size.id, aliases: [], shown: Math.max(540, size.width / 2), avoid: [] };
+}
 
 /** The size id a name means: an id or one of its aliases (case and spaces ignored). */
 export function resolveFormat(name: string): string | undefined {
 	const n = name.trim().toLowerCase().replace(/[\s_]+/g, '-');
-	return Object.keys(FORMATS).find((id) => id === n || FORMATS[id].aliases.includes(n));
+	if (n === 'custom') return 'custom';
+	return Object.keys(FORMATS).find((id) => id === n) ?? Object.keys(FORMATS).find((id) => FORMATS[id].aliases.includes(n));
 }
 
 export const TEMPLATES = {
@@ -31,9 +66,9 @@ export const TEMPLATES = {
 		optional: ['footer'],
 	},
 	frame: {
-		description: 'A headline and a product screenshot in a cut frame. Without an image, a survey plate is drawn.',
+		description: 'A headline and your picture (--image) in a cut frame; without one, a wireframe drawing (--scene).',
 		required: [],
-		optional: ['title', 'subtitle', 'image', 'footer'],
+		optional: ['title', 'subtitle', 'image', 'scene', 'footer'],
 	},
 	quote: {
 		description: 'A quotation and an optional attribution.',
@@ -49,7 +84,7 @@ export const TEMPLATES = {
 
 export type TemplateId = keyof typeof TEMPLATES;
 
-export type ContentKey = 'title' | 'subtitle' | 'kicker' | 'quote' | 'attribution' | 'image' | 'footer' | 'callout' | 'chart' | 'partner' | 'scene';
+export type ContentKey = 'title' | 'subtitle' | 'kicker' | 'quote' | 'attribution' | 'image' | 'footer' | 'callout' | 'chart' | 'partner' | 'scene' | 'labels' | 'question' | 'suggestions' | 'place' | 'page';
 
 export type ImageContent = Partial<Record<ContentKey, string>>;
 
@@ -65,7 +100,18 @@ const LIMITS: Record<ContentKey, number> = {
 	chart: 600,
 	partner: 40,
 	scene: 32,
+	labels: 60,
+	question: 120,
+	suggestions: 240,
+	place: 40,
+	page: 8,
 };
+
+/** The flag people pass for a field: the shared names first. */
+export const FLAG: Record<ContentKey, string> = { title: 'headline', subtitle: 'body', kicker: 'badge', quote: 'quote', attribution: 'attribution', image: 'image', footer: 'footer', callout: 'callout', chart: 'chart', partner: 'partner', scene: 'scene', labels: 'labels', question: 'question', suggestions: 'suggestions', place: 'place', page: 'page' };
+
+/** The shared names for this brand's older field names, in content files. */
+const FIELD_ALIASES: Record<string, ContentKey> = { headline: 'title', body: 'subtitle', badge: 'kicker' };
 
 export type Palette = {
 	ground: string;
@@ -172,13 +218,15 @@ export function cleanContent(input: unknown, allowed?: readonly ContentKey[]): I
 	const allow = allowed ?? (Object.keys(LIMITS) as ContentKey[]);
 	const allowSet = new Set<string>(allow);
 	const out: ImageContent = {};
-	for (const [key, value] of Object.entries(input)) {
-		if (!allowSet.has(key)) throw new Error(`Unknown field "${key}". Fields: ${allow.join(', ')}.`);
+	for (const [name, value] of Object.entries(input)) {
+		const key = FIELD_ALIASES[name] ?? name;
+		if (!allowSet.has(key)) throw new Error(`Unknown field "${name}". Fields: ${allow.map((k) => FLAG[k] ?? k).join(', ')}.`);
 		if (value === undefined || value === null || value === '') continue;
-		if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+		if (typeof value !== 'string') throw new Error(`${FLAG[key as ContentKey] ?? key} must be a string.`);
 		const text = key === 'image' || key === 'scene' ? value.trim() : value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').trim();
 		if (!text) continue;
-		if ([...text].length > LIMITS[key as ContentKey]) throw new Error(`${key} is longer than ${LIMITS[key as ContentKey]} characters.`);
+		if ([...text].length > LIMITS[key as ContentKey]) throw new Error(`${FLAG[key as ContentKey]} is longer than ${LIMITS[key as ContentKey]} characters.`);
+		if (key === 'page' && !/^\d{1,2}\s*\/\s*\d{1,2}$/.test(text)) throw new Error('page is this picture and how many there are, like 2/5.');
 		out[key as ContentKey] = text;
 	}
 	return out;
@@ -197,35 +245,58 @@ export const GROUNDS = (): GroundDoc => imageDoc().grounds;
 export const templateIds = (): string[] => [...Object.keys(TEMPLATES), ...Object.keys(POSTERS())];
 export const isPoster = (value: string): boolean => value in POSTERS();
 
-export function requireContent(template: string, content: ImageContent) {
-	const required = isPoster(template) ? POSTERS()[template].required : TEMPLATES[template as TemplateId].required;
-	const missing = required.filter((key) => !content[key as ContentKey]);
-	if (missing.length) throw new Error(`${template} needs ${missing.map((key) => `--${key}`).join(' and ')}.`);
+/** The fields a template draws. Every one takes a page number (a carousel's). */
+export function templateFields(template: string): { required: ContentKey[]; optional: ContentKey[] } {
+	const t = isPoster(template) ? POSTERS()[template] : TEMPLATES[template as TemplateId];
+	return { required: [...t.required] as ContentKey[], optional: [...t.optional, 'page'] as ContentKey[] };
+}
+
+/** Every required field is there and every field given is one the template draws: nothing is ignored. */
+export function requireContent(template: string, content: ImageContent, size?: string, sample = false) {
+	const { required, optional } = templateFields(template);
+	const extra = (Object.keys(content) as ContentKey[]).filter((key) => !required.includes(key) && !optional.includes(key));
+	if (extra.length) {
+		const holds = templateIds().filter((id) => extra.every((key) => [...templateFields(id).required, ...templateFields(id).optional].includes(key)));
+		throw new Error(`${template} draws no ${extra.map((key) => FLAG[key]).join(' or ')}.${holds.length ? ` These do: ${holds.join(', ')}.` : ''}`);
+	}
+	const missing = required.filter((key) => !content[key] && !(sample && key === 'image'));
+	if (missing.length) throw new Error(`${template} needs ${missing.map((key) => `--${FLAG[key]}`).join(' and ')}.`);
+	if (size === 'avatar' && content.page) throw new Error('avatar holds the mark alone.');
 }
 
 export function isFormat(value: string): value is FormatId {
-	return value in FORMATS;
+	return value in FORMATS || value === 'custom';
 }
 
 export function isTemplate(value: string): value is TemplateId {
 	return value in TEMPLATES;
 }
 
+/** Sample copy for the sheets, drawn only with --sample. */
+export const SHEET_SAMPLES = (): Record<string, Record<string, string>> => (JSON.parse(readFileSync(pkgPath('brand', 'assets', 'image.json'), 'utf8')) as { sheets: Record<string, Record<string, string>> }).sheets;
+
+/** The sizes a template draws at. A profile picture holds the mark alone. */
+export const sizesFor = (template: string): string[] => [...Object.keys(FORMATS).filter((id) => id !== 'avatar' || template === 'identity'), 'custom'];
+
+export const EXPORTS = ['png', 'svg', 'jpg', 'webp', 'pdf'] as const;
+export type ExportKind = (typeof EXPORTS)[number];
+
 export function catalog() {
 	return {
 		schemaVersion: 1,
-		formats: Object.entries(FORMATS).map(([id, format]) => ({ id, width: format.width, height: format.height, use: format.use, aliases: format.aliases })),
+		formats: Object.entries(FORMATS).map(([id, format]) => ({ id, width: format.width, height: format.height, use: format.use, aliases: format.aliases, shown: format.shown, keepOut: format.avoid.map((z) => ({ what: z.name, official: z.official, share: z.rect })), ...(format.safe ? { safe: { what: format.safe.name, official: format.safe.official, share: format.safe.rect } } : {}) })),
 		templates: [
-			...(Object.entries(TEMPLATES) as [TemplateId, (typeof TEMPLATES)[TemplateId]][]).map(([id, template]) => ({ id, family: 'sheet', description: template.description, required: template.required, optional: template.optional, formats: SHEET_FORMATS, grounds: ['bone'] })),
-			...Object.entries(POSTERS()).map(([id, poster]) => ({ id, family: 'poster', label: poster.label, description: poster.description, required: poster.required, optional: poster.optional, formats: Object.keys(FORMATS), grounds: Object.keys(GROUNDS()), ground: poster.ground, sample: poster.sample })),
+			...(Object.entries(TEMPLATES) as [TemplateId, (typeof TEMPLATES)[TemplateId]][]).map(([id, template]) => ({ id, family: 'sheet', description: template.description, required: template.required, optional: template.optional, formats: sizesFor(id), grounds: Object.keys(GROUNDS()), ground: 'bone' })),
+			...Object.entries(POSTERS()).map(([id, poster]) => ({ id, family: 'poster', label: poster.label, description: poster.description, required: poster.required, optional: poster.optional, formats: sizesFor(id), grounds: Object.keys(GROUNDS()), ground: poster.ground, sample: poster.sample })),
 		],
 		grounds: Object.entries(GROUNDS()).map(([id, ground]) => ({ id, label: ground.label, dark: ground.dark })),
 		themes: themes().map(({ id, label, default: isDefault }) => ({ id, label, default: isDefault })),
-		exports: ['png', 'svg'],
+		exports: [...EXPORTS],
 		content: {
-			fields: (Object.keys(LIMITS) as ContentKey[]).map((id) => ({ id, type: 'string', maxLength: LIMITS[id] })),
+			fields: (Object.keys(LIMITS) as ContentKey[]).map((id) => ({ id, flag: FLAG[id], type: 'string', maxLength: LIMITS[id] })),
 			unknownFields: 'error',
-			sample: 'Pass --sample to fill a poster with its sample copy (brand/assets/image.json). Replace every word before publishing.',
+			words: 'Only the words you pass are drawn, whole. A field a template does not draw is an error, and so is copy that does not fit at the smallest readable size.',
+			sample: 'Pass --sample to fill a template with its sample copy (brand/assets/image.json). Replace every word before publishing.',
 		},
 		defaults: { theme: defaultTheme(), ground: 'bone', out: '.ds/images', export: ['png', 'svg'], footer: defaultFooter() },
 	};

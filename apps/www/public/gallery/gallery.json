@@ -4,7 +4,7 @@
     {
       "group": "posters",
       "label": "Logo",
-      "command": "npx mireye-ds image --size og --template identity --sample --export png --name poster-identity",
+      "command": "npx mireye-ds image identity --size og --sample --format png --name poster-identity",
       "files": [
         "poster-identity.png"
       ]
@@ -12,7 +12,7 @@
     {
       "group": "posters",
       "label": "Window",
-      "command": "npx mireye-ds image --size og --template window --sample --export png --name poster-window",
+      "command": "npx mireye-ds image window --size og --sample --format png --name poster-window",
       "files": [
         "poster-window.png"
       ]
@@ -20,7 +20,7 @@
     {
       "group": "posters",
       "label": "Post",
-      "command": "npx mireye-ds image --size og --template post --sample --export png --name poster-post",
+      "command": "npx mireye-ds image post --size og --sample --format png --name poster-post",
       "files": [
         "poster-post.png"
       ]
@@ -28,7 +28,7 @@
     {
       "group": "posters",
       "label": "Parcels",
-      "command": "npx mireye-ds image --size og --template parcels --sample --export png --name poster-parcels",
+      "command": "npx mireye-ds image parcels --size og --sample --format png --name poster-parcels",
       "files": [
         "poster-parcels.png"
       ]
@@ -36,7 +36,7 @@
     {
       "group": "posters",
       "label": "Isometric",
-      "command": "npx mireye-ds image --size og --template scene --sample --export png --name poster-scene",
+      "command": "npx mireye-ds image scene --size og --sample --format png --name poster-scene",
       "files": [
         "poster-scene.png"
       ]
@@ -44,7 +44,7 @@
     {
       "group": "posters",
       "label": "Aerial",
-      "command": "npx mireye-ds image --size og --template photo --sample --export png --name poster-photo --image ./farmland-aerial.jpg",
+      "command": "npx mireye-ds image photo --size og --sample --format png --name poster-photo --image ./farmland-aerial.jpg",
       "files": [
         "poster-photo.png"
       ]
@@ -52,7 +52,7 @@
     {
       "group": "posters",
       "label": "Tag",
-      "command": "npx mireye-ds image --size og --template tag --sample --export png --name poster-tag",
+      "command": "npx mireye-ds image tag --size og --sample --format png --name poster-tag",
       "files": [
         "poster-tag.png"
       ]
@@ -60,7 +60,7 @@
     {
       "group": "posters",
       "label": "Panel",
-      "command": "npx mireye-ds image --size og --template panel --sample --export png --name poster-panel",
+      "command": "npx mireye-ds image panel --size og --sample --format png --name poster-panel",
       "files": [
         "poster-panel.png"
       ]
@@ -68,7 +68,7 @@
     {
       "group": "posters",
       "label": "Chart",
-      "command": "npx mireye-ds image --size og --template chart --sample --export png --name poster-chart",
+      "command": "npx mireye-ds image chart --size og --sample --format png --name poster-chart",
       "files": [
         "poster-chart.png"
       ]
@@ -76,7 +76,7 @@
     {
       "group": "posters",
       "label": "Ask",
-      "command": "npx mireye-ds image --size og --template app --sample --export png --name poster-app",
+      "command": "npx mireye-ds image app --size og --sample --format png --name poster-app",
       "files": [
         "poster-app.png"
       ]
@@ -84,7 +84,7 @@
     {
       "group": "posters",
       "label": "Lockup",
-      "command": "npx mireye-ds image --size og --template partner --sample --export png --name poster-partner",
+      "command": "npx mireye-ds image partner --size og --sample --format png --name poster-partner",
       "files": [
         "poster-partner.png"
       ]
@@ -92,7 +92,7 @@
     {
       "group": "sizes",
       "label": "parcels, story, green",
-      "command": "npx mireye-ds image --size story --template parcels --ground green --sample --export png --name size-story-parcels",
+      "command": "npx mireye-ds image parcels --size story --theme green --sample --format png --name size-story-parcels",
       "files": [
         "size-story-parcels.png"
       ]
@@ -100,7 +100,7 @@
     {
       "group": "sizes",
       "label": "post, portrait, bone",
-      "command": "npx mireye-ds image --size portrait --template post --ground bone --sample --export png --name size-portrait-post",
+      "command": "npx mireye-ds image post --size portrait --theme bone --sample --format png --name size-portrait-post",
       "files": [
         "size-portrait-post.png"
       ]
@@ -108,39 +108,55 @@
     {
       "group": "sizes",
       "label": "tag, square, brown",
-      "command": "npx mireye-ds image --size square --template tag --ground brown --sample --export png --name size-square-tag",
+      "command": "npx mireye-ds image tag --size square --theme brown --sample --format png --name size-square-tag",
       "files": [
         "size-square-tag.png"
       ]
     },
     {
       "group": "sizes",
-      "label": "identity, x-banner, bone",
-      "command": "npx mireye-ds image --size x-banner --template identity --ground bone --sample --export png --name size-x-banner-identity",
+      "label": "post, x-banner, bone",
+      "command": "npx mireye-ds image post --size x-banner --theme bone --sample --format png --name size-x-banner-post",
       "files": [
-        "size-x-banner-identity.png"
+        "size-x-banner-post.png"
       ]
     },
     {
       "group": "sizes",
       "label": "window, linkedin-banner, green",
-      "command": "npx mireye-ds image --size linkedin-banner --template window --ground green --sample --export png --name size-linkedin-banner-window",
+      "command": "npx mireye-ds image window --size linkedin-banner --theme green --sample --format png --name size-linkedin-banner-window",
       "files": [
         "size-linkedin-banner-window.png"
       ]
     },
     {
       "group": "sizes",
-      "label": "chart, landscape, black",
-      "command": "npx mireye-ds image --size landscape --template chart --ground black --sample --export png --name size-landscape-chart",
+      "label": "chart, youtube-thumbnail, black",
+      "command": "npx mireye-ds image chart --size youtube-thumbnail --theme black --sample --format png --name size-youtube-thumbnail-chart",
       "files": [
-        "size-landscape-chart.png"
+        "size-youtube-thumbnail-chart.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "identity, avatar, bone",
+      "command": "npx mireye-ds image identity --size avatar --theme bone --sample --format png --name size-avatar-identity",
+      "files": [
+        "size-avatar-identity.png"
+      ]
+    },
+    {
+      "group": "sizes",
+      "label": "announcement, email, bone",
+      "command": "npx mireye-ds image announcement --size email --theme bone --sample --format png --name size-email-announcement",
+      "files": [
+        "size-email-announcement.png"
       ]
     },
     {
       "group": "sheets",
       "label": "headline",
-      "command": "npx mireye-ds image --size og --template headline --title \"Parcel survey\" --export png --name sheet-headline",
+      "command": "npx mireye-ds image headline --size og --title \"Parcel survey\" --format png --name sheet-headline",
       "files": [
         "sheet-headline.png"
       ]
@@ -148,7 +164,7 @@
     {
       "group": "sheets",
       "label": "subtext",
-      "command": "npx mireye-ds image --size og --template subtext --title \"Site survey\" --subtitle \"Boundaries, access and utilities for every parcel.\" --export png --name sheet-subtext",
+      "command": "npx mireye-ds image subtext --size og --title \"Site survey\" --subtitle \"Boundaries, access and utilities for every parcel.\" --format png --name sheet-subtext",
       "files": [
         "sheet-subtext.png"
       ]
@@ -156,7 +172,7 @@
     {
       "group": "sheets",
       "label": "announcement",
-      "command": "npx mireye-ds image --size og --template announcement --kicker \"Field note\" --title \"The sheet is ready.\" --export png --name sheet-announcement",
+      "command": "npx mireye-ds image announcement --size og --kicker \"Field note\" --title \"The sheet is ready.\" --format png --name sheet-announcement",
       "files": [
         "sheet-announcement.png"
       ]
@@ -164,7 +180,7 @@
     {
       "group": "sheets",
       "label": "quote",
-      "command": "npx mireye-ds image --size og --template quote --quote \"Read the sheet first.\" --attribution \"Field review\" --export png --name sheet-quote",
+      "command": "npx mireye-ds image quote --size og --quote \"Read the sheet first.\" --attribution \"Field review\" --format png --name sheet-quote",
       "files": [
         "sheet-quote.png"
       ]
@@ -190,7 +206,7 @@
     {
       "group": "video",
       "label": "Poster reveal",
-      "command": "npx mireye-ds video --format square --template poster --poster parcels --title \"Find the parcels that fit.\" --callout \"38.6 ac\\n37.5407, −77.4360\" --export mp4,still --name video-parcels",
+      "command": "npx mireye-ds video poster --size square --poster parcels --title \"Find the parcels that fit.\" --callout \"38.6 ac\\n37.5407, −77.4360\" --format mp4,still --name video-parcels",
       "files": [
         "video-parcels.mp4",
         "video-parcels-still.png"
@@ -199,7 +215,7 @@
     {
       "group": "video",
       "label": "Announcement clip",
-      "command": "npx mireye-ds video --format landscape --template announcement --kicker \"Field note\" --title \"The sheet is ready.\" --export mp4,still --name video-announcement",
+      "command": "npx mireye-ds video announcement --size landscape --kicker \"Field note\" --title \"The sheet is ready.\" --format mp4,still --name video-announcement",
       "files": [
         "video-announcement.mp4",
         "video-announcement-still.png"
@@ -208,7 +224,7 @@
     {
       "group": "merch",
       "label": "tee-front, on-light",
-      "command": "npx mireye-ds merch tee-front --variant on-light --dpi 72 --format png",
+      "command": "npx mireye-ds merch tee-front --variant on-light --dpi 72 --format png --sample",
       "files": [
         "tee-front-on-light.png"
       ]
@@ -216,7 +232,7 @@
     {
       "group": "merch",
       "label": "tee-back, on-dark",
-      "command": "npx mireye-ds merch tee-back --variant on-dark --dpi 72 --format png",
+      "command": "npx mireye-ds merch tee-back --variant on-dark --dpi 72 --format png --sample",
       "files": [
         "tee-back-on-dark.png"
       ]
@@ -224,7 +240,7 @@
     {
       "group": "merch",
       "label": "hoodie-front, on-light",
-      "command": "npx mireye-ds merch hoodie-front --variant on-light --dpi 72 --format png",
+      "command": "npx mireye-ds merch hoodie-front --variant on-light --dpi 72 --format png --sample",
       "files": [
         "hoodie-front-on-light.png"
       ]
@@ -232,7 +248,7 @@
     {
       "group": "merch",
       "label": "tote, on-light",
-      "command": "npx mireye-ds merch tote --variant on-light --dpi 72 --format png",
+      "command": "npx mireye-ds merch tote --variant on-light --dpi 72 --format png --sample",
       "files": [
         "tote-on-light.png"
       ]
@@ -240,7 +256,7 @@
     {
       "group": "merch",
       "label": "cap-front, on-light",
-      "command": "npx mireye-ds merch cap-front --variant on-light --dpi 72 --format png",
+      "command": "npx mireye-ds merch cap-front --variant on-light --dpi 72 --format png --sample",
       "files": [
         "cap-front-on-light.png"
       ]
@@ -248,7 +264,7 @@
     {
       "group": "merch",
       "label": "mug-wrap, green",
-      "command": "npx mireye-ds merch mug-wrap --variant green --dpi 72 --format png",
+      "command": "npx mireye-ds merch mug-wrap --variant green --dpi 72 --format png --sample",
       "files": [
         "mug-wrap-green.png"
       ]
@@ -256,7 +272,7 @@
     {
       "group": "merch",
       "label": "sticker, green",
-      "command": "npx mireye-ds merch sticker --variant green --dpi 72 --format png",
+      "command": "npx mireye-ds merch sticker --variant green --dpi 72 --format png --sample",
       "files": [
         "sticker-green.png"
       ]
@@ -264,7 +280,7 @@
     {
       "group": "merch",
       "label": "poster, bone",
-      "command": "npx mireye-ds merch poster --variant bone --dpi 72 --format png",
+      "command": "npx mireye-ds merch poster --variant bone --dpi 72 --format png --sample",
       "files": [
         "poster-bone.png"
       ]
@@ -272,7 +288,7 @@
     {
       "group": "merch",
       "label": "socks, brown",
-      "command": "npx mireye-ds merch socks --variant brown --dpi 72 --format png",
+      "command": "npx mireye-ds merch socks --variant brown --dpi 72 --format png --sample",
       "files": [
         "socks-brown.png"
       ]
@@ -419,6 +435,68 @@
       "command": "npx mireye-ds illustrate --image ./farmland-aerial.jpg --ground green --format png --name trace-farmland",
       "files": [
         "trace-farmland.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "new post --size x-banner",
+      "command": "npx mireye-ds design new post --size x-banner --headline \"Physical world context for AI agents\" --body \"One API for parcels, flood, terrain and utilities.\" -o banner.design.json",
+      "files": [
+        "design-new.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "revise \"darker theme\"",
+      "command": "npx mireye-ds design revise banner.design.json \"darker theme\"",
+      "files": [
+        "design-darker.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "revise \"bigger headline\"",
+      "command": "npx mireye-ds design revise banner.design.json \"bigger headline\"",
+      "files": [
+        "design-bigger.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "revise \"logo top right\"",
+      "command": "npx mireye-ds design revise banner.design.json \"logo top right\"",
+      "files": [
+        "design-logo.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "edit --option scene=solar",
+      "command": "npx mireye-ds design edit banner.design.json --option scene=solar",
+      "files": [
+        "design-scene.png"
+      ]
+    },
+    {
+      "group": "design",
+      "label": "edit --layer art.anchor=left",
+      "command": "npx mireye-ds design edit banner.design.json --layer art.anchor=left",
+      "files": [
+        "design-left.png"
+      ]
+    },
+    {
+      "group": "design-refused",
+      "label": "Nothing was changed. \"make the headline neon pink\": Effects are not part of the brand.",
+      "command": "npx mireye-ds design revise banner.design.json \"make the headline neon pink\"",
+      "files": []
+    },
+    {
+      "group": "design-sizes",
+      "label": "sizes --to og,square,story,linkedin-banner",
+      "command": "npx mireye-ds design sizes banner.design.json --to og,square,story,linkedin-banner",
+      "files": [
+        "design-sizes.png"
       ]
     }
   ]

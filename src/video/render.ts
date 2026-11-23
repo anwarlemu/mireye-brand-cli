@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
-import { rasterize } from '../image/render.js';
+import { rasterize } from '../image/encode.js';
 import type { ImageContent } from '../image/catalog.js';
 import { encodeApng } from './apng.js';
 import { VIDEO_FORMATS, type VideoExport, type VideoFormatId, type VideoTemplateId, videoTiming } from './catalog.js';
@@ -18,6 +18,7 @@ export type VideoRequest = {
 	exports: VideoExport[];
 	outDir: string;
 	name: string;
+	seed?: number;
 	/** Test-only shorter clock. The CLI does not accept this. */
 	frameCount?: number;
 };
@@ -57,7 +58,7 @@ export async function renderVideo(request: VideoRequest) {
 	const frameCount = request.frameCount ?? timing.frameCount;
 	if (!Number.isInteger(frameCount) || frameCount < 1) throw new Error('frameCount must be a positive integer.');
 	const { width, height } = VIDEO_FORMATS[request.format];
-	const frames = Array.from({ length: frameCount }, (_, index) => frameSvg(request.format, request.template, request.theme, request.content, index, frameCount));
+	const frames = Array.from({ length: frameCount }, (_, index) => frameSvg(request.format, request.template, request.theme, request.content, index, frameCount, request.seed));
 	mkdirSync(request.outDir, { recursive: true });
 	const files: VideoFile[] = [];
 	if (request.exports.includes('svg')) {

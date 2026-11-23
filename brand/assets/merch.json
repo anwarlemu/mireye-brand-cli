@@ -1,7 +1,7 @@
 {
 	"$comment": "Merch print files only (no mockups). Items, trim sizes, bleed, safe areas and methods are common vendor conventions (the same list the context-ds and spyglass-ds engines use); confirm each against the print vendor's template before ordering. Layers are in inches from the trim. Only the approved lockup and mark (brand/logo, the name in Gilroy), the brand grounds and inks (image.json grounds), the website contours and the illustration skill's wireframe scenes are used. The sticker is cut along the brand's cut corner, not a rounded rectangle. The brand defines no clear-space or minimum-size rule, so none is applied.",
 	"dpi": 300,
-	"slots": { "headline": "Physical world context for AI agents", "url": "mireye.com" },
+	"slots": { "headline": { "text": "Physical world context for AI agents", "note": "Sample copy, drawn only with --sample." }, "url": { "text": "mireye.com", "own": true, "note": "The brand's own address." } },
 	"variants": {
 		"on-light": { "ground": null, "tones": "light", "ink": "--ds-color-forest", "note": "No ground: the art alone in Forest and the bone wireframe tones, for light garments and stock." },
 		"on-dark": { "ground": null, "tones": "dark", "ink": "--ds-color-bone", "note": "No ground: the art alone in Bone and the dark-ground wireframe tones, for dark garments and stock." },

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenTextIcon, ImagesIcon, PenNibIcon, ListIcon, MagnifyingGlassIcon, PaletteIcon, PencilLineIcon, SquaresFourIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { BookOpenTextIcon, ImagesIcon, PenNibIcon, ListIcon, MagnifyingGlassIcon, PaletteIcon, PencilLineIcon, SquaresFourIcon, XIcon, ArrowsClockwiseIcon } from "@phosphor-icons/react/ssr";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,7 @@ const PAGES = [
   { href: "/components", label: "All components", icon: SquaresFourIcon },
   { href: "/theme", label: "Theme", icon: PaletteIcon },
   { href: "/assets", label: "Assets", icon: ImagesIcon },
+  { href: "/designs", label: "Designs", icon: ArrowsClockwiseIcon },
   { href: "/illustrations", label: "Illustrations", icon: PencilLineIcon },
   { href: "/figma", label: "Figma", icon: PenNibIcon },
 ];

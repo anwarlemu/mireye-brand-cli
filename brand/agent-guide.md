@@ -99,28 +99,50 @@ Follow the returned `do` and `dont` lists. Do not add a rule that is not in the 
 
 ## Render images
 
-`image` draws share images and social posts from the brand tokens, the brand fonts, the mark and the brand's own layouts. It does not open a browser. Use it for link previews, posts and banners instead of inventing a layout or fetching a different font. Every file is PNG and SVG (real vector shapes, the type drawn as outlines); the same input writes the same bytes.
+`image` draws share images, banners and social posts from the brand tokens, the brand fonts, the mark and the brand's own layouts. It does not open a browser. Use it for link previews, posts and banners instead of inventing a layout or fetching a different font. Files are PNG and SVG by default (real vector shapes, the type drawn as outlines), and JPG, WebP or PDF on request; the same input writes the same bytes.
 
 ```sh
 {{cli}} image --list --json
-{{cli}} image --size og --template window --title "Physical world context for AI agents." --subtitle "One API for physical world data." --json
-{{cli}} image --size portrait --template post --title "Residential land" --subtitle "Every field cited." --scene residential --json
-{{cli}} image --size story --template parcels --ground green --title "Find the parcels that fit." --callout "38.6 ac" --json
-{{cli}} image --size x-banner --template identity --json
-{{cli}} image --size landscape --template photo --title "Central Iowa" --image ./aerial.jpg --json
-{{cli}} image --size og --template headline --title "Parcel survey" --json
+{{cli}} image window --size og --headline "Physical world context for AI agents." --body "One API for physical world data." --json
+{{cli}} image post --size portrait --headline "Residential land" --body "Every field cited." --scene residential --json
+{{cli}} image parcels --size story,square,x-banner --theme green --headline "Find the parcels that fit." --callout "38.6 ac" --json
+{{cli}} image identity --size avatar --json
+{{cli}} image photo --size landscape --headline "Central Iowa" --image ./aerial.jpg --format jpg --json
+{{cli}} image carousel --input carousel.json --size portrait --json
 ```
 
-- Posters (the brand layouts, every size and ground): `identity` (the lockup alone), `window`, `post` (a wireframe scene, `--scene`), `parcels` (`--callout`), `scene` (an isometric preset, `--scene`), `photo` (your `--image`, darkened), `tag`, `panel`, `chart` (`--chart "label | number"` rows), `app` (the Ask panel), `partner` (`--partner`).
-- Sheets (the cut-frame sheet, bone only, sizes at least 600px tall): `headline`, `subtext`, `frame`, `quote`, `announcement`.
-- Sizes: `og` 1200x630, `square` 1080x1080, `portrait` 1080x1350, `landscape` 1200x675, `story` 1080x1920, `x-banner` 1500x500, `linkedin-banner` 1584x396, `linkedin` 1200x627, `linkedin-square` 1200x1200, `linkedin-page` 1128x191, `youtube` 2560x1440, `email` 1200x300 (`--format` is the same flag).
-- Grounds (`--ground`, posters): `bone` (default), `green`, `brown`, `black`. Themes (`--theme`) swap the ink.
-- `--sample` fills a poster with sample copy for a first look; replace every word before publishing. Copy also comes from `--content <file>` (or `-` for stdin); flags override it, and an `image` path in the file is relative to the file.
-- Unknown sizes, templates, grounds, themes and fields exit 1 and name the nearest choices. Layouts, grounds and the notes on each value's source are in `brand/assets/image.json`.
+- Only the words you pass are drawn, whole. Words step down and re-wrap to the smallest size that reads where the picture is shown; past that the command fails, names the field and says about how many characters fit. A field a layout does not draw (a headline on `identity`) is an error, not ignored. Letters the typeface has no shapes for are an error.
+- Posters (the brand layouts): `identity` (the lockup alone; the mark alone at `avatar`), `window`, `post` (a wireframe scene, `--scene`), `parcels` (`--callout`, `--labels`), `scene` (an isometric preset), `photo` (needs your `--image`), `tag`, `panel`, `chart` (`--chart "label | number"` rows), `app` (the Ask panel, with your `--question`, `--suggestions`, `--place`), `partner` (`--partner`). Sheets (the cut-frame sheet): `headline`, `subtext`, `frame` (your `--image`, or a drawing), `quote`, `announcement` (`--badge`). Every template draws at every size and ground.
+- Sizes (`--size`, one, a list, or `all`): `og`, `square`, `portrait`, `story`, `landscape`, `x-banner`, `linkedin`, `linkedin-banner`, `linkedin-page`, `linkedin-square`, `youtube`, `youtube-thumbnail`, `email`, `avatar`, and `custom` with `--width` and `--height`. Words, the logo and the drawing keep out of what each platform lays over the picture (the story bars, the X and LinkedIn profile pictures, the YouTube safe area, the thumbnail's time stamp); `image --list --json` gives each area and whether its numbers are the platform's or measured.
+- `--theme` is a ground (`bone`, `green`, `brown`, `black`) or a brand theme (`api`, `enterprise`). `--headline`, `--body`, `--badge` are also `--title`, `--subtitle`, `--kicker`. `--seed` picks another arrangement. `--out banner.jpg` names the file and its format.
+- `--sample` fills sample copy for a first look; replace every word before publishing. Copy also comes from `--content <file>`; flags override it, and an `image` path in the file is relative to the file.
+- A carousel is several numbered pictures from one file: `{ "size": "portrait", "theme": "green", "slides": [ { "template": "window", "headline": "..." }, ... ] }`. Every slide is drawn and checked before any file is written.
+- Every image runs the same check as a design (whole words, nothing invented, contrast, logo clear space, overlap, safe areas, cut edges, small text); an error writes nothing. Layouts, grounds and the notes on each value's source are in `brand/assets/image.json`.
+
+## Revising a design
+
+When the person will want changes, make the picture as a design: a small JSON file that holds the template, size, theme, words and layer edits, and draws the PNG beside it.
+
+```sh
+{{cli}} design new post --size x-banner --headline "Physical world context for AI agents" -o banner.design.json
+{{cli}} design revise banner.design.json "darker theme, logo top right, bigger headline"
+{{cli}} design edit banner.design.json --layer art.anchor=left --hide body --option scene=solar
+{{cli}} design undo banner.design.json
+{{cli}} design variants banner.design.json --by theme
+{{cli}} design sizes banner.design.json --to og,square,story,linkedin-banner
+{{cli}} design check banner.design.json --json
+```
+
+1. Make it with `design new`, then look at the PNG.
+2. Change it with `design revise` (plain words; a phrase it does not understand changes nothing and lists what it can do) or `design edit` (exact: `--set headline="..."`, `--theme`, `--size`, `--layer logo.anchor=top-right`, `--layer headline.scale=1.2`, `--hide body`, `--seed`, `--template`, `--option`).
+3. Every write is checked; an error changes nothing and says why. Composition rules can be accepted with `--allow <rule>`; brand rules (colors, type, the logo, whole words) never can.
+4. Look again, and repeat until the person is happy. `undo`, `redo` and `history` walk the changes; `variants` and `compare` make contact sheets.
+
+Never hand-edit the PNG or SVG: change the design file through the command. `design help --json` lists every template, layer, what each layer can do, the phrases and the rules. Slides, merch, illustrations and clips are designs too (`slide-cover`, `merch-tee-front`, `illustration-wire`, `video-social`, ...).
 
 ## Render slides
 
-`deck` draws slides at 1920x1080 and writes a PNG per slide and one PDF.
+`deck` draws slides at 1920x1080 and writes a PNG per slide and one PDF (also SVG, JPG or WebP). Words that do not fit a slide are an error naming the slide.
 
 ```sh
 {{cli}} deck --list --json
@@ -219,7 +241,7 @@ The library has page templates, section blocks and app shells, all built from li
 `init` and conversion install AGENTS.md and a local `.ds/agent-guide.md`, plus supported agent instruction files and hook configuration. Agents that do not load those files automatically should read them explicitly. Hooks support Claude Code, Codex and Cursor when enabled by that tool; other agents run the CLI checks directly. Codex hook activation may require the user's `/hooks` trust step. No hook integration is required to use the components correctly.
 
 Read-only commands: `manifest`, `describe`, `guide`, `brand` and its subcommands, `principles`, `component list`, `component inspect`, `component emit`, `list`, `show`, `look`, `tokens`, `check` without `--fix`, `image --list` and `video --list`.
-Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, `image` (PNG and SVG), `video` (APNG, and frame PNG or SVG when asked), and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. A validation error with `--json` is `{"ok":false,"error":"..."}` and a nonzero exit. Installation/build failures return a nonzero exit code.
+Commands that write project files: `init`, `add`, `apply`, the legacy bare conversion command, `check --fix`, `image` (PNG, SVG, JPG, WebP, PDF), `design` (the design file and its pictures), `video` (APNG, and frame PNG or SVG when asked), and review/snapshot state updates. Use `--dry-run` with `init`, `add` or conversion to inspect planned writes. JSON goes to stdout and progress goes to stderr. A validation error with `--json` is `{"ok":false,"error":"..."}` and a nonzero exit. Installation/build failures return a nonzero exit code.
 
 ## Project configuration and agent handoff
 

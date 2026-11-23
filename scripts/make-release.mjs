@@ -26,7 +26,7 @@ await build({
 	format: 'esm',
 	target: 'node20',
 	// Babel's optional external config loader is disabled by configFile:false and babelrc:false.
-	external: ['playwright-core', '@babel/preset-typescript', '@resvg/resvg-js'],
+	external: ['playwright-core', '@babel/preset-typescript', '@resvg/resvg-js', '@napi-rs/canvas'],
 	banner: { js: "import { createRequire as __ds_require } from 'node:module'; const require = __ds_require(import.meta.url);" },
 	logLevel: 'warning',
 });
@@ -34,7 +34,8 @@ const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 delete pkg.devDependencies;
 delete pkg.dependencies;
 // The asset commands (image, deck, video, merch, illustrate, figma) rasterize with the native resvg package, so the
-// release requires it; the asset module itself is bundled in dist and its data ships in brand/.
+// release requires it; the asset module itself is bundled in dist and its data ships in brand/. JPG and WebP files
+// need the optional @napi-rs/canvas encoder, which stays optional.
 const resvg = pkg.optionalDependencies?.['@resvg/resvg-js'];
 if (resvg) {
 	pkg.dependencies = { '@resvg/resvg-js': resvg };

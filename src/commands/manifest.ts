@@ -11,6 +11,9 @@ import { deckCatalog } from '../deck/slides.js';
 import { merchCatalog } from '../merch/merch.js';
 import { illustrateCatalog } from './illustrate.js';
 import { FIGMA_ACTIONS, PUSH_KINDS } from './figma.js';
+import { adapter } from '../design/adapter.js';
+import { designManifest } from '../design/index.js';
+import { imageDocument } from '../image/poster.js';
 import { helpRow } from '../lib/help-row.js';
 
 const COMMANDS = [
@@ -25,7 +28,9 @@ const COMMANDS = [
 	{ name: 'component list', read: true, summary: 'Every library component.' },
 	{ name: 'component inspect', read: true, summary: 'Props, states, usage and source for one component.' },
 	{ name: 'component emit', read: true, summary: 'Example markup for one component state.' },
-	{ name: 'image', read: false, summary: 'Share images and social posts (PNG and SVG): the brand poster layouts at every social size and ground, plus the cut-frame sheets. image --list is read-only.' },
+	{ name: 'image', read: false, summary: 'Share images and social posts (PNG and SVG): the brand poster layouts at every social size and ground, plus the cut-frame sheets; several sizes at once; JPG, WebP and PDF too. image --list is read-only.' },
+	{ name: 'image carousel', read: false, summary: 'Several numbered pictures from one JSON file.' },
+	{ name: 'design', read: false, summary: 'Make a design as a file and revise it: new, revise (plain words), edit (exact), undo, redo, history, variants, sizes, compare, render, check. Every write is checked and errors block it.' },
 	{ name: 'deck', read: false, summary: 'Slides at 1920x1080 from a JSON file: a PNG per slide and one PDF. deck --list is read-only.' },
 	{ name: 'video', read: false, summary: 'Short clips: APNG, MP4 or WebM, plus a still frame. video --list is read-only.' },
 	{ name: 'merch', read: false, summary: 'Print files at real size with bleed, safe area and a die line. merch --list is read-only.' },
@@ -75,12 +80,13 @@ export function manifestData() {
 			voiceBanned: principles.voice.banned,
 		},
 		images: { formats: images.formats, templates: images.templates, grounds: images.grounds, themes: images.themes, exports: images.exports, content: images.content, layouts: 'brand/assets/image.json' },
+		designs: designManifest(adapter(), cli()),
 		decks: deckCatalog(),
 		videos: { renderer: videos.renderer, rendererNote: videos.rendererNote, formats: videos.formats, templates: videos.templates, themes: videos.themes, exports: videos.exports, encoders: videos.encoders, motion: videos.motion, timing: videos.timing },
 		merch: merchCatalog(),
 		illustrations: illustrateCatalog(),
 		figma: { actions: FIGMA_ACTIONS, pushKinds: PUSH_KINDS, note: 'The CLI never calls Figma: every action writes files and prints the Figma MCP calls to make, in order.', workflow: 'brand/agent-guide.md#work-in-figma' },
-		logo: { files: ['brand/logo/mark.svg'], lockups: ['mark', 'lockup (the mark with the name in the brand sans, at 0.875 of the mark height, 0.5 of it apart)'], clearSpace: 'none defined in this repo', minimumSize: 'none defined in this repo' },
+		logo: { files: ['brand/logo/mark.svg'], lockups: ['mark', 'lockup (the mark with the name in the brand sans, at 0.875 of the mark height, 0.5 of it apart)'], clearSpace: `none defined by the brand; pictures keep ${imageDocument().logoRules.clear} times the mark's height all round`, minimumSize: `none defined by the brand; pictures keep the mark at ${imageDocument().logoRules.min} CSS pixels or more where they are shown` },
 		rules: { illustration: 'brand/illustration.md', principles: 'brand/principles.md', contract: 'brand/contract.md', agentGuide: 'brand/agent-guide.md' },
 		registry: {
 			theme: 'theme',
@@ -92,5 +98,5 @@ export function manifestData() {
 
 export function manifestCommand(opts: { json?: boolean }) {
 	const data = manifestData();
-	emit(opts, data, () => [`${data.name} ${data.version}`, data.validation, '', ...data.commands.map((command) => helpRow(command.name, command.summary, 20)), '', `${data.components.length} components, ${data.images.templates.length} image templates at ${data.images.formats.length} sizes, ${data.decks.slides.length} slide types, ${data.videos.templates.length} video templates, ${data.merch.items.length} merch items, ${data.illustrations.styles.length} illustration styles.`, `Run \`${cli()} manifest --json\`.`].join('\n'));
+	emit(opts, data, () => [`${data.name} ${data.version}`, data.validation, '', ...data.commands.map((command) => helpRow(command.name, command.summary, 20)), '', `${data.components.length} components, ${data.designs.templates.length} design templates, ${data.images.templates.length} image templates at ${data.images.formats.length} sizes, ${data.decks.slides.length} slide types, ${data.videos.templates.length} video templates, ${data.merch.items.length} merch items, ${data.illustrations.styles.length} illustration styles.`, `Run \`${cli()} manifest --json\`.`].join('\n'));
 }

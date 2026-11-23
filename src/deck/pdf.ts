@@ -3,7 +3,8 @@ import { deflateSync } from 'node:zlib';
 // A minimal PDF writer: one page per image (8-bit RGB, Flate), no metadata dates, so the same pages give the same
 // bytes. Pages are sized in points from the image's pixel size and a physical width.
 
-export type PdfPage = { rgb: Buffer; width: number; height: number };
+/** `trim` is the bleed in points: the page then names its trim and bleed boxes for a printer. */
+export type PdfPage = { rgb: Buffer; width: number; height: number; trim?: number };
 
 export function imagesToPdf(pages: PdfPage[], pageWidthPt: number): Buffer {
 	if (!pages.length) throw new Error('A PDF needs at least one page.');
@@ -23,7 +24,7 @@ export function imagesToPdf(pages: PdfPage[], pageWidthPt: number): Buffer {
 		const img = add(Buffer.concat([Buffer.from(`<< /Type /XObject /Subtype /Image /Width ${page.width} /Height ${page.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length ${data.length} >>\nstream\n`, 'latin1'), data, Buffer.from('\nendstream', 'latin1')]));
 		const content = `q ${ptW} 0 0 ${ptH} 0 0 cm /Im0 Do Q`;
 		const contents = add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
-		kids.push(add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${ptW} ${ptH}] /Resources << /XObject << /Im0 ${img} 0 R >> >> /Contents ${contents} 0 R >>`));
+		kids.push(add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${ptW} ${ptH}]${page.trim ? ` /BleedBox [0 0 ${ptW} ${ptH}] /TrimBox [${page.trim} ${page.trim} ${Math.round((ptW - page.trim) * 100) / 100} ${Math.round((ptH - page.trim) * 100) / 100}]` : ''} /Resources << /XObject << /Im0 ${img} 0 R >> >> /Contents ${contents} 0 R >>`));
 	}
 	objects[1] = Buffer.from(`<< /Type /Pages /Kids [${kids.map((k) => `${k} 0 R`).join(' ')}] /Count ${kids.length} >>`, 'latin1');
 	const parts: Buffer[] = [Buffer.from('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n', 'latin1')];

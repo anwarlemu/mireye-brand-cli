@@ -31,7 +31,7 @@ export const VIDEO_TEMPLATES = {
 	poster: {
 		description: 'Poster reveal. Any share-image layout (--poster window, parcels, scene, ...) uncovered left to right over its ground, as the website reveals its survey fills.',
 		required: ['poster'],
-		optional: ['title', 'subtitle', 'callout', 'chart', 'partner', 'scene', 'image'],
+		optional: ["title", "subtitle", "callout", "chart", "partner", "scene", "image", "labels", "question", "suggestions", "place"],
 	},
 } as const;
 

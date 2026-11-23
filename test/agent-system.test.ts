@@ -30,7 +30,7 @@ describe('manifest', () => {
 		expect(data.entry).toBe('manifest');
 		expect(data.registry.theme).toBe('theme');
 		expect(data.commands.map((command) => command.name)).toEqual(expect.arrayContaining(['manifest', 'describe', 'brand', 'principles', 'component emit', 'image', 'video']));
-		expect(data.images.formats.map((format) => format.id).slice(0, 7)).toEqual(['og', 'square', 'portrait', 'landscape', 'story', 'x-banner', 'linkedin-banner']);
+		expect(data.images.formats.map((format) => format.id).slice(0, 7)).toEqual(['og', 'square', 'portrait', 'story', 'landscape', 'x-banner', 'linkedin']);
 		expect(data.images.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement', 'identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner']);
 		expect(data.videos.formats.map((format) => format.id)).toEqual(['square', 'vertical', 'landscape']);
 		expect(data.videos.templates.map((template) => template.id)).toEqual(['social', 'announcement', 'product', 'poster']);
@@ -139,7 +139,7 @@ describe('video', () => {
 		const unknown = run(['video', '--format', 'poster', '--template', 'social', '--title', 'Parcel survey', '--json']);
 		expect(unknown.status).not.toBe(0);
 		expect(JSON.parse(unknown.stdout)).toMatchObject({ ok: false });
-		expect(unknown.stdout).toMatch(/Unknown format/);
+		expect(unknown.stdout).toMatch(/Unknown size/);
 		const field = run(['video', '--format', 'square', '--template', 'social', '--title', 'Parcel survey', '--content', join(ROOT, 'package.json'), '--json']);
 		expect(field.status).not.toBe(0);
 		expect(field.stdout).toMatch(/Unknown field|must be a JSON object|needs --title/);

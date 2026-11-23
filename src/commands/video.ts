@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { cleanContent, defaultTheme, themes, type ImageContent } from '../image/catalog.js';
+import { cleanContent, type ContentKey, type ImageContent } from '../image/catalog.js';
+import { outTarget, seedOf } from '../image/output.js';
+import { groundAndTheme } from './image.js';
 import { cli } from '../lib/brand.js';
 import { emit } from '../lib/output.js';
 import { findProjectRoot } from '../lib/paths.js';
@@ -8,24 +10,21 @@ import { cleanVideoContent, isVideoFormat, isVideoTemplate, videoCatalog, videoF
 import { renderVideo } from '../video/render.js';
 import { VIDEO_FORMATS, VIDEO_TEMPLATES } from '../video/catalog.js';
 import { pickName, unknownName } from '../lib/names.js';
-import { groundIds, posterIds } from '../image/poster.js';
+import { posterIds } from '../image/poster.js';
+import { FLAG } from '../image/catalog.js';
 
-type Options = {
+type Options = Partial<Record<ContentKey, string>> & {
+	headline?: string;
+	body?: string;
+	badge?: string;
+	size?: string;
+	seed?: string;
 	list?: boolean;
 	format?: string;
 	template?: string;
 	theme?: string;
-	title?: string;
-	subtitle?: string;
-	kicker?: string;
-	footer?: string;
 	poster?: string;
 	ground?: string;
-	callout?: string;
-	chart?: string;
-	partner?: string;
-	scene?: string;
-	image?: string;
 	content?: string;
 	out?: string;
 	name?: string;
@@ -35,8 +34,11 @@ type Options = {
 
 const KINDS = new Set<VideoExport>(['apng', 'mp4', 'webm', 'png', 'svg', 'still']);
 
-function exportsOf(value: string | undefined): VideoExport[] {
-	const parts = (value ?? 'apng').split(',').map((part) => part.trim()).filter(Boolean);
+/** The shared size names a clip answers to. */
+const SIZES: Record<string, string> = { story: 'vertical', reel: 'vertical', portrait: 'vertical', youtube: 'landscape', 'x': 'landscape', '1:1': 'square', '9:16': 'vertical', '16:9': 'landscape' };
+
+function exportsOf(value: string | undefined, fallback = 'apng'): VideoExport[] {
+	const parts = (value ?? fallback).split(',').map((part) => part.trim()).filter(Boolean);
 	if (!parts.length || parts.some((part) => !KINDS.has(part as VideoExport))) throw new Error('--export is apng, mp4, webm, png, svg, still, or a comma-separated list of those.');
 	return [...new Set(parts)] as VideoExport[];
 }
@@ -59,16 +61,28 @@ export async function videoCommand(opts: Options) {
 	}
 	const formats = Object.keys(VIDEO_FORMATS);
 	const templates = Object.keys(VIDEO_TEMPLATES);
-	if (!opts.format) throw new Error(`--format is required: ${formats.join(', ')}.`);
-	if (!isVideoFormat(opts.format)) throw unknownName('format', opts.format, formats);
+	// --format names files (apng, mp4, webm, ...); it also still names a size, as it did first.
+	const isKinds = opts.format !== undefined && opts.format.split(',').every((part) => KINDS.has(part.trim() as VideoExport));
+	const asked = (opts.size ?? (isKinds ? undefined : opts.format))?.trim().toLowerCase();
+	const sizeName = asked ? (SIZES[asked] ?? asked) : undefined;
+	if (!sizeName) throw new Error(`--size is required: ${formats.join(', ')}.`);
+	if (!isVideoFormat(sizeName)) throw unknownName('size', sizeName, formats);
 	if (!opts.template) throw new Error(`--template is required: ${templates.join(', ')}.`);
 	if (!isVideoTemplate(opts.template)) throw unknownName('template', opts.template, templates);
-	const theme = opts.theme ?? defaultTheme();
-	if (!themes().some((item) => item.id === theme)) throw new Error(`Unknown theme "${theme}". Themes: ${themes().map((item) => item.id).join(', ')}.`);
+	const isPoster = opts.template === 'poster';
+	const look = groundAndTheme({ theme: opts.theme, ground: opts.ground });
+	if (look.ground && !isPoster) throw new Error('A ground is for the poster template; the sheet clips draw on bone.');
 	const fields = videoFields(opts.template);
-	const picked: ImageContent = {};
-	for (const key of ['title', 'subtitle', 'kicker', 'footer', 'callout', 'chart', 'partner', 'scene', 'image'] as const) if (opts[key] && (fields as string[]).includes(key)) picked[key] = key === 'image' ? resolve(opts[key]!) : opts[key];
-	if (opts.template === 'poster' && opts.poster) (picked as Record<string, string>).poster = pickName('poster', opts.poster, posterIds());
+	const given: Partial<Record<ContentKey, string>> = {};
+	for (const key of ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'footer', 'callout', 'chart', 'partner', 'scene', 'image', 'labels', 'question', 'suggestions', 'place'] as ContentKey[]) if (opts[key]) given[key] = opts[key];
+	if (opts.headline) given.title = opts.headline;
+	if (opts.body) given.subtitle = opts.body;
+	if (opts.badge) given.kicker = opts.badge;
+	const extra = (Object.keys(given) as ContentKey[]).filter((key) => !(fields as string[]).includes(key));
+	if (extra.length) throw new Error(`${opts.template} draws no ${extra.map((key) => FLAG[key]).join(' or ')}. It draws ${fields.map((key) => FLAG[key] ?? key).join(', ')}.`);
+	if (opts.poster && !isPoster) throw new Error('--poster goes with the poster template.');
+	const picked: ImageContent = { ...given, ...(given.image ? { image: resolve(given.image) } : {}) };
+	if (isPoster && opts.poster) (picked as Record<string, string>).poster = pickName('poster', opts.poster, posterIds());
 	let fileContent: ImageContent = {};
 	if (opts.content) {
 		const raw = opts.content === '-' ? readFileSync(0, 'utf8') : readFileSync(resolve(opts.content), 'utf8');
@@ -82,20 +96,21 @@ export async function videoCommand(opts: Options) {
 	}
 	const { poster: chosen, ...rest } = picked as Record<string, string>;
 	const content = cleanVideoContent(opts.template, { ...fileContent, ...cleanContent(rest, fields.filter((key) => (key as string) !== 'poster')), ...(chosen ? { poster: chosen } : {}) }) as ImageContent & { poster?: string; ground?: string };
-	if (opts.ground) {
-		if (opts.template !== 'poster') throw new Error('--ground is for the poster template; the sheet clips draw on bone.');
-		content.ground = pickName('ground', opts.ground, groundIds());
-	}
-	const format = opts.format;
+	if (look.ground) content.ground = look.ground;
+	const format = sizeName;
 	const template = opts.template;
+	const theme = look.theme;
+	const to = outTarget(opts.out, resolve(findProjectRoot(), '.ds', 'videos'), ['apng', 'mp4', 'webm', 'png', 'svg']);
+	const exports = exportsOf(opts.export ?? (isKinds ? opts.format : undefined), to.kind === 'png' || to.kind === 'svg' ? 'still' : to.kind);
 	const result = await renderVideo({
 		format,
 		template,
 		theme,
 		content,
-		exports: exportsOf(opts.export),
-		outDir: opts.out ? resolve(opts.out) : resolve(findProjectRoot(), '.ds', 'videos'),
-		name: safeName(opts.name ?? `${format}-${template}`),
+		exports,
+		seed: seedOf(opts.seed),
+		outDir: to.dir,
+		name: safeName(to.name ?? opts.name ?? `${format}-${template}`),
 	});
 	emit(opts, result, () => result.files.map((file) => `${file.format.padEnd(5)} ${file.width}x${file.height}  ${file.sha256.slice(0, 12)}  ${file.path}`).join('\n'));
 }
