@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import type { Command } from 'commander';
-import { EXPORTS, FLAG, FORMATS, GROUNDS, POSTERS, SHEET_SAMPLES, catalog, cleanContent, defaultTheme, isPoster, requireContent, resolveFormat, sizeOf, sizesFor, templateIds, themes, type ContentKey, type ExportKind, type ImageContent, type Size } from '../image/catalog.js';
+import { EXPORTS, FLAG, NOT_COPY, FORMATS, GROUNDS, POSTERS, SHEET_SAMPLES, catalog, cleanContent, defaultTheme, isPoster, requireContent, resolveFormat, sizeOf, sizesFor, templateIds, themes, type ContentKey, type ExportKind, type ImageContent, type Size } from '../image/catalog.js';
 import { outTarget, scaleOf, seedOf } from '../image/output.js';
 import { drawImage, renderImage, type DrawRequest, type RenderResult } from '../image/render.js';
 import { checkDesign, errorsOf, type DesignDoc, type TemplateInfo } from '../design/index.js';
@@ -36,7 +36,7 @@ type Options = Partial<Record<ContentKey, string>> & {
 	json?: boolean;
 };
 
-const FIELDS: ContentKey[] = ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'image', 'footer', 'callout', 'chart', 'partner', 'scene', 'labels', 'question', 'suggestions', 'place', 'page'];
+const FIELDS: ContentKey[] = ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'image', 'footer', 'callout', 'chart', 'partner', 'scene', 'labels', 'question', 'suggestions', 'place', 'page', 'stat', 'date', 'speaker', 'price', 'items', 'steps', 'left', 'right', 'before', 'after'];
 const SHARED: [keyof Options, ContentKey][] = [['headline', 'title'], ['body', 'subtitle'], ['badge', 'kicker']];
 
 const isKinds = (value: string) => value.split(',').every((part) => (EXPORTS as readonly string[]).includes(part.trim().toLowerCase().replace('jpeg', 'jpg')));
@@ -63,7 +63,7 @@ function readJson(file: string, flag: string): unknown {
 
 /** A picture named in a file sits next to that file. Flag paths stay relative to the working directory. */
 function beside(content: ImageContent, file: string): ImageContent {
-	if (file !== '-' && content.image && !isAbsolute(content.image)) content.image = resolve(dirname(resolve(file)), content.image);
+	for (const key of ['image', 'before', 'after'] as const) if (file !== '-' && content[key] && !isAbsolute(content[key]!)) content[key] = resolve(dirname(resolve(file)), content[key]!);
 	return content;
 }
 
@@ -119,7 +119,7 @@ export function sizesOf(value: string, template: string, width?: string, height?
 async function checked(req: DrawRequest) {
 	const { wordColors } = await import('../design/adapter.js');
 	const drawn = drawImage(req);
-	const copy = Object.fromEntries(Object.entries(req.content).filter(([key]) => !['image', 'scene', 'page'].includes(key)).map(([key, value]) => [FLAG[key as ContentKey], value!]));
+	const copy = Object.fromEntries(Object.entries(req.content).filter(([key]) => !NOT_COPY.has(key)).map(([key, value]) => [FLAG[key as ContentKey], value!]));
 	const doc = { version: 1, brand: '', kind: 'image', template: req.template, size: req.size, copy, images: {}, options: {}, layers: {}, history: [], future: [] } as DesignDoc;
 	const errors = errorsOf(checkDesign({ doc, info: {} as TemplateInfo, layers: drawn.layers, adapter: { colors: wordColors } }));
 	if (errors.length) throw new Error(`${req.template} at ${req.size.id} breaks a rule, so nothing was written. ${errors.map((e) => e.message).join(' ')}`);
@@ -281,6 +281,16 @@ export function registerImage(program: Command) {
 		.option('--place <text>', 'app: the place in the ask box')
 		.option('--scene <id>', 'post, panel and frame: a wireframe scene; scene: an isometric preset')
 		.option('--footer <text>', 'sheet footer line (defaults to the brand site)')
+		.option('--stat <text>', 'stat: the number')
+		.option('--date <text>', 'event: the date')
+		.option('--speaker <text>', 'event: the speaker line (a role, not a real name)')
+		.option('--price <text>', 'pricing: the price')
+		.option('--items <text>', 'pricing: what it includes, split by |')
+		.option('--steps <text>', 'flow: the steps, split by |')
+		.option('--left <text>', 'compare: the first column, its title first, split by |')
+		.option('--right <text>', 'compare: the second column, split by |')
+		.option('--before <path>', 'split: the first picture')
+		.option('--after <path>', 'split: the second picture')
 		.option('--page <n/total>', 'a number for a set, like 2/5 (carousel writes it)')
 		.option('--seed <n>', 'another arrangement: which part of the contour map, which parcels, which drawing')
 		.option('--sample', 'fill unset words with the sample copy, for a first look (replace it)')

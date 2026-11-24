@@ -44,8 +44,30 @@ entries.push({ group: 'deck', label: 'Sample deck', command: `${cli} deck --samp
 run('video', 'Poster reveal', ['video', 'poster', '--size', 'square', '--poster', 'parcels', '--title', 'Find the parcels that fit.', '--callout', '38.6 ac\n37.5407, −77.4360', '--format', 'mp4,still', '--name', 'video-parcels'], ['video-parcels.mp4', 'video-parcels-still.png']);
 run('video', 'Announcement clip', ['video', 'announcement', '--size', 'landscape', '--kicker', 'Field note', '--title', 'The sheet is ready.', '--format', 'mp4,still', '--name', 'video-announcement'], ['video-announcement.mp4', 'video-announcement-still.png']);
 
+// Cards: the product and marketing layouts.
+const shot = join(root, 'apps', 'www', 'public', 'examples', 'farmland-aerial.jpg');
+for (const t of ['stat', 'event', 'pricing', 'compare', 'flow', 'split', 'line', 'donut']) {
+	const args = ['image', t, '--size', 'og', '--sample', '--format', 'png', '--name', `card-${t}`];
+	if (t === 'split') args.push('--before', shot, '--after', shot);
+	run('cards', t, args, [`card-${t}.png`]);
+}
+// Ads and more platforms.
+for (const [size, template] of [['ad-300x250', 'post'], ['ad-728x90', 'tag'], ['ad-300x600', 'parcels'], ['ad-970x250', 'scene'], ['tiktok-cover', 'post'], ['pinterest', 'window'], ['facebook-cover', 'scene'], ['meeting', 'backdrop']]) {
+	run('ads', `${template}, ${size}`, ['image', template, '--size', size, '--sample', '--format', 'png', '--name', `ad-${size}-${template}`], [`ad-${size}-${template}.png`]);
+}
+// Documents: the sample case study.
+execFileSync(process.execPath, [bin, 'document', '--sample', '--format', 'png,pdf', '--out', out, '--name', 'document'], { stdio: ['ignore', 'ignore', 'inherit'] });
+entries.push({ group: 'documents', label: 'Case study, A4', command: `${cli} document --sample`, files: ['document-01.png', 'document.pdf'] });
+// Icons: the favicon set.
+execFileSync(process.execPath, [bin, 'icons', 'favicon', '--out', join(out, 'icons')], { stdio: ['ignore', 'ignore', 'inherit'] });
+renameSync(join(out, 'icons', 'icon-512.png'), join(out, 'icon-512.png'));
+renameSync(join(out, 'icons', 'icon-maskable-512.png'), join(out, 'icon-maskable-512.png'));
+rmSync(join(out, 'icons'), { recursive: true, force: true });
+entries.push({ group: 'icons', label: 'App icon, 512', command: `${cli} icons favicon`, files: ['icon-512.png'] });
+entries.push({ group: 'icons', label: 'Maskable icon, 512', command: `${cli} icons favicon`, files: ['icon-maskable-512.png'] });
+
 // Merch at 72 dpi for the page (print files are 300 dpi).
-for (const [item, variant] of [['tee-front', 'on-light'], ['tee-back', 'on-dark'], ['hoodie-front', 'on-light'], ['tote', 'on-light'], ['cap-front', 'on-light'], ['mug-wrap', 'green'], ['sticker', 'green'], ['poster', 'bone'], ['socks', 'brown']]) {
+for (const [item, variant] of [['tee-front', 'on-light'], ['tee-back', 'on-dark'], ['hoodie-front', 'on-light'], ['tote', 'on-light'], ['cap-front', 'on-light'], ['mug-wrap', 'green'], ['sticker', 'green'], ['poster', 'bone'], ['socks', 'brown'], ['business-card-front', 'green'], ['business-card-back', 'bone'], ['certificate', 'bone'], ['event-badge', 'bone'], ['name-tag', 'bone'], ['notebook', 'green'], ['sticker-sheet', 'bone']]) {
 	run('merch', `${item}, ${variant}`, ['merch', item, '--variant', variant, '--dpi', '72', '--format', 'png', '--sample'], [`${item}-${variant}.png`]);
 }
 
@@ -87,6 +109,22 @@ if (sheet) {
 	entries.push({ group: 'design-sizes', label: 'sizes --to og,square,story,linkedin-banner', command: `${cli} design sizes banner.design.json --to og,square,story,linkedin-banner`, files: ['design-sizes.png'] });
 }
 rmSync(sessionDir, { recursive: true, force: true });
+
+// Compose: a layout no template has, built block by block, at two sizes.
+const composeDir = join(out, 'compose-session');
+mkdirSync(composeDir, { recursive: true });
+const composeSteps = [
+	['new', 'compose', ['new', 'compose', '--size', 'og', '-o', 'c.design.json']],
+	['pattern', 'compose add pattern', ['compose', 'add', 'c.design.json', 'pattern']],
+	['headline', 'compose add headline', ['compose', 'add', 'c.design.json', 'headline', 'Every parcel, cited.', '--at', '0,0,7,4']],
+	['table', 'compose add table', ['compose', 'add', 'c.design.json', 'table', '--at', '0,5,6,4', '--set', 'rows=Field | Source\nZoning | County\nFlood zone | FEMA']],
+	['stat', 'compose add stat', ['compose', 'add', 'c.design.json', 'stat', '42%', '--at', '8,1,4,5']],
+	['logo', 'compose add logo', ['compose', 'add', 'c.design.json', 'logo', '--place', 'bottom-left']],
+];
+for (const [, , args] of composeSteps) execFileSync(process.execPath, [bin, 'design', ...args], { cwd: composeDir, stdio: ['ignore', 'ignore', 'inherit'] });
+renameSync(join(composeDir, 'c.png'), join(out, 'compose-og.png'));
+entries.push({ group: 'compose', label: 'Blocks on a grid, og', command: composeSteps.map(([, , args]) => `${cli} design ${args.map((a) => (/[\s"|]/.test(a) ? JSON.stringify(a) : a)).join(' ')}`).join('\n'), files: ['compose-og.png'] });
+rmSync(composeDir, { recursive: true, force: true });
 
 // Commands keep machine paths out of the published gallery.
 for (const e of entries) e.command = e.command.replaceAll(root, '').replace(/apps\/www\/public\/examples\//g, './');

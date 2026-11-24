@@ -31,9 +31,9 @@ describe('manifest', () => {
 		expect(data.registry.theme).toBe('theme');
 		expect(data.commands.map((command) => command.name)).toEqual(expect.arrayContaining(['manifest', 'describe', 'brand', 'principles', 'component emit', 'image', 'video']));
 		expect(data.images.formats.map((format) => format.id).slice(0, 7)).toEqual(['og', 'square', 'portrait', 'story', 'landscape', 'x-banner', 'linkedin']);
-		expect(data.images.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement', 'identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner']);
+		expect(data.images.templates.map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement', 'backdrop', 'identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner', 'stat', 'event', 'pricing', 'compare', 'flow', 'split', 'line', 'donut']);
 		expect(data.videos.formats.map((format) => format.id)).toEqual(['square', 'vertical', 'landscape']);
-		expect(data.videos.templates.map((template) => template.id)).toEqual(['social', 'announcement', 'product', 'poster']);
+		expect(data.videos.templates.map((template) => template.id)).toEqual(['social', 'announcement', 'product', 'lower-third', 'walkthrough', 'poster']);
 		expect(data.videos.formats.find((format) => format.id === 'vertical')).toMatchObject({ width: 1080, height: 1920, ratio: '9:16' });
 		expect(data.videos.formats.find((format) => format.id === 'landscape')).toMatchObject({ width: 1920, height: 1080, ratio: '16:9' });
 		expect(data.brand.tokenGroups.map((group) => group.id)).toEqual(['color', 'type', 'spacing', 'radii', 'motion', 'other']);
@@ -135,7 +135,7 @@ describe('video', () => {
 	it('rejects unknown formats, templates and fields', () => {
 		const listed = run(['video', '--list', '--json']);
 		expect(listed.status).toBe(0);
-		expect(JSON.parse(listed.stdout).templates).toHaveLength(4);
+		expect(JSON.parse(listed.stdout).templates).toHaveLength(6);
 		const unknown = run(['video', '--format', 'poster', '--template', 'social', '--title', 'Parcel survey', '--json']);
 		expect(unknown.status).not.toBe(0);
 		expect(JSON.parse(unknown.stdout)).toMatchObject({ ok: false });
@@ -148,7 +148,8 @@ describe('video', () => {
 	it('renders every template as deterministic frames and one byte-identical APNG', async () => {
 		const dir = mkdtempSync(join(tmpdir(), 'ds-video-'));
 		const formats = Object.keys(VIDEO_FORMATS) as VideoFormatId[];
-		const templates = Object.keys(VIDEO_TEMPLATES) as VideoTemplateId[];
+		// The lower third has no mark, and the walkthrough is screenshots: each has its own test.
+		const templates = (Object.keys(VIDEO_TEMPLATES) as VideoTemplateId[]).filter((t) => t !== 'lower-third' && t !== 'walkthrough');
 		for (const format of formats) {
 			for (const template of templates) {
 				const content = template === 'announcement' ? { kicker: 'Field note', title: 'The sheet is ready.', subtitle: 'Same marks, new note.' } : template === 'poster' ? { poster: 'identity' } as never : { title: 'Parcel survey', subtitle: 'Boundaries and access.' };

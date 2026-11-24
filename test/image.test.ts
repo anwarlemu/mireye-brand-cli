@@ -5,12 +5,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { imageCommand } from '../src/commands/image.js';
-import { FORMATS, TEMPLATES, sizesFor, type FormatId, type ImageContent, type TemplateId, catalog, cleanContent, paletteFor } from '../src/image/catalog.js';
+import { FORMATS, TEMPLATES, type FormatId, type ImageContent, type TemplateId, catalog, cleanContent, paletteFor } from '../src/image/catalog.js';
 import { renderImage, svgDocument } from '../src/image/render.js';
 
 const ROOT = join(import.meta.dirname, '..');
 const BIN = join(ROOT, 'bin.js');
-const FORMATS_IDS = sizesFor('headline').filter((id) => id !== 'custom') as FormatId[];
+// The sizes people use most; every size is drawn and checked in words.test.ts.
+const FORMATS_IDS = ['og', 'square', 'portrait', 'story', 'landscape', 'x-banner', 'linkedin-banner', 'youtube'] as FormatId[];
 const TEMPLATE_IDS = Object.keys(TEMPLATES) as TemplateId[];
 
 function pngSize(buf: Buffer) {
@@ -127,17 +128,37 @@ describe('image catalog', () => {
 			['youtube-thumbnail', 1280, 720],
 			['email', 1200, 400],
 			['avatar', 800, 800],
+			['pinterest', 1000, 1500],
+			['facebook-cover', 1702, 630],
+			['facebook', 1080, 1350],
+			['ad-300x250', 300, 250],
+			['ad-336x280', 336, 280],
+			['ad-728x90', 728, 90],
+			['ad-300x600', 300, 600],
+			['ad-320x50', 320, 50],
+			['ad-160x600', 160, 600],
+			['ad-970x250', 970, 250],
+			['meeting', 1920, 1080],
+			['desktop', 2880, 1800],
+			['phone-wallpaper', 1170, 2532],
+			['a4', 2480, 3508],
+			['letter', 2550, 3300],
+			['business-card', 1050, 600],
+			['email-signature', 1200, 300],
 			['linkedin-square', 1200, 1200],
+			['tiktok-cover', 1080, 1920],
+			['meta-story', 1080, 1920],
+			['linkedin-ad', 1200, 628],
 		]);
 		expect(data.templates.filter((template) => template.family === 'sheet').map((template) => template.id)).toEqual(['headline', 'subtext', 'frame', 'quote', 'announcement']);
-		expect(data.templates.filter((template) => template.family === 'poster').map((template) => template.id)).toEqual(['identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner']);
+		expect(data.templates.filter((template) => template.family === 'poster').map((template) => template.id)).toEqual(['backdrop', 'identity', 'window', 'post', 'parcels', 'scene', 'photo', 'tag', 'panel', 'chart', 'app', 'partner', 'stat', 'event', 'pricing', 'compare', 'flow', 'split', 'line', 'donut']);
 		expect(data.templates.find((template) => template.id === 'headline')?.optional).toEqual(['footer']);
 		expect(data.exports).toEqual(['png', 'svg', 'jpg', 'webp', 'pdf']);
 		expect(data.themes.some((theme) => theme.default)).toBe(true);
 	});
 
 	it('rejects copy past the field limit and unknown themes', () => {
-		expect(() => cleanContent({ title: 'a'.repeat(161) })).toThrow(/headline is longer/);
+		expect(() => cleanContent({ title: 'a'.repeat(161) })).toThrow(/headline is too long/);
 		expect(cleanContent({ title: '  Parcel survey  ' })).toEqual({ title: 'Parcel survey' });
 		expect(() => cleanContent({ title: 'Parcel survey', extra: 'nope' })).toThrow(/Unknown field "extra"/);
 		expect(() => paletteFor('nope')).toThrow(/Unknown theme/);
@@ -234,8 +255,8 @@ describe('image render', () => {
 describe('image command', () => {
 	it('answers --list --json and --help, and reports a missing title as JSON', () => {
 		const listed = JSON.parse(execFileSync(process.execPath, [BIN, 'image', '--list', '--json'], { encoding: 'utf8' }));
-		expect(listed.formats).toHaveLength(14);
-		expect(listed.templates).toHaveLength(16);
+		expect(listed.formats).toHaveLength(34);
+		expect(listed.templates).toHaveLength(25);
 		expect(execFileSync(process.execPath, [BIN, 'image', '--help'], { encoding: 'utf8' })).toMatch(/--format/);
 		let failed = '';
 		try {

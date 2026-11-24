@@ -97,6 +97,33 @@ Product and website share one look. Query either surface. `site` means the websi
 
 Follow the returned `do` and `dont` lists. Do not add a rule that is not in the response.
 
+## I need X
+
+| I need | Run |
+| --- | --- |
+| Link preview or social post (X, LinkedIn, Instagram, Threads, Facebook, Pinterest) | `{{cli}} image <template> --size og,landscape,square,portrait,threads,facebook-post,pinterest --headline "..."` |
+| Story, reel or TikTok cover | `{{cli}} image <template> --size story` or `tiktok-cover` |
+| Profile banner and profile picture | `{{cli}} image <template> --size x-banner`, `linkedin-banner`, `linkedin-page`, `facebook-cover`, `youtube`; `{{cli}} image identity --size avatar` |
+| A graphic no template covers, at any size | `{{cli}} design new compose --size <id> -o x.design.json`, then `{{cli}} design compose add x.design.json <block> "words" --place top-left` (blocks: `design help --json`) |
+| A whole page from sections | `{{cli}} design page compose outline.json -o page` (React and plain HTML; sample: `brand/assets/pages/sample-outline.json`) |
+| YouTube thumbnail | `{{cli}} image <template> --size youtube-thumbnail` |
+| Display ads (IAB), Meta and LinkedIn ads | `{{cli}} image <template> --size ad-300x250,ad-336x280,ad-728x90,ad-300x600,ad-320x50,ad-160x600,ad-970x250,meta-story,linkedin-ad` |
+| Carousel | `{{cli}} image carousel --input carousel.json --size portrait` |
+| Quote, stat, event, pricing, comparison, flow, before and after, bar, line or donut chart | `{{cli}} image quote`, `stat`, `event`, `pricing`, `compare`, `flow`, `split`, `chart`, `line`, `donut` |
+| Launch, changelog, hiring or customer story card | `{{cli}} image announcement --badge "..."`; `{{cli}} image quote --attribution "..., Acme"` |
+| Framed screenshot | `{{cli}} image frame --image shot.png` |
+| A picture the person will want to change | `{{cli}} design new <template> -o x.design.json`, then `design revise` |
+| Slides | `{{cli}} deck --input deck.json` (cover, section, agenda, team, timeline, statement, bullets, stat, quote, image, gallery, chart, any poster, questions, closing) |
+| One-pager, case study, report with a cover | `{{cli}} document --input document.json --size a4` or `letter` |
+| Emails and signature | `{{cli}} email newsletter`, `announcement`, `receipt`, `password-reset`, `signature` |
+| Clip, logo reveal, lower third, walkthrough, GIF | `{{cli}} video <template> --format mp4,webm,gif` (`video poster --poster identity` is the logo reveal) |
+| Favicon set, app icons | `{{cli}} icons favicon`, `{{cli}} icons app` |
+| Interface icons as SVG | `{{cli}} icons set` |
+| Video-call background, wallpapers | `{{cli}} image backdrop --size meeting`, `desktop`, `phone-wallpaper` |
+| Illustration or pattern | `{{cli}} illustrate <scene>`; `{{cli}} illustrate --style contours` |
+| Print (business card, letterhead, certificate, badge, name tag, posters, stickers, notebook, lanyard, tee, mug, cap, socks) | `{{cli}} merch <item>` |
+| Components, sections, pages | `{{cli}} component list --json`, then `{{cli}} add <name>` |
+
 ## Render images
 
 `image` draws share images, banners and social posts from the brand tokens, the brand fonts, the mark and the brand's own layouts. It does not open a browser. Use it for link previews, posts and banners instead of inventing a layout or fetching a different font. Files are PNG and SVG by default (real vector shapes, the type drawn as outlines), and JPG, WebP or PDF on request; the same input writes the same bytes.

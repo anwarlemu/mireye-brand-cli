@@ -14,12 +14,12 @@ import { pickName, unknownName } from '../lib/names.js';
 import { emit } from '../lib/output.js';
 import { findProjectRoot } from '../lib/paths.js';
 
-type Opts = { list?: boolean; variant?: string; ground?: string; sample?: boolean; scene?: string; seed?: string; headline?: string; url?: string; theme?: string; dpi?: string; format?: string; guides?: boolean; all?: boolean; out?: string; name?: string; json?: boolean };
+type Opts = Partial<Record<'name' | 'role' | 'email' | 'phone' | 'event' | 'date' | 'recipient', string>> & { list?: boolean; variant?: string; ground?: string; sample?: boolean; scene?: string; seed?: string; headline?: string; url?: string; theme?: string; dpi?: string; format?: string; guides?: boolean; all?: boolean; out?: string; file?: string; json?: boolean };
 
 export async function merchRun(itemArg: string | undefined, o: Opts) {
 	if (o.list) {
 		const cat = merchCatalog();
-		emit(o, cat, () => [...cat.items.map((i) => helpRow(i.id, `${i.name}, ${i.trim.width} x ${i.trim.height} in, bleed ${i.bleed} in, safe ${i.safe} in, ${i.method}${i.dieCut ? ', die cut' : ''}. Variants: ${i.variants.join(', ')}.`, 14)), '', ...cat.variants.map((v) => helpRow(v.id, v.note, 14)), '', cat.note].join('\n'));
+		emit(o, cat, () => [...cat.items.map((i) => helpRow(i.id, `${i.name}, ${i.trim.width} x ${i.trim.height} in, bleed ${i.bleed} in, safe ${i.safe} in, ${i.method}${i.dieCut ? ', die cut' : ''}. Variants: ${i.variants.join(', ')}.`, 22)), '', ...cat.variants.map((v) => helpRow(v.id, v.note, 22)), '', cat.note].join('\n'));
 		return;
 	}
 	const ids = merchItems().map((i) => i.id);
@@ -43,6 +43,7 @@ export async function merchRun(itemArg: string | undefined, o: Opts) {
 	const copy: Record<string, string> = {};
 	if (o.headline) copy.headline = o.headline;
 	if (o.url) copy.url = o.url;
+	for (const key of ['name', 'role', 'email', 'phone', 'event', 'date', 'recipient'] as const) if (o[key]) copy[key] = o[key]!;
 	// Everything is drawn before the first file is written. With --all, an item takes the words it carries and no others.
 	const drawn = jobs.flatMap(({ item, variant }) => {
 		const carries = merchSlots(item).map((x) => x.id);
@@ -55,7 +56,7 @@ export async function merchRun(itemArg: string | undefined, o: Opts) {
 	const files: OutFile[] = [];
 	const made: { item: string; variant: string; trim: string; bleed: number; safe: number }[] = [];
 	for (const { item, variant, doc } of drawn) {
-		const name = to.name ?? (o.name ? (drawn.length > 1 ? `${safeName(o.name)}-${item.id}-${variant}` : safeName(o.name)) : `${item.id}-${variant}`);
+		const name = to.name ?? (o.file ? (drawn.length > 1 ? `${safeName(o.file)}-${item.id}-${variant}` : safeName(o.file)) : `${item.id}-${variant}`);
 		if (kinds.includes('svg')) files.push(writeFile(join(to.dir, `${name}.svg`), doc.svg, 'svg', doc.widthPx, doc.heightPx));
 		const w = Math.round((doc.widthPx * dpi) / PX_PER_IN);
 		const h = Math.round((doc.heightPx * dpi) / PX_PER_IN);
@@ -74,7 +75,7 @@ export async function merchRun(itemArg: string | undefined, o: Opts) {
 export function registerMerch(program: Command) {
 	program
 		.command('merch [item]')
-		.description('Print files for merch (tee, hoodie, cap, tote, mug wrap, sticker with cut line, poster, socks) at real size with bleed and safe area')
+		.description('Print files at real size with bleed and safe area: tee, hoodie, cap, tote, mug, stickers and a sticker sheet, posters (18x24, 24x36, A3, A2), socks, notebook, lanyard, business cards, letterheads, certificate, event badge, name tag')
 		.option('--list', 'items, sizes and variants')
 		.option('--variant <id>', 'on-light, on-dark, bone, green, brown or black (each item lists its own)')
 		.option('--all', 'every item (or, with an item, every variant)')
@@ -84,12 +85,19 @@ export function registerMerch(program: Command) {
 		.option('--scene <id>', 'items with a drawing: which wireframe scene')
 		.option('--seed <n>', 'items with a drawing: another one')
 		.option('--url <text>', 'the address on items that carry it')
+		.option('--name <text>', 'business card, badge, name tag: the name')
+		.option('--role <text>', 'business card, badge, name tag: the role')
+		.option('--email <text>', 'business card: the email address')
+		.option('--phone <text>', 'business card: the phone number')
+		.option('--event <text>', 'event badge: the event')
+		.option('--date <text>', 'certificate: the date')
+		.option('--recipient <text>', 'certificate: who it is for')
 		.option('--theme <id>', 'a brand theme, or a variant')
 		.option('--dpi <n>', 'PNG resolution, 72 to 300 (default 300)')
 		.option('--guides', 'draw the trim and safe area (for proofing; leave off for print)')
 		.option('--format <kinds>', 'svg, png, pdf (with trim and bleed boxes) or a list (default svg,png)')
 		.option('--out <path>', 'output directory (default: .ds/merch in the project), or a file name that also sets the format')
-		.option('--name <base>', 'file name without an extension')
+		.option('--file <base>', 'file name without an extension')
 		.option('--json', 'JSON output listing the files written')
 		.addHelpText('after', () => `\nExamples:\n  ${cli()} merch --list --json\n  ${cli()} merch tee-front --variant on-dark\n  ${cli()} merch sticker --variant green --json\n  ${cli()} merch --all --dpi 150 --out merch\n\nSizes are common vendor conventions: confirm against the vendor template before ordering.\n`)
 		.action((item: string | undefined, _o, command: Command) => merchRun(item, command.optsWithGlobals() as Opts));

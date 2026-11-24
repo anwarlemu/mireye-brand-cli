@@ -1,6 +1,7 @@
 import { cleanContent, defaultFooter, leading, paletteFor, requireContent, type ImageContent, type Palette, type Size } from '../image/catalog.js';
 import { CopyError, fitOrFail, loadFaces, num, placeWords, requireGlyphs, setAt, type Faces, type Fitted, type Font } from '../image/type.js';
-import { cross, frameOf, type DrawnLayer } from '../image/layers.js';
+import { bottom, cross, frameOf, type DrawnLayer } from '../image/layers.js';
+import { coverSvg, loadPicture } from '../image/picture.js';
 import { lockupSvg, lockupWidth } from '../image/logo.js';
 import { groundColors, imageDocument, posterDraw, posterFloors } from '../image/poster.js';
 import { cutFrame, cutPoly, ticks } from '../image/sheet.js';
@@ -56,6 +57,12 @@ function bezier(x1: number, y1: number, x2: number, y2: number, t: number): numb
 export function frameProgress(index: number, frameCount: number): number {
 	const timing = videoTiming();
 	const t = frameCount <= 1 ? 1 : index / (frameCount - 1);
+	return bezier(timing.easing[0], timing.easing[1], timing.easing[2], timing.easing[3], t);
+}
+
+/** The brand curve on a share from 0 to 1. */
+function ease(t: number): number {
+	const timing = videoTiming();
 	return bezier(timing.easing[0], timing.easing[1], timing.easing[2], timing.easing[3], t);
 }
 
@@ -258,7 +265,100 @@ function posterFrame(format: VideoFormatId, theme: string, content: VideoContent
 }
 
 /** One frame of a template and what it drew. `index` is the only thing that changes between frames. */
+/** Frames a clip needs: the brand clock, once per screenshot for a walkthrough. */
+export function framesFor(template: VideoTemplateId, content: ImageContent, clock: number): number {
+	if (template !== 'walkthrough') return clock;
+	return clock * Math.max(1, (content.images ?? '').split('|').filter((x) => x.trim()).length);
+}
+
+function lowerThird(format: VideoFormatId, theme: string, content: ImageContent, progress: number): VideoFrame {
+	const size = videoSize(format);
+	const { width: W, height: H } = size;
+	const F = frameOf({ id: 'video', width: W, height: H }, posterFloors());
+	const f = loadFaces();
+	const c = groundColors('bone', theme);
+	const name = content.title!;
+	const role = content.subtitle;
+	const nameSize = Math.max(F.large, H * 0.045);
+	const roleSize = Math.max(F.small * 1.2, H * 0.026);
+	const pad = nameSize * 0.6;
+	const maxW = W * 0.62;
+	requireGlyphs(f.sans, name, 'headline');
+	if (role) requireGlyphs(f.sans, role, 'body');
+	const a = setAt(f.sans, name, nameSize, { size: nameSize, min: nameSize, maxWidth: maxW, maxLines: 2, leading: 1.15 }, false);
+	const b = role ? setAt(f.sans, role, roleSize, { size: roleSize, min: roleSize, maxWidth: maxW, maxLines: 2, leading: 1.3 }, false) : undefined;
+	if (!a || (role && !b)) throw new CopyError('A lower third holds two lines of name and two of role: the words are too long. Shorten them.');
+	const w = Math.max(a.width, b?.width ?? 0) + pad * 2;
+	const h = a.height + (b ? b.height + pad * 0.3 : 0) + pad * 1.6;
+	const x = F.live.x;
+	const y = H * 0.82 - h;
+	const reveal = span(progress, 0, 0.55);
+	const words = span(progress, 0.3, 0.9);
+	const layers: DrawnLayer[] = [];
+	const pa = placeWords(a, x + pad, y + pad * 0.8, c.windowInk);
+	layers.push({ id: 'headline', kind: 'text', box: pa.box, ink: pa.ink, over: ['panel'], text: { asked: name, drawn: a.drawn, size: a.size, color: c.windowInk, ground: [c.window] }, can: {} });
+	let roleSvg = '';
+	if (b) {
+		const pb = placeWords(b, x + pad, y + pad * 0.8 + a.height + pad * 0.3, c.windowMuted);
+		roleSvg = pb.svg;
+		layers.push({ id: 'body', kind: 'text', box: pb.box, ink: pb.ink, over: ['panel'], text: { asked: role!, drawn: b.drawn, size: b.size, color: c.windowMuted, ground: [c.window] }, can: {} });
+	}
+	layers.unshift({ id: 'panel', kind: 'panel', box: { x, y, w, h }, can: {} });
+	const cut = h * 0.18;
+	return {
+		svg: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
+<title>${escapeXml([name, role].filter(Boolean).join('. '))}</title>
+<!--ground--><clipPath id="lt"><rect x="${num(x)}" y="${num(y)}" width="${num(w * reveal)}" height="${num(h)}"/></clipPath><g clip-path="url(#lt)"><path d="M${num(x + cut)} ${num(y)}H${num(x + w)}V${num(y + h)}H${num(x)}V${num(y + cut)}Z" fill="${c.window}"/><g opacity="${num(words, 4)}">${pa.svg}${roleSvg}</g></g>
+</svg>
+`,
+		layers,
+	};
+}
+
+function walkthrough(format: VideoFormatId, theme: string, content: ImageContent, index: number, frameCount: number): VideoFrame {
+	const size = videoSize(format);
+	const { width: W, height: H } = size;
+	const files = (content.images ?? '').split('|').map((x) => x.trim()).filter(Boolean);
+	if (files.length < 1 || files.length > 8) throw new CopyError(`A walkthrough takes one to eight screenshots (--images, split by |), not ${files.length}.`);
+	const F = frameOf({ id: size.id, width: W, height: H }, posterFloors());
+	const f = loadFaces();
+	const c = groundColors('bone', theme);
+	const per = frameCount / files.length;
+	const at = Math.min(files.length - 1, Math.floor(index / per));
+	const local = (index - at * per) / per;
+	// The last part of each hold fades into the next screenshot: the brand's base duration, eased.
+	const fade = at < files.length - 1 ? ease(span(local, 0.88, 1)) : 0;
+	const layers: DrawnLayer[] = [];
+	let top = F.live.y;
+	let head = '';
+	if (content.title) {
+		requireGlyphs(f.sans, content.title, 'headline');
+		const set = fitOrFail(f.sans, content.title, { size: Math.max(F.large, H * 0.06), min: F.large, maxWidth: F.live.w, maxHeight: F.live.h * 0.2, leading: 1.1 }, 'headline', 'the walkthrough');
+		const p = placeWords(set, F.live.x, top, c.ink);
+		head = p.svg;
+		layers.push({ id: 'headline', kind: 'text', box: p.box, ink: p.ink, text: { asked: content.title, drawn: set.drawn, size: set.size, color: c.ink, ground: [c.bg] }, can: {} });
+		top = bottom(p.box) + F.m * 0.6;
+	}
+	const box = { x: F.live.x, y: top, w: F.live.w, h: bottom(F.live) - top };
+	const cut = Math.min(box.w, box.h) * 0.04;
+	const shape = `<path d="M${num(box.x + cut)} ${num(box.y)}H${num(box.x + box.w)}V${num(box.y + box.h)}H${num(box.x)}V${num(box.y + cut)}Z"/>`;
+	const shot = (i: number, opacity: number) => `<g opacity="${num(opacity, 4)}">${coverSvg(loadPicture(files[i]), box, `wk${i}`, shape)}</g>`;
+	layers.push({ id: 'picture', kind: 'key', box, can: {} });
+	return {
+		svg: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
+<title>${escapeXml(content.title ?? 'Walkthrough')}</title>
+<rect width="${W}" height="${H}" fill="${c.bg}"/>${head}${shot(at, 1)}${fade > 0 ? shot(at + 1, fade) : ''}<path d="M${num(box.x + cut)} ${num(box.y)}H${num(box.x + box.w)}V${num(box.y + box.h)}H${num(box.x)}V${num(box.y + cut)}Z" fill="none" stroke="${c.ink}" stroke-opacity="0.32" stroke-width="2"/>
+</svg>
+`,
+		layers,
+	};
+}
+
 export function videoFrame(format: VideoFormatId, template: VideoTemplateId, theme: string, content: VideoContent, index: number, frameCount: number, seed?: number): VideoFrame {
+	if (template === 'lower-third') return lowerThird(format, theme, content, frameProgress(index, frameCount));
+	if (template === 'walkthrough') return walkthrough(format, theme, content, index, frameCount);
 	if (template === 'poster') return posterFrame(format, theme, content, frameProgress(index, frameCount), seed);
 	const colors = paletteFor(theme);
 	const faces = loadFaces();

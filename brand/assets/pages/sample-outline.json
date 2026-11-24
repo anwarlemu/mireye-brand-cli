@@ -1,0 +1,14 @@
+{
+	"$comment": "A sample outline for design page compose. Acme is a stand-in; every word here is the outline's own.",
+	"title": "Acme land desk",
+	"sections": [
+		{ "type": "header", "copy": { "sign-in": "Sign in", "action": "Start", "action-href": "/start" }, "items": [{ "label": "Docs", "href": "/docs" }, { "label": "Pricing", "href": "/pricing" }] },
+		{ "type": "hero", "copy": { "title": "Every parcel, cited.", "description": "Ask about any place and get facts with their sources.", "primary": "Start", "secondary": "Read the docs", "secondary-href": "/docs" } },
+		{ "type": "stats", "copy": { "title": "What one call returns" }, "items": [{ "value": "600", "unit": "fields", "description": "about one place" }, { "value": "1", "unit": "call", "description": "for a whole list" }] },
+		{ "type": "steps", "copy": { "title": "How it works" }, "items": [{ "title": "Ask", "description": "Send a place." }, { "title": "Read", "description": "Get cited facts." }] },
+		{ "type": "testimonial", "copy": { "quote": "We screen a county overnight now.", "name": "Alex Doe", "role": "Head of land", "company": "Acme" } },
+		{ "type": "faq", "items": [{ "question": "Is every value cited?", "answer": "Yes, each links to its source." }] },
+		{ "type": "cta", "copy": { "title": "Try it on your next site.", "primary": "Start" } },
+		{ "type": "footer", "copy": { "legal": "Acme, 2026" }, "items": [{ "column": "Product", "label": "Docs", "href": "/docs" }] }
+	]
+}

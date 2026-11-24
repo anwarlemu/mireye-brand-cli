@@ -21,6 +21,18 @@ export default function AssetsPage() {
         <Section title="Sizes and grounds" description="Every platform size: link preview, square, portrait, story, landscape, the X header, LinkedIn post, profile cover and page cover, YouTube channel art and thumbnail, email, profile picture, and any custom size. Words and the logo keep out of what each platform covers. Four grounds from the tokens: bone (the default), green, brown and black.">
           <ShotGrid entries={inGroup("sizes")} />
         </Section>
+        <Section title="Cards" description="Product and marketing layouts: a stat, an event, a price, two columns compared, a flow of steps, before and after, and line and donut charts. Built from the brand's type, cards, rules and diamonds.">
+          <ShotGrid entries={inGroup("cards")} />
+        </Section>
+        <Section title="Ads and more platforms" description="IAB display sizes, TikTok, Pinterest, the Facebook cover and a video-call background. Words keep out of what each platform lays over the picture.">
+          <ShotGrid entries={inGroup("ads")} />
+        </Section>
+        <Section title="Documents and icons" description="A one-pager, case study or report as a PDF of A4 or US Letter pages, and the favicon and app icon set.">
+          <ShotGrid entries={[...inGroup("documents"), ...inGroup("icons")]} />
+        </Section>
+        <Section title="Compose" description="Anything no template covers: the brand's blocks (headline, label, lockup, contours, window, drawings, picture, stat, card, list, chart, table, code, key, field, icon) placed on a grid of the canvas at any size. Every template can be rebuilt from them.">
+          <ShotGrid entries={inGroup("compose")} />
+        </Section>
         <Section title="Sheets" description="The cut-frame sheet: one hairline frame with the brand's cut corner, the lockup, a mono footer and its tick row. Every size and ground; on banners the words sit beside the lockup.">
           <ShotGrid entries={inGroup("sheets")} cols="sm:grid-cols-2" />
         </Section>

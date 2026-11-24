@@ -5,7 +5,7 @@ import { unknownName } from '../lib/names.js';
 import { pkgPath } from '../lib/paths.js';
 
 export type SizeInfo = { width: number; height: number; use: string; aliases: string[]; shown: number; avoid: Zone[]; safe?: Zone };
-type SizesDoc = { extra: Record<string, { width: number; height: number; use: string; aliases: string[]; shown: number }>; aliases: Record<string, string>; custom: { min: number; max: number } };
+type SizesDoc = { extra: Record<string, { width: number; height: number; use: string; aliases: string[]; shown: number; avoid?: Zone[]; safe?: Zone }>; aliases: Record<string, string>; custom: { min: number; max: number } };
 const sizesDoc = (): SizesDoc => (JSON.parse(readFileSync(pkgPath('brand', 'assets', 'image.json'), 'utf8')) as { sizes: SizesDoc }).sizes;
 
 /** Pixel sizes agents ask for by name: the shared platform sizes and this brand's extras. The numbers are the export size, one pixel per unit. */
@@ -17,7 +17,7 @@ export const FORMATS: Record<string, SizeInfo> = (() => {
 		const taken = p.aliases.filter((a) => !(a in doc.aliases));
 		out[p.id] = { width: p.width, height: p.height, use: p.label, aliases: [...taken, ...own(p.id)], shown: p.shown, avoid: p.avoid, safe: p.safe };
 	}
-	for (const [id, e] of Object.entries(doc.extra)) out[id] = { ...e, avoid: [] };
+	for (const [id, e] of Object.entries(doc.extra)) out[id] = { ...e, avoid: e.avoid ?? [] };
 	return out;
 })();
 
@@ -84,7 +84,7 @@ export const TEMPLATES = {
 
 export type TemplateId = keyof typeof TEMPLATES;
 
-export type ContentKey = 'title' | 'subtitle' | 'kicker' | 'quote' | 'attribution' | 'image' | 'footer' | 'callout' | 'chart' | 'partner' | 'scene' | 'labels' | 'question' | 'suggestions' | 'place' | 'page';
+export type ContentKey = 'title' | 'subtitle' | 'kicker' | 'quote' | 'attribution' | 'image' | 'footer' | 'callout' | 'chart' | 'partner' | 'scene' | 'labels' | 'question' | 'suggestions' | 'place' | 'page' | 'stat' | 'date' | 'speaker' | 'price' | 'items' | 'steps' | 'left' | 'right' | 'before' | 'after' | 'images';
 
 export type ImageContent = Partial<Record<ContentKey, string>>;
 
@@ -101,14 +101,30 @@ const LIMITS: Record<ContentKey, number> = {
 	partner: 40,
 	scene: 32,
 	labels: 60,
+	stat: 16,
+	date: 60,
+	speaker: 80,
+	price: 32,
+	items: 300,
+	steps: 200,
+	left: 240,
+	right: 240,
+	before: 4096,
+	after: 4096,
+	images: 16384,
 	question: 120,
 	suggestions: 240,
 	place: 40,
 	page: 8,
 };
 
+/** Fields that are a file path or a name, not words. */
+export const FILES = new Set<string>(['image', 'scene', 'before', 'after', 'images']);
+/** Fields that are not copy: files, names and the page number. */
+export const NOT_COPY = new Set<string>([...FILES, 'page']);
+
 /** The flag people pass for a field: the shared names first. */
-export const FLAG: Record<ContentKey, string> = { title: 'headline', subtitle: 'body', kicker: 'badge', quote: 'quote', attribution: 'attribution', image: 'image', footer: 'footer', callout: 'callout', chart: 'chart', partner: 'partner', scene: 'scene', labels: 'labels', question: 'question', suggestions: 'suggestions', place: 'place', page: 'page' };
+export const FLAG: Record<ContentKey, string> = { title: 'headline', subtitle: 'body', kicker: 'badge', quote: 'quote', attribution: 'attribution', image: 'image', footer: 'footer', callout: 'callout', chart: 'chart', partner: 'partner', scene: 'scene', labels: 'labels', question: 'question', suggestions: 'suggestions', place: 'place', page: 'page', stat: 'stat', date: 'date', speaker: 'speaker', price: 'price', items: 'items', steps: 'steps', left: 'left', right: 'right', before: 'before', after: 'after', images: 'images' };
 
 /** The shared names for this brand's older field names, in content files. */
 const FIELD_ALIASES: Record<string, ContentKey> = { headline: 'title', body: 'subtitle', badge: 'kicker' };
@@ -223,9 +239,9 @@ export function cleanContent(input: unknown, allowed?: readonly ContentKey[]): I
 		if (!allowSet.has(key)) throw new Error(`Unknown field "${name}". Fields: ${allow.map((k) => FLAG[k] ?? k).join(', ')}.`);
 		if (value === undefined || value === null || value === '') continue;
 		if (typeof value !== 'string') throw new Error(`${FLAG[key as ContentKey] ?? key} must be a string.`);
-		const text = key === 'image' || key === 'scene' ? value.trim() : value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').trim();
+		const text = FILES.has(key) ? value.trim() : value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').trim();
 		if (!text) continue;
-		if ([...text].length > LIMITS[key as ContentKey]) throw new Error(`${FLAG[key as ContentKey]} is longer than ${LIMITS[key as ContentKey]} characters.`);
+		if ([...text].length > LIMITS[key as ContentKey]) throw new Error(`${FLAG[key as ContentKey]} is too long: at most ${LIMITS[key as ContentKey]} characters. Shorten it.`);
 		if (key === 'page' && !/^\d{1,2}\s*\/\s*\d{1,2}$/.test(text)) throw new Error('page is this picture and how many there are, like 2/5.');
 		out[key as ContentKey] = text;
 	}
@@ -259,7 +275,7 @@ export function requireContent(template: string, content: ImageContent, size?: s
 		const holds = templateIds().filter((id) => extra.every((key) => [...templateFields(id).required, ...templateFields(id).optional].includes(key)));
 		throw new Error(`${template} draws no ${extra.map((key) => FLAG[key]).join(' or ')}.${holds.length ? ` These do: ${holds.join(', ')}.` : ''}`);
 	}
-	const missing = required.filter((key) => !content[key] && !(sample && key === 'image'));
+	const missing = required.filter((key) => !content[key] && !(sample && FILES.has(key)));
 	if (missing.length) throw new Error(`${template} needs ${missing.map((key) => `--${FLAG[key]}`).join(' and ')}.`);
 	if (size === 'avatar' && content.page) throw new Error('avatar holds the mark alone.');
 }
@@ -276,7 +292,11 @@ export function isTemplate(value: string): value is TemplateId {
 export const SHEET_SAMPLES = (): Record<string, Record<string, string>> => (JSON.parse(readFileSync(pkgPath('brand', 'assets', 'image.json'), 'utf8')) as { sheets: Record<string, Record<string, string>> }).sheets;
 
 /** The sizes a template draws at. A profile picture holds the mark alone. */
-export const sizesFor = (template: string): string[] => [...Object.keys(FORMATS).filter((id) => id !== 'avatar' || template === 'identity'), 'custom'];
+/** Sizes a template draws at: the profile picture holds only the mark, a video-call background only the backdrop (the
+ * person sits in the middle of it), and a business card or an email signature the lockup (merch and email make the
+ * real ones; compose takes any size). */
+const ONLY: Record<string, string[]> = { avatar: ['identity'], meeting: ['backdrop'], 'business-card': ['identity', 'backdrop'], 'email-signature': ['identity'] };
+export const sizesFor = (template: string): string[] => [...Object.keys(FORMATS).filter((id) => !ONLY[id] || ONLY[id]!.includes(template)), 'custom'];
 
 export const EXPORTS = ['png', 'svg', 'jpg', 'webp', 'pdf'] as const;
 export type ExportKind = (typeof EXPORTS)[number];

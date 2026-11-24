@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { cleanSlide, slideDraw } from '../src/deck/slides.js';
 import { checkDesign, errorsOf, type DesignDoc, type DrawnLayer, type TemplateInfo } from '../src/design/index.js';
 import { adapter, wordColors } from '../src/design/adapter.js';
-import { cleanContent, FLAG, FORMATS, sizeOf, sizesFor, templateFields, templateIds, type ContentKey, type ImageContent } from '../src/image/catalog.js';
+import { cleanContent, FLAG, NOT_COPY, FORMATS, sizeOf, sizesFor, templateFields, templateIds, type ContentKey, type ImageContent } from '../src/image/catalog.js';
 import { frameOf, meets, within } from '../src/image/layers.js';
 import { posterFloors } from '../src/image/poster.js';
 import { drawImage } from '../src/image/render.js';
@@ -30,15 +30,15 @@ writeFileSync(picture, png('<svg xmlns="http://www.w3.org/2000/svg" width="640" 
 
 type Copy = Partial<Record<ContentKey, string>>;
 const COPIES: Record<string, Copy> = {
-	short: { title: 'One call, every parcel', subtitle: 'Ownership, flood and terrain.', kicker: 'New', quote: 'It read every parcel.', attribution: 'Head of data, Acme', callout: '38.6 ac\n37.54, -77.43', chart: 'Sites | 138\nParcels | 64\nGrid | 42', partner: 'Acme', labels: 'A | B | C' },
-	long: { title: 'Everything your agents need to search, buy and reply in one place', subtitle: 'One API to connect your agents to physical world data, enrichment, tools and signals, with every field cited.', kicker: 'Announcement for teams', quote: 'We sent hundreds of locations in one call, and one bad address did not fail the rest of them.', attribution: 'Head of data and infrastructure, Acme', callout: 'Central Iowa field station\n41.9000, -93.5000', chart: 'data_center_siting | 138\nsite_selection | 64\nutilities | 42\ngrid_interconnect | 38', partner: 'Acme Holdings' },
-	word: { title: 'Grundstücksverkehrsgenehmigungszuständigkeitsübertragungsverordnung', quote: 'Grundstücksverkehrsgenehmigungszuständigkeitsübertragungsverordnung', chart: 'A | 1', partner: 'Acme' },
-	odd: { title: '"Quotes" & <tags> don’t break: 50% of “it”', subtitle: 'Ça va; Ж & Ω, 5 × 3 − 2', quote: 'R&D said "no"', chart: 'R&D <x> | 1,200\nOps | 0', partner: 'A&B' },
-	most: { title: 'A headline that keeps going on and on until it reaches the limit of the field, which is one hundred and sixty characters, and here it is at last, the end of it', subtitle: 'A long supporting line, as when someone pastes a whole paragraph in the box for a single line, which people do all of the time, no matter how often they are told that it is meant to be one short line.', quote: 'A long quote. '.repeat(20).trim(), chart: 'One | 1\nTwo | 2\nThree | 3\nFour | 4\nFive | 5\nSix | 6\nSeven | 7\nEight | 8', partner: 'Acme International Land Holdings' },
+	short: { stat: '138', date: '12 March 2027', speaker: 'Head of data, Acme', price: '$49', items: 'Every field cited | Batch calls', steps: 'Ask | Locate | Cite', left: 'Before | Days', right: 'After | Seconds', title: 'One call, every parcel', subtitle: 'Ownership, flood and terrain.', kicker: 'New', quote: 'It read every parcel.', attribution: 'Head of data, Acme', callout: '38.6 ac\n37.54, -77.43', chart: 'Sites | 138\nParcels | 64\nGrid | 42', partner: 'Acme', labels: 'A | B | C' },
+	long: { stat: '1,000,000+', date: 'Thursday 12 March 2027, 17:00 to 18:00 CET', speaker: 'Head of data and infrastructure, Acme', price: '$1,490 a month', items: 'Every field cited to its source | Hundreds of locations in one call | MCP tools for any agent', steps: 'Ask a question | Find the parcel | Cite every field | Answer the agent', left: 'Before | Manual lookups across ten sites | Days of work', right: 'After | One call with every field cited | Seconds', title: 'Everything your agents need to search, buy and reply in one place', subtitle: 'One API to connect your agents to physical world data, enrichment, tools and signals, with every field cited.', kicker: 'Announcement for teams', quote: 'We sent hundreds of locations in one call, and one bad address did not fail the rest of them.', attribution: 'Head of data and infrastructure, Acme', callout: 'Central Iowa field station\n41.9000, -93.5000', chart: 'data_center_siting | 138\nsite_selection | 64\nutilities | 42\ngrid_interconnect | 38', partner: 'Acme Holdings' },
+	word: { stat: '7', date: 'Today', price: '$1', steps: 'Grundstücksverkehrsgenehmigung | Zuständigkeitsübertragung', left: 'A | B', right: 'C | D', title: 'Grundstücksverkehrsgenehmigungszuständigkeitsübertragungsverordnung', quote: 'Grundstücksverkehrsgenehmigungszuständigkeitsübertragungsverordnung', chart: 'A | 1', partner: 'Acme' },
+	odd: { title: '"Quotes" & <tags> don’t break: 50% of “it”', subtitle: 'Ça va; Ж & Ω, 5 × 3 − 2', quote: 'R&D said "no"', chart: 'R&D <x> | 1,200\nOps | 0', partner: 'A&B', stat: '50%', date: '12/03 & 13/03', speaker: 'R&D, “Acme”', price: '$5 & up', items: 'R&D | <Ops>', steps: 'R&D | “Ops”', left: 'A&B | <x>', right: 'C&D | “y”' },
+	most: { title: 'A headline that keeps going on and on until it reaches the limit of the field, which is one hundred and sixty characters, and here it is at last, the end of it', subtitle: 'A long supporting line, as when someone pastes a whole paragraph in the box for a single line, which people do all of the time, no matter how often they are told that it is meant to be one short line.', quote: 'A long quote. '.repeat(20).trim(), chart: 'One | 1\nTwo | 2\nThree | 3\nFour | 4\nFive | 5\nSix | 6\nSeven | 7\nEight | 8', partner: 'Acme International Land Holdings', stat: '1,000,000,000+', date: 'Thursday 12 March 2027, from 17:00 to 18:00 Central European Time', speaker: 'Head of data and infrastructure, and of everything else, at Acme', price: '$1,490 a month, billed every year', items: 'One | Two | Three | Four | Five | Six | Seven | Eight', steps: 'One | Two | Three | Four | Five | Six', left: 'Before | One | Two | Three | Four', right: 'After | One | Two | Three | Four' },
 };
 
 const docFor = (template: string, size: { id: string; width: number; height: number }, content: ImageContent): DesignDoc =>
-	({ version: 1, brand: '', kind: 'image', template, size, copy: Object.fromEntries(Object.entries(content).filter(([k]) => !['image', 'scene', 'page'].includes(k)).map(([k, v]) => [FLAG[k as ContentKey], v!])), images: {}, options: {}, layers: {}, history: [], future: [] }) as DesignDoc;
+	({ version: 1, brand: '', kind: 'image', template, size, copy: Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_COPY.has(k)).map(([k, v]) => [FLAG[k as ContentKey], v!])), images: {}, options: {}, layers: {}, history: [], future: [] }) as DesignDoc;
 const errors = (doc: DesignDoc, layers: DrawnLayer[]) => errorsOf(checkDesign({ doc, info: {} as TemplateInfo, layers, adapter: { colors: wordColors } })).map((e) => `${e.rule}: ${e.message}`);
 
 describe('words are never lost', () => {
@@ -51,8 +51,9 @@ describe('words are never lost', () => {
 					const size = id === 'custom' ? sizeOf('custom', 900, 1400) : sizeOf(id);
 					const f = templateFields(template);
 					const content: ImageContent = {};
-					for (const key of [...f.required, ...f.optional]) if (key === 'image') content.image = picture;
+					for (const key of [...f.required, ...f.optional]) if (key === 'image' || key === 'before' || key === 'after') content[key] = picture;
 						else if (copy[key]) content[key] = copy[key];
+					if (template === 'split' && content.labels) content.labels = 'Before | After';
 					try {
 						const d = drawImage({ template, size, content });
 						problems.push(...errors(docFor(template, size, content), d.layers).map((e) => `${template} ${id} ${name} ${e}`));
@@ -62,7 +63,9 @@ describe('words are never lost', () => {
 						drawn++;
 					} catch (error) {
 						expect((error as Error).message, `${template} ${id} ${name}`).toMatch(REFUSED);
-						expect(name, `${template} refuses ${name} copy at ${id}: ${(error as Error).message}`).not.toBe(template === 'app' || template === 'parcels' || template === 'frame' ? '' : 'short');
+						// Strip ads (a 50 or 90 px tall banner) and pins (shown about 236 px wide, so type is large) hold a few words
+						// at most: they may refuse any copy.
+						if (size.height > 120 && (FORMATS[id]?.shown ?? 1e9) >= 300) expect(name, `${template} refuses ${name} copy at ${id}: ${(error as Error).message}`).not.toBe(template === 'app' || template === 'parcels' || template === 'frame' ? '' : 'short');
 					}
 				}
 			expect(problems.join('\n')).toBe('');
@@ -72,7 +75,7 @@ describe('words are never lost', () => {
 	it('keeps every word of the headline the audit lost', () => {
 		const title = 'Everything your agents need to search, buy and reply in one place';
 		for (const template of ['headline', 'announcement', 'subtext'])
-			for (const size of Object.keys(FORMATS).filter((id) => id !== 'avatar')) {
+			for (const size of Object.keys(FORMATS).filter((id) => id !== 'avatar' && FORMATS[id]!.height > 120)) {
 				const l = drawImage({ template, size: sizeOf(size), content: { title, ...(template === 'subtext' ? { subtitle: 'x' } : {}) } }).layers.find((x) => x.id === 'headline')!;
 				expect(l.text!.drawn, `${template} ${size}`).toBe(title);
 			}
@@ -105,7 +108,7 @@ describe('nothing is invented, nothing is ignored', () => {
 		for (const template of templateIds()) {
 			const f = templateFields(template);
 			const content: ImageContent = {};
-			for (const key of f.required) content[key] = key === 'image' ? picture : COPIES.short[key];
+			for (const key of f.required) content[key] = key === 'image' || key === 'before' || key === 'after' ? picture : COPIES.short[key];
 			const d = drawImage({ template, size: sizeOf('og'), content });
 			for (const l of d.layers) if (l.text && !l.text.own) expect(Object.values(content).join(' '), `${template} ${l.id}`).toContain(l.text.asked.split(/[|\n]/)[0]!.split(' ')[0]!);
 			expect(errors(docFor(template, sizeOf('og'), content), d.layers)).toEqual([]);
@@ -252,8 +255,9 @@ describe('the logo keeps its clear space', () => {
 			const anchorsOf = (id: string) => can.find((l) => l.id === id)?.can.anchors ?? [];
 			const f = templateFields(template);
 			const content: ImageContent = {};
-			for (const key of [...f.required, ...f.optional]) if (key === 'image') content.image = picture;
+			for (const key of [...f.required, ...f.optional]) if (key === 'image' || key === 'before' || key === 'after') content[key] = picture;
 				else if (COPIES.short[key]) content[key] = COPIES.short[key];
+			if (template === 'split') content.labels = 'Before | After';
 			const edits: Record<string, object>[] = [{}, ...anchorsOf('logo').map((anchor) => ({ logo: { anchor } })), ...anchorsOf('headline').map((anchor) => ({ headline: { anchor } })), ...anchorsOf('logo').map((anchor) => ({ logo: { anchor }, headline: { scale: 1.2 } }))];
 			for (const id of ['og', 'x-banner', 'story'])
 				for (const e of edits) {
@@ -273,4 +277,82 @@ describe('the logo keeps its clear space', () => {
 		}
 		expect(problems.join('\n')).toBe('');
 	}, 300000);
+});
+
+describe('everything else the CLI makes', () => {
+	it('writes the favicon set, the app icon and the interface icons', () => {
+		const out = temp();
+		expect(run(['icons', 'favicon', '--out', out, '--json']).status).toBe(0);
+		expect(readdirSync(out).sort()).toEqual(['apple-touch-icon.png', 'favicon-16.png', 'favicon-32.png', 'favicon.ico', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'icon.svg', 'site.webmanifest']);
+		expect(readFileSync(join(out, 'favicon.ico')).readUInt16LE(4)).toBe(2);
+		const set = temp();
+		expect(run(['icons', 'set', '--out', set, '--color', 'text-default']).status).toBe(0);
+		const icons = JSON.parse(readFileSync(join(set, 'icons.json'), 'utf8')).icons as { name: string; licence: string }[];
+		expect(icons.length).toBeGreaterThan(20);
+		for (const icon of icons) expect(icon.licence).toMatch(/MIT|the brand/);
+		expect(readFileSync(join(set, 'parcel.svg'), 'utf8')).not.toContain('currentColor');
+	}, 60000);
+
+	it('lays out a document over pages without cutting a word, and refuses what it cannot draw', () => {
+		const out = temp();
+		const doc = join(out, 'doc.json');
+		writeFileSync(doc, JSON.stringify({ size: 'letter', cover: true, title: 'A report', blocks: [{ heading: 'One' }, { text: 'word '.repeat(900).trim() }, { stats: '1 call | 138 fields' }, { quote: 'It worked.', attribution: 'Head of data, Acme' }] }));
+		const r = run(['document', '--input', doc, '--out', out, '--json']);
+		expect(r.status, r.out).toBe(0);
+		expect(r.data().pages).toBeGreaterThan(2);
+		expect(readFileSync(join(out, 'document.pdf')).toString('latin1')).toMatch(/\/MediaBox \[0 0 612 792\]/);
+		writeFileSync(doc, JSON.stringify({ title: 'x', blocks: [{ text: 'a', color: 'red' }] }));
+		expect(run(['document', '--input', doc, '--json']).data().error).toMatch(/does not take color/);
+	}, 60000);
+
+	it('writes every email kind, and refuses fields a kind does not take', () => {
+		const out = temp();
+		for (const kind of ['newsletter', 'announcement', 'receipt', 'password-reset', 'signature']) {
+			expect(run(['email', kind, '--sample', '--out', out]).status, kind).toBe(0);
+			const html = readFileSync(join(out, `${kind}.html`), 'utf8');
+			expect(html).not.toMatch(/<script|<style|class=/);
+		}
+		const bad = join(out, 'bad.json');
+		writeFileSync(bad, JSON.stringify({ headline: 'x', body: 'y', price: '$1' }));
+		expect(run(['email', 'announcement', '--input', bad, '--json']).data().error).toMatch(/draws no price/);
+		writeFileSync(bad, JSON.stringify({ headline: 'x', body: 'y', button: { label: 'Go', url: 'javascript:alert(1)' } }));
+		expect(run(['email', 'announcement', '--input', bad, '--json']).data().error).toMatch(/not a link/);
+		// A refusal writes nothing, not even the logo.
+		expect(existsSync(join(ROOT, '.ds', 'email'))).toBe(false);
+	}, 60000);
+
+	it('draws every print item, keeping words and logos in the safe area', () => {
+		for (const item of merchItems())
+			for (const variant of item.variants) {
+				const doc = merchSvg({ item, variant, slots: {}, sample: true });
+				const s = (item.bleed + item.safe) * PX_PER_IN;
+				const safe = { x: s, y: s, w: doc.widthPx - s * 2, h: doc.heightPx - s * 2 };
+				for (const l of doc.layers) if ((l.kind === 'text' || l.kind === 'logo') && !l.bleeds) expect(within(l.box, safe, 2), `${item.id} ${variant} ${l.id}`).toBe(true);
+			}
+		expect(() => merchSvg({ item: merchItems().find((i) => i.id === 'certificate')!, variant: 'bone', slots: {} })).toThrow(/needs --headline|needs --recipient/);
+	});
+
+	it('draws the agenda, team, timeline, gallery and questions slides', () => {
+		const slides = [
+			{ type: 'agenda', title: 'Agenda', items: 'One | Two | Three' },
+			{ type: 'team', title: 'Team', items: 'Engineering lead, Acme | Data lead, Acme' },
+			{ type: 'timeline', title: 'Next', items: 'Q1: Batch | Q2: Tools' },
+			{ type: 'gallery', title: 'Field', images: `${picture} | ${picture}` },
+			{ type: 'questions', title: 'Questions', url: 'example.com' },
+		];
+		for (const raw of slides) {
+			const d = slideDraw(cleanSlide(raw, 0));
+			expect(d.svg.length, raw.type).toBeGreaterThan(1000);
+			const doc = { ...docFor(`slide-${raw.type}`, { id: 'slide', width: 1920, height: 1080 }, {}), kind: 'slide', copy: Object.fromEntries(Object.entries(raw).filter(([k]) => !['type', 'images'].includes(k)).map(([k, v]) => [k === 'title' ? 'headline' : k, v])) } as DesignDoc;
+			expect(errors(doc, d.layers), raw.type).toEqual([]);
+		}
+	});
+
+	it('animates a lower third on a clear ground and a walkthrough of screenshots', () => {
+		const lt = videoFrame('landscape', 'lower-third', 'api', { title: 'Acme Person', subtitle: 'Head of data, Acme' }, 23, 24);
+		expect(lt.svg).not.toMatch(/<rect width="1920" height="1080"/);
+		expect(lt.layers.find((l) => l.id === 'headline')!.text!.drawn).toBe('Acme Person');
+		const wk = videoFrame('landscape', 'walkthrough', 'api', { images: `${picture} | ${picture}`, title: 'From question to answer' }, 0, 48);
+		expect(wk.svg).toContain('data:image/png;base64,');
+	});
 });

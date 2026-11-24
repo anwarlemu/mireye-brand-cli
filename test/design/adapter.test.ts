@@ -19,7 +19,7 @@ const copyFor = (long: boolean) => (t: TemplateInfo): Record<string, string> =>
 			if (id === 'chart') return [id, long ? 'data_center_siting | 138\nsite_selection | 64\nutilities | 42' : ROWS];
 			if (id === 'stat') return [id, long ? '1,000,000+' : '42%'];
 			if (id === 'partner') return [id, 'Acme'];
-			if (id === 'labels') return [id, 'A | B | C'];
+			if (id === 'labels') return [id, /split/.test(t.id) ? 'Before | After' : 'A | B | C'];
 			if (id === 'items') return [id, long ? 'Everything your agents need to search and reply | One bad address does not fail the rest | Every field cited' : 'Own it | Cite it'];
 			if (id === 'suggestions') return [id, 'Is it in a flood zone? | How steep is it?'];
 			if (id === 'place') return [id, '39.7, -104.9'];
@@ -40,7 +40,7 @@ async function plain(doc: DesignDoc): Promise<Uint8Array | undefined> {
 	const write = process.stdout.write.bind(process.stdout);
 	process.stdout.write = (() => true) as typeof process.stdout.write;
 	try {
-		await imageCommand(doc.template, { ...flags, size: doc.size.id, theme: doc.theme, ...(doc.images.picture ? { image: doc.images.picture } : {}), ...(doc.seed ? { seed: String(doc.seed) } : {}), format: 'png', out, name: 'plain', json: true });
+		await imageCommand(doc.template, { ...flags, size: doc.size.id, theme: doc.theme, ...(doc.images.picture ? { image: doc.images.picture } : {}), ...(doc.images.before ? { before: doc.images.before } : {}), ...(doc.images.after ? { after: doc.images.after } : {}), ...(doc.seed ? { seed: String(doc.seed) } : {}), format: 'png', out, name: 'plain', json: true });
 	} finally {
 		process.stdout.write = write;
 	}

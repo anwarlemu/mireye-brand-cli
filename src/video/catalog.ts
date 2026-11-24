@@ -28,16 +28,26 @@ export const VIDEO_TEMPLATES = {
 		required: ['title'],
 		optional: ['subtitle', 'footer'],
 	},
+	'lower-third': {
+		description: 'Lower third for video: a name (--headline) and a role (--body) in a solid bar with its corner cut, sliding in from the left on a transparent ground (APNG and WebM keep it clear; MP4 draws it on bone).',
+		required: ['title'],
+		optional: ['subtitle'],
+	},
+	walkthrough: {
+		description: 'Product walkthrough: your screenshots (--images, split by |) one after another in a cut frame, each held, then faded into the next, under an optional headline.',
+		required: ['images'],
+		optional: ['title'],
+	},
 	poster: {
 		description: 'Poster reveal. Any share-image layout (--poster window, parcels, scene, ...) uncovered left to right over its ground, as the website reveals its survey fills.',
 		required: ['poster'],
-		optional: ["title", "subtitle", "callout", "chart", "partner", "scene", "image", "labels", "question", "suggestions", "place"],
+		optional: ["title", "subtitle", "callout", "chart", "partner", "scene", "image", "labels", "question", "suggestions", "place", "stat", "date", "speaker", "price", "items", "steps", "left", "right", "before", "after"],
 	},
 } as const;
 
 export type VideoTemplateId = keyof typeof VIDEO_TEMPLATES;
 
-export type VideoExport = 'apng' | 'mp4' | 'webm' | 'png' | 'svg' | 'still';
+export type VideoExport = 'apng' | 'mp4' | 'webm' | 'gif' | 'png' | 'svg' | 'still';
 
 const BEZIER = /^cubic-bezier\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\)$/;
 
@@ -95,8 +105,8 @@ export function videoCatalog() {
 		formats: (Object.entries(VIDEO_FORMATS) as [VideoFormatId, (typeof VIDEO_FORMATS)[VideoFormatId]][]).map(([id, format]) => ({ id, width: format.width, height: format.height, ratio: format.ratio, use: format.use })),
 		templates: (Object.entries(VIDEO_TEMPLATES) as [VideoTemplateId, (typeof VIDEO_TEMPLATES)[VideoTemplateId]][]).map(([id, template]) => ({ id, description: template.description, required: template.required, optional: template.optional })),
 		themes: themes().map(({ id, label, default: isDefault }) => ({ id, label, default: isDefault })),
-		exports: ['apng', 'mp4', 'webm', 'png', 'svg', 'still'],
-		encoders: { mp4: 'ffmpeg libx264, yuv420p, faststart', webm: 'ffmpeg libvpx-vp9', note: 'mp4 and webm need ffmpeg on the PATH.' },
+		exports: ['apng', 'mp4', 'webm', 'gif', 'png', 'svg', 'still'],
+		encoders: { mp4: 'ffmpeg libx264, yuv420p, faststart', webm: 'ffmpeg libvpx-vp9 (keeps a transparent ground)', gif: 'ffmpeg, one palette for the whole clip', note: 'mp4, webm and gif need ffmpeg on the PATH.' },
 		motion: 'One eased progress per frame from --ds-easing-out (a strong ease-out), never ease-in: pieces arrive in order and settle on the last frame, then hold. Icons and the mark never move.',
 		timing: { fps: timing.fps, frameCount: timing.frameCount, durationMs: timing.durationMs, plays: timing.plays, durationToken: timing.durationToken, easingToken: timing.easingToken },
 		defaults: { theme: defaultTheme(), out: '.ds/videos', export: ['apng'], footer: defaultFooter() },

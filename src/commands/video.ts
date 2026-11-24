@@ -32,14 +32,14 @@ type Options = Partial<Record<ContentKey, string>> & {
 	json?: boolean;
 };
 
-const KINDS = new Set<VideoExport>(['apng', 'mp4', 'webm', 'png', 'svg', 'still']);
+const KINDS = new Set<VideoExport>(['apng', 'mp4', 'webm', 'gif', 'png', 'svg', 'still']);
 
 /** The shared size names a clip answers to. */
 const SIZES: Record<string, string> = { story: 'vertical', reel: 'vertical', portrait: 'vertical', youtube: 'landscape', 'x': 'landscape', '1:1': 'square', '9:16': 'vertical', '16:9': 'landscape' };
 
 function exportsOf(value: string | undefined, fallback = 'apng'): VideoExport[] {
 	const parts = (value ?? fallback).split(',').map((part) => part.trim()).filter(Boolean);
-	if (!parts.length || parts.some((part) => !KINDS.has(part as VideoExport))) throw new Error('--export is apng, mp4, webm, png, svg, still, or a comma-separated list of those.');
+	if (!parts.length || parts.some((part) => !KINDS.has(part as VideoExport))) throw new Error('--export is apng, mp4, webm, gif, png, svg, still, or a comma-separated list of those.');
 	return [...new Set(parts)] as VideoExport[];
 }
 
@@ -74,14 +74,14 @@ export async function videoCommand(opts: Options) {
 	if (look.ground && !isPoster) throw new Error('A ground is for the poster template; the sheet clips draw on bone.');
 	const fields = videoFields(opts.template);
 	const given: Partial<Record<ContentKey, string>> = {};
-	for (const key of ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'footer', 'callout', 'chart', 'partner', 'scene', 'image', 'labels', 'question', 'suggestions', 'place'] as ContentKey[]) if (opts[key]) given[key] = opts[key];
+	for (const key of ['title', 'subtitle', 'kicker', 'quote', 'attribution', 'footer', 'callout', 'chart', 'partner', 'scene', 'image', 'labels', 'question', 'suggestions', 'place', 'stat', 'date', 'speaker', 'price', 'items', 'steps', 'left', 'right', 'before', 'after', 'images'] as ContentKey[]) if (opts[key]) given[key] = opts[key];
 	if (opts.headline) given.title = opts.headline;
 	if (opts.body) given.subtitle = opts.body;
 	if (opts.badge) given.kicker = opts.badge;
 	const extra = (Object.keys(given) as ContentKey[]).filter((key) => !(fields as string[]).includes(key));
 	if (extra.length) throw new Error(`${opts.template} draws no ${extra.map((key) => FLAG[key]).join(' or ')}. It draws ${fields.map((key) => FLAG[key] ?? key).join(', ')}.`);
 	if (opts.poster && !isPoster) throw new Error('--poster goes with the poster template.');
-	const picked: ImageContent = { ...given, ...(given.image ? { image: resolve(given.image) } : {}) };
+	const picked: ImageContent = { ...given, ...(given.image ? { image: resolve(given.image) } : {}), ...(given.before ? { before: resolve(given.before) } : {}), ...(given.after ? { after: resolve(given.after) } : {}), ...(given.images ? { images: given.images.split('|').map((x) => resolve(x.trim())).join(' | ') } : {}) };
 	if (isPoster && opts.poster) (picked as Record<string, string>).poster = pickName('poster', opts.poster, posterIds());
 	let fileContent: ImageContent = {};
 	if (opts.content) {

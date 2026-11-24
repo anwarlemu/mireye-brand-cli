@@ -16,7 +16,7 @@ import { CopyError, fitOrFail, fitWords, glyphPaths, lineMetrics, loadFaces, mea
 
 type Align = 'left' | 'center' | 'right';
 
-export type PosterContent = { title?: string; subtitle?: string; image?: string; callout?: string; chart?: string; partner?: string; scene?: string; labels?: string; question?: string; suggestions?: string; place?: string; page?: string };
+export type PosterContent = { title?: string; subtitle?: string; image?: string; callout?: string; chart?: string; partner?: string; scene?: string; labels?: string; question?: string; suggestions?: string; place?: string; page?: string; stat?: string; date?: string; speaker?: string; price?: string; items?: string; steps?: string; left?: string; right?: string; before?: string; after?: string };
 
 export type GroundColors = { id: string; bg: string; ink: string; muted: string; window: string; windowInk: string; windowMuted: string; grid: string; gridAlpha: number; dark: boolean };
 
@@ -152,6 +152,8 @@ export function posterCan(template: string): Record<string, DrawnLayer['can']> {
 	const logo = { move: true, scale: [0.7, 2.5] as [number, number], hide: true, anchors: CORNERS };
 	const art = { move: true, scale: [0.4, 1.8] as [number, number], hide: true, anchors: ['right', 'left'] as NonNullable<DrawnLayer['can']['anchors']> };
 	switch (template) {
+		case 'backdrop':
+			return { pattern, art: { move: true, scale: [0.4, 1.6], hide: true, anchors: ['left', 'center', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'] }, logo };
 		case 'identity':
 			return { pattern, panel: { hide: true }, logo: { move: true, scale: [0.5, 2] } };
 		case 'window':
@@ -165,7 +167,22 @@ export function posterCan(template: string): Record<string, DrawnLayer['can']> {
 		case 'parcels':
 			return { pattern, art, labels: { hide: true }, callout: { hide: true }, logo, ...free };
 		case 'chart':
+		case 'line':
 			return { art: {}, chart: {}, logo, headline: free.headline };
+		case 'donut':
+			return { art, chart: {}, logo, ...free };
+		case 'stat':
+			return { art, stat: {}, logo, ...free };
+		case 'event':
+			return { art, date: {}, speaker: {}, logo, ...free };
+		case 'pricing':
+			return { art, price: {}, items: {}, logo, ...free };
+		case 'compare':
+			return { art, left: {}, right: {}, logo, ...free };
+		case 'flow':
+			return { art: { scale: art.scale, hide: true }, steps: {}, logo, ...free };
+		case 'split':
+			return { before: {}, after: {}, labels: { hide: true }, logo, ...free };
 		case 'app':
 			return { pattern, art, question: {}, suggestions: {}, place: {}, logo, ...free };
 		case 'panel':
@@ -224,6 +241,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 	const scaleOf = (id: string) => editOf(edits, id).scale ?? 1;
 	for (const [label, text] of Object.entries({ headline: content.title, 'line under it': content.subtitle })) if (text) requireGlyphs(f.sans, text, label);
 
+	const BLOCKS = new Set(['stat', 'event', 'pricing', 'compare', 'flow', 'split', 'donut']);
 	const avatar = req.size.id === 'avatar';
 	if (avatar && template !== 'identity') throw new LayoutError(`avatar holds the mark alone: use identity. ${template} has words, which no profile picture shows at a readable size.`);
 
@@ -418,6 +436,30 @@ export function posterDraw(req: PosterRequest): Drawing {
 		return finish(back.join('') + splitWindow(field, panel ? win : undefined) + nodes + front.join(''));
 	}
 
+	if (template === 'backdrop') {
+		// A ground for calls, desktops and phones: the contours, a drawing where nothing covers it, the mark in a corner.
+		const logo = cornerLogo(false, base0 * 0.04 * (MARK_H / LOCK_H), 'bottom-right', live);
+		if (logo) clear.push(inflate(logo.rect, clearOf(logo.mh)));
+		const zones = [...F.avoid.map((a) => inflate(a, 8 * u)), ...(logo ? [inflate(logo.rect, clearOf(logo.mh))] : [])];
+		if (!hidden('art')) {
+			const art = asArt(wireFor(doc.art.post));
+			const want = Math.min(live.w * 0.62, live.h * 0.7 / art.ratio);
+			const e = editOf(edits, 'art');
+			const target = anchored(live, want * (e.scale ?? 1), want * art.ratio * (e.scale ?? 1), e.anchor ?? (F.avoid.some((a) => a.w < W * 0.9) ? 'left' : 'center'));
+			const r = place(target, live, zones, 0.25, 0.5);
+			if (r) {
+				const at = moved('art', r);
+				art.draw(at);
+				report({ id: 'art', kind: 'art', box: at, over: ['pattern'] });
+				clear.push(at);
+			}
+		}
+		const field = pattern('dense', 0.8);
+		if (logo) drawLogo(logo, c.ink, ['pattern']);
+		reportPattern();
+		return finish(back.join('') + field + middle.join('') + front.join(''));
+	}
+
 	if (template === 'window' || template === 'tag') {
 		const tag = template === 'tag';
 		const cx = wide ? 0.29 : 0.12;
@@ -506,7 +548,9 @@ export function posterDraw(req: PosterRequest): Drawing {
 			live = { ...live, y: bottom(pageRect.at) + 12 * u, h: bottom(live) - bottom(pageRect.at) - 12 * u };
 			drawPage(c.ink, [c.bg], ['pattern']);
 		}
-		let mh = Math.max(F.mark, lockH * 1.1 * (MARK_H / LOCK_H)) * scaleOf('logo');
+		// The name is set from the mark's height: never so short that the name drops under the small-text floor.
+		const least = Math.max(F.mark, F.small / ((LOCK_H / MARK_H) * 0.72));
+		let mh = Math.max(least, lockH * 1.1 * (MARK_H / LOCK_H)) * scaleOf('logo');
 		const row = (h: number) => {
 			const kk = h / MARK_H;
 			const size = LOCK_H * kk * 0.72;
@@ -515,7 +559,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 			const times = 16 * kk;
 			return { lw, gap, times, size, pw: measure(f.medium, partner, size), total: lw + gap * 2 + times + measure(f.medium, partner, size) };
 		};
-		while (row(mh).total > live.w - pad && mh > F.mark) mh = Math.max(F.mark, mh * 0.95);
+		while (row(mh).total > live.w - pad && mh > least) mh = Math.max(least, mh * 0.95);
 		const r = row(mh);
 		if (r.total > live.w) throw new CopyError(`The partner name does not fit ${where}. Shorten it, or use a wider size.`);
 		const winH = Math.max(mh + Math.max(clearOf(mh), pad * 0.72) * 2, V.h * (banner ? 0.34 : tall ? 0.2 : 0.3));
@@ -577,7 +621,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 	const ink = photo && content.image ? tokenHex('--ds-color-bone', theme) : c.ink;
 
 	const wordLogo = template === 'panel';
-	const chartish = template === 'chart';
+	const chartish = template === 'chart' || template === 'line';
 	// The drawing on the left: the layout is mirrored, the words, the line and the mark on the other side.
 	const mirrored = editOf(edits, 'art').anchor === 'left' && !hidden('art');
 	const logo = cornerLogo(wordLogo, (wordLogo ? lockH : base0 * 0.034) * (MARK_H / LOCK_H), wordLogo || (template === 'app' && wide) ? (mirrored ? 'bottom-right' : 'bottom-left') : chartish ? 'top-right' : mirrored ? 'bottom-left' : 'bottom-right', live);
@@ -591,6 +635,14 @@ export function posterDraw(req: PosterRequest): Drawing {
 		photo: { col: wide ? 0.5 : 0.84, fit: wide ? 0.5 : 0.24, bodyW: wide ? 0.4 : 0.5, foot: !banner, most: wide ? 0.62 : 1 },
 		panel: { col: wide ? 0.42 : 0.8, fit: wide ? 0.6 : 0.3, bodyW: wide ? 0.36 : 0.6, foot: !wide, most: wide ? 0.54 : 1 },
 		chart: { col: banner ? 0.42 : wide ? 0.6 : 0.8, fit: wide ? 0.4 : 0.22, bodyW: 0.4, foot: false, most: banner ? 0.46 : 0.82 },
+		stat: { col: wide ? 0.42 : 0.8, fit: wide ? 0.6 : 0.3, bodyW: wide ? 0.38 : 0.6, foot: !banner, most: wide ? 0.5 : 1 },
+		event: { col: wide ? 0.46 : 0.84, fit: wide ? 0.6 : 0.3, bodyW: wide ? 0.4 : 0.6, foot: !banner, most: wide ? 0.54 : 1 },
+		pricing: { col: wide ? 0.44 : 0.84, fit: wide ? 0.6 : 0.26, bodyW: wide ? 0.4 : 0.6, foot: !banner, most: wide ? 0.52 : 1 },
+		compare: { col: wide ? 0.38 : 0.84, fit: wide ? 0.6 : 0.24, bodyW: wide ? 0.34 : 0.6, foot: !banner, most: wide ? 0.44 : 1 },
+		flow: { col: wide ? 0.6 : 0.84, fit: wide ? 0.4 : 0.24, bodyW: wide ? 0.5 : 0.6, foot: false, most: wide ? 0.7 : 1 },
+		split: { col: wide ? 0.6 : 0.84, fit: wide ? 0.34 : 0.22, bodyW: wide ? 0.5 : 0.6, foot: false, most: wide ? 0.7 : 1 },
+		line: { col: banner ? 0.42 : wide ? 0.6 : 0.8, fit: wide ? 0.4 : 0.22, bodyW: 0.4, foot: false, most: banner ? 0.46 : 0.82 },
+		donut: { col: wide ? 0.42 : 0.84, fit: wide ? 0.6 : 0.26, bodyW: wide ? 0.38 : 0.6, foot: !banner, most: wide ? 0.5 : 1 },
 		app: { col: wide ? 0.44 : 0.86, fit: wide ? 0.7 : 0.24, bodyW: wide ? 0.44 : 0.86, foot: false, middle: wide, size: wide ? 0.85 : 1, most: wide ? 0.54 : 1 },
 	};
 	const L = spec[template];
@@ -607,7 +659,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 	let footRect: Rect | undefined;
 	// On a banner with a covered lower corner the line goes to the foot beside that corner, so the headline keeps the
 	// room above it and the drawing keeps the right.
-	const cornered = banner && F.avoid.some((a) => a.x < live.x + live.w / 3 && bottom(a) > bottom(live) - 1) && ['post', 'scene', 'parcels', 'photo', 'panel'].includes(template);
+	const cornered = banner && F.avoid.some((a) => a.x < live.x + live.w / 3 && bottom(a) > bottom(live) - 1) && ['post', 'scene', 'parcels', 'photo', 'panel', 'stat', 'event', 'pricing', 'compare', 'donut'].includes(template);
 	const footed = Boolean(bodyText) && (L.foot || bodyFree || cornered);
 	if (footed && bodyText) {
 		// A banner is shown small: its line is set larger than the floor, and never smaller.
@@ -801,6 +853,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 		if (photo) return photoArt(at);
 		if (chartish) return chartArt();
 		if (template === 'app') return appArt(at);
+		if (BLOCKS.has(template)) return blockArt(at);
 		return undefined;
 	}
 
@@ -937,7 +990,7 @@ export function posterDraw(req: PosterRequest): Drawing {
 			const wideNum = rows.find((row) => measure(f.sans, row.text, numS, -0.02) > cw);
 			if (wideNum) return no(new CopyError(`The chart number "${wideNum.text}" does not fit its column in ${where}. Use fewer rows or a wider size.`));
 			const base = bottom(r) - labelH - size * 0.6;
-			const top = r.y + numS * 1.15;
+			const top = r.y + numS * 1.15 + (template === 'line' ? 8 * u : 0);
 			if (base - top < Math.max(12 * u, V.h * 0.12)) return no(new LayoutError(`The columns have no room in ${where}. Shorten the headline or the labels, or use a taller size.`));
 			return { r, cw, labels, size, numS, base, top };
 		};
@@ -958,29 +1011,351 @@ export function posterDraw(req: PosterRequest): Drawing {
 				const lw = Math.max(0.6, u * 0.9);
 				const bars: Rect[] = [];
 				const inks: Rect[] = [];
+				const points: [number, number][] = [];
 				let out = '';
 				rows.forEach((row, i) => {
 					const x = r.x + i * (cw + gapX);
 					const h = Math.max(4 * u, ((base - top) * row.value) / max);
 					const y = base - h;
-					out += `<rect x="${num(x)}" y="${num(y)}" width="${num(cw)}" height="${num(h)}" fill="none" stroke="${c.ink}" stroke-opacity="0.85" stroke-width="${num(lw, 3)}"/>`;
-					let hatch = '';
-					for (let yy = y + 8 * u; yy < base; yy += 8 * u) hatch += `M${num(x)} ${num(yy)}H${num(x + cw)}`;
-					if (hatch) out += `<path d="${hatch}" fill="none" stroke="${c.ink}" stroke-opacity="0.6" stroke-width="${num(lw, 3)}"/>`;
-					bars.push({ x, y, w: cw, h });
-					out += glyphPaths(f.sans, row.text, numS, x, y - numS * 0.22, c.ink, -0.02);
+					if (template === 'line') {
+						points.push([x + cw / 2, y]);
+						bars.push({ x: x + cw / 2 - 6 * u, y: y - 6 * u, w: 12 * u, h: base - y + 6 * u });
+					} else {
+						out += `<rect x="${num(x)}" y="${num(y)}" width="${num(cw)}" height="${num(h)}" fill="none" stroke="${c.ink}" stroke-opacity="0.85" stroke-width="${num(lw, 3)}"/>`;
+						let hatch = '';
+						for (let yy = y + 8 * u; yy < base; yy += 8 * u) hatch += `M${num(x)} ${num(yy)}H${num(x + cw)}`;
+						if (hatch) out += `<path d="${hatch}" fill="none" stroke="${c.ink}" stroke-opacity="0.6" stroke-width="${num(lw, 3)}"/>`;
+						bars.push({ x, y, w: cw, h });
+					}
+					const nx = template === 'line' ? x + (cw - measure(f.sans, row.text, numS, -0.02)) / 2 : x;
+					out += glyphPaths(f.sans, row.text, numS, nx, y - numS * 0.22 - (template === 'line' ? 8 * u : 0), c.ink, -0.02);
 					const nb = f.sans.layout(row.text).bbox;
 					const ns = numS / f.sans.unitsPerEm;
-					inks.push({ x, y: y - numS * 0.22 - nb.maxY * ns, w: measure(f.sans, row.text, numS, -0.02), h: (nb.maxY - nb.minY) * ns });
+					inks.push({ x: nx, y: y - numS * 0.22 - (template === 'line' ? 8 * u : 0) - nb.maxY * ns, w: measure(f.sans, row.text, numS, -0.02), h: (nb.maxY - nb.minY) * ns });
 					const p = placeWords(labels[i]!, x, base + size * 0.5, c.ink);
 					out += p.svg;
 					inks.push(...p.ink);
 				});
+				if (points.length) {
+					// The line through the points, the area under it hatched, a diamond at each point.
+					const line = points.map(([px, py], i) => `${i ? 'L' : 'M'}${num(px)} ${num(py)}`).join('');
+					const id = nextId('ln');
+					const area = `${line}L${num(points[points.length - 1][0])} ${num(base)}L${num(points[0][0])} ${num(base)}Z`;
+					let hatch = '';
+					for (let xx = r.x; xx < right(r); xx += 9 * u) hatch += `M${num(xx)} ${num(top - numS)}V${num(base)}`;
+					out += `<clipPath id="${id}"><path d="${area}"/></clipPath><path d="${hatch}" clip-path="url(#${id})" fill="none" stroke="${c.ink}" stroke-opacity="0.35" stroke-width="${num(lw * 0.8, 3)}"/>`;
+					out += `<path d="${line}" fill="none" stroke="${c.ink}" stroke-width="${num(Math.max(1, 1.6 * u), 3)}" stroke-linejoin="round"/>`;
+					for (const [px, py] of points) out += diamond(px, py, 6 * u, c.ink);
+				}
 				out += `<rect x="${num(banner ? r.x : 0)}" y="${num(base)}" width="${num(banner ? r.w : W)}" height="${num(Math.max(0.6, u))}" fill="${c.ink}" fill-opacity="0.4"/>`;
 				front.push(out);
 				report({ id: 'art', kind: 'art', box: unionOf(bars), ink: bars });
 				const words = rows.map((row) => `${row.label} ${row.text}`).join(' ');
 				report({ id: 'chart', kind: 'text', box: unionOf(inks), ink: inks, over: ['art'], text: { asked: words, drawn: rows.map((row, i) => `${labels[i]!.drawn} ${row.text}`).join(' '), size, color: c.ink, ground: [c.bg], sample: req.sample } });
+			},
+		};
+	}
+
+	/** Lines of a field split by |, or by new lines. */
+	function partsOf(text: string | undefined, label: string, most: number): string[] {
+		const list = (text ?? '').split(/\s*\|\s*|\n/).map((v) => v.trim()).filter(Boolean);
+		if (list.length > most) throw new CopyError(`${label} takes up to ${most} parts in ${template}, not ${list.length}.`);
+		return list;
+	}
+
+	/** The blocks of the card, stat, flow, compare, split and donut layouts: each laid out in the room it is given, or not at all. */
+	function blockArt(at: (cx: number, cy: number, w: number, h: number) => Rect) {
+		const S = Math.min(V.w, V.h);
+		const ratio: Record<string, number> = { stat: 0.42, event: 0.62, pricing: 0.9, compare: 0.62, flow: wide ? 0.3 : 1.4, split: wide ? 0.42 : 1.5, donut: wide ? 0.55 : 0.9 };
+		const share: Record<string, number> = { stat: 0.5, event: 0.42, pricing: 0.38, compare: 0.54, flow: 0.92, split: 0.92, donut: 0.5 };
+		const r0 = ratio[template];
+		const w0 = wide ? Math.min(share[template] * V.w, (0.84 * V.h) / r0) : S * (tall ? 0.9 : 0.84);
+		const under = template === 'flow' || template === 'split';
+		const grounds = { card: c.window, cardInk: c.windowInk, cardMuted: c.windowMuted };
+		const lw = Math.max(0.6, u);
+		type Out = { svg: string; layers: Omit<DrawnLayer, 'can'>[] };
+		const text = (id: string, asked: string, font: Font, size: number, min: number, x: number, y: number, maxW: number, maxH: number, color: string, ground: string, align: Align = 'left', lead = 1.2, maxLines?: number): { p: ReturnType<typeof placeWords>; set: Fitted; layer: Omit<DrawnLayer, 'can'> } | undefined => {
+			requireGlyphs(font, asked, id);
+			const set = fitWords(font, asked, { size, min: Math.min(size, min), maxWidth: maxW, maxHeight: maxH, maxLines, leading: lead });
+			if (!set) return undefined;
+			const p = placeWords(set, x, y, color, align, maxW);
+			return { p, set, layer: { id, kind: 'text', box: p.box, ink: p.ink, over: ['art', ...sits], text: { asked, drawn: set.drawn, size: set.size, color, ground: [ground], sample: req.sample } } };
+		};
+		const card = (r: Rect, filled: boolean) => {
+			const cut = Math.min(r.w, r.h) * 0.08;
+			return filled ? `<path d="${chamfer(r.x, r.y, r.w, r.h, cut)}" fill="${grounds.card}"/>` : `<path d="${chamfer(r.x + lw / 2, r.y + lw / 2, r.w - lw, r.h - lw, cut)}" fill="${c.bg}" stroke="${c.ink}" stroke-opacity="0.45" stroke-width="${num(lw, 3)}"/>`;
+		};
+		const join = (parts: { p: { svg: string }; layer: Omit<DrawnLayer, 'can'> }[], id: string, asked: string): Omit<DrawnLayer, 'can'> => {
+			const inks = parts.flatMap((x) => x.layer.ink ?? [x.layer.box]);
+			const first = parts[0].layer.text!;
+			return { id, kind: 'text', box: unionOf(inks), ink: inks, over: ['art', ...sits], text: { asked, drawn: parts.map((x) => x.layer.text!.drawn).join(' '), size: Math.min(...parts.map((x) => x.layer.text!.size)), color: first.color, ground: first.ground, sample: req.sample } };
+		};
+		const build = (r: Rect): Out | undefined => {
+			const pad = Math.max(12 * u, Math.min(r.w, r.h) * 0.08);
+			const inner = inflate(r, -pad);
+			const out: Out = { svg: '', layers: [] };
+			if (template === 'stat') {
+				const n = content.stat!;
+				requireGlyphs(f.sans, n, 'stat');
+				let size = Math.min(r.h * 0.8, 400 * k);
+				while (measure(f.sans, n, size, -0.02) > r.w && size > F.large) size *= 0.95;
+				if (measure(f.sans, n, size, -0.02) > r.w) return undefined;
+				const set = setAt(f.sans, n, size, { size, min: size, maxWidth: r.w, leading: 1, tracking: -0.02 }, false)!;
+				const tickH = Math.max(8 * u, size * 0.12);
+				const p = placeWords(set, r.x, r.y + (r.h - set.height - tickH * 2) / 2, c.ink);
+				let ticks = '';
+				const count = Math.max(12, Math.floor(set.width / (8 * u)));
+				for (let i = 0; i < count; i++) ticks += `<rect x="${num(r.x + (i * set.width) / count)}" y="${num(bottom(p.box) + tickH)}" width="${num(lw)}" height="${num(tickH)}" fill="${c.ink}"/>`;
+				out.svg = p.svg + ticks;
+				out.layers.push({ id: 'stat', kind: 'text', box: p.box, ink: p.ink, over: sits, text: { asked: n, drawn: set.drawn, size: set.size, color: c.ink, ground: [c.bg], sample: req.sample } });
+				out.layers.push({ id: 'art', kind: 'art', box: { x: r.x, y: bottom(p.box) + tickH, w: set.width, h: tickH }, over: sits });
+				return out;
+			}
+			if (template === 'event' || template === 'pricing') {
+				const ev = template === 'event';
+				const big = ev ? content.date! : content.price!;
+				const bigSize = Math.min(inner.h * 0.3, 64 * k);
+				const top = text(ev ? 'date' : 'price', big, ev ? f.mono : f.sans, bigSize, F.small * 1.3, inner.x, inner.y, inner.w, inner.h * 0.45, ev ? grounds.cardInk : c.ink, ev ? grounds.card : c.bg, 'left', 1.15);
+				if (!top) return undefined;
+				out.svg = card(r, ev) + top.p.svg;
+				out.layers.push(top.layer);
+				let y = bottom(top.p.box) + pad * 0.7;
+				out.svg += `<rect x="${num(inner.x)}" y="${num(y)}" width="${num(inner.w)}" height="${num(lw)}" fill="${ev ? grounds.cardInk : c.ink}" fill-opacity="0.4"/>`;
+				y += pad * 0.7;
+				if (ev && content.speaker) {
+					const sp = text('speaker', content.speaker, f.sans, Math.max(F.small, bigSize * 0.5), F.small, inner.x, y, inner.w, bottom(inner) - y, grounds.cardMuted, grounds.card, 'left', 1.3);
+					if (!sp) return undefined;
+					out.svg += sp.p.svg;
+					out.layers.push(sp.layer);
+				}
+				if (!ev && content.items) {
+					const list = partsOf(content.items, 'items', 8);
+					const size0 = Math.max(F.small, bigSize * 0.6);
+					for (let size = size0; size >= F.small; size *= 0.94) {
+						let yy = y;
+						const rows: { p: ReturnType<typeof placeWords>; layer: Omit<DrawnLayer, 'can'> }[] = [];
+						let marks = '';
+						let ok = true;
+						for (const item of list) {
+							const t = text('items', item, f.sans, size, size, inner.x + size * 1.3, yy, inner.w - size * 1.3, bottom(inner) - yy, c.ink, c.bg, 'left', 1.3);
+							if (!t) {
+								ok = false;
+								break;
+							}
+							marks += diamond(inner.x + size * 0.4, yy + t.set.line / 2, size * 0.24, c.ink);
+							rows.push(t);
+							yy += t.set.height + size * 0.5;
+						}
+						if (ok) {
+							out.svg += marks + rows.map((x) => x.p.svg).join('');
+							out.layers.push(join(rows, 'items', content.items));
+							break;
+						}
+						if (size * 0.94 < F.small) return undefined;
+					}
+				}
+				out.layers.unshift({ id: 'art', kind: 'panel', box: r, over: sits });
+				return out;
+			}
+			if (template === 'compare') {
+				const cols = [partsOf(content.left, 'left', 6), partsOf(content.right, 'right', 6)];
+				if (cols.some((x) => !x.length)) throw new CopyError('compare needs words in --left and --right.');
+				const gap = pad * 0.6;
+				const cw = (r.w - gap) / 2;
+				out.svg = '';
+				for (const [i, list] of cols.entries()) {
+					const box = { x: r.x + i * (cw + gap), y: r.y, w: cw, h: r.h };
+					const filled = i === 1;
+					const ink = filled ? grounds.cardInk : c.ink;
+					const ground = filled ? grounds.card : c.bg;
+					const inn = inflate(box, -pad * 0.8);
+					let fitted: { p: ReturnType<typeof placeWords>; layer: Omit<DrawnLayer, 'can'> }[] | undefined;
+					let marks = '';
+					for (let size = Math.max(F.small, Math.min(inn.h / (list.length * 2.2), 40 * k)); size >= F.small; size *= 0.94) {
+						let yy = inn.y;
+						const rows: { p: ReturnType<typeof placeWords>; layer: Omit<DrawnLayer, 'can'> }[] = [];
+						marks = '';
+						let ok = true;
+						for (const [n, item] of list.entries()) {
+							const head = n === 0;
+							const x = head ? inn.x : inn.x + size * 1.2;
+							const t = text(filled ? 'right' : 'left', item, head ? f.medium : f.sans, head ? size * 1.15 : size, head ? size * 1.15 : size, x, yy, inn.w - (x - inn.x), bottom(inn) - yy, ink, ground, 'left', 1.25);
+							if (!t) {
+								ok = false;
+								break;
+							}
+							if (!head) marks += diamond(inn.x + size * 0.4, yy + t.set.line / 2, size * 0.22, ink);
+							rows.push(t);
+							yy += t.set.height + size * (head ? 0.8 : 0.45);
+						}
+						if (ok) {
+							fitted = rows;
+							break;
+						}
+					}
+					if (!fitted) return undefined;
+					out.svg += card(box, filled) + marks + fitted.map((x) => x.p.svg).join('');
+					out.layers.push(join(fitted, filled ? 'right' : 'left', filled ? content.right! : content.left!));
+				}
+				out.layers.unshift({ id: 'art', kind: 'panel', box: r, over: sits });
+				return out;
+			}
+			if (template === 'flow') {
+				const steps = partsOf(content.steps, 'steps', 6);
+				if (!steps.length) throw new CopyError('flow needs steps, split by |.');
+				const across = r.w >= r.h;
+				const gap = Math.max(18 * u, (across ? r.w : r.h) * 0.05);
+				const n = steps.length;
+				const bw = across ? (r.w - gap * (n - 1)) / n : r.w;
+				const bh = across ? r.h : (r.h - gap * (n - 1)) / n;
+				const boxes: Rect[] = steps.map((_, i) => (across ? { x: r.x + i * (bw + gap), y: r.y, w: bw, h: bh } : { x: r.x, y: r.y + i * (bh + gap), w: bw, h: bh }));
+				let lines = '';
+				for (let i = 0; i < n - 1; i++) {
+					const a = boxes[i];
+					const b = boxes[i + 1];
+					const [x1, y1, x2, y2] = across ? [right(a), a.y + a.h / 2, b.x, b.y + b.h / 2] : [a.x + a.w / 2, bottom(a), b.x + b.w / 2, b.y];
+					lines += `<path d="M${num(x1)} ${num(y1)}L${num(x2)} ${num(y2)}" stroke="${c.ink}" stroke-width="${num(lw, 3)}"/>` + diamond((x1 + x2) / 2, (y1 + y2) / 2, 5 * u, c.ink);
+				}
+				const parts: { p: ReturnType<typeof placeWords>; layer: Omit<DrawnLayer, 'can'> }[] = [];
+				let svg = '';
+				const start = Math.min(bh * 0.28, 36 * k);
+				if (start < F.small) return undefined;
+				for (let size = start; ; size *= 0.94) {
+					parts.length = 0;
+					svg = '';
+					let ok = true;
+					for (const [i, b] of boxes.entries()) {
+						const inn = inflate(b, -Math.max(8 * u, Math.min(b.w, b.h) * 0.1));
+						const t = setAt(f.sans, steps[i], size, { size, min: size, maxWidth: inn.w, maxHeight: inn.h, leading: 1.2 }, false);
+						if (!t) {
+							ok = false;
+							break;
+						}
+						requireGlyphs(f.sans, steps[i], 'steps');
+						const p = placeWords(t, inn.x, inn.y + (inn.h - t.height) / 2, c.ink, 'center', inn.w);
+						svg += card(b, false) + p.svg;
+						parts.push({ p, layer: { id: 'steps', kind: 'text', box: p.box, ink: p.ink, over: ['art'], text: { asked: steps[i], drawn: t.drawn, size: t.size, color: c.ink, ground: [c.bg], sample: req.sample } } });
+					}
+					if (ok) break;
+					if (size * 0.94 < F.small) return undefined;
+				}
+				out.svg = lines + svg;
+				out.layers.push({ id: 'art', kind: 'panel', box: r, over: sits }, join(parts, 'steps', content.steps!));
+				return out;
+			}
+			if (template === 'split') {
+				const gap = Math.max(12 * u, r.w * 0.03);
+				const across = r.w >= r.h * 0.9;
+				const pw = across ? (r.w - gap) / 2 : r.w;
+				const ph = across ? r.h : (r.h - gap) / 2;
+				const labels = hidden('labels') ? [] : partsOf(content.labels, 'labels', 2);
+				const tagMarks: Rect[] = [];
+				let tagText = '';
+				if (!content.before || !content.after) throw new CopyError('split needs two pictures: --before and --after.');
+				for (const [i, key] of (['before', 'after'] as const).entries()) {
+					const box = across ? { x: r.x + i * (pw + gap), y: r.y, w: pw, h: ph } : { x: r.x, y: r.y + i * (ph + gap), w: pw, h: ph };
+					const pic = loadPicture(content[key]!);
+					const cut = Math.min(box.w, box.h) * 0.06;
+					out.svg += coverSvg(pic, box, nextId('sp'), `<path d="${chamfer(box.x, box.y, box.w, box.h, cut)}"/>`) + `<path d="${chamfer(box.x, box.y, box.w, box.h, cut)}" fill="none" stroke="${c.ink}" stroke-opacity="0.32" stroke-width="${num(lw * 1.4, 3)}"/>`;
+					out.layers.push({ id: key, kind: 'key', box });
+					if (labels[i]) {
+						const size = Math.max(F.small, 20 * k);
+						requireGlyphs(f.mono, labels[i], 'labels');
+						const tw = measure(f.mono, labels[i], size) + size * 1.2;
+						const th = size * 1.9;
+						const tx = box.x + cut + 8 * u;
+						const ty = bottom(box) - th - 8 * u;
+						if (tw > box.w - cut - 16 * u) return undefined;
+						out.svg += `<path d="${chamfer(tx, ty, tw, th, th * 0.22)}" fill="${grounds.card}"/>`;
+						const lm = lineMetrics(f.mono, size, 1);
+						out.svg += glyphPaths(f.mono, labels[i], size, tx + size * 0.6, ty + th / 2 + (lm.ascent - lm.descent) / 2, grounds.cardInk);
+						tagMarks.push({ x: tx, y: ty, w: tw, h: th });
+						tagText += `${tagText ? ' ' : ''}${labels[i]}`;
+					}
+				}
+				if (tagMarks.length) out.layers.push({ id: 'labels', kind: 'text', box: unionOf(tagMarks), ink: tagMarks, over: ['before', 'after'], text: { asked: labels.join(' '), drawn: tagText, size: Math.max(F.small, 20 * k), color: grounds.cardInk, ground: [grounds.card] } });
+				return out;
+			}
+			// donut
+			const rows = chartRows(content.chart!);
+			if (rows.length > 6) throw new CopyError(`donut shows up to 6 rows, not ${rows.length}: use fewer.`);
+			const total = rows.reduce((sum, x) => sum + x.value, 0);
+			if (!(total > 0)) throw new CopyError('donut needs numbers that add up to more than 0.');
+			const side = wide || r.w > r.h * 1.3;
+			const d = side ? Math.min(r.h, r.w * 0.48) : Math.min(r.w * 0.7, r.h * 0.6);
+			const cx = r.x + d / 2;
+			const cy = side ? r.y + r.h / 2 : r.y + d / 2;
+			const R1 = d / 2;
+			const R0 = R1 * 0.58;
+			let a = -Math.PI / 2;
+			let ring = '';
+			const id = nextId('dn');
+			rows.forEach((row, i) => {
+				const sweep = (row.value / total) * Math.PI * 2;
+				const a2 = a + sweep - (rows.length > 1 ? 0.012 : 0);
+				const big = sweep > Math.PI ? 1 : 0;
+				const pt = (rr: number, t: number) => `${num(cx + rr * Math.cos(t))} ${num(cy + rr * Math.sin(t))}`;
+				const path = rows.length === 1 ? `M${pt(R1, 0)}A${num(R1)} ${num(R1)} 0 1 1 ${pt(R1, Math.PI)}A${num(R1)} ${num(R1)} 0 1 1 ${pt(R1, 0)}ZM${pt(R0, 0)}A${num(R0)} ${num(R0)} 0 1 0 ${pt(R0, Math.PI)}A${num(R0)} ${num(R0)} 0 1 0 ${pt(R0, 0)}Z` : `M${pt(R1, a)}A${num(R1)} ${num(R1)} 0 ${big} 1 ${pt(R1, a2)}L${pt(R0, a2)}A${num(R0)} ${num(R0)} 0 ${big} 0 ${pt(R0, a)}Z`;
+				ring += swatch(path, i, `${id}${i}`);
+				a += sweep;
+			});
+			const lx = side ? r.x + d + pad : r.x;
+			const ly = side ? r.y : r.y + d + pad;
+			const lwid = side ? right(r) - lx : r.w;
+			const lh = side ? r.h : bottom(r) - ly;
+			if (lwid < 40 * u || lh < 20 * u) return undefined;
+			for (let size = Math.max(F.small, Math.min(32 * k, lh / (rows.length * 1.7))); size >= F.small; size *= 0.94) {
+				let yy = ly + (side ? Math.max(0, (lh - rows.length * size * 1.7) / 2) : 0);
+				const parts: { p: ReturnType<typeof placeWords>; layer: Omit<DrawnLayer, 'can'> }[] = [];
+				let keys = '';
+				let ok = true;
+				for (const [i, row] of rows.entries()) {
+					const t = text('chart', `${row.label} ${row.text}`, f.sans, size, size, lx + size * 1.5, yy, lwid - size * 1.5, bottom(r) - yy, c.ink, c.bg, 'left', 1.3, 2);
+					if (!t) {
+						ok = false;
+						break;
+					}
+					const sq = size * 0.8;
+					keys += swatch(`M${num(lx)} ${num(yy + (t.set.line - sq) / 2)}h${num(sq)}v${num(sq)}h${num(-sq)}Z`, i, `${id}k${i}`);
+					parts.push(t);
+					yy += t.set.height + size * 0.4;
+				}
+				if (ok) {
+					out.svg = ring + keys + parts.map((x) => x.p.svg).join('');
+					out.layers.push({ id: 'art', kind: 'art', box: { x: cx - R1, y: cy - R1, w: d, h: d }, over: sits }, join(parts, 'chart', rows.map((x) => `${x.label} ${x.text}`).join(' ')));
+					return out;
+				}
+			}
+			return undefined;
+		};
+		/** One of four fills, all from the ground's ink: solid, hatched, outlined, dotted. */
+		function swatch(path: string, i: number, id: string): string {
+			const kind = i % 4;
+			if (kind === 0) return `<path d="${path}" fill="${c.ink}"/>`;
+			const outline = `<path d="${path}" fill="none" stroke="${c.ink}" stroke-width="${num(lw, 3)}"/>`;
+			if (kind === 2) return outline;
+			const gap = (kind === 1 ? 6 : 10) * u;
+			let marks = '';
+			for (let x = 0; x < V.w + V.h; x += gap) marks += kind === 1 ? `M${num(x)} 0L${num(x - V.h)} ${num(V.h + V.y * 2)}` : '';
+			if (kind === 3) return `<pattern id="${id}p" width="${num(gap)}" height="${num(gap)}" patternUnits="userSpaceOnUse"><circle cx="${num(gap / 2)}" cy="${num(gap / 2)}" r="${num(Math.max(0.8, 1.2 * u))}" fill="${c.ink}"/></pattern><path d="${path}" fill="url(#${id}p)"/>${outline}`;
+			return `<clipPath id="${id}"><path d="${path}"/></clipPath><path d="${marks}" clip-path="url(#${id})" fill="none" stroke="${c.ink}" stroke-width="${num(lw * 0.8, 3)}"/>${outline}`;
+		}
+		return {
+			want: (text: Rect): Rect => {
+				// Under the words, in the largest room clear of the logo and of what the platform covers.
+				if (under && !wide) return largest({ x: live.x, y: bottom(text) + 30 * u, w: live.w, h: Math.max(10, bottom(live) - bottom(text) - 30 * u) }, [...avoidZone, ...logoZone]);
+				if (under) {
+					const y = bottom(text) + head * 0.45;
+					return largest({ x: live.x, y, w: live.w, h: Math.max(10, bottom(live) - y) }, [...avoidZone, ...logoZone]);
+				}
+				return wide ? at(0.73, 0.52, w0, w0 * r0) : at(0.5, tall ? 0.58 : 0.6, w0, w0 * r0);
+			},
+			holds: (r: Rect) => (template === 'split' ? r.w > 40 * u && r.h > 40 * u : build(r) !== undefined),
+			draw: (r: Rect) => {
+				const built = build(r);
+				if (!built) throw new CopyError(`The words in the ${template} ${template === 'split' ? 'tags' : 'block'} do not fit ${where}. Shorten them, or use a larger size.`);
+				middle.push(built.svg);
+				for (const l of built.layers) report(l);
 			},
 		};
 	}

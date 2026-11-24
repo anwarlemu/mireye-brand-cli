@@ -35,6 +35,9 @@ const COMMANDS = [
 	{ name: 'video', read: false, summary: 'Short clips: APNG, MP4 or WebM, plus a still frame. video --list is read-only.' },
 	{ name: 'merch', read: false, summary: 'Print files at real size with bleed, safe area and a die line. merch --list is read-only.' },
 	{ name: 'illustrate', read: false, summary: 'Brand illustrations as SVG and PNG: wireframe scenes, isometric scenes, contours, or a picture as contours. illustrate --list is read-only.' },
+	{ name: 'icons', read: false, summary: 'Favicon set (ico, png, maskable, svg, manifest), app icons, and the icon set the interface uses as SVGs.' },
+	{ name: 'document', read: false, summary: 'One-pager, case study or report with a cover, as a PDF of A4 or US Letter pages.' },
+	{ name: 'email', read: false, summary: 'Newsletter, announcement, receipt, password reset and signature as email-safe HTML.' },
 	{ name: 'figma tokens', read: false, summary: 'The tokens as Figma variables: tokens.json and use_figma scripts, plus the MCP steps.' },
 	{ name: 'figma push', read: false, summary: 'An illustration, image, slide, asset, component or page made ready for Figma, plus the MCP steps.' },
 	{ name: 'figma pull', read: true, summary: 'The MCP steps to read a Figma node and where to save each result.' },
@@ -50,6 +53,33 @@ const COMMANDS = [
 	{ name: 'init', read: false, summary: 'Install tokens, fonts and agent instructions.' },
 	{ name: 'apply', read: false, summary: 'Restyle an existing app.' },
 ] as const;
+
+/** "I need X": the command that makes it. */
+export const NEEDS: { need: string; run: string }[] = [
+	{ need: 'Link preview or social post (X, LinkedIn, Instagram, Threads, Facebook, Pinterest)', run: 'image <template> --size og|landscape|square|portrait|threads|facebook-post|pinterest --headline "..."' },
+	{ need: 'Story, reel or TikTok cover', run: 'image <template> --size story|tiktok-cover --headline "..."' },
+	{ need: 'Profile banner (X, LinkedIn, Facebook, YouTube) and profile picture', run: 'image <template> --size x-banner|linkedin-banner|linkedin-page|facebook-cover|youtube; image identity --size avatar' },
+	{ need: 'YouTube thumbnail', run: 'image <template> --size youtube-thumbnail' },
+	{ need: 'Display ads (IAB) and Meta or LinkedIn ads', run: 'image <template> --size ad-300x250,ad-336x280,ad-728x90,ad-300x600,ad-320x50,ad-160x600,ad-970x250,meta-story,linkedin-ad' },
+	{ need: 'Carousel', run: 'image carousel --input carousel.json --size portrait' },
+	{ need: 'Quote, stat, event, pricing, comparison, flow, before and after, chart (bar, line, donut) card', run: 'image quote|stat|event|pricing|compare|flow|split|chart|line|donut --size ...' },
+	{ need: 'Launch, changelog, hiring or customer story card', run: 'image announcement --badge "..." / image quote --attribution "..., Acme"' },
+	{ need: 'Framed screenshot', run: 'image frame --image shot.png; image photo --image aerial.jpg' },
+	{ need: 'A picture you can keep revising', run: 'design new <template> -o x.design.json; design revise x.design.json "..."' },
+	{ need: 'A graphic no template covers, at any size (your own layout from the brand\'s blocks)', run: 'design new compose --size <id> -o x.design.json; design compose add x.design.json headline "..." --place top-left' },
+	{ need: 'A whole page from sections (React and plain HTML)', run: 'design page compose outline.json [--flavor react|html] -o page' },
+	{ need: 'Slides (cover, agenda, team, timeline, stat, chart, comparison, quote, image grid, questions)', run: 'deck --input deck.json' },
+	{ need: 'One-pager, case study, report with a cover (PDF)', run: 'document --input document.json --size a4|letter' },
+	{ need: 'Emails (newsletter, announcement, receipt, password reset) and email signature', run: 'email <kind> --input email.json' },
+	{ need: 'Short clip, logo reveal, lower third, product walkthrough, GIF', run: 'video <template> --size square|story|landscape --format mp4,webm,gif' },
+	{ need: 'Favicon set and app icons', run: 'icons favicon; icons app' },
+	{ need: 'The interface icon set as SVG', run: 'icons set' },
+	{ need: 'Video-call background, desktop and phone wallpaper', run: 'image backdrop --size meeting|desktop|phone-wallpaper' },
+	{ need: 'Illustration or pattern at any size', run: 'illustrate <scene> --size WxH; illustrate --style contours' },
+	{ need: 'Print: business card, letterhead, certificate, badge, name tag, poster, stickers, notebook, lanyard, tee, mug, cap, socks', run: 'merch <item> --variant ...' },
+	{ need: 'Components, sections and pages for a site or app', run: 'component list; add <name>' },
+	{ need: 'Figma variables or a push to Figma', run: 'figma tokens; figma push ...' },
+];
 
 export function manifestData() {
 	const version = JSON.parse(readFileSync(pkgPath('package.json'), 'utf8')).version as string;
@@ -80,6 +110,7 @@ export function manifestData() {
 			voiceBanned: principles.voice.banned,
 		},
 		images: { formats: images.formats, templates: images.templates, grounds: images.grounds, themes: images.themes, exports: images.exports, content: images.content, layouts: 'brand/assets/image.json' },
+		needs: NEEDS.map((n) => ({ ...n, run: `${cli()} ${n.run}` })),
 		designs: designManifest(adapter(), cli()),
 		decks: deckCatalog(),
 		videos: { renderer: videos.renderer, rendererNote: videos.rendererNote, formats: videos.formats, templates: videos.templates, themes: videos.themes, exports: videos.exports, encoders: videos.encoders, motion: videos.motion, timing: videos.timing },

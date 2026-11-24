@@ -6,7 +6,7 @@ import { imagesToPdf } from '../deck/pdf.js';
 import { buildIllustration, STYLES, subjectsFor, WIRE_GROUNDS, type Style } from '../illustrate/build.js';
 import { ISO_PRESETS } from '../illustrate/iso.js';
 import { wireScenes } from '../illustrate/wire.js';
-import { cleanContent, defaultTheme, FLAG, GROUNDS, isPoster, paletteFor, POSTERS, requireContent, SHEET_SAMPLES, sizeOf, sizesFor, templateFields, templateIds, TEMPLATES, themes, tokenHex, type ContentKey, type ImageContent, type Size, type TemplateId } from '../image/catalog.js';
+import { cleanContent, defaultTheme, FLAG, NOT_COPY, GROUNDS, isPoster, paletteFor, POSTERS, requireContent, SHEET_SAMPLES, sizeOf, sizesFor, templateFields, templateIds, TEMPLATES, themes, tokenHex, type ContentKey, type ImageContent, type Size, type TemplateId } from '../image/catalog.js';
 import { encode, rasterize, rasterRgb } from '../image/encode.js';
 import { over, type DrawnLayer } from '../image/layers.js';
 import { groundColors, groundIds, imageDocument, posterCan, type Crop } from '../image/poster.js';
@@ -18,6 +18,10 @@ import { merchDoc, merchItems, merchSlots, merchSvg, PX_PER_IN } from '../merch/
 import { cleanVideoContent, VIDEO_FORMATS, VIDEO_TEMPLATES, videoTiming, type VideoFormatId, type VideoTemplateId } from '../video/catalog.js';
 import { videoFrame } from '../video/compose.js';
 import { renderVideo } from '../video/render.js';
+import { composeBlocks, drawCompose, recipeFor } from '../image/compose.js';
+import { FORMATS } from '../image/catalog.js';
+import { PLATFORMS } from './platforms.js';
+import { pageSections, writePage, PAGE_FLAVORS } from '../page/page.js';
 import type { Adapter, DesignDoc, Format, OptionValue, SheetSpec, TemplateInfo } from './index.js';
 
 // This brand's side of the design core: what can be made, and how a document becomes the engine's own request. The theme
@@ -40,24 +44,34 @@ const cropOf = (o: DesignDoc['options']): Crop | undefined => (o.zoom === undefi
 const SLOT: Record<string, string> = Object.fromEntries(Object.entries(FLAG).map(([key, flag]) => [flag, key]));
 /** The copy slots of a template, by the names people pass. */
 const words = (required: string[], optional: string[]) => {
-	const not = new Set(['image', 'scene', 'page']);
+	const not = NOT_COPY;
 	return [...required.filter((k) => !not.has(k)).map((k) => ({ id: FLAG[k as ContentKey] ?? k, required: true })), ...optional.filter((k) => !not.has(k)).map((k) => ({ id: FLAG[k as ContentKey] ?? k }))];
 };
 const contentOf = (doc: DesignDoc, dir: string): ImageContent => {
 	const c: Record<string, string> = {};
 	for (const [slot, value] of Object.entries(doc.copy)) c[SLOT[slot] ?? slot] = value;
 	if (doc.images.picture) c.image = at(dir, doc.images.picture)!;
+	for (const slot of ['before', 'after']) if (doc.images[slot]) c[slot] = at(dir, doc.images[slot])!;
 	if (doc.options.scene !== undefined) c.scene = String(doc.options.scene);
 	return c as ImageContent;
 };
 const sampleOf = (copy: Record<string, string>) => Object.fromEntries(Object.entries(copy).filter(([k]) => !['scene', 'image', 'type', 'template'].includes(k)).map(([k, v]) => [FLAG[k as ContentKey] ?? k, v]));
 const seedOf = (doc: DesignDoc) => doc.seed || undefined;
-const SEEDED = new Set(['identity', 'window', 'post', 'parcels', 'scene', 'tag', 'panel', 'app', 'partner']);
+const SEEDED = new Set(['backdrop', 'identity', 'window', 'post', 'parcels', 'scene', 'tag', 'panel', 'app', 'partner']);
 const IMAGE_FORMATS: Format[] = ['png', 'svg', 'jpg', 'webp', 'pdf'];
 
 async function files(svg: string, width: number, out: { formats: Format[]; scale: number }): Promise<Record<string, Uint8Array>> {
 	const kinds = out.formats.filter((f): f is 'png' | 'svg' | 'jpg' | 'webp' | 'pdf' => IMAGE_FORMATS.includes(f));
 	return (await encode(svg, width, kinds, out.scale)) as Record<string, Uint8Array>;
+}
+
+/** Layout engines re-flow: when one layer changes, the words and drawings around it give way (art for a bigger
+ * headline, the words for a moved logo). The logo, patterns and panels never move for others. */
+function reflowsOf(layers: { id: string }[], boxed = false): Record<string, string[]> {
+	// In a window or a tag the lockup and the panel are part of the words' block, so they give way with them.
+	const fixed = new Set(['pattern', 'picture', 'page', ...(boxed ? [] : ['logo', 'panel'])]);
+	const moving = layers.map((l) => l.id).filter((id) => !fixed.has(id));
+	return Object.fromEntries(layers.map((l) => [l.id, moving.filter((id) => id !== l.id)]));
 }
 
 /* ------------------------------------------------------------- images */
@@ -77,11 +91,12 @@ function image(id: string): Build {
 			sizes: sizesFor(id),
 			themes: groundIds(),
 			copy: words(fields.required, fields.optional),
-			images: all.includes('image') ? [{ id: 'picture', required: fields.required.includes('image') }] : [],
+			images: [...(all.includes('image') ? [{ id: 'picture', required: fields.required.includes('image') }] : []), ...(['before', 'after'] as const).filter((k) => all.includes(k)).map((id) => ({ id, required: true }))],
 			options: [EDITION(), ...(all.includes('scene') ? [{ id: 'scene', values: scenes, description: 'which drawing' }] : []), ...(all.includes('image') ? PICTURE : [])],
 			layers: layersOf(poster ? posterCan(id) : sheetCan(id)),
 			grounds: hexes(groundIds()),
 			formats: IMAGE_FORMATS,
+			reflows: reflowsOf(layersOf(poster ? posterCan(id) : sheetCan(id)), ['window', 'tag', 'partner'].includes(id)),
 		},
 		defaults: (size) => {
 			const s = size === 'custom' ? { id: 'custom', width: 1200, height: 800 } : sizeOf(size);
@@ -108,7 +123,7 @@ function slide(type: string, poster?: string): Build {
 	const required = p ? p.required : s.required;
 	const optional = p ? p.optional : s.optional;
 	const all = [...required, ...optional];
-	const name = (k: string) => (k === 'label' ? 'badge' : k === 'progress' ? undefined : k);
+	const name = (k: string) => (k === 'label' ? 'badge' : k === 'progress' || k === 'images' || k === 'before' || k === 'after' || k === 'image' || k === 'scene' ? undefined : k);
 	const slots = (keys: string[]) => keys.map(name).filter((k): k is string => Boolean(k));
 	const scenes = poster === 'scene' ? [...ISO_PRESETS] : wireScenes();
 	const sample = p ? p.sample : s.sample;
@@ -120,17 +135,21 @@ function slide(type: string, poster?: string): Build {
 			sizes: ['slide'],
 			themes: groundIds(),
 			copy: words(slots(required), slots(optional)),
-			images: all.includes('image') ? [{ id: 'picture', required: required.includes('image') }] : [],
+			images: [...(all.includes('image') ? [{ id: 'picture', required: required.includes('image') }] : []), ...(['before', 'after'] as const).filter((k) => all.includes(k)).map((id) => ({ id, required: true })), ...(all.includes('images') ? [1, 2, 3, 4].map((n) => ({ id: `picture-${n}`, required: n <= 2 })) : [])],
 			options: [EDITION(), ...(all.includes('scene') ? [{ id: 'scene', values: scenes, description: 'which drawing' }] : []), ...(type === 'stat' ? [{ id: 'progress', range: [0, 1] as [number, number], description: 'the share of the tick row that is filled' }] : []), ...(all.includes('image') ? PICTURE : [])],
 			layers: layersOf(slideCan(type, poster)),
 			grounds: hexes(groundIds()),
 			formats: IMAGE_FORMATS,
+			reflows: reflowsOf(layersOf(slideCan(type, poster)), ['window', 'tag', 'partner'].includes(fixed ?? '')),
 		},
 		defaults: () => ({ size: { id: 'slide', width: size.width, height: size.height }, theme: p ? p.ground : s.ground, seed: fixed && SEEDED.has(fixed) ? 0 : undefined, options: {} }),
 		async render(d, dir, out) {
 			const raw: Record<string, unknown> = { type, ground: d.theme, ...(poster ? { template: poster } : {}) };
 			for (const [slot, value] of Object.entries(d.copy)) raw[slot === 'badge' ? 'label' : (SLOT[slot] ?? slot)] = value;
 			if (d.images.picture) raw.image = at(dir, d.images.picture);
+			for (const k of ['before', 'after']) if (d.images[k]) raw[k] = at(dir, d.images[k]);
+			const pics = [1, 2, 3, 4].map((n) => d.images[`picture-${n}`]).filter(Boolean).map((x) => at(dir, x));
+			if (pics.length) raw.images = pics.join(' | ');
 			if (d.options.scene !== undefined) raw.scene = String(d.options.scene);
 			if (d.options.progress !== undefined) raw.progress = String(d.options.progress);
 			const clean: Slide = cleanSlide(raw, 0);
@@ -255,7 +274,7 @@ function video(template: VideoTemplateId, poster?: string): Build {
 			sizes: Object.keys(CLIP),
 			themes: p ? groundIds() : ['bone'],
 			copy: words([...required], [...optional]),
-			images: all.includes('image') ? [{ id: 'picture', required: required.includes('image') }] : [],
+			images: [...(all.includes('image') ? [{ id: 'picture', required: required.includes('image') }] : []), ...(['before', 'after'] as const).filter((k) => all.includes(k)).map((id) => ({ id, required: true })), ...(all.includes('images') ? [1, 2, 3, 4].map((n) => ({ id: `picture-${n}`, required: n === 1 })) : [])],
 			options: [EDITION(), ...(all.includes('scene') ? [{ id: 'scene', values: scenes, description: 'which drawing' }] : [])],
 			layers: [],
 			grounds: hexes(p ? groundIds() : ['bone']),
@@ -267,6 +286,8 @@ function video(template: VideoTemplateId, poster?: string): Build {
 		},
 		async render(d, dir, out) {
 			const raw: Record<string, string> = { ...(contentOf(d, dir) as Record<string, string>) };
+			const pics = [1, 2, 3, 4].map((n) => d.images[`picture-${n}`]).filter(Boolean).map((x) => at(dir, x)!);
+			if (pics.length) raw.images = pics.join(' | ');
 			if (poster) raw.poster = poster;
 			const content = cleanVideoContent(template, raw) as ImageContent & { poster?: string; ground?: string };
 			if (poster) content.ground = d.theme;
@@ -290,6 +311,27 @@ function video(template: VideoTemplateId, poster?: string): Build {
 		},
 		sample: p ? sampleOf(p.sample) : undefined,
 	};
+}
+
+/* ------------------------------------------------------------ compose */
+
+/** Every size a compose design can take: the image sizes first, then the shared platforms this CLI has no layout for. */
+function composeSizes(): string[] {
+	const first = ['og', 'square', 'portrait', 'story'];
+	return [...new Set([...first, ...Object.keys(FORMATS), ...PLATFORMS.map((p) => p.id)]), 'custom'];
+}
+
+function composeDefaults(size: string): Pick<DesignDoc, 'size' | 'theme' | 'seed' | 'options'> {
+	const f = FORMATS[size] ?? PLATFORMS.find((p) => p.id === size);
+	const s = f ? { width: f.width, height: f.height } : { width: 1200, height: 800 };
+	return { size: { id: size, ...s }, theme: 'bone', seed: 0, options: {} };
+}
+
+async function renderCompose(doc: DesignDoc, dir: string, out: { formats: Format[]; scale: number }): Promise<Out> {
+	const drawn = drawCompose(doc, dir);
+	const { width, height } = doc.size;
+	const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img">\n<title>${brand().name}</title>\n${drawn.svg}\n</svg>\n`;
+	return { files: await files(svg, width, out), layers: drawn.layers };
 }
 
 /* ------------------------------------------------------------ adapter */
@@ -342,8 +384,17 @@ export function adapter(): Adapter {
 	return {
 		brand: brand().bin,
 		templates: () => [...all().values()].map((b) => b.info),
-		defaults: (template, size) => build(template).defaults(size),
-		render: (doc, dir, out) => build(doc.template).render(doc, dir, out),
+		defaults: (template, size) => (template === 'compose' ? composeDefaults(size) : build(template).defaults(size)),
+		render: (doc, dir, out) => (doc.template === 'compose' ? renderCompose(doc, dir, out) : build(doc.template).render(doc, dir, out)),
+		compose: {
+			blocks: composeBlocks,
+			themes: groundIds(),
+			grounds: hexes(groundIds()),
+			sizes: composeSizes(),
+			formats: IMAGE_FORMATS,
+			recipe: (template, size, copy) => recipeFor(template, size, copy),
+		},
+		page: { sections: pageSections, flavors: PAGE_FLAVORS, write: writePage },
 		sample: (template) => build(template).sample ?? {},
 		colors: wordColors,
 		aliases: {

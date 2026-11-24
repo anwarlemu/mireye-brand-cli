@@ -7,7 +7,7 @@ import { checkEdits, editOf, frameOf, inflate, LayoutError, over, right, shift, 
 import { lockupSvg, lockupWidth, markSvg, markWidth } from '../image/logo.js';
 import { coverSvg, loadPicture } from '../image/picture.js';
 import { chamfer, contourSvg, diamond, groundColors, imageDocument, posterCan, posterDraw, posterFloors, type Crop, type Drawing, type GroundColors } from '../image/poster.js';
-import { CopyError, fitOrFail, loadFaces, num, placeWords, requireGlyphs, setAt, type Faces, type Fitted, type Font } from '../image/type.js';
+import { CopyError, fitOrFail, glyphPaths, lineMetrics, loadFaces, measure, num, placeWords, requireGlyphs, setAt, type Faces, type Fitted, type Font } from '../image/type.js';
 
 // Deck slides at 1920 by 1080 (brand/assets/deck.json). Cover, section, bullets, stat, quote and image follow the
 // illustration skill's slide rule (the lockup top left at 64, a 104 headline bottom left, a drawing that may bleed off
@@ -24,7 +24,7 @@ export const slideTypes = () => Object.keys(deckDoc().slides);
 
 export type Slide = { type: string; ground?: string; [slot: string]: string | undefined };
 
-const SLOT_LIMITS: Record<string, number> = { title: 160, subtitle: 280, label: 24, items: 600, stat: 12, progress: 6, quote: 320, attribution: 80, url: 64, image: 4096, scene: 32, chart: 600, template: 32, callout: 80, partner: 40, labels: 60, question: 120, suggestions: 240, place: 40 };
+const SLOT_LIMITS: Record<string, number> = { title: 160, subtitle: 280, label: 24, items: 600, stat: 12, progress: 6, quote: 320, attribution: 80, url: 64, image: 4096, scene: 32, chart: 600, template: 32, callout: 80, partner: 40, labels: 60, question: 120, suggestions: 240, place: 40, images: 8192, date: 60, speaker: 80, price: 32, steps: 200, left: 240, right: 240, before: 4096, after: 4096 };
 
 export function slotNames(type: string): string[] {
 	const s = deckDoc().slides[type];
@@ -47,7 +47,7 @@ export function cleanSlide(raw: Record<string, unknown>, index: number): Slide {
 		if (value === undefined || value === null || value === '') continue;
 		if (typeof value !== 'string') throw new Error(`${where}: ${key} must be a string.`);
 		const text = value.trim();
-		if (key !== 'type' && key !== 'ground' && [...text].length > (SLOT_LIMITS[key] ?? 200)) throw new Error(`${where}: ${key} is longer than ${SLOT_LIMITS[key]} characters.`);
+		if (key !== 'type' && key !== 'ground' && [...text].length > (SLOT_LIMITS[key] ?? 200)) throw new Error(`${where}: ${key} is too long: at most ${SLOT_LIMITS[key] ?? 200} characters. Shorten it.`);
 		out[key] = text;
 	}
 	const missing = deckDoc().slides[type].required.filter((k) => !out[k]);
@@ -72,6 +72,15 @@ export function slideCan(type: string, template?: string): Record<string, DrawnL
 			return { logo: {}, headline: TEXT(), body: TEXT(true), art: ART };
 		case 'section':
 			return { ...base, pattern: { hide: true }, headline: TEXT(), badge: { hide: true } };
+		case 'agenda':
+		case 'timeline':
+			return { ...base, headline: TEXT(), items: { scale: [0.7, 1.3] } };
+		case 'team':
+			return { ...base, headline: TEXT(), items: { scale: [0.7, 1.3] }, art: { hide: true } };
+		case 'gallery':
+			return { ...base, headline: TEXT(), body: TEXT(true), picture: {} };
+		case 'questions':
+			return { logo: {}, pattern: { hide: true }, headline: TEXT(), body: TEXT(true), url: { hide: true } };
 		case 'bullets':
 			return { ...base, headline: TEXT(), items: { scale: [0.7, 1.3] } };
 		case 'stat':
@@ -190,6 +199,154 @@ export function slideDraw(slide: Slide, theme = defaultTheme(), edits: Edits = {
 			parts.push(tickRow(Math.round(right(lb) + m.label), lb.y + lb.h / 2 - th / 2, 18, 7, th, c.ink, over(c.ink, 0.35, c.bg)));
 		}
 		put('headline', head, slide.title!, m.margin, y, c.ink, W * 0.74);
+	} else if (slide.type === 'agenda' || slide.type === 'timeline' || slide.type === 'team') {
+		const items = (slide.items ?? '').split('|').map((i) => i.trim()).filter(Boolean);
+		const most = slide.type === 'agenda' ? 8 : 6;
+		if (!items.length) throw new Error(`${slide.type} needs items, split by |.`);
+		if (items.length > most) throw new Error(`${slide.type} takes up to ${most} items, not ${items.length}.`);
+		for (const it of items) requireGlyphs(f.sans, it, `item "${it}"`);
+		chrome();
+		const head = set('headline', f.sans, slide.title!, m.title, 'headline', { maxW: W * 0.76, maxH: H * 0.24, lh: 1.1, tracking: -0.014, min: 36 });
+		const hb = put('headline', head, slide.title!, m.margin, top, c.ink, W * 0.76);
+		const start = bottom(hb) + m.margin * 0.75;
+		// Above the mark and its clear space.
+		const limit = H - m.margin - m.mark * 2 - 8;
+		const rowW = W - m.margin * 2;
+		const inks: Rect[] = [];
+		const drawn: string[] = [];
+		let used = m.item;
+		let svg = '';
+		const s0 = m.item * scaleOf('items');
+		if (slide.type === 'agenda') {
+			for (let size = s0 * 1.3; ; size -= 1) {
+				const gap = Math.max(16, size * 0.9);
+				const nw = measure(f.mono, '00', size * 0.7) + size;
+				const rows = items.map((it) => setAt(f.sans, it, size, { size, min: size, maxWidth: rowW - nw, maxLines: 2, leading: 1.25 }, size - 1 < F.small));
+				if (rows.every(Boolean) && rows.reduce((sum, r) => sum + r!.height + gap, 0) <= limit - start) {
+					used = size;
+					let y = start;
+					rows.forEach((row, i) => {
+						svg += `<rect x="${m.margin}" y="${Math.round(y)}" width="${num(rowW)}" height="1" fill="${c.ink}" fill-opacity="0.32"/>`;
+						const label = String(i + 1).padStart(2, '0');
+						const lm = lineMetrics(f.mono, size * 0.7, 1);
+						svg += glyphPaths(f.mono, label, size * 0.7, m.margin, y + gap / 2 + row!.line / 2 + (lm.ascent - lm.descent) / 2, c.muted);
+						const p = placeWords(row!, m.margin + nw, y + gap / 2, c.ink);
+						svg += p.svg;
+						inks.push(...p.ink);
+						drawn.push(row!.drawn);
+						y += row!.height + gap;
+					});
+					break;
+				}
+				if (size - 1 < F.small) throw new CopyError(`The items do not fit ${where}. Shorten them, or split them over two slides.`);
+			}
+		} else if (slide.type === 'timeline') {
+			const n = items.length;
+			const lineY = start + (limit - start) * 0.3;
+			const colW = rowW / n;
+			svg += `<rect x="${m.margin}" y="${num(lineY)}" width="${num(rowW)}" height="2" fill="${c.ink}" fill-opacity="0.5"/>`;
+			for (let size = s0; ; size -= 1) {
+				const parts = items.map((it) => {
+					const [when, ...what] = it.split(':');
+					return { when: what.length ? when.trim() : '', what: (what.length ? what.join(':') : when).trim() };
+				});
+				const sets = parts.map((p) => ({ when: p.when ? setAt(f.mono, p.when, size * 0.7, { size: size * 0.7, min: size * 0.7, maxWidth: colW - 24, maxLines: 1, leading: 1.2 }, false) : undefined, what: setAt(f.sans, p.what, size, { size, min: size, maxWidth: colW - 24, maxHeight: limit - lineY - size * 2, leading: 1.25 }, size - 1 < F.small) }));
+				if (sets.every((x) => x.what && (!parts[sets.indexOf(x)].when || x.when))) {
+					used = size;
+					sets.forEach((x, i) => {
+						const cx = m.margin + i * colW;
+						svg += diamond(cx + 9, lineY + 1, 9, c.ink);
+						if (x.when) {
+							const p = placeWords(x.when, cx, lineY - size * 1.4, c.muted);
+							svg += p.svg;
+							inks.push(...p.ink);
+						}
+						const p = placeWords(x.what!, cx, lineY + size * 1.1, c.ink);
+						svg += p.svg;
+						inks.push(...p.ink);
+						drawn.push([x.when?.drawn, x.what!.drawn].filter(Boolean).join(': '));
+					});
+					break;
+				}
+				if (size - 1 < F.small) throw new CopyError(`The milestones do not fit ${where}. Shorten them, or use fewer.`);
+			}
+		} else {
+			const n = items.length;
+			const cols = n <= 3 ? n : Math.ceil(n / 2);
+			const rowsN = Math.ceil(n / cols);
+			const gap = 32;
+			const cw = (rowW - gap * (cols - 1)) / cols;
+			const ch = (limit - start - gap * (rowsN - 1)) / rowsN;
+			for (let size = 36 * scaleOf('items'); ; size -= 1) {
+				const tileH = ch * 0.62;
+				const sets = items.map((it) => setAt(f.sans, it, size, { size, min: size, maxWidth: cw - 8, maxHeight: ch - tileH - 16, leading: 1.25 }, size - 1 < F.small));
+				if (sets.every(Boolean)) {
+					used = size;
+					const tiles: Rect[] = [];
+					sets.forEach((x, i) => {
+						const bx = m.margin + (i % cols) * (cw + gap);
+						const by = start + Math.floor(i / cols) * (ch + gap);
+						tiles.push({ x: bx, y: by, w: cw, h: tileH });
+						if (!hidden('art')) svg += `${contourSvg(`tm${i}`, W, H, 1, 'dense', c.gridAlpha, c.grid, { x: bx, y: by, w: cw, h: tileH })}<path d="${chamfer(bx, by, cw, tileH, 14)}" fill="none" stroke="${c.ink}" stroke-opacity="0.32" stroke-width="2"/>`;
+						const p = placeWords(x!, bx, by + tileH + 14, c.ink);
+						svg += p.svg;
+						inks.push(...p.ink);
+						drawn.push(x!.drawn);
+					});
+					if (!hidden('art')) report({ id: 'art', kind: 'art', box: { x: m.margin, y: start, w: rowW, h: Math.max(...tiles.map(bottom)) - start }, ink: tiles });
+					break;
+				}
+				if (size - 1 < F.small) throw new CopyError(`The people do not fit ${where}. Shorten the words, or use fewer.`);
+			}
+		}
+		parts.push(svg);
+		const x0 = Math.min(...inks.map((r) => r.x));
+		const y0 = Math.min(...inks.map((r) => r.y));
+		report({ id: 'items', kind: 'text', box: { x: x0, y: y0, w: Math.max(...inks.map(right)) - x0, h: Math.max(...inks.map(bottom)) - y0 }, ink: inks, over: ['art'], text: { asked: items.join(' '), drawn: drawn.join(' '), size: slide.type === 'timeline' ? used * 0.7 : used, color: c.ink, ground: [c.bg], sample } });
+	} else if (slide.type === 'gallery') {
+		const files = (slide.images ?? '').split('|').map((i) => i.trim()).filter(Boolean);
+		if (files.length < 2 || files.length > 4) throw new Error(`gallery takes two to four pictures (images split by |), not ${files.length}.`);
+		chrome();
+		const head = set('headline', f.sans, slide.title!, m.title, 'headline', { maxW: W * 0.7, maxH: H * 0.2, lh: 1.1, tracking: -0.014, min: 36 });
+		const hb = put('headline', head, slide.title!, m.margin, top, c.ink, W * 0.7);
+		let y0 = bottom(hb) + m.body * 0.6;
+		if (slide.subtitle && !hidden('body')) {
+			const sub = set('body', f.sans, slide.subtitle, m.body, 'line under the headline (--body)', { maxW: W * 0.7, maxLines: 2, lh: 1.4 });
+			const sb = put('body', sub, slide.subtitle, m.margin, y0, c.muted, W * 0.7);
+			y0 = bottom(sb);
+		}
+		y0 += m.margin * 0.6;
+		const limit = H - m.margin - m.mark * 2 - 8;
+		const cols = files.length === 3 ? 3 : 2;
+		const rowsN = Math.ceil(files.length / cols);
+		const gap = 24;
+		const cw = (W - m.margin * 2 - gap * (cols - 1)) / cols;
+		const ch = (limit - y0 - gap * (rowsN - 1)) / rowsN;
+		if (ch < 120) throw new LayoutError(`The pictures have no room in ${where}. Shorten the headline.`);
+		files.forEach((file, i) => {
+			const box = { x: m.margin + (i % cols) * (cw + gap), y: y0 + Math.floor(i / cols) * (ch + gap), w: cw, h: ch };
+			const pic = loadPicture(file);
+			const shape = `<path d="${chamfer(box.x, box.y, box.w, box.h, 16)}"/>`;
+			parts.push(`${coverSvg(pic, box, `gal${i}`, shape)}<path d="${chamfer(box.x, box.y, box.w, box.h, 16)}" fill="none" stroke="${c.ink}" stroke-opacity="0.32" stroke-width="2"/>`);
+		});
+		report({ id: 'picture', kind: 'picture', box: { x: m.margin, y: y0, w: W - m.margin * 2, h: limit - y0 } });
+	} else if (slide.type === 'questions') {
+		if (!hidden('pattern')) {
+			fieldId = 'qa';
+			fieldAt = parts.length;
+			parts.push('');
+			report({ id: 'pattern', kind: 'art', box: { x: 0, y: 0, w: W, h: H }, bleeds: true });
+		}
+		chrome(false);
+		const sub = slide.subtitle && !hidden('body') ? set('body', f.sans, slide.subtitle, m.body, 'line under the headline (--body)', { maxW: W * 0.5, maxLines: 3, lh: 1.4 }) : undefined;
+		const head = set('headline', f.sans, slide.title!, m.headline, 'headline', { maxW: W * 0.7, maxH: H * 0.5, lh: 1.04, tracking: -0.014, min: 48 });
+		const headBottom = foot - (sub ? sub.height + m.body : 0);
+		put('headline', head, slide.title!, m.margin, headBottom - head.height, c.ink, W * 0.7);
+		if (sub) put('body', sub, slide.subtitle!, m.margin, foot - sub.height, c.muted, W * 0.5);
+		if (slide.url && !hidden('url')) {
+			const u2 = set('url', f.mono, slide.url, m.label, 'address (--url)', { maxW: W * 0.4, maxLines: 1, lh: 1.2 });
+			put('url', u2, slide.url, W - m.margin - u2.width, foot - u2.height, c.ink);
+		}
 	} else if (slide.type === 'bullets') {
 		const items = (slide.items ?? '').split('|').map((i) => i.trim()).filter(Boolean);
 		if (!items.length) throw new Error('bullets needs items, split by |.');
@@ -282,7 +439,7 @@ export function slideDraw(slide: Slide, theme = defaultTheme(), edits: Edits = {
 		}
 	}
 	// The contours fade out round everything drawn on them.
-	if (fieldId) parts[fieldAt] = contourSvg(fieldId, W, H, 1, 'sparse', c.gridAlpha, c.grid, undefined, layers.filter((l) => l.id !== 'pattern').flatMap((l) => (l.kind === 'logo' ? [inflate(l.box, l.logo!.clear)] : [l.box])), c.bg);
+	if (fieldId) parts[fieldAt] = contourSvg(fieldId, W, H, 1, fieldId === 'qa' ? 'dense' : 'sparse', c.gridAlpha, c.grid, undefined, layers.filter((l) => l.id !== 'pattern').flatMap((l) => (l.kind === 'logo' ? [inflate(l.box, l.logo!.clear)] : [l.box])), c.bg);
 	checkEdits(edits, layers, where);
 	return { svg: parts.join(''), layers };
 }
@@ -312,7 +469,8 @@ ${drawn.svg}
 export const slideSvg = (slide: Slide, theme = defaultTheme()): string => slideDocument(slide, theme).svg;
 
 export function sampleDeck(): Slide[] {
-	return Object.entries(deckDoc().slides).map(([type, s]) => ({ type, ...s.sample }));
+	// The gallery needs pictures of your own, so the sample deck leaves it out.
+	return Object.entries(deckDoc().slides).filter(([type]) => type !== 'gallery').map(([type, s]) => ({ type, ...s.sample }));
 }
 
 export function deckCatalog() {

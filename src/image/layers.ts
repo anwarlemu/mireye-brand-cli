@@ -1,5 +1,5 @@
 import type { Anchor, DrawnLayer, LayerEdit, Rect } from '../design/types.js';
-import { zonePx } from '../design/platforms.js';
+import { platformOf, zonePx } from '../design/platforms.js';
 import { sizeInfo, type Size } from './catalog.js';
 
 // Where things go on a picture: the part of the canvas a platform leaves free, rectangles that must not meet, the
@@ -59,7 +59,8 @@ export function frameOf(size: Size, floors: { small: number; headline: number; m
 	const base = banner ? Math.min(free.w * 0.58, free.h * 2.4) : Math.min(free.w, free.h * 1.6);
 	const m = base * marginShare;
 	const live = cross(free, { x: m, y: m, w: W - m * 2, h: H - m * 2 });
-	const k = W / info.shown;
+	// The stricter of this size's own shown width and the one the shared check assumes for it.
+	const k = W / Math.min(info.shown, platformOf(size.id, W, H).shown);
 	return { W, H, m, live, stage: inflate(live, m), avoid: corners.map((c) => ({ ...cross(c, { x: 0, y: 0, w: W, h: H }), name: c.name })).filter((c) => meets(c, live)), small: floors.small * k, large: floors.headline * k, mark: floors.mark * k };
 }
 

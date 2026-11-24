@@ -133,7 +133,10 @@ Run these commands with `npx mireye-ds` after installing the CLI.
 | `look <file\|element>` | Show component and token guidance for a file or element type. |
 | `tokens [term]` | Find a token by name or role. |
 | `image` | Share images, banners and social posts (PNG, SVG, JPG, WebP, PDF): the brand's poster layouts and the cut-frame sheets at every platform size and four grounds; several sizes at once; carousels. |
-| `design` | A design file you revise: `new`, `revise` (plain words), `edit`, `undo`, `redo`, `history`, `variants`, `sizes`, `compare`, `render`, `check`. Every write is checked. |
+| `icons` | Favicon set (ico, png, maskable, svg, manifest), app icons and the interface icon set as SVGs. |
+| `document` | One-pager, case study or report with a cover, as a PDF of A4 or US Letter pages. |
+| `email` | Newsletter, announcement, receipt, password reset and signature as email-safe HTML tables. |
+| `design` | A design file you revise: `new`, `revise` (plain words), `edit`, `undo`, `redo`, `history`, `variants`, `sizes`, `compare`, `render`, `check`. Every write is checked. `design new compose --size <id>` lays out the brand's blocks on a grid (`compose add`, `move`, `span`, `order`) for anything no template covers; `design page compose outline.json` writes a page from sections in React and plain HTML. |
 | `deck` | Slides at 1920 by 1080 from a JSON file: a PNG per slide and one PDF. |
 | `video` | Short clips (square, 9:16 or 16:9) as APNG, MP4 or WebM, plus a still frame. |
 | `merch` | Print files at real size with bleed, safe area and a cut-corner die line. |

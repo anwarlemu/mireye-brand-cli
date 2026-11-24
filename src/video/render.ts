@@ -7,8 +7,9 @@ import { isAbsolute, join, relative } from 'node:path';
 import { rasterize } from '../image/encode.js';
 import type { ImageContent } from '../image/catalog.js';
 import { encodeApng } from './apng.js';
+import { groundColors } from '../image/poster.js';
 import { VIDEO_FORMATS, type VideoExport, type VideoFormatId, type VideoTemplateId, videoTiming } from './catalog.js';
-import { frameSvg } from './compose.js';
+import { frameSvg, framesFor } from './compose.js';
 
 export type VideoRequest = {
 	format: VideoFormatId;
@@ -38,11 +39,11 @@ function write(file: string, data: Buffer | string, format: VideoFile['format'],
 }
 
 /** Encodes the frames with ffmpeg: single-threaded and bit-exact, so the same frames give the same file. */
-function encodeVideo(pngs: Buffer[], fps: number, kind: 'mp4' | 'webm', file: string) {
+function encodeVideo(pngs: Buffer[], fps: number, kind: 'mp4' | 'webm' | 'gif', file: string) {
 	const dir = mkdtempSync(join(tmpdir(), 'ds-video-'));
 	try {
 		pngs.forEach((png, index) => writeFileSync(join(dir, `f${String(index).padStart(4, '0')}.png`), png));
-		const codec = kind === 'mp4' ? ['-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'] : ['-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '30', '-pix_fmt', 'yuv420p', '-row-mt', '0'];
+		const codec = kind === 'mp4' ? ['-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'] : kind === 'gif' ? ['-filter_complex', '[0:v]split[a][b];[a]palettegen=stats_mode=full:reserve_transparent=1[p];[b][p]paletteuse=dither=none', '-loop', '0'] : ['-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '30', '-pix_fmt', 'yuva420p', '-auto-alt-ref', '0', '-row-mt', '0'];
 		execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', join(dir, 'f%04d.png'), ...codec, '-threads', '1', '-fflags', '+bitexact', '-flags:v', '+bitexact', '-map_metadata', '-1', file], { stdio: ['ignore', 'ignore', 'pipe'] });
 	} catch (error) {
 		const err = error as { code?: string; stderr?: Buffer };
@@ -55,7 +56,7 @@ function encodeVideo(pngs: Buffer[], fps: number, kind: 'mp4' | 'webm', file: st
 
 export async function renderVideo(request: VideoRequest) {
 	const timing = videoTiming();
-	const frameCount = request.frameCount ?? timing.frameCount;
+	const frameCount = request.frameCount ?? framesFor(request.template, request.content, timing.frameCount);
 	if (!Number.isInteger(frameCount) || frameCount < 1) throw new Error('frameCount must be a positive integer.');
 	const { width, height } = VIDEO_FORMATS[request.format];
 	const frames = Array.from({ length: frameCount }, (_, index) => frameSvg(request.format, request.template, request.theme, request.content, index, frameCount, request.seed));
@@ -84,10 +85,11 @@ export async function renderVideo(request: VideoRequest) {
 		files.push(write(join(request.outDir, `${request.name}-still.svg`), frames[last], 'svg', width, height, last));
 		files.push(write(join(request.outDir, `${request.name}-still.png`), pngs[last] ?? (await rasterize(frames[last], width)), 'png', width, height, last));
 	}
-	for (const kind of ['mp4', 'webm'] as const) {
+	for (const kind of ['mp4', 'webm', 'gif'] as const) {
 		if (!request.exports.includes(kind)) continue;
 		const file = join(request.outDir, `${request.name}.${kind}`);
-		encodeVideo(pngs, timing.fps, kind, file);
+		// MP4 has no transparency: a clear ground (a lower third) is drawn on bone for it.
+		encodeVideo(kind === 'mp4' && request.template === 'lower-third' ? await Promise.all(frames.map((svg) => rasterize(svg.replace('<!--ground-->', `<rect width="100%" height="100%" fill="${groundColors('bone', request.theme).bg}"/>`), width))) : pngs, timing.fps, kind, file);
 		files.push(write(file, readFileSync(file), kind, width, height));
 	}
 	return {

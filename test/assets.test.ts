@@ -40,8 +40,17 @@ describe('image posters', () => {
 		for (const template of Object.keys(POSTERS())) {
 			const sample = { ...POSTERS()[template].sample };
 			if (template === 'parcels') delete sample.labels;
+			// The before and after layout needs two pictures of the person's own.
+			if (template === 'split') Object.assign(sample, { before: join(ROOT, 'brand/reference/site-buttons-desktop.jpg'), after: join(ROOT, 'brand/reference/site-buttons-desktop.jpg') });
 			for (const format of sizesFor(template).filter((id) => id !== 'custom' && !(template === 'app' && FORMATS[id].width / FORMATS[id].height > 1.5))) {
-				const svg = posterDocument(format, template, 'api', POSTERS()[template].ground, sample);
+				let svg: string;
+				try {
+					svg = posterDocument(format, template, 'api', POSTERS()[template].ground, sample);
+				} catch (error) {
+					// Copy that cannot be drawn whole at a size is refused, saying what to shorten.
+					expect((error as Error).message).toMatch(/does not fit|no room|Shorten|needs/);
+					continue;
+				}
 				expect(svg).toContain(`width="${FORMATS[format].width}" height="${FORMATS[format].height}"`);
 				for (const c of colorsIn(svg)) expect(allowed, `${template} ${format} uses ${c}`).toContain(c);
 			}
@@ -128,7 +137,7 @@ describe('illustrate', () => {
 describe('deck', () => {
 	it('draws one slide of every type and writes a PNG per slide and one PDF, the same bytes twice', () => {
 		const slides = sampleDeck();
-		expect(slides.map((s) => s.type)).toEqual(['cover', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'chart', 'poster', 'closing']);
+		expect(slides.map((s) => s.type)).toEqual(['cover', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'chart', 'poster', 'closing', 'agenda', 'team', 'timeline', 'questions']);
 		for (const s of slides) expect(slideSvg(s)).toContain('width="1920" height="1080"');
 		const a = mkdtempSync(join(tmpdir(), 'ds-deck-'));
 		const b = mkdtempSync(join(tmpdir(), 'ds-deck-'));
@@ -136,9 +145,9 @@ describe('deck', () => {
 		expect(run(['deck', '--sample', '--out', b]).status).toBe(0);
 		const pdf = readFileSync(join(a, 'deck.pdf'));
 		expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
-		expect((pdf.toString('latin1').match(/\/Type \/Page\b/g) ?? []).length).toBe(10);
+		expect((pdf.toString('latin1').match(/\/Type \/Page\b/g) ?? []).length).toBe(14);
 		expect(sha(pdf)).toBe(sha(readFileSync(join(b, 'deck.pdf'))));
-		expect(readdirSync(a).filter((f) => f.endsWith('.png'))).toHaveLength(10);
+		expect(readdirSync(a).filter((f) => f.endsWith('.png'))).toHaveLength(14);
 		const bad = run(['deck', 'covr', '--title', 'x', '--json']);
 		expect(bad.status).toBe(1);
 		expect(bad.stdout).toMatch(/Did you mean cover/);

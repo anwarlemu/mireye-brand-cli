@@ -1,0 +1,265 @@
+{
+	"$comment": "Written by scripts/build-icons.mjs. Every icon the brand interface uses, as an SVG in currentColor.",
+	"icons": [
+		{
+			"name": "parcel",
+			"source": "the brand's own glyph (registry/components/icons/parcel-icon.tsx)",
+			"licence": "the brand"
+		},
+		{
+			"name": "check",
+			"source": "the brand's own glyph (registry/components/icons/check.tsx)",
+			"licence": "the brand"
+		},
+		{
+			"name": "plus",
+			"source": "the brand's own glyph (registry/components/icons/plus.tsx)",
+			"licence": "the brand"
+		},
+		{
+			"name": "arrow-right",
+			"source": "the brand's own glyph (registry/components/icons/arrow-right.tsx)",
+			"licence": "the brand"
+		},
+		{
+			"name": "chevron",
+			"source": "the brand's own glyph (registry/components/icons/arrow-right.tsx (head))",
+			"licence": "the brand"
+		},
+		{
+			"name": "arrow-clockwise",
+			"source": "Phosphor Icons ArrowClockwiseIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "arrows-clockwise",
+			"source": "Phosphor Icons ArrowsClockwiseIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "book-open-text",
+			"source": "Phosphor Icons BookOpenTextIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "brackets-curly",
+			"source": "Phosphor Icons BracketsCurlyIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "calendar-blank",
+			"source": "Phosphor Icons CalendarBlankIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "caret-down",
+			"source": "Phosphor Icons CaretDownIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "caret-left",
+			"source": "Phosphor Icons CaretLeftIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "caret-right",
+			"source": "Phosphor Icons CaretRightIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "chart-line",
+			"source": "Phosphor Icons ChartLineIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "chat-text",
+			"source": "Phosphor Icons ChatTextIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "check-circle",
+			"source": "Phosphor Icons CheckCircleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "columns",
+			"source": "Phosphor Icons ColumnsIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "copy",
+			"source": "Phosphor Icons CopyIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "crosshair",
+			"source": "Phosphor Icons CrosshairIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "dots-six-vertical",
+			"source": "Phosphor Icons DotsSixVerticalIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "dots-three",
+			"source": "Phosphor Icons DotsThreeIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "download-simple",
+			"source": "Phosphor Icons DownloadSimpleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "drop",
+			"source": "Phosphor Icons DropIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "file-csv",
+			"source": "Phosphor Icons FileCsvIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "file-pdf",
+			"source": "Phosphor Icons FilePdfIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "file-text",
+			"source": "Phosphor Icons FileTextIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "flag",
+			"source": "Phosphor Icons FlagIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "folder-simple",
+			"source": "Phosphor Icons FolderSimpleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "gear-six",
+			"source": "Phosphor Icons GearSixIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "globe-hemisphere-west",
+			"source": "Phosphor Icons GlobeHemisphereWestIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "image",
+			"source": "Phosphor Icons ImageIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "info",
+			"source": "Phosphor Icons InfoIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "lightning",
+			"source": "Phosphor Icons LightningIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "list",
+			"source": "Phosphor Icons ListIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "magnifying-glass",
+			"source": "Phosphor Icons MagnifyingGlassIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "map-pin",
+			"source": "Phosphor Icons MapPinIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "map-trifold",
+			"source": "Phosphor Icons MapTrifoldIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "minus",
+			"source": "Phosphor Icons MinusIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "mountains",
+			"source": "Phosphor Icons MountainsIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "pencil-simple",
+			"source": "Phosphor Icons PencilSimpleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "plugs",
+			"source": "Phosphor Icons PlugsIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "question",
+			"source": "Phosphor Icons QuestionIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "ruler",
+			"source": "Phosphor Icons RulerIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "share-network",
+			"source": "Phosphor Icons ShareNetworkIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "shield-check",
+			"source": "Phosphor Icons ShieldCheckIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "sidebar-simple",
+			"source": "Phosphor Icons SidebarSimpleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "stack",
+			"source": "Phosphor Icons StackIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "trash",
+			"source": "Phosphor Icons TrashIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "warning",
+			"source": "Phosphor Icons WarningIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "waves",
+			"source": "Phosphor Icons WavesIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "xcircle",
+			"source": "Phosphor Icons XCircleIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		},
+		{
+			"name": "x",
+			"source": "Phosphor Icons XIcon (regular), used by the library's components",
+			"licence": "MIT (https://github.com/phosphor-icons/core/blob/main/LICENSE)"
+		}
+	]
+}

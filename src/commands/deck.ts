@@ -19,7 +19,7 @@ import { findProjectRoot } from '../lib/paths.js';
 
 type Opts = Record<string, string | boolean | undefined> & { json?: boolean };
 
-const SLOT_FLAGS = ['title', 'subtitle', 'label', 'items', 'stat', 'progress', 'quote', 'attribution', 'url', 'image', 'scene', 'chart', 'template', 'callout', 'partner', 'labels', 'question', 'suggestions', 'place'];
+const SLOT_FLAGS = ['title', 'subtitle', 'label', 'items', 'stat', 'progress', 'quote', 'attribution', 'url', 'image', 'scene', 'chart', 'template', 'callout', 'partner', 'labels', 'question', 'suggestions', 'place', 'images', 'date', 'speaker', 'price', 'steps', 'left', 'right', 'before', 'after'];
 const SHARED: Record<string, string> = { headline: 'title', body: 'subtitle', badge: 'label' };
 
 export async function deckRun(positional: string | undefined, o: Opts) {
@@ -69,6 +69,8 @@ export async function deckRun(positional: string | undefined, o: Opts) {
 		if (s.ground) s.ground = pickName('ground', s.ground, groundIds());
 		else if (deckGround) s.ground = deckGround;
 		if (s.image && !isAbsolute(s.image)) s.image = resolve(base, s.image);
+		for (const key of ['before', 'after'] as const) if (s[key] && !isAbsolute(s[key]!)) s[key] = resolve(base, s[key]!);
+		if (s.images) s.images = s.images.split('|').map((x) => x.trim()).filter(Boolean).map((x) => (isAbsolute(x) ? x : resolve(base, x))).join(' | ');
 	}
 	const d = deckDoc();
 	// Every slide is drawn before the first file is written, so one that does not fit never leaves half a deck.

@@ -14,6 +14,9 @@ import { manifestCommand } from './commands/manifest.js';
 import { registerIllustrate } from './commands/illustrate.js';
 import { registerDeck } from './commands/deck.js';
 import { registerMerch } from './commands/merch.js';
+import { registerIcons } from './commands/icons.js';
+import { registerDocument } from './commands/document.js';
+import { registerEmail } from './commands/email.js';
 import { registerFigma } from './commands/figma.js';
 import { approve, check, done, look, skip, tokensCommand } from './commands/small.js';
 import { type HookResult, cursorPreToolUse, cursorStop, preToolUse, sessionStart, stop, userPromptSubmit } from './hooks/handlers.js';
@@ -65,7 +68,18 @@ program
 	.option('--question <text>', 'poster template: the ask panel question')
 	.option('--suggestions <text>', 'poster template: the ask panel suggestions')
 	.option('--place <text>', 'poster template: the ask panel place')
-	.option('--template <id>', 'social, announcement, product or poster')
+	.option('--images <files>', 'walkthrough: your screenshots, split by |')
+	.option('--stat <text>', 'poster stat: the number')
+	.option('--date <text>', 'poster event: the date')
+	.option('--speaker <text>', 'poster event: the speaker line')
+	.option('--price <text>', 'poster pricing: the price')
+	.option('--items <text>', 'poster pricing: what it includes, split by |')
+	.option('--steps <text>', 'poster flow: the steps, split by |')
+	.option('--left <text>', 'poster compare: the first column, split by |')
+	.option('--right <text>', 'poster compare: the second column, split by |')
+	.option('--before <file>', 'poster split: the first picture')
+	.option('--after <file>', 'poster split: the second picture')
+	.option('--template <id>', 'social, announcement, product, lower-third, walkthrough or poster')
 	.option('--poster <id>', 'poster template: which share-image layout to reveal (window, parcels, scene, ...)')
 	.option('--ground <id>', 'poster template: bone, green, brown or black')
 	.option('--theme <id>', 'a brand theme (see --list), or for the poster template a ground')
@@ -81,13 +95,16 @@ program
 	.option('--content <file>', 'JSON file of the same fields, or - for stdin; flags override it')
 	.option('--out <path>', 'output directory (default: .ds/videos in the project), or a file name that also sets the format')
 	.option('--name <base>', 'file name without an extension')
-	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), or a comma-separated list (default apng)')
+	.option('--export <kinds>', 'apng, mp4, webm, png (frames), svg (frames), still (last frame), gif, or a comma-separated list (default apng)')
 	.option('--json', 'JSON output listing the files written')
 	.addHelpText('after', () => `\nExamples:\n  ${cli()} video --list --json\n  ${cli()} video --format square --template social --title "Parcel survey" --json\n  ${cli()} video --format vertical --template announcement --kicker "Field note" --title "The sheet is ready." --subtitle "Same marks, new note."\n  ${cli()} video --format landscape --template product --title "Parcel 18" --subtitle "Boundaries and access."\n  ${cli()} video --format square --template poster --poster parcels --title "Find the parcels that fit." --export mp4,webm,still\n`)
 	.action((template: string | undefined, _opts, command) => videoCommand({ ...command.optsWithGlobals(), ...(template ? { template } : {}) }));
 registerIllustrate(program);
 registerDeck(program);
 registerMerch(program);
+registerIcons(program);
+registerDocument(program);
+registerEmail(program);
 registerFigma(program);
 brandCommand(program);
 componentCommand(program);
