@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "legal-page",
+  "useFor": "Use for terms, privacy and security pages. Pass `sections` (id, title, paragraphs) and `effective`. The sample text is a placeholder, not legal advice.",
+  "constraints": [
+    "Text wider than 680px",
+    "Uppercase headings",
+    "Collapsed sections"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): terms and privacy pages",
+  "exports": [
+    "LegalSection",
+    "LegalPageProps",
+    "LegalPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/legal-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/legal-page.md",
+  "examples": [
+    {
+      "path": "examples/legal-page.tsx",
+      "content": "import { LegalPage } from \"@/components/blocks/legal-page\";\n\nexport function Preview() {\n  return <LegalPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "legal-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/legal-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Legal page",
+  "description": "A legal page: the title and effective date in DM Mono, a contents list that stays in view on wide screens, then numbered sections at a 680px measure.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "site-footer",
+    "site-header"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/legal-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\n\n// A legal page (terms, privacy, security): the title and the date it took effect in DM Mono, a contents list that\n// stays in view on wide screens, then numbered sections at a 680px measure. Contents links are Forest at 80% and turn\n// Forest under the pointer (150ms, color only). The sample text is a placeholder, not legal advice.\n\nexport type LegalSection = { id: string; title: string; body: string[] };\n\nconst SECTIONS: LegalSection[] = [\n  { id: \"agreement\", title: \"The agreement\", body: [\"These terms govern your use of the API and the platform. By creating an account you agree to them on behalf of yourself or the company you work for.\"] },\n  { id: \"data\", title: \"Data and sources\", body: [\"Values come from public and licensed records. Each response names its sources. You may store responses for your own use; you may not resell them as a dataset.\", \"Records can be wrong or out of date. Check the source before relying on a value for a legal or financial decision.\"] },\n  { id: \"accounts\", title: \"Accounts and keys\", body: [\"Keep your API keys secret. You are responsible for requests made with them. Rotate a key from the settings page if you think it has been exposed.\"] },\n  { id: \"billing\", title: \"Billing\", body: [\"Paid plans are billed in advance, monthly or yearly. Requests over your plan are billed at the plan's rate at the end of each month.\"] },\n  { id: \"changes\", title: \"Changes to these terms\", body: [\"We will email account owners 30 days before a material change takes effect.\"] },\n];\n\nexport type LegalPageProps = { header?: SiteHeaderProps; title?: string; effective?: string; sections?: LegalSection[]; footer?: SiteFooterProps };\n\nconst LINK =\n  \"text-body leading-body text-fg-secondary outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\";\n\nexport function LegalPage({ header, title = \"Terms of service\", effective = \"Effective Nov 1, 2026\", sections = SECTIONS, footer }: LegalPageProps) {\n  return (\n    <div data-slot=\"legal-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader {...header} />\n      <main>\n        <PageSection label={effective} as=\"h1\" title={title} space=\"compact\" />\n        <PageSection>\n          <div className=\"grid gap-10 lg:grid-cols-4 lg:gap-12\">\n            <nav aria-label=\"Contents\" className=\"lg:sticky lg:top-20 lg:self-start\">\n              <p className=\"mb-3 font-mono text-caption leading-tight text-fg-muted\">Contents</p>\n              <ol className=\"grid gap-2 border-l border-line pl-4\">\n                {sections.map((s, i) => (\n                  <li key={s.id}>\n                    <a href={`#${s.id}`} className={LINK}>\n                      <span className=\"mr-2 font-mono text-caption text-fg-muted\">{String(i + 1).padStart(2, \"0\")}</span>\n                      {s.title}\n                    </a>\n                  </li>\n                ))}\n              </ol>\n            </nav>\n            <div className=\"grid max-w-(--ds-layout-text) gap-10 lg:col-span-3\">\n              {sections.map((s, i) => (\n                <section key={s.id} id={s.id} className=\"grid scroll-mt-20 gap-3 border-t border-line-subtle pt-5\">\n                  <h2 className=\"flex items-baseline gap-3 text-h2 leading-heading font-normal text-fg\">\n                    <span className=\"font-mono text-caption text-fg-muted\">{String(i + 1).padStart(2, \"0\")}</span>\n                    {s.title}\n                  </h2>\n                  {s.body.map((p) => (\n                    <p key={p} className=\"text-body-lg leading-relaxed text-fg-secondary\">\n                      {p}\n                    </p>\n                  ))}\n                </section>\n              ))}\n            </div>\n          </div>\n        </PageSection>\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "context-menu",
+  "useFor": "Use for the actions on a thing people point at directly (a parcel on the map or in a list), as a shortcut to actions that are also reachable another way. A long menu fades at an edge (fade-y) where more items scroll past it.",
+  "constraints": [
+    "The only way to reach an action",
+    "Rounded corners or a shadow on the panel",
+    "Animating the highlighted row",
+    "Icons that move on hover"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the dropdown menu's panel and rows",
+  "exports": [
+    "ContextMenu",
+    "ContextMenuCheckboxItem",
+    "ContextMenuContent",
+    "ContextMenuGroup",
+    "ContextMenuItem",
+    "ContextMenuLabel",
+    "ContextMenuPortal",
+    "ContextMenuRadioGroup",
+    "ContextMenuRadioItem",
+    "ContextMenuSeparator",
+    "ContextMenuShortcut",
+    "ContextMenuSub",
+    "ContextMenuSubContent",
+    "ContextMenuSubTrigger",
+    "ContextMenuTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/context-menu",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/context-menu.md",
+  "examples": [
+    {
+      "path": "examples/context-menu.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { CopyIcon, CrosshairIcon, FlagIcon, MapPinIcon, RulerIcon, StackIcon, TrashIcon } from \"@phosphor-icons/react/ssr\";\n\nimport {\n  ContextMenu,\n  ContextMenuCheckboxItem,\n  ContextMenuContent,\n  ContextMenuItem,\n  ContextMenuLabel,\n  ContextMenuRadioGroup,\n  ContextMenuRadioItem,\n  ContextMenuSeparator,\n  ContextMenuShortcut,\n  ContextMenuSub,\n  ContextMenuSubContent,\n  ContextMenuSubTrigger,\n  ContextMenuTrigger,\n} from \"@/components/ui/context-menu\";\n\nexport function Preview() {\n  const [shortlisted, setShortlisted] = React.useState(false);\n  const [stage, setStage] = React.useState(\"screening\");\n  return (\n    <ContextMenu>\n      <ContextMenuTrigger className=\"mx-auto grid w-full max-w-96 gap-1 border border-line bg-surface p-3\">\n        <span className=\"flex justify-between text-body text-fg\">\n          Parcel 0412-07 <span className=\"text-fg-muted\">212 acres</span>\n        </span>\n        <span className=\"text-body text-fg-secondary\">Weld County, 2.1 mi to the Ault 230 kV substation</span>\n        <span className=\"font-mono text-caption text-fg-muted\">40.5853, −104.7322</span>\n        <span className=\"mt-2 text-caption text-fg-muted\">Right-click or long-press the parcel</span>\n      </ContextMenuTrigger>\n      <ContextMenuContent className=\"w-60\">\n        <ContextMenuItem>\n          <MapPinIcon />\n          Show on map\n          <ContextMenuShortcut>M</ContextMenuShortcut>\n        </ContextMenuItem>\n        <ContextMenuItem>\n          <RulerIcon />\n          Measure distance\n          <ContextMenuShortcut>D</ContextMenuShortcut>\n        </ContextMenuItem>\n        <ContextMenuItem>\n          <CopyIcon />\n          Copy coordinates\n        </ContextMenuItem>\n        <ContextMenuCheckboxItem checked={shortlisted} onCheckedChange={(v) => setShortlisted(v === true)}>\n          Shortlisted\n        </ContextMenuCheckboxItem>\n        <ContextMenuSub>\n          <ContextMenuSubTrigger>\n            <StackIcon />\n            Move to stage\n          </ContextMenuSubTrigger>\n          <ContextMenuSubContent className=\"w-44\">\n            <ContextMenuLabel>Stages</ContextMenuLabel>\n            <ContextMenuRadioGroup value={stage} onValueChange={setStage}>\n              <ContextMenuRadioItem value=\"screening\">Screening</ContextMenuRadioItem>\n              <ContextMenuRadioItem value=\"diligence\">Diligence</ContextMenuRadioItem>\n              <ContextMenuRadioItem value=\"option\">Option signed</ContextMenuRadioItem>\n            </ContextMenuRadioGroup>\n          </ContextMenuSubContent>\n        </ContextMenuSub>\n        <ContextMenuSeparator />\n        <ContextMenuItem>\n          <CrosshairIcon />\n          Center the map here\n        </ContextMenuItem>\n        <ContextMenuItem>\n          <FlagIcon />\n          Flag for review\n        </ContextMenuItem>\n        <ContextMenuItem variant=\"destructive\">\n          <TrashIcon />\n          Remove parcel\n          <ContextMenuShortcut>⌫</ContextMenuShortcut>\n        </ContextMenuItem>\n      </ContextMenuContent>\n    </ContextMenu>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "context-menu"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/context-menu/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Context Menu",
+  "description": "The dropdown menu's panel on right-click or long-press: a Bone frame with the 6px cut corner and a 1px Stone line, square 32px rows with Fog under the highlight, Mist while pressed, and Mireye's check on a chosen row.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui",
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/context-menu.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ContextMenu as ContextMenuPrimitive } from \"radix-ui\";\nimport { CaretRightIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { CheckIcon } from \"@/components/icons/check\";\n\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A right-click menu, drawn as the dropdown menu (Figma has no menu; this is Mireye's grammar): a white panel with the\n// 6px cut corner and a 1px Stone line, no shadow, 4px inside the line; square rows of at least 32px with a 13px Forest\n// label after a 16px glyph, Fog under the highlighted row and Mist while pressed, at once; a chosen row ends in\n// Mireye's check; section labels 12px in the secondary ink, Mist separators, 12px muted shortcuts, brick destructive\n// rows. It grows out of the pointer from 98 percent with a fade (150ms) and leaves in 120ms.\nconst CONTENT =\n  \"ds-cut-frame z-50 flex max-h-(--radix-context-menu-content-available-height) min-w-48 flex-col p-px text-fg outline-none [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in\";\nconst SCROLL = \"min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain fade-y p-1\";\nconst ITEM =\n  \"relative flex min-h-8 cursor-default items-center gap-2 px-3 py-1.5 font-sans text-body leading-tight font-normal text-fg outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:text-fg-subtle data-[highlighted]:bg-subtle data-[highlighted]:active:bg-subtle-hover data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-']):not([data-slot])]:size-4\";\nconst CHECK = \"pointer-events-none ml-auto flex size-4 shrink-0 items-center justify-center pl-1\";\n\nfunction ContextMenu(props: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {\n  return <ContextMenuPrimitive.Root data-slot=\"context-menu\" {...props} />;\n}\n\nfunction ContextMenuPortal(props: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) {\n  const container = usePortalContainer();\n  return <ContextMenuPrimitive.Portal data-slot=\"context-menu-portal\" container={container} {...props} />;\n}\n\nfunction ContextMenuTrigger({ className, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {\n  return <ContextMenuPrimitive.Trigger data-slot=\"context-menu-trigger\" className={cn(\"select-none\", className)} {...props} />;\n}\n\nfunction ContextMenuContent({ className, children, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Content>) {\n  return (\n    <ContextMenuPortal>\n      <ContextMenuPrimitive.Content data-slot=\"context-menu-content\" className={cn(CONTENT, \"origin-(--radix-context-menu-content-transform-origin)\", className)} {...props}>\n        <div className={SCROLL}>{children}</div>\n      </ContextMenuPrimitive.Content>\n    </ContextMenuPortal>\n  );\n}\n\nfunction ContextMenuGroup(props: React.ComponentProps<typeof ContextMenuPrimitive.Group>) {\n  return <ContextMenuPrimitive.Group data-slot=\"context-menu-group\" {...props} />;\n}\n\nfunction ContextMenuItem({ className, inset, variant = \"default\", ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Item> & { inset?: boolean; variant?: \"default\" | \"destructive\" }) {\n  return (\n    <ContextMenuPrimitive.Item\n      data-slot=\"context-menu-item\"\n      data-inset={inset || undefined}\n      data-variant={variant}\n      className={cn(ITEM, \"data-[variant=destructive]:text-danger\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuCheckboxItem({ className, children, checked, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {\n  return (\n    <ContextMenuPrimitive.CheckboxItem data-slot=\"context-menu-checkbox-item\" checked={checked} className={cn(ITEM, className)} {...props}>\n      {children}\n      <span className={CHECK}>\n        <ContextMenuPrimitive.ItemIndicator>\n          <CheckIcon />\n        </ContextMenuPrimitive.ItemIndicator>\n      </span>\n    </ContextMenuPrimitive.CheckboxItem>\n  );\n}\n\nfunction ContextMenuRadioGroup(props: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) {\n  return <ContextMenuPrimitive.RadioGroup data-slot=\"context-menu-radio-group\" {...props} />;\n}\n\n// The chosen option ends in the same check as a checkbox item.\nfunction ContextMenuRadioItem({ className, children, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.RadioItem>) {\n  return (\n    <ContextMenuPrimitive.RadioItem data-slot=\"context-menu-radio-item\" className={cn(ITEM, className)} {...props}>\n      {children}\n      <span className={CHECK}>\n        <ContextMenuPrimitive.ItemIndicator>\n          <CheckIcon />\n        </ContextMenuPrimitive.ItemIndicator>\n      </span>\n    </ContextMenuPrimitive.RadioItem>\n  );\n}\n\nfunction ContextMenuLabel({ className, inset, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Label> & { inset?: boolean }) {\n  return <ContextMenuPrimitive.Label data-slot=\"context-menu-label\" data-inset={inset || undefined} className={cn(\"px-3 pt-2 pb-1 font-sans text-caption leading-tight font-normal text-fg-secondary data-[inset]:pl-9\", className)} {...props} />;\n}\n\nfunction ContextMenuSeparator({ className, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Separator>) {\n  return <ContextMenuPrimitive.Separator data-slot=\"context-menu-separator\" className={cn(\"-mx-1 my-1 h-px border-0 bg-line-subtle\", className)} {...props} />;\n}\n\nfunction ContextMenuShortcut({ className, ...props }: React.ComponentProps<\"span\">) {\n  return <span data-slot=\"context-menu-shortcut\" className={cn(\"ml-auto pl-4 font-sans text-caption leading-tight text-fg-muted\", className)} {...props} />;\n}\n\nfunction ContextMenuSub(props: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) {\n  return <ContextMenuPrimitive.Sub data-slot=\"context-menu-sub\" {...props} />;\n}\n\nfunction ContextMenuSubTrigger({ className, inset, children, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.SubTrigger> & { inset?: boolean }) {\n  return (\n    <ContextMenuPrimitive.SubTrigger data-slot=\"context-menu-sub-trigger\" data-inset={inset || undefined} className={cn(ITEM, \"data-[state=open]:bg-subtle\", className)} {...props}>\n      {children}\n      <CaretRightIcon className=\"ml-auto size-4 text-fg-secondary\" />\n    </ContextMenuPrimitive.SubTrigger>\n  );\n}\n\nfunction ContextMenuSubContent({ className, children, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {\n  return (\n    <ContextMenuPortal>\n      <ContextMenuPrimitive.SubContent data-slot=\"context-menu-sub-content\" className={cn(CONTENT, \"origin-(--radix-context-menu-content-transform-origin)\", className)} {...props}>\n        <div className={SCROLL}>{children}</div>\n      </ContextMenuPrimitive.SubContent>\n    </ContextMenuPortal>\n  );\n}\n\nexport {\n  ContextMenu,\n  ContextMenuCheckboxItem,\n  ContextMenuContent,\n  ContextMenuGroup,\n  ContextMenuItem,\n  ContextMenuLabel,\n  ContextMenuPortal,\n  ContextMenuRadioGroup,\n  ContextMenuRadioItem,\n  ContextMenuSeparator,\n  ContextMenuShortcut,\n  ContextMenuSub,\n  ContextMenuSubContent,\n  ContextMenuSubTrigger,\n  ContextMenuTrigger,\n};\n"
+    }
+  ]
+}

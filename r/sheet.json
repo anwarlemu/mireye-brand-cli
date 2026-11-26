@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "name": "sheet",
+  "useFor": "Use for editing or reading something beside the page without losing it (a site's requirements, a parcel's details). Side sheets are 384px wide; top and bottom sheets take their content's height. A sheet taller than the screen fades at an edge (fade-y) where more content scrolls past it.",
+  "constraints": [
+    "Rounded corners or a shadow",
+    "A sheet for a quick confirmation (use Alert Dialog)",
+    "Sheets on top of sheets",
+    "Slower than 300ms"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the dialog's panel and close key",
+  "exports": [
+    "Sheet",
+    "SheetClose",
+    "SheetContent",
+    "SheetDescription",
+    "SheetFooter",
+    "SheetHeader",
+    "SheetOverlay",
+    "SheetPortal",
+    "SheetTitle",
+    "SheetTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/sheet",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/sheet.md",
+  "examples": [
+    {
+      "path": "examples/sheet.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from \"@/components/ui/sheet\";\n\nfunction EditRequirements() {\n  return (\n    <>\n      <SheetHeader>\n        <SheetTitle>Edit requirements</SheetTitle>\n        <SheetDescription>Every site in the project is scored against these.</SheetDescription>\n      </SheetHeader>\n      <div className=\"grid gap-4 px-5\">\n        <div className=\"grid gap-1\">\n          <Label htmlFor=\"sheet-acres\">Minimum acres</Label>\n          <Input id=\"sheet-acres\" inputMode=\"numeric\" defaultValue=\"200\" />\n        </div>\n        <div className=\"grid gap-1\">\n          <Label htmlFor=\"sheet-kv\">Substation within (miles)</Label>\n          <Input id=\"sheet-kv\" inputMode=\"decimal\" defaultValue=\"3\" />\n        </div>\n      </div>\n      <SheetFooter>\n        <Button className=\"w-full\">Save requirements</Button>\n      </SheetFooter>\n    </>\n  );\n}\n\nexport function Preview() {\n  return (\n    <div className=\"flex justify-center\">\n      <Sheet>\n        <SheetTrigger asChild>\n          <Button variant=\"outline\">Edit requirements</Button>\n        </SheetTrigger>\n        <SheetContent>\n          <EditRequirements />\n        </SheetContent>\n      </Sheet>\n    </div>\n  );\n}\n\nexport function Sides() {\n  const sides = [\"top\", \"right\", \"bottom\", \"left\"] as const;\n  return (\n    <div className=\"flex flex-wrap justify-center gap-3\">\n      {sides.map((side) => (\n        <Sheet key={side}>\n          <SheetTrigger asChild>\n            <Button variant=\"outline\" className=\"capitalize\">\n              {side}\n            </Button>\n          </SheetTrigger>\n          <SheetContent side={side}>\n            <SheetHeader>\n              <SheetTitle>Sheet from the {side}</SheetTitle>\n              <SheetDescription>Slides from its edge on the drawer curve.</SheetDescription>\n            </SheetHeader>\n          </SheetContent>\n        </Sheet>\n      ))}\n    </div>\n  );\n}\n\nexport function Open() {\n  return (\n    <div className=\"min-h-120\">\n      <Sheet defaultOpen>\n        <SheetContent>\n          <EditRequirements />\n        </SheetContent>\n      </Sheet>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sides",
+        "Open"
+      ],
+      "requires": [
+        "sheet",
+        "button",
+        "input",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/sheet/Preview"
+        },
+        {
+          "name": "Sides",
+          "url": "https://mireye-ds.agencidev.com/preview/sheet/Sides"
+        },
+        {
+          "name": "Open",
+          "url": "https://mireye-ds.agencidev.com/preview/sheet/Open"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Sheet",
+  "description": "A Bone panel flush with an edge of the screen, square, with a 1px Stone line on its inner edge and no shadow, on the page under Forest at 40 percent; it slides on the drawer curve.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui",
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/sheet.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Dialog as SheetPrimitive } from \"radix-ui\";\nimport { XIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A panel from the edge of the screen. Figma has none, so it is drawn as the dialog in Mireye's grammar: white, square\n// and flush with its edge, with a 1px Stone line on its inner edge and no shadow, on the page under Forest at 40\n// percent. The head holds the 16px regular title 20px in, over a 13px line in the secondary ink; the close key is the\n// dialog's (a square 32px key 12px from the corner with a 16px X, Fog under the pointer, Mist while pressed); the sides\n// are 20px. It travels its own size from its edge on the drawer curve (300ms in, 200ms out). Side panels are 384px wide\n// (the full width on phones); top and bottom panels take their content's height.\nfunction Sheet(props: React.ComponentProps<typeof SheetPrimitive.Root>) {\n  return <SheetPrimitive.Root data-slot=\"sheet\" {...props} />;\n}\n\nfunction SheetTrigger(props: React.ComponentProps<typeof SheetPrimitive.Trigger>) {\n  return <SheetPrimitive.Trigger data-slot=\"sheet-trigger\" {...props} />;\n}\n\nfunction SheetClose(props: React.ComponentProps<typeof SheetPrimitive.Close>) {\n  return <SheetPrimitive.Close data-slot=\"sheet-close\" {...props} />;\n}\n\nfunction SheetPortal(props: React.ComponentProps<typeof SheetPrimitive.Portal>) {\n  const container = usePortalContainer();\n  return <SheetPrimitive.Portal data-slot=\"sheet-portal\" container={container} {...props} />;\n}\n\nfunction SheetOverlay({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Overlay>) {\n  return (\n    <SheetPrimitive.Overlay\n      data-slot=\"sheet-overlay\"\n      className={cn(\"fixed inset-0 z-50 bg-scrim data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in\", className)}\n      {...props}\n    />\n  );\n}\n\nconst SIDES = {\n  right: \"inset-y-0 right-0 h-full w-full border-l border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-right data-[state=open]:animate-sheet-in-right\",\n  left: \"inset-y-0 left-0 h-full w-full border-r border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-left data-[state=open]:animate-sheet-in-left\",\n  top: \"inset-x-0 top-0 h-auto max-h-[85dvh] border-b border-line data-[state=closed]:animate-sheet-out-top data-[state=open]:animate-sheet-in-top\",\n  bottom: \"inset-x-0 bottom-0 h-auto max-h-[85dvh] border-t border-line data-[state=closed]:animate-sheet-out-bottom data-[state=open]:animate-sheet-in-bottom\",\n} as const;\n\nfunction SheetContent({ className, children, side = \"right\", showCloseButton = true, instant = false, ...props }: React.ComponentProps<typeof SheetPrimitive.Content> & { side?: keyof typeof SIDES; showCloseButton?: boolean; instant?: boolean }) {\n  return (\n    <SheetPortal>\n      <SheetOverlay data-ds-motion={instant ? \"instant\" : undefined} />\n      <SheetPrimitive.Content\n        data-slot=\"sheet-content\"\n        data-ds-motion={instant ? \"instant\" : undefined}\n        data-side={side}\n        className={cn(\"fixed z-50 flex flex-col overflow-hidden bg-surface text-fg outline-none\", SIDES[side], className)}\n        {...props}\n      >\n        {/* The scrolling box sits inside the panel: its edges fade where more scrolls past them, the close button stays\n            put, and the panel's own slide animations stay on the panel. */}\n        <div data-slot=\"sheet-body\" className=\"flex min-h-0 flex-1 flex-col overflow-y-auto fade-y\">\n          {children}\n        </div>\n        {showCloseButton && (\n          <SheetPrimitive.Close\n            data-slot=\"sheet-close\"\n            className=\"absolute top-3 right-3 inline-flex size-8 items-center justify-center text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong motion-reduce:transition-none\"\n          >\n            <XIcon className=\"size-4\" />\n            <span className=\"sr-only\">Close</span>\n          </SheetPrimitive.Close>\n        )}\n      </SheetPrimitive.Content>\n    </SheetPortal>\n  );\n}\n\nfunction SheetHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"sheet-header\" className={cn(\"flex shrink-0 flex-col justify-center gap-1 pt-5 pr-13 pb-4 pl-5\", className)} {...props} />;\n}\n\nfunction SheetFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"sheet-footer\" className={cn(\"mt-auto flex shrink-0 flex-col gap-2 p-5\", className)} {...props} />;\n}\n\nfunction SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {\n  return <SheetPrimitive.Title data-slot=\"sheet-title\" className={cn(\"font-sans text-h3 leading-tight font-normal text-fg\", className)} {...props} />;\n}\n\nfunction SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {\n  return <SheetPrimitive.Description data-slot=\"sheet-description\" className={cn(\"text-body leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nexport { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetOverlay, SheetPortal, SheetTitle, SheetTrigger };\n"
+    }
+  ]
+}

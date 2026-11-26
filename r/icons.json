@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "name": "icons",
+  "useFor": "Use these where Figma draws them: ArrowRightIcon after a key's label (its `head` turned 90 degrees is the select chevron), CheckIcon in the checkbox, PlusIcon for add (turned 45 degrees it closes), ParcelIcon before coordinates. For everything else use Phosphor at regular weight. Sizes are Figma's; they render at the product scale.",
+  "constraints": [
+    "Moving an icon on hover",
+    "Mixing these with a filled Phosphor weight",
+    "A chevron icon where the arrow head serves"
+  ],
+  "documentation": "",
+  "source": "Figma UI boards: buttons 442:3, checkbox 442:161, search field 442:141",
+  "exports": [
+    "ArrowRightIcon",
+    "CheckIcon",
+    "ParcelIcon",
+    "PlusIcon"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/icons",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/icons.md",
+  "examples": [
+    {
+      "path": "examples/icons.tsx",
+      "content": "import { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { CheckIcon } from \"@/components/icons/check\";\nimport { ParcelIcon } from \"@/components/icons/parcel-icon\";\nimport { PlusIcon } from \"@/components/icons/plus\";\n\n// Mireye's own glyphs, drawn from Figma: the button arrow and its head alone (the select's chevron), the check, the\n// plus (turned 45 degrees it closes things) and the parcel. They take the text color.\nexport function Preview() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-6 text-fg\">\n      <ArrowRightIcon />\n      <ArrowRightIcon head className=\"rotate-90\" />\n      <CheckIcon />\n      <PlusIcon />\n      <PlusIcon className=\"rotate-45\" />\n      <ParcelIcon />\n    </div>\n  );\n}\n\n// In use: the parcel before a coordinate, the arrow after a label.\nexport function InText() {\n  return (\n    <div className=\"mx-auto flex w-fit flex-col gap-3 text-body text-fg\">\n      <span className=\"flex items-center gap-2\">\n        <ParcelIcon size={14} />\n        <span className=\"ds-trim tabular-nums\">32.1745, -96.8921</span>\n      </span>\n      <span className=\"flex items-center gap-3\">\n        <span className=\"ds-trim font-medium\">Open the parcel record</span>\n        <ArrowRightIcon size={16} />\n      </span>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "InText"
+      ],
+      "requires": [
+        "icons"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/icons/Preview"
+        },
+        {
+          "name": "InText",
+          "url": "https://mireye-ds.agencidev.com/preview/icons/InText"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Icons",
+  "description": "Mireye's own glyphs from Figma: the arrow (and its head alone), the check, the plus and the parcel.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/icons/arrow-right.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/** Arrow from the Figma buttons: 1.5px stroke, square caps. 20px on every UI board; the 16px\n * version comes from the identity boards (3.3).\n * `head` draws the arrowhead alone, centered in the box: turned 90° it is the chevron of the\n * UnitSelect, so the system keeps one arrow shape instead of adding a chevron icon. */\nexport function ArrowRightIcon({\n  size = 20,\n  head = false,\n  className,\n  style,\n  ...props\n}: React.SVGProps<SVGSVGElement> & { size?: 16 | 20; head?: boolean }) {\n  const d =\n    size === 16\n      ? head\n        ? \"M4.75 14.5L11.25 8L4.75 1.5\"\n        : \"M0 8H15M8.5 14.5L15 8L8.5 1.5\"\n      : head\n        ? \"M5.75 18.5L14.25 10L5.75 1.5\"\n        : \"M0 10H19M10.5 18.5L19 10L10.5 1.5\";\n  return (\n    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill=\"none\" aria-hidden data-slot=\"icon\" className={cn(svgBox, className)} style={svgSize(size, size, style)} {...props}>\n      <path d={d} stroke=\"currentColor\" strokeWidth={1.5} />\n    </svg>\n  );\n}\n"
+    },
+    {
+      "path": "components/icons/check.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/** Check from the Figma checkbox (442:161): 16×12 box, 1.75px stroke, path M1 6 L6 11 L15 1. */\nexport function CheckIcon({ className, style, ...props }: React.SVGProps<SVGSVGElement>) {\n  // Scales with the spacing scale; a width/height prop sets its Figma-scale size.\n  const w = Number(props.width ?? 16);\n  const h = Number(props.height ?? 12);\n  return (\n    <svg width={16} height={12} viewBox=\"0 0 16 12\" fill=\"none\" aria-hidden data-slot=\"icon\" className={cn(svgBox, className)} style={svgSize(w, h, style)} {...props}>\n      <path d=\"M1 6L6 11L15 1\" stroke=\"currentColor\" strokeWidth={1.75} />\n    </svg>\n  );\n}\n"
+    },
+    {
+      "path": "components/icons/parcel-icon.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/**\n * Parcel icon: a 1px square with a solid diamond inside. Figma \"Parcel icon\" (16px in the\n * search field 442:141; 14px and 12px versions exist on other boards).\n * Every size uses the same geometry: the square's stroke is inset 0.5px (Figma's centered 1px\n * stroke), and the diamond spans the middle half, e.g. 16px is M8 4 L12 8 L8 12 L4 8 Z.\n */\nexport function ParcelIcon({ size = 16, className, style, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {\n  const m = size / 2;\n  const q = size / 4;\n  return (\n    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill=\"none\" aria-hidden data-slot=\"icon\" className={cn(svgBox, className)} style={svgSize(size, size, style)} {...props}>\n      <path d={`M0.5 0.5H${size - 0.5}V${size - 0.5}H0.5V0.5Z`} stroke=\"currentColor\" vectorEffect=\"non-scaling-stroke\" />\n      <path d={`M${m} ${q}L${3 * q} ${m}L${m} ${3 * q}L${q} ${m}Z`} fill=\"currentColor\" />\n    </svg>\n  );\n}\n"
+    },
+    {
+      "path": "components/icons/plus.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/** Plus from the Figma icon button: 18px cross in a 20px box, 1.5px stroke. */\nexport function PlusIcon({ size = 20, className, style, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {\n  return (\n    <svg width={size} height={size} viewBox=\"0 0 20 20\" fill=\"none\" aria-hidden data-slot=\"icon\" className={cn(svgBox, className)} style={svgSize(size, size, style)} {...props}>\n      <path d=\"M10 1V10M10 10V19M10 10H1M10 10H19\" stroke=\"currentColor\" strokeWidth={1.5} />\n    </svg>\n  );\n}\n"
+    }
+  ]
+}

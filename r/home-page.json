@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "home-page",
+  "useFor": "Start a marketing home page from it. Each section takes its own props (`hero`, `features`, `faq`...) and any optional section can be left out with null. Replace the sample copy; keep one Forest key per screen.",
+  "constraints": [
+    "Sections off the rails",
+    "A second hero",
+    "Real customer names or quotes without permission"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): HomePage section order (hero, customers, numbers, coverage, platform, voices, closing)",
+  "exports": [
+    "HomePageProps",
+    "HomePage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/home-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/home-page.md",
+  "examples": [
+    {
+      "path": "examples/home-page.tsx",
+      "content": "\"use client\";\n\nimport { HomePage } from \"@/components/blocks/home-page\";\n\nexport function Preview() {\n  return <HomePage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "home-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/home-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Home page",
+  "description": "The home page template: header, hero with the survey plate, logo strip, feature grid, testimonial, questions, the closing card and the footer, on one set of rails.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "cta-section",
+    "faq-section",
+    "feature-grid",
+    "hero-section",
+    "logo-strip",
+    "site-footer",
+    "site-header",
+    "testimonial-section"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/home-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { FaqSection, type FaqSectionProps } from \"@/components/blocks/faq-section\";\nimport { FeatureGrid, type FeatureGridProps } from \"@/components/blocks/feature-grid\";\nimport { HeroSection, type HeroSectionProps } from \"@/components/blocks/hero-section\";\nimport { LogoStrip, type LogoStripProps } from \"@/components/blocks/logo-strip\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { TestimonialSection, type TestimonialSectionProps } from \"@/components/blocks/testimonial-section\";\n\n// The home page, in the website's order: the hero, who builds on it, what it covers, one customer's words, questions,\n// the closing card and the footer, all on one set of rails. Each section takes its own props; leave one out with null.\n\nexport type HomePageProps = {\n  header?: SiteHeaderProps;\n  hero?: HeroSectionProps;\n  logos?: LogoStripProps | null;\n  features?: FeatureGridProps | null;\n  testimonial?: TestimonialSectionProps | null;\n  faq?: FaqSectionProps | null;\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nexport function HomePage({ header, hero, logos = {}, features = {}, testimonial = {}, faq = {}, cta = {}, footer }: HomePageProps) {\n  return (\n    <div data-slot=\"home-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader {...header} />\n      <main>\n        <HeroSection {...hero} />\n        {logos && <LogoStrip {...logos} />}\n        {features && <FeatureGrid {...features} />}\n        {testimonial && <TestimonialSection {...testimonial} />}\n        {faq && <FaqSection {...faq} />}\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "name": "dialog",
+  "useFor": "Use for a short task that must be finished or dismissed before going back to the page (create a site, name an export). Put the fields in DialogBody and the main action last. DialogBody fades at an edge (fade-y) where more content scrolls past it.",
+  "constraints": [
+    "A dialog for a destructive confirmation (use Alert Dialog)",
+    "Rounded corners",
+    "a shadow or a blurred scrim",
+    "Dialogs on top of dialogs",
+    "A scale from less than 98 percent"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the Bone cut frame of Figma UI · Inputs (442:107) at the card's 8px cut, and the brand's 40 percent Forest scrim token",
+  "exports": [
+    "Dialog",
+    "DialogBody",
+    "DialogClose",
+    "DialogContent",
+    "DialogDescription",
+    "DialogFooter",
+    "DialogHeader",
+    "DialogOverlay",
+    "DialogPortal",
+    "DialogTitle",
+    "DialogTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/dialog",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/dialog.md",
+  "examples": [
+    {
+      "path": "examples/dialog.tsx",
+      "content": "\"use client\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\n\nexport function Preview() {\n  return (\n    <Dialog>\n      <DialogTrigger asChild>\n        <Button>New site</Button>\n      </DialogTrigger>\n      <DialogContent>\n        <DialogHeader>\n          <DialogTitle>New site</DialogTitle>\n          <DialogDescription>Name the site and set the acreage the project needs.</DialogDescription>\n        </DialogHeader>\n        <DialogBody className=\"grid gap-3\">\n          <div className=\"grid gap-1\">\n            <Label htmlFor=\"site\">Site name</Label>\n            <Input id=\"site\" placeholder=\"North Ault solar\" />\n          </div>\n          <div className=\"grid gap-1\">\n            <Label htmlFor=\"acres\">Acres needed</Label>\n            <Input id=\"acres\" inputMode=\"numeric\" placeholder=\"200\" />\n          </div>\n          <Button className=\"mt-2 w-full\">Create site</Button>\n        </DialogBody>\n      </DialogContent>\n    </Dialog>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "dialog",
+        "button",
+        "input",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/dialog/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Dialog",
+  "description": "A Bone panel with the 8px cut corner and a 1px Stone line, no shadow, on the page under Forest at 40 percent; a 16px regular title, a square 32px close key, 20px sides; full screen on phones.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/dialog.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Dialog as ChakraDialog, Portal } from \"@chakra-ui/react\";\nimport { XIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A dialog. Figma has none, so it is drawn in Mireye's grammar: a white panel with the 8px cut corner and a 1px Stone\n// line, no shadow, on the page under Forest at 40 percent. The head (20px above, 12px below, 20px sides, 52px clear on\n// the right) holds the 16px regular title over a 13px line in the secondary ink; the close key is a square 32px key\n// 12px from the top and right edges with a 16px X, Fog under the pointer and Mist while pressed. The body keeps the\n// 20px sides with 20px below it; a footer has 4px above, 20px below and 8px between its keys. The panel is at most\n// 480px wide and the page less 32px each way, and its body scrolls; below 768px it fills the screen (square, without\n// the line, inside the safe area) with 16px sides. It stays centered and opens from 98 percent with a fade (180ms, the\n// strong ease-out) and closes to 98 percent faster (120ms); the scrim fades in (150ms) and out (120ms).\nconst CLOSE =\n  \"absolute top-3 right-3 inline-flex size-8 items-center justify-center text-fg outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\";\ntype DialogProps = Omit<React.ComponentProps<typeof ChakraDialog.Root>, \"onOpenChange\"> & { onOpenChange?: (open: boolean) => void };\nfunction Dialog({ onOpenChange, ...props }: DialogProps) {\n  return <ChakraDialog.Root unstyled data-slot=\"dialog\" onOpenChange={(details) => onOpenChange?.(details.open)} {...props} />;\n}\n\nfunction DialogTrigger(props: React.ComponentProps<typeof ChakraDialog.Trigger>) {\n  return <ChakraDialog.Trigger data-slot=\"dialog-trigger\" {...props} />;\n}\n\nfunction DialogPortal(props: React.ComponentProps<typeof Portal>) {\n  const container = usePortalContainer();\n  const portalRef = React.useMemo(() => container ? { current: container } : undefined, [container]);\n  return <Portal data-slot=\"dialog-portal\" container={portalRef} {...props} />;\n}\n\nfunction DialogClose(props: React.ComponentProps<typeof ChakraDialog.CloseTrigger>) {\n  return <ChakraDialog.CloseTrigger unstyled data-slot=\"dialog-close\" {...props} />;\n}\n\nfunction DialogOverlay({ className, ...props }: React.ComponentProps<typeof ChakraDialog.Backdrop>) {\n  return (\n    <ChakraDialog.Backdrop unstyled\n      data-slot=\"dialog-overlay\"\n      className={cn(\"fixed inset-0 z-50 bg-scrim data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DialogContent({ className, children, showClose = true, ...props }: React.ComponentProps<typeof ChakraDialog.Content> & { showClose?: boolean }) {\n  return (\n    <DialogPortal>\n      <DialogOverlay />\n      {/* The centering layer: Chakra's unstyled positioner brings no layout of its own. */}\n      <ChakraDialog.Positioner className=\"fixed inset-0 z-50 flex items-center justify-center\">\n      <ChakraDialog.Content\n        unstyled\n        data-slot=\"dialog-content\"\n        className={cn(\n          \"ds-cut-frame z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-120 flex-col p-px text-fg outline-none [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-dialog-out data-[state=open]:animate-dialog-in max-md:h-dvh max-md:max-h-dvh max-md:w-full max-md:max-w-none max-md:p-0 max-md:pt-[env(safe-area-inset-top,0px)] max-md:pb-[env(safe-area-inset-bottom,0px)] max-md:ps-[env(safe-area-inset-left,0px)] max-md:pe-[env(safe-area-inset-right,0px)] max-md:[--ds-cut:0px] max-md:[--ds-shape-stroke:var(--ds-color-bg-default)]\",\n          className,\n        )}\n        {...props}\n      >\n        {children}\n        {showClose && (\n          <ChakraDialog.CloseTrigger unstyled\n            data-slot=\"dialog-close\"\n            className={cn(CLOSE, \"max-md:top-[calc(env(safe-area-inset-top,0px)+12px)] max-md:right-[calc(env(safe-area-inset-right,0px)+8px)]\")}\n          >\n            <XIcon className=\"size-4\" />\n            <span className=\"sr-only\">Close</span>\n          </ChakraDialog.CloseTrigger>\n        )}\n      </ChakraDialog.Content>\n      </ChakraDialog.Positioner>\n    </DialogPortal>\n  );\n}\n\nfunction DialogHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"dialog-header\" className={cn(\"flex shrink-0 flex-col justify-center gap-1 pt-5 pr-13 pb-3 pl-5 max-md:pl-4\", className)} {...props} />;\n}\n\n/** The scrolling middle of a dialog, with the head's 20px sides (16px on phones). */\nfunction DialogBody({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"dialog-body\" className={cn(\"min-h-0 flex-1 content-start overflow-y-auto fade-y px-5 pt-0 pb-5 max-md:px-4\", className)} {...props} />;\n}\n\nfunction DialogFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"dialog-footer\" className={cn(\"flex shrink-0 flex-col-reverse gap-2 px-5 pt-1 pb-5 sm:flex-row sm:justify-end max-md:px-4\", className)} {...props} />;\n}\n\nfunction DialogTitle({ className, ...props }: React.ComponentProps<typeof ChakraDialog.Title>) {\n  return <ChakraDialog.Title unstyled data-slot=\"dialog-title\" className={cn(\"font-sans text-h3 leading-tight font-normal text-fg\", className)} {...props} />;\n}\n\nfunction DialogDescription({ className, ...props }: React.ComponentProps<typeof ChakraDialog.Description>) {\n  return <ChakraDialog.Description unstyled data-slot=\"dialog-description\" className={cn(\"text-body leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nexport { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger };\n"
+    }
+  ]
+}

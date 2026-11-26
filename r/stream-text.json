@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "stream-text",
+  "useFor": "Wrap streamed text: `<StreamText text={...} onDone={...} />`. 24ms a word, a 200ms fade on the ease-out curve; under reduced motion the text appears at once.",
+  "constraints": [],
+  "documentation": "",
+  "exports": [
+    "StreamText"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds-registry.vercel.app/r/stream-text.md",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/stream-text.md",
+  "examples": [],
+  "type": "lib",
+  "title": "Stream text",
+  "description": "The words of an answer fading in one after another, as a streamed reply arrives.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "lib/stream-text.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/**\n * StreamText: the words of an answer fade in one after another, as a streamed reply arrives.\n *\n * Adapted from prompt-kit's ResponseStream, \"fade\" mode (MIT):\n * Intl.Segmenter splits the text into words, and each word fades in after a delay set by its\n * position. Mireye's timing: 24ms a word and a 200ms fade on the ease-out curve, so a 20-word\n * line lands in under 0.7s. Under reduced motion the text appears at once. `onDone` fires when\n * the last word has faded in.\n */\nexport function StreamText({\n  text,\n  wordDelay = 24,\n  className,\n  onDone,\n}: {\n  text: string;\n  wordDelay?: number;\n  className?: string;\n  onDone?: () => void;\n}) {\n  const words = React.useMemo(() => {\n    try {\n      const segmenter = new Intl.Segmenter(undefined, { granularity: \"word\" });\n      return Array.from(segmenter.segment(text), (s) => s.segment);\n    } catch {\n      return text.split(/(\\s+)/).filter(Boolean);\n    }\n  }, [text]);\n  // The latest onDone, so a new callback on each render does not restart the timer.\n  const done = React.useRef(onDone);\n  done.current = onDone;\n  React.useEffect(() => {\n    // ds-latency: reports the end of the fade; the words already show, nothing waits on it.\n    const id = window.setTimeout(() => done.current?.(), words.length * wordDelay + 200);\n    return () => window.clearTimeout(id);\n  }, [words.length, wordDelay]);\n  return (\n    <span className={className}>\n      {words.map((w, i) => (\n        <span\n          key={i}\n          // Spaces stay plain, so the line can still wrap between words.\n          className={cn(!/^\\s+$/.test(w) && \"motion-safe:animate-[ds-enter_200ms_var(--ds-easing-out)_both]\")}\n          style={{ animationDelay: `${i * wordDelay}ms` }}\n        >\n          {w}\n        </span>\n      ))}\n    </span>\n  );\n}\n"
+    }
+  ]
+}

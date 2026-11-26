@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "toggle",
+  "useFor": "Use for one on or off option on a toolbar or map (show terrain, show parcel lines). Give an icon-only toggle an aria-label. For a setting in a form use Switch; for one choice among a few use Toggle Group.",
+  "constraints": [
+    "A Forest-filled toggle outside a Toggle Group track",
+    "Movement or a size change when pressed",
+    "A toggle that runs an action (use Button)"
+  ],
+  "documentation": "",
+  "source": "Not in Figma; drawn from the keys on \"UI · Buttons\" (442:3)",
+  "exports": [
+    "Toggle",
+    "toggleVariants"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/toggle",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/toggle.md",
+  "examples": [
+    {
+      "path": "examples/toggle.tsx",
+      "content": "import { MountainsIcon, StackIcon, WavesIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Toggle } from \"@/components/ui/toggle\";\n\nexport function Preview() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle aria-label=\"Show terrain\" defaultPressed>\n        <MountainsIcon />\n        Terrain\n      </Toggle>\n      <Toggle aria-label=\"Show floodplain\">\n        <WavesIcon />\n        Floodplain\n      </Toggle>\n    </div>\n  );\n}\n\nexport function Variants() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle variant=\"outline\" defaultPressed>\n        <StackIcon />\n        Parcel lines\n      </Toggle>\n      <Toggle variant=\"outline\">Zoning</Toggle>\n      <Toggle size=\"sm\" aria-label=\"Show terrain\">\n        <MountainsIcon />\n      </Toggle>\n      <Toggle disabled>Wetlands</Toggle>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Variants"
+      ],
+      "requires": [
+        "toggle"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/toggle/Preview"
+        },
+        {
+          "name": "Variants",
+          "url": "https://mireye-ds.agencidev.com/preview/toggle/Variants"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Toggle",
+  "description": "A key that stays pressed: 36px with the compact 6px cut and an 80% Forest label; a Fog fill steps in under the pointer and on it holds Mist with a Forest label. The outline variant is the framed key, on with a Forest line on Fog.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/toggle.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Toggle as TogglePrimitive } from \"radix-ui\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\n\n// A key that stays pressed (Figma has none; drawn from the keys on \"UI · Buttons\", 442:3, at the product scale): 36px\n// with the compact 6px cut, a 13px medium label in 80% Forest and 16px glyphs. Off it has no fill and its label turns\n// Forest under the pointer while a Fog fill steps in over 150ms; on it holds a Mist fill with a Forest label (the\n// pressed step). `outline` is the framed key: white inside a 1px Stone line, Fog under the pointer, and on it takes a\n// Forest line on Fog. Pressing sets the fill at once; nothing moves. Keyboard focus is the 1px Forest outline 2px\n// outside; disabled turns the label Slate. In a ToggleGroup the default variant becomes the segmented track.\nconst toggleVariants = cva(\n  [\n    \"inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 font-sans text-body leading-tight font-medium whitespace-nowrap text-fg-secondary outline-none select-none [--ds-cut:var(--ds-cut-md)]\",\n    \"transition-[color] duration-fast ease-out after:transition-[background-color] after:duration-fast after:ease-out active:after:duration-0 motion-reduce:transition-none motion-reduce:after:transition-none\",\n    \"hover:text-fg data-[state=on]:text-fg\",\n    \"focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\",\n    \"disabled:pointer-events-none disabled:text-fg-subtle aria-invalid:text-danger\",\n    \"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-slot]):not([class*='size-'])]:size-4\",\n  ],\n  {\n    variants: {\n      variant: {\n        default:\n          \"ds-cut [--ds-shape-fill:transparent] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] data-[state=on]:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)]\",\n        outline:\n          \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] data-[state=on]:[--ds-shape-fill:var(--ds-color-bg-subtle)] data-[state=on]:[--ds-shape-stroke:var(--ds-color-border-strong)]\",\n      },\n      size: {\n        default: \"h-9 min-w-9 px-3\",\n        sm: \"h-8 min-w-8 px-2\",\n        lg: \"h-10 min-w-10 px-4\",\n      },\n    },\n    defaultVariants: { variant: \"default\", size: \"default\" },\n  },\n);\n\nfunction Toggle({ className, variant, size, ...props }: React.ComponentProps<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>) {\n  return <TogglePrimitive.Root data-slot=\"toggle\" className={cn(toggleVariants({ variant, size, className }))} {...props} />;\n}\n\nexport { Toggle, toggleVariants };\n"
+    }
+  ]
+}

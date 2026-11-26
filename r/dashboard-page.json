@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "name": "dashboard-page",
+  "useFor": "Use as a product's home screen. Pass `stats`, `usage`, `sites` and `runs`; replace the survey plate with the product's map in an app.",
+  "constraints": [
+    "Charts with gradients",
+    "Round status dots (use the status pill)",
+    "More than one Forest key"
+  ],
+  "documentation": "",
+  "source": "brand/reference product UI boards (Figma 442:2) and the library's product parts: card, fit-score, status, progress, table, map",
+  "exports": [
+    "DashboardStat",
+    "ShortlistSite",
+    "Run",
+    "DashboardPageProps",
+    "DashboardPage"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/dashboard-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/dashboard-page.md",
+  "examples": [
+    {
+      "path": "examples/dashboard-page.tsx",
+      "content": "\"use client\";\n\nimport { DashboardPage } from \"@/components/blocks/dashboard-page\";\n\n// Embedded at 900px; in an app the shell fills the viewport.\nexport function Preview() {\n  return <DashboardPage className=\"h-225\" />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "dashboard-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/dashboard-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Dashboard page",
+  "description": "The overview in the app shell: figures in DM Mono with the month's usage as a tick bar, the active search on a survey plate beside its shortlist with fit chips, and the latest runs with status pills.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "app-shell",
+    "survey-plate",
+    "button",
+    "card",
+    "fit-score",
+    "progress",
+    "status",
+    "table",
+    "tabs"
+  ],
+  "packages": [
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/dashboard-page.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { PlusIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { AppShell, type AppShellProps } from \"@/components/blocks/app-shell\";\nimport { SurveyPlate, type PlateParcel } from \"@/components/blocks/survey-plate\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { FitScore } from \"@/components/ui/fit-score\";\nimport { Progress } from \"@/components/ui/progress\";\nimport { Status, type StatusVariant } from \"@/components/ui/status\";\nimport { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from \"@/components/ui/table\";\nimport { Tabs, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\n\n// The overview in the app shell: four figures (a muted label over the value in DM Mono, and the month's usage as a tick\n// bar), the active search on a survey plate beside its shortlist (site, parcel ID in DM Mono and the fit chip), then\n// the latest runs with their status pills. One Forest key, New search, in the header.\n\nexport type DashboardStat = { label: string; value: string; detail?: string };\nexport type ShortlistSite = { name: string; parcel: string; fit: number };\nexport type Run = { name: string; area: string; parcels: string; started: string; status: StatusVariant };\n\nconst STATS: DashboardStat[] = [\n  { label: \"Saved sites\", value: \"12\", detail: \"3 this week\" },\n  { label: \"Parcels screened\", value: \"48,210\", detail: \"Ellis, Navarro, Kaufman\" },\n  { label: \"Strong fits\", value: \"37\", detail: \"80 or higher\" },\n];\n\nconst SITES: ShortlistSite[] = [\n  { name: \"Ellis County site 14\", parcel: \"042-117-09\", fit: 92 },\n  { name: \"Navarro County site 3\", parcel: \"175-020-41\", fit: 84 },\n  { name: \"Kaufman County site 8\", parcel: \"129-334-02\", fit: 71 },\n  { name: \"Ellis County site 22\", parcel: \"042-131-17\", fit: 63 },\n];\n\nconst RUNS: Run[] = [\n  { name: \"200+ ac near 138 kV\", area: \"Ellis County, TX\", parcels: \"18,402\", started: \"09:14\", status: \"processing\" },\n  { name: \"Solar, outside floodplain\", area: \"Navarro County, TX\", parcels: \"11,930\", started: \"08:02\", status: \"verified\" },\n  { name: \"Data center, 345 kV\", area: \"Kaufman County, TX\", parcels: \"17,878\", started: \"Yesterday\", status: \"verified\" },\n  { name: \"Industrial, rail access\", area: \"Johnson County, TX\", parcels: \"Waiting\", started: \"Queued\", status: \"queued\" },\n];\n\nconst PARCELS: PlateParcel[] = [\n  { x: 10, y: 16, w: 18, h: 24, state: \"hatched\", label: \"042-131-17\" },\n  { x: 38, y: 42, w: 22, h: 30, state: \"selected\", label: \"042-117-09\" },\n  { x: 66, y: 12, w: 20, h: 26, state: \"hatched\" },\n  { x: 70, y: 56, w: 18, h: 28, state: \"plain\" },\n  { x: 14, y: 60, w: 16, h: 22, state: \"plain\" },\n];\n\nexport type DashboardPageProps = Omit<AppShellProps, \"title\" | \"children\"> & {\n  title?: string;\n  stats?: DashboardStat[];\n  usage?: { used: number; included: number };\n  sites?: ShortlistSite[];\n  runs?: Run[];\n};\n\nexport function DashboardPage({ title = \"Overview\", stats = STATS, usage = { used: 41280, included: 50000 }, sites = SITES, runs = RUNS, ...shell }: DashboardPageProps) {\n  const [view, setView] = React.useState(\"map\");\n  return (\n    <AppShell\n      current=\"map\"\n      title={title}\n      actions={\n        <Button size=\"sm\">\n          <PlusIcon />\n          New search\n        </Button>\n      }\n      {...shell}\n    >\n      <div className=\"grid gap-6 p-4 sm:p-6\">\n        <section aria-label=\"Figures\" className=\"grid gap-4 sm:grid-cols-2 xl:grid-cols-4\">\n          {stats.map((s) => (\n            <Card key={s.label} size=\"sm\">\n              <CardHeader>\n                <CardDescription>{s.label}</CardDescription>\n                <p className=\"font-mono text-h1 leading-tight text-fg\">{s.value}</p>\n              </CardHeader>\n              {s.detail && <CardContent className=\"text-caption text-fg-muted\">{s.detail}</CardContent>}\n            </Card>\n          ))}\n          <Card size=\"sm\">\n            <CardHeader>\n              <CardDescription>Requests this month</CardDescription>\n              <p className=\"font-mono text-h1 leading-tight text-fg\">{usage.used.toLocaleString(\"en-US\")}</p>\n            </CardHeader>\n            <CardContent>\n              <Progress value={(usage.used / usage.included) * 100} aria-label={`${usage.used} of ${usage.included} requests`} />\n              <p className=\"mt-2 font-mono text-caption text-fg-muted\">of {usage.included.toLocaleString(\"en-US\")}</p>\n            </CardContent>\n          </Card>\n        </section>\n\n        <section aria-label=\"Active search\" className=\"grid gap-4 xl:grid-cols-3\">\n          <Card className=\"min-w-0 xl:col-span-2\">\n            <CardHeader>\n              <CardTitle>200+ ac near 138 kV</CardTitle>\n              <CardDescription>Ellis County, TX · 18,402 parcels</CardDescription>\n            </CardHeader>\n            <CardContent className=\"grid gap-3\">\n              <Tabs value={view} onValueChange={setView}>\n                <TabsList variant=\"segmented\" aria-label=\"View\">\n                  <TabsTrigger value=\"map\">Map</TabsTrigger>\n                  <TabsTrigger value=\"terrain\">Terrain</TabsTrigger>\n                </TabsList>\n              </Tabs>\n              <SurveyPlate className=\"aspect-video w-full max-sm:aspect-4/3\" parcels={PARCELS} contours={view === \"terrain\"} marker={{ x: 49, y: 57, value: \"92 fit\", coordinates: \"32.4113, -96.8302\" }} />\n            </CardContent>\n          </Card>\n          <Card className=\"min-w-0\">\n            <CardHeader>\n              <CardTitle>Shortlist</CardTitle>\n              <CardDescription>Best fits in this search</CardDescription>\n            </CardHeader>\n            <CardContent>\n              <ul className=\"grid border-t border-line-subtle\">\n                {sites.map((s) => (\n                  <li key={s.parcel} className=\"flex items-center gap-3 border-b border-line-subtle py-3\">\n                    <span className=\"grid min-w-0 flex-1 gap-1\">\n                      <span className=\"truncate text-body text-fg\">{s.name}</span>\n                      <span className=\"font-mono text-caption text-fg-muted\">{s.parcel}</span>\n                    </span>\n                    <FitScore variant=\"chip\" value={s.fit} />\n                  </li>\n                ))}\n              </ul>\n            </CardContent>\n          </Card>\n        </section>\n\n        <section aria-label=\"Latest runs\">\n          <Card>\n            <CardHeader>\n              <CardTitle>Latest runs</CardTitle>\n            </CardHeader>\n            <CardContent className=\"overflow-x-auto fade-x\">\n              <Table className=\"min-w-140\">\n                <TableHeader>\n                  <TableRow>\n                    <TableHead>Search</TableHead>\n                    <TableHead>Area</TableHead>\n                    <TableHead className=\"text-right\">Parcels</TableHead>\n                    <TableHead className=\"text-right\">Started</TableHead>\n                    <TableHead>Status</TableHead>\n                  </TableRow>\n                </TableHeader>\n                <TableBody>\n                  {runs.map((r) => (\n                    <TableRow key={r.name}>\n                      <TableCell>{r.name}</TableCell>\n                      <TableCell className=\"text-fg-secondary\">{r.area}</TableCell>\n                      <TableCell className=\"text-right font-mono text-caption\">{r.parcels}</TableCell>\n                      <TableCell className=\"text-right font-mono text-caption\">{r.started}</TableCell>\n                      <TableCell>\n                        <Status variant={r.status} />\n                      </TableCell>\n                    </TableRow>\n                  ))}\n                </TableBody>\n              </Table>\n            </CardContent>\n          </Card>\n        </section>\n      </div>\n    </AppShell>\n  );\n}\n"
+    }
+  ]
+}

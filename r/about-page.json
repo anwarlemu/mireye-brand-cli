@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "about-page",
+  "useFor": "Use for /about. Pass `story` paragraphs, `figures` and `beliefs`; the closing card points at careers by default.",
+  "constraints": [
+    "Team photos in circles",
+    "Unsourced figures",
+    "Long paragraphs"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): about page and pages-company.css",
+  "exports": [
+    "AboutFigure",
+    "Belief",
+    "AboutPageProps",
+    "AboutPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/about-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/about-page.md",
+  "examples": [
+    {
+      "path": "examples/about-page.tsx",
+      "content": "import { AboutPage } from \"@/components/blocks/about-page\";\n\nexport function Preview() {\n  return <AboutPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "about-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/about-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "About page",
+  "description": "The about page template: the company line as the title, the story beside a survey plate, figures in DM Mono on a ruled grid, beliefs as solid-node bullets, and a closing card for careers.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "cta-section",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "survey-plate",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/about-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// The about page: the company's line as the page title, its story beside a survey plate, the figures in DM Mono, what\n// the team believes as solid-node bullets, and the closing card pointing at careers. Copy is short and generic; a\n// product passes its own.\n\nexport type AboutFigure = { value: string; label: string };\nexport type Belief = { title: string; description: string };\n\nconst FIGURES: AboutFigure[] = [\n  { value: \"600+\", label: \"Fields about a place\" },\n  { value: \"50\", label: \"States covered\" },\n  { value: \"1\", label: \"Request per answer\" },\n  { value: \"100%\", label: \"Values with a source\" },\n];\n\nconst BELIEFS: Belief[] = [\n  { title: \"Show the source\", description: \"An answer without its record is a guess. Every value we return names where it came from.\" },\n  { title: \"Say what is missing\", description: \"When a county has not published a field, we say so instead of filling it in.\" },\n  { title: \"Stay plain\", description: \"One request, plain JSON, the words a site selector would use.\" },\n];\n\nexport type AboutPageProps = {\n  header?: SiteHeaderProps;\n  title?: string;\n  story?: string[];\n  figures?: AboutFigure[];\n  beliefs?: Belief[];\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nexport function AboutPage({\n  header,\n  title = \"We make the physical world legible to AI agents.\",\n  story = [\n    \"Every question about a place, who owns it, whether it floods, how far the power is, is answered somewhere in a county office, a utility map or a federal layer. Finding it takes days.\",\n    \"We read those records, keep their sources and serve them in one request, so an agent can answer in seconds and show its work.\",\n  ],\n  figures = FIGURES,\n  beliefs = BELIEFS,\n  cta = { label: \"Careers\", title: \"Help us map the ground truth.\", description: \"We are hiring engineers who like maps, data and plain answers.\", primary: { label: \"See open roles\", href: \"#careers\" }, secondary: { label: \"Write to us\", href: \"#contact\" } },\n  footer,\n}: AboutPageProps) {\n  return (\n    <div data-slot=\"about-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#about\" {...header} />\n      <main>\n        <PageSection label=\"About\" as=\"h1\" title={title}>\n          <div className=\"grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-12\">\n            <div className=\"grid gap-4\">\n              {story.map((p) => (\n                <p key={p} className=\"max-w-(--ds-layout-text) text-body-lg leading-relaxed text-fg-secondary\">\n                  {p}\n                </p>\n              ))}\n            </div>\n            <SurveyPlate className=\"aspect-4/3 w-full\" caption=\"Any U.S. place\" />\n          </div>\n        </PageSection>\n        <PageSection space=\"compact\">\n          <dl className=\"grid grid-cols-2 border-t border-l border-line lg:grid-cols-4\">\n            {figures.map((f) => (\n              <div key={f.label} className=\"grid gap-2 border-r border-b border-line p-5\">\n                <dt className=\"order-2 text-body leading-tight text-fg-secondary\">{f.label}</dt>\n                <dd className=\"order-1 m-0 font-mono text-h1 leading-tight text-fg\">{f.value}</dd>\n              </div>\n            ))}\n          </dl>\n        </PageSection>\n        <PageSection label=\"What we believe\" title=\"Three rules we build by.\">\n          <ul className=\"grid gap-8 md:grid-cols-3\">\n            {beliefs.map((b) => (\n              <li key={b.title} className=\"grid content-start gap-3 border-t border-line pt-5\">\n                <h3 className=\"flex items-center gap-2.5 text-h3 leading-heading font-normal text-fg\">\n                  <Diamond size={12} />\n                  {b.title}\n                </h3>\n                <p className=\"text-body leading-body text-fg-secondary\">{b.description}</p>\n              </li>\n            ))}\n          </ul>\n        </PageSection>\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

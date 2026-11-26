@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "name": "button-group",
+  "useFor": "Use for a set of related actions or a split key (an action and its options), a field with a fixed unit or prefix (ButtonGroupText), or a vertical zoom pair on a map. Nest groups for 8px between sets.",
+  "constraints": [
+    "Rounded or separately cut keys inside one bar",
+    "Mixing filled and framed keys in one bar",
+    "A group of more than five keys (use a Select or a menu)"
+  ],
+  "documentation": "",
+  "source": "Drawn from Figma \"UI · Buttons\" (442:3) and \"UI · Inputs\" (442:107); the design has no joined keys",
+  "exports": [
+    "ButtonGroup",
+    "ButtonGroupSeparator",
+    "ButtonGroupText",
+    "buttonGroupVariants"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/button-group",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/button-group.md",
+  "examples": [
+    {
+      "path": "examples/button-group.tsx",
+      "content": "import { CaretDownIcon, MinusIcon, PlusIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from \"@/components/ui/button-group\";\nimport { Input } from \"@/components/ui/input\";\n\nexport function Preview() {\n  return (\n    <ButtonGroup aria-label=\"Map layers\">\n      <Button variant=\"outline\">Parcels</Button>\n      <Button variant=\"outline\">Substations</Button>\n      <Button variant=\"outline\">Floodplain</Button>\n    </ButtonGroup>\n  );\n}\n\nexport function WithField() {\n  return (\n    <ButtonGroup className=\"w-full max-w-90\">\n      <ButtonGroupText>Min</ButtonGroupText>\n      <Input aria-label=\"Minimum voltage\" placeholder=\"e.g. 138\" inputMode=\"numeric\" />\n      <ButtonGroupText>kV</ButtonGroupText>\n    </ButtonGroup>\n  );\n}\n\nexport function Split() {\n  return (\n    <ButtonGroup>\n      <Button arrow>Find sites</Button>\n      <ButtonGroupSeparator />\n      <Button size=\"icon\" aria-label=\"More search options\">\n        <CaretDownIcon />\n      </Button>\n    </ButtonGroup>\n  );\n}\n\nexport function Vertical() {\n  return (\n    <ButtonGroup orientation=\"vertical\" aria-label=\"Zoom\">\n      <Button variant=\"outline\" size=\"icon\" aria-label=\"Zoom in\">\n        <PlusIcon />\n      </Button>\n      <Button variant=\"outline\" size=\"icon\" aria-label=\"Zoom out\">\n        <MinusIcon />\n      </Button>\n    </ButtonGroup>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "WithField",
+        "Split",
+        "Vertical"
+      ],
+      "requires": [
+        "button-group",
+        "button",
+        "input"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/button-group/Preview"
+        },
+        {
+          "name": "WithField",
+          "url": "https://mireye-ds.agencidev.com/preview/button-group/WithField"
+        },
+        {
+          "name": "Split",
+          "url": "https://mireye-ds.agencidev.com/preview/button-group/Split"
+        },
+        {
+          "name": "Vertical",
+          "url": "https://mireye-ds.agencidev.com/preview/button-group/Vertical"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Button group",
+  "description": "Keys joined into one bar: the first keeps the cut corner, the others square off and share a 1px line. Holds fields, selects and a Fog text segment for a fixed prefix or suffix.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/button-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Keys joined into one control. Only the group's first key keeps the cut corner: the others square off (their cut set\n// to 0) and step 1px over their neighbor, so two framed keys share one line, as a field and its unit do. A field,\n// select or text segment can sit in the bar. ButtonGroupText is a Fog segment inside the Stone line with 12px caption\n// text, for a fixed prefix or suffix (kV, ac). ButtonGroupSeparator is a 1px rule between filled keys (Stone, or the\n// dark track on Forest keys). Groups nest with 8px between them.\nconst buttonGroupVariants = cva(\n  \"group/button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 *:focus-within:z-10 has-[>[data-slot=button-group]]:gap-2 [&>input]:flex-1\",\n  {\n    variants: {\n      orientation: {\n        horizontal: \"[&>*:not(:first-child)]:-ml-px [&>*:not(:first-child)]:[--ds-cut:0px]\",\n        vertical: \"flex-col [&>*:not(:first-child)]:-mt-px [&>*:not(:first-child)]:[--ds-cut:0px]\",\n      },\n    },\n    defaultVariants: { orientation: \"horizontal\" },\n  },\n);\n\nfunction ButtonGroup({ className, orientation, ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof buttonGroupVariants>) {\n  return <div role=\"group\" data-slot=\"button-group\" data-orientation={orientation ?? \"horizontal\"} className={cn(buttonGroupVariants({ orientation }), className)} {...props} />;\n}\n\nfunction ButtonGroupText({ className, asChild = false, ...props }: React.ComponentProps<\"div\"> & { asChild?: boolean }) {\n  const Comp = asChild ? chakra.div : \"div\";\n  // Chakra's factory renders its child in its place only when told to.\n  const slotProps = asChild ? { asChild: true } : {};\n  return (\n    <Comp\n      {...slotProps}\n      data-slot=\"button-group-text\"\n      className={cn(\n        \"ds-cut-frame flex h-9 items-center gap-2 px-3 font-sans text-caption leading-tight whitespace-nowrap text-fg-secondary [--ds-shape-fill:var(--ds-color-bg-subtle)] [--ds-shape-stroke:var(--ds-color-border-default)] [&_svg]:pointer-events-none [&_svg:not([data-slot=icon]):not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction ButtonGroupSeparator({ className, orientation = \"vertical\", ...props }: React.ComponentProps<\"div\"> & { orientation?: \"horizontal\" | \"vertical\" }) {\n  return (\n    <div\n      role=\"separator\"\n      aria-orientation={orientation}\n      data-slot=\"button-group-separator\"\n      data-orientation={orientation}\n      className={cn(\n        \"relative z-10 shrink-0 self-stretch bg-line group-has-[>[data-variant=default]]/button-group:bg-track-dark\",\n        // A separator takes no room: the keys still meet under it.\n        orientation === \"vertical\" ? \"-mr-px w-px\" : \"-mb-px h-px\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants };\n"
+    }
+  ]
+}

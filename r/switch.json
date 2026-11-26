@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "switch",
+  "useFor": "Use for a setting that applies at once, such as a map layer (Terrain). Pass the label as children. Use size sm in dense rows. For an option applied on submit use Checkbox.",
+  "constraints": [
+    "A rounded track or knob",
+    "A switch that needs a Save key to apply",
+    "A bouncing knob"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Controls\" (442:145), where it is called Toggle: Terrain, on and off",
+  "exports": [
+    "Switch"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/switch",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/switch.md",
+  "examples": [
+    {
+      "path": "examples/switch.tsx",
+      "content": "import { Switch } from \"@/components/ui/switch\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid gap-3\">\n      <Switch defaultChecked>Terrain</Switch>\n      <Switch>Parcel lines</Switch>\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"grid gap-3\">\n      <Switch size=\"sm\" defaultChecked>\n        Labels\n      </Switch>\n      <Switch disabled>Live traffic</Switch>\n      <Switch disabled defaultChecked>\n        County boundary\n      </Switch>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States"
+      ],
+      "requires": [
+        "switch"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/switch/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/switch/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Switch",
+  "description": "A square 32 by 16 track with no cut: Bone with a Stone line and a Mist knob when off, Forest with a Bone knob when on. The knob slides in 200ms on the strong ease-out; the track's color fades over 150ms. Its label is 13px Forest 12px after it.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/switch.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Switch as ChakraSwitch } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's switch (Figma \"UI · Controls\", 442:145, where it is called Toggle: Terrain) at the product scale: a square\n// 32 by 16 track (Figma's 56 by 28) with no cut. Off it is white inside a 1px Stone line with a 12px Mist knob 2px from\n// the left; on it is a Forest fill (and line) with a white knob 2px from the right. `size=\"sm\"` is 28 by 14 with a 10px\n// knob for dense rows.\n// Motion (Figma draws only the two ends): the knob slides on translate in 200ms on the strong ease-out, so it starts at\n// once and settles softly, as a transition so quick toggles turn around mid-way. The track's fill and line fade over\n// 150ms. Nothing changes size. Under reduced motion the knob moves at once and only the colors fade. Keyboard focus is\n// the 1px Forest outline 2px outside; aria-invalid turns the line brick; disabled turns the label Slate. `children` is\n// the label, 13px Forest 12px after the track.\ntype SwitchProps = Omit<React.ComponentProps<typeof ChakraSwitch.Root>, \"onCheckedChange\"> & { size?: \"default\" | \"sm\"; onCheckedChange?: (checked: boolean) => void };\n\nfunction Switch({ className, size = \"default\", onCheckedChange, children, ...props }: SwitchProps) {\n  return (\n    <ChakraSwitch.Root\n      unstyled\n      data-slot=\"switch\"\n      data-size={size}\n      onCheckedChange={(details) => onCheckedChange?.(details.checked)}\n      className={cn(\n        \"peer group/switch inline-flex w-fit shrink-0 cursor-pointer items-center gap-3 font-sans text-body leading-line-body text-fg outline-none data-disabled:cursor-not-allowed data-disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    >\n      <ChakraSwitch.HiddenInput role=\"switch\" />\n      <ChakraSwitch.Control\n        data-slot=\"switch-control\"\n        className={cn(\n          \"flex shrink-0 items-center border border-line bg-surface p-px transition-[background-color,border-color] duration-fast ease-out motion-reduce:transition-none\",\n          \"group-data-[size=default]/switch:h-4 group-data-[size=default]/switch:w-8 group-data-[size=sm]/switch:h-3.5 group-data-[size=sm]/switch:w-7\",\n          \"group-data-[state=checked]/switch:border-line-strong group-data-[state=checked]/switch:bg-inverse\",\n          \"group-data-focus-visible/switch:outline-solid group-data-focus-visible/switch:outline-1 group-data-focus-visible/switch:outline-offset-2 group-data-focus-visible/switch:outline-line-strong\",\n          \"group-data-invalid/switch:border-danger group-aria-invalid/switch:border-danger\",\n        )}\n      >\n        <ChakraSwitch.Thumb\n          data-slot=\"switch-thumb\"\n          className={cn(\n            \"pointer-events-none block bg-subtle-hover group-data-[state=checked]/switch:bg-surface\",\n            \"group-data-[size=default]/switch:size-3 group-data-[size=sm]/switch:size-2.5\",\n            \"group-data-[size=default]/switch:group-data-[state=checked]/switch:translate-x-4 group-data-[size=sm]/switch:group-data-[state=checked]/switch:translate-x-3.5\",\n            \"transition-[translate,background-color] duration-base ease-out motion-reduce:transition-[background-color]\",\n          )}\n        />\n      </ChakraSwitch.Control>\n      {children != null && (\n        <ChakraSwitch.Label data-slot=\"switch-label\" className=\"select-none\">\n          {children}\n        </ChakraSwitch.Label>\n      )}\n    </ChakraSwitch.Root>\n  );\n}\n\nexport { Switch };\n"
+    }
+  ]
+}

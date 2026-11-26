@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "aspect-ratio",
+  "useFor": "Wrap an aerial or photo in AspectRatio with ratio={16 / 9} (or 4 / 3, 1) so it keeps its shape at every width, and clip it with overflow-hidden. Dim it with ds-imagery when marks or a parcel outline sit on top, so the marks read first.",
+  "constraints": [
+    "Rounded media",
+    "Stretching an image without object-cover",
+    "Stock photos where a place is not shown",
+    "Shadows under media"
+  ],
+  "documentation": "",
+  "source": "Brand principles: real photos only as accents, where a place needs to be shown; ds-imagery from brand/utilities.css",
+  "exports": [
+    "AspectRatio"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/aspect-ratio",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/aspect-ratio.md",
+  "examples": [
+    {
+      "path": "examples/aspect-ratio.tsx",
+      "content": "import { AspectRatio } from \"@/components/ui/aspect-ratio\";\n\nexport function Preview() {\n  return (\n    <figure className=\"m-0 grid w-full max-w-120 gap-2\">\n      <AspectRatio ratio={16 / 9} className=\"overflow-hidden bg-subtle\">\n        {/* eslint-disable-next-line @next/next/no-img-element */}\n        <img src=\"/examples/farmland-aerial.jpg\" alt=\"Aerial of farmland around the parcel\" className=\"size-full object-cover\" />\n      </AspectRatio>\n      <figcaption className=\"flex justify-between text-caption text-fg-muted\">\n        Ellis County site 14\n        <span className=\"font-mono\">32.4113, -96.8302</span>\n      </figcaption>\n    </figure>\n  );\n}\n\nexport function Square() {\n  return (\n    <div className=\"w-40\">\n      <AspectRatio ratio={1} className=\"relative overflow-hidden bg-subtle\">\n        {/* eslint-disable-next-line @next/next/no-img-element */}\n        <img src=\"/examples/map-aerial.jpg\" alt=\"\" className=\"ds-imagery size-full object-cover\" />\n        <span aria-hidden className=\"absolute inset-[28%] border border-bone\" />\n      </AspectRatio>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Square"
+      ],
+      "requires": [
+        "aspect-ratio"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/aspect-ratio/Preview"
+        },
+        {
+          "name": "Square",
+          "url": "https://mireye-ds.agencidev.com/preview/aspect-ratio/Square"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Aspect Ratio",
+  "description": "A frame that holds an aerial, a map tile or a site photo at a fixed shape, square-cornered.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/aspect-ratio.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { AspectRatio as AspectRatioPrimitive } from \"radix-ui\";\n\n// Holds media at a fixed shape (an aerial of a parcel, a map tile, a site photo). The frame takes no style of its own;\n// media in Mireye is square-cornered, dimmed with ds-imagery when marks sit on it, and framed by a 1px line if needed.\nfunction AspectRatio(props: React.ComponentProps<typeof AspectRatioPrimitive.Root>) {\n  return <AspectRatioPrimitive.Root data-slot=\"aspect-ratio\" {...props} />;\n}\n\nexport { AspectRatio };\n"
+    }
+  ]
+}

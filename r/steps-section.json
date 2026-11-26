@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "steps-section",
+  "useFor": "Use for three to five steps of a process. Across on wide screens, down on a phone.",
+  "constraints": [
+    "Arrows between steps",
+    "Icons in circles",
+    "More than five steps",
+    "Moving connectors"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): HowItWorks and how-it-works.css (the step line and its nodes)",
+  "exports": [
+    "SectionStep",
+    "StepsSectionProps",
+    "StepsSection"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/steps-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/steps-section.md",
+  "examples": [
+    {
+      "path": "examples/steps-section.tsx",
+      "content": "import { StepsSection } from \"@/components/blocks/steps-section\";\n\nexport function Preview() {\n  return <StepsSection closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "steps-section"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/steps-section/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Steps section",
+  "description": "How it works: numbered steps along a 1px Stone line, a solid diamond at each, a mono index, a title and one line.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/steps-section.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// How it works: numbered steps along a 1px Stone line with a solid diamond at each step, as on the website's\n// how-it-works page. Across on wide screens, down on a phone. Each step is a mono index, a title and one line.\n\nexport type SectionStep = { title: string; description?: string };\n\nconst STEPS: SectionStep[] = [\n  { title: \"Ask about a place\", description: \"An address, a parcel or coordinates.\" },\n  { title: \"We find the records\", description: \"County, utility and federal sources.\" },\n  { title: \"Every field is cited\", description: \"Each value names where it came from.\" },\n  { title: \"Your agent answers\", description: \"In one request, as plain JSON.\" },\n];\n\nexport type StepsSectionProps = Omit<PageSectionProps, \"children\"> & { steps?: SectionStep[] };\n\nexport function StepsSection({ steps = STEPS, label = \"How it works\", title = \"From a question to a cited answer.\", ...props }: StepsSectionProps) {\n  return (\n    <PageSection label={label} title={title} {...props}>\n      <ol data-slot=\"steps-section\" className=\"grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-0\">\n        {steps.map((s, i) => (\n          <li key={s.title} className=\"relative grid content-start gap-3 border-l border-line pl-6 lg:border-t lg:border-l-0 lg:pt-8 lg:pr-8 lg:pl-0\">\n            <span aria-hidden className=\"absolute top-0 -left-1.5 lg:-top-1.5 lg:left-0\">\n              <Diamond size={12} className=\"text-fg\" />\n            </span>\n            <span className=\"font-mono text-caption leading-tight text-fg-muted\">{String(i + 1).padStart(2, \"0\")}</span>\n            <h3 className=\"text-h3 leading-heading font-normal text-fg\">{s.title}</h3>\n            {s.description != null && <p className=\"text-body leading-body text-fg-secondary\">{s.description}</p>}\n          </li>\n        ))}\n      </ol>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

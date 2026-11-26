@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "native-select",
+  "useFor": "Use where the platform picker is better: phones, very long lists, forms without script. Otherwise use Select.",
+  "constraints": [
+    "A native select for a choice that needs search",
+    "A custom chevron other than the brand arrow"
+  ],
+  "documentation": "",
+  "source": "Drawn from Figma \"UI · Inputs\" (442:107)",
+  "exports": [
+    "NativeSelect",
+    "NativeSelectOptGroup",
+    "NativeSelectOption"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/native-select",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/native-select.md",
+  "examples": [
+    {
+      "path": "examples/native-select.tsx",
+      "content": "import { Label } from \"@/components/ui/label\";\nimport { NativeSelect, NativeSelectOptGroup, NativeSelectOption } from \"@/components/ui/native-select\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid gap-2\">\n      <Label htmlFor=\"ns-state\">State</Label>\n      <NativeSelect id=\"ns-state\" defaultValue=\"or\" className=\"w-60\">\n        <NativeSelectOptGroup label=\"West\">\n          <NativeSelectOption value=\"or\">Oregon</NativeSelectOption>\n          <NativeSelectOption value=\"wa\">Washington</NativeSelectOption>\n        </NativeSelectOptGroup>\n        <NativeSelectOptGroup label=\"South\">\n          <NativeSelectOption value=\"tx\">Texas</NativeSelectOption>\n          <NativeSelectOption value=\"ga\">Georgia</NativeSelectOption>\n        </NativeSelectOptGroup>\n      </NativeSelect>\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <NativeSelect size=\"sm\" aria-label=\"Sort parcels\" defaultValue=\"fit\" className=\"w-48\">\n        <NativeSelectOption value=\"fit\">Best fit</NativeSelectOption>\n        <NativeSelectOption value=\"size\">Largest first</NativeSelectOption>\n      </NativeSelect>\n      <NativeSelect aria-label=\"Locked state\" disabled className=\"w-48\">\n        <NativeSelectOption>Oregon</NativeSelectOption>\n      </NativeSelect>\n      <NativeSelect aria-label=\"Zoning\" aria-invalid className=\"w-48\">\n        <NativeSelectOption value=\"\">Choose a zoning</NativeSelectOption>\n        <NativeSelectOption value=\"i2\">I-2 Industrial</NativeSelectOption>\n      </NativeSelect>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States"
+      ],
+      "requires": [
+        "native-select",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/native-select/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/native-select/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Native select",
+  "description": "The browser's own select dressed as Mireye's: the field's frame (36px, the cut) with the value 16px in and the brand arrow's head turned down at the right.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "input",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/native-select.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { inputClassName } from \"@/components/ui/input\";\nimport { cn } from \"@/lib/utils\";\n\n// The browser's own select dressed as Mireye's select: Input's frame (white, 1px Stone line, the 8px cut, 36px;\n// `size=\"sm\"` 32px) with the value in 13px Forest 16px in and the brand arrow's head turned down 16px from the right.\n// Focus turns the line Forest; invalid turns it brick; disabled sits on Mist with Slate text. Use it where the\n// platform picker is better (phones, long lists, forms without script).\ntype NativeSelectProps = Omit<React.ComponentProps<\"select\">, \"size\"> & { size?: \"sm\" | \"default\" };\n\nfunction NativeSelect({ className, size = \"default\", ...props }: NativeSelectProps) {\n  return (\n    <div data-slot=\"native-select-wrapper\" data-size={size} className={cn(\"group/native-select relative w-fit\", className)}>\n      <select\n        data-slot=\"native-select\"\n        data-size={size}\n        className={cn(inputClassName, \"cursor-pointer appearance-none py-0 pr-10 data-[size=sm]:h-8 data-[size=sm]:pl-3\")}\n        {...props}\n      />\n      <ArrowRightIcon\n        size={16}\n        head\n        data-slot=\"native-select-icon\"\n        className=\"pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 rotate-90 text-fg group-data-[size=sm]/native-select:right-3 group-has-[select:disabled]/native-select:text-fg-subtle\"\n      />\n    </div>\n  );\n}\n\nfunction NativeSelectOption({ className, ...props }: React.ComponentProps<\"option\">) {\n  return <option data-slot=\"native-select-option\" className={cn(\"bg-surface text-fg\", className)} {...props} />;\n}\n\nfunction NativeSelectOptGroup({ className, ...props }: React.ComponentProps<\"optgroup\">) {\n  return <optgroup data-slot=\"native-select-optgroup\" className={cn(\"bg-surface text-fg\", className)} {...props} />;\n}\n\nexport { NativeSelect, NativeSelectOptGroup, NativeSelectOption };\n"
+    }
+  ]
+}

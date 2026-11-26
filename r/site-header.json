@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "site-header",
+  "useFor": "Use at the top of every website page. Pass `links`, the `current` href, `signIn` and `cta`. It is sticky on Bone with a Stone rule under it. The phone menu opens in place without motion.",
+  "constraints": [
+    "More than one Forest key",
+    "Icons that move on hover",
+    "A transparent header over content",
+    "Bold or uppercase links"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): SiteHeader and site-header.css",
+  "exports": [
+    "SiteHeaderProps",
+    "SiteHeader"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/site-header",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/site-header.md",
+  "examples": [
+    {
+      "path": "examples/site-header.tsx",
+      "content": "\"use client\";\n\nimport { SiteHeader } from \"@/components/blocks/site-header\";\n\nexport function Preview() {\n  return (\n    <div className=\"h-64\">\n      <SiteHeader current=\"#pricing\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "site-header"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/site-header/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Site header",
+  "description": "The website header: the lockup, page links (Forest at 80%, Forest when current with a Forest rule), Sign in and the Forest key, aligned to the section rails; a menu key below 768px.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "page-section",
+    "button",
+    "utils"
+  ],
+  "packages": [
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/site-header.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ListIcon, XIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { SECTION_COLUMN, SECTION_GUTTER, SECTION_INSET, SITE_LINK, SiteLockup, type SiteLink } from \"@/components/blocks/page-section\";\nimport { Button } from \"@/components/ui/button\";\nimport { cn } from \"@/lib/utils\";\n\n// The website's header: the lockup, the page links and two actions, on Bone with a 1px Stone rule under it, aligned to\n// the section rails. Sign in is a text link and Get started an outlined key, so the hero's Forest key is the one in\n// view. A link under the pointer turns from Forest at 80% to Forest (150ms, color only); the current page\n// is Forest with a Forest rule under it. Below 768px the links fold into a menu key that opens them in place, with no\n// motion (it is opened often and should answer at once).\n\nconst LINKS: SiteLink[] = [\n  { label: \"Product\", href: \"#product\" },\n  { label: \"Pricing\", href: \"#pricing\" },\n  { label: \"Docs\", href: \"#docs\" },\n  { label: \"Blog\", href: \"#blog\" },\n  { label: \"Changelog\", href: \"#changelog\" },\n];\n\nexport type SiteHeaderProps = {\n  name?: string;\n  links?: SiteLink[];\n  /** The href of the current page: marked aria-current. */\n  current?: string;\n  signIn?: SiteLink;\n  cta?: SiteLink;\n  className?: string;\n};\n\nexport function SiteHeader({ name = \"Mireye\", links = LINKS, current, signIn = { label: \"Sign in\", href: \"#sign-in\" }, cta = { label: \"Get started\", href: \"#get-started\" }, className }: SiteHeaderProps) {\n  const [open, setOpen] = React.useState(false);\n  const menu = React.useId();\n  return (\n    <header data-slot=\"site-header\" className={cn(\"sticky top-0 z-30 border-b border-line bg-page font-sans text-fg\", SECTION_GUTTER, className)}>\n      <div className={cn(SECTION_COLUMN, SECTION_INSET, \"flex h-14 items-center gap-8\")}>\n        <SiteLockup name={name} />\n        <nav aria-label=\"Main\" className=\"hidden md:block\">\n          <ul className=\"flex items-center gap-6\">\n            {links.map((l) => (\n              <li key={l.href}>\n                <a href={l.href} aria-current={current === l.href ? \"page\" : undefined} className={cn(SITE_LINK, \"inline-flex h-14 items-center border-b border-transparent aria-[current=page]:border-line-strong\")}>\n                  {l.label}\n                </a>\n              </li>\n            ))}\n          </ul>\n        </nav>\n        <div className=\"ml-auto hidden items-center gap-5 md:flex\">\n          <a href={signIn.href} className={SITE_LINK}>\n            {signIn.label}\n          </a>\n          {/* Outlined, so the page's own main action stays the one Forest key in view. */}\n          <Button asChild size=\"sm\" variant=\"outline\">\n            <a href={cta.href}>{cta.label}</a>\n          </Button>\n        </div>\n        <Button variant=\"ghost\" size=\"icon\" className=\"ml-auto size-11 md:hidden\" aria-expanded={open} aria-controls={menu} onClick={() => setOpen((o) => !o)}>\n          {open ? <XIcon /> : <ListIcon />}\n          <span className=\"sr-only\">{open ? \"Close the menu\" : \"Open the menu\"}</span>\n        </Button>\n      </div>\n      {open && (\n        <nav id={menu} aria-label=\"Main\" className={cn(SECTION_COLUMN, SECTION_INSET, \"border-t border-line-subtle pt-2 pb-5 md:hidden\")}>\n          <ul className=\"grid\">\n            {links.map((l) => (\n              <li key={l.href} className=\"border-b border-line-subtle\">\n                <a href={l.href} onClick={() => setOpen(false)} aria-current={current === l.href ? \"page\" : undefined} className={cn(SITE_LINK, \"flex h-11 items-center\")}>\n                  {l.label}\n                </a>\n              </li>\n            ))}\n          </ul>\n          <div className=\"mt-5 grid gap-3\">\n            <Button asChild className=\"w-full\">\n              <a href={cta.href}>\n                {cta.label}\n                <ArrowRightIcon size={16} />\n              </a>\n            </Button>\n            <Button asChild variant=\"outline\" className=\"w-full\">\n              <a href={signIn.href}>{signIn.label}</a>\n            </Button>\n          </div>\n        </nav>\n      )}\n    </header>\n  );\n}\n"
+    }
+  ]
+}

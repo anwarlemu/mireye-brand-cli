@@ -1,0 +1,1207 @@
+{
+	"site": {
+		"page": {
+			"name": "Page",
+			"match": {
+				"tags": [
+					"html",
+					"body"
+				]
+			},
+			"css": {
+				"background-color": "var(--ds-color-bg-page)",
+				"color": "var(--ds-color-text-default)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-body)"
+			},
+			"tailwind": "bg-page text-fg font-sans text-body leading-body",
+			"rules": [
+				"The Bone ground (#F4F1EA), Gilroy at 13px in Forest.",
+				"White is for controls and panels on the ground, each with a 1px Stone line."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"column": {
+			"name": "Content column",
+			"match": {
+				"words": [
+					"container",
+					"wrapper",
+					"wrap",
+					"inner",
+					"content",
+					"max"
+				]
+			},
+			"css": {
+				"width": "100%",
+				"max-width": "var(--ds-frame-column)",
+				"margin-inline": "auto"
+			},
+			"tailwind": "w-full max-w-(--ds-frame-column) mx-auto",
+			"rules": [
+				"Pages fill the width beside the rail with 24px sides; reading text stops at 680px."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"section": {
+			"name": "Section",
+			"match": {
+				"tags": [
+					"section"
+				],
+				"words": [
+					"section",
+					"block",
+					"band"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-3)",
+				"padding-block": "var(--ds-space-6)"
+			},
+			"tailwind": "flex flex-col gap-3 py-6",
+			"rules": [
+				"A block of a page: a 14px label (Signature headers) over its content, 24px from the next block."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"section-heading": {
+			"name": "Section heading",
+			"match": {
+				"tags": [
+					"h2"
+				],
+				"words": [
+					"title",
+					"heading",
+					"headline"
+				],
+				"context": [
+					"section"
+				]
+			},
+			"css": {
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"font-weight": "var(--ds-font-weight-regular)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "font-sans text-body font-normal leading-body text-fg",
+			"rules": [
+				"A section inside a page is named in 14px regular ink (Channels, Signature headers, Tunnel TLS mode).",
+				"A page or dialog title is 20px regular (page-title)."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"section-description": {
+			"name": "Section description",
+			"match": {
+				"tags": [
+					"p"
+				],
+				"words": [
+					"subtitle",
+					"sub",
+					"lead",
+					"description",
+					"intro",
+					"desc",
+					"lede"
+				],
+				"context": [
+					"section"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-muted)"
+			},
+			"tailwind": "text-body leading-body text-fg-muted",
+			"rules": [
+				"13px in Forest at 72 percent under a title or a field label."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"hero": {
+			"name": "Page head",
+			"match": {
+				"words": [
+					"hero",
+					"masthead",
+					"jumbotron",
+					"banner-hero",
+					"splash"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-1)",
+				"padding": "var(--ds-space-4) var(--ds-space-6)",
+				"border-bottom": "1px solid var(--ds-color-border-default)",
+				"background-color": "transparent"
+			},
+			"tailwind": "flex flex-col gap-1 px-6 py-4 border-b border-line",
+			"rules": [
+				"A page opens with its head: a 24px regular title and a 13px muted line, ruled off from the page by a 1px Stone line."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"hero-title": {
+			"name": "Page title",
+			"match": {
+				"tags": [
+					"h1"
+				],
+				"words": [
+					"hero-title",
+					"headline",
+					"display"
+				]
+			},
+			"css": {
+				"font-family": "var(--ds-font-display)",
+				"font-size": "var(--ds-text-h1)",
+				"font-weight": "var(--ds-font-weight-regular)",
+				"line-height": "var(--ds-leading-heading)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "font-display text-h1 font-normal leading-heading text-fg",
+			"rules": [
+				"20px regular ink; never bold, never tracked."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"hero-subtitle": {
+			"name": "Page description",
+			"match": {
+				"tags": [
+					"p"
+				],
+				"words": [
+					"hero-sub",
+					"subtitle",
+					"tagline",
+					"lead"
+				],
+				"context": [
+					"hero"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-muted)"
+			},
+			"tailwind": "text-body leading-body text-fg-muted",
+			"rules": [
+				"13px in Forest at 72 percent, one line under the title."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"eyebrow": {
+			"name": "Section label",
+			"match": {
+				"words": [
+					"eyebrow",
+					"kicker",
+					"overline",
+					"label",
+					"tag",
+					"pretitle",
+					"badge"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-caption)",
+				"line-height": "var(--ds-leading-tight)",
+				"color": "var(--ds-color-text-label)"
+			},
+			"tailwind": "text-caption leading-tight text-fg-label",
+			"rules": [
+				"12px regular in Forest at 80 percent, above a group of rows or a field.",
+				"Sentence case; never caps."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"card": {
+			"name": "Card",
+			"match": {
+				"tags": [
+					"article"
+				],
+				"words": [
+					"card",
+					"tile",
+					"panel",
+					"box",
+					"feature",
+					"item",
+					"plan"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-2)",
+				"padding": "var(--ds-space-4)",
+				"border": "1px solid var(--ds-color-border-default)",
+				"border-radius": "var(--ds-radius-dialog)",
+				"background-color": "var(--ds-color-bg-default)"
+			},
+			"tailwind": "flex flex-col gap-2 p-4 ds-cut-frame",
+			"rules": [
+				"A white panel on the Canvas with a 1px Stone line and the 8px cut corner at the top-left (ds-cut-frame); nothing rounded, no shadow."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"card-raised": {
+			"name": "Framed panel",
+			"match": {
+				"words": [
+					"feature",
+					"product",
+					"plan",
+					"offer",
+					"tile-lg",
+					"showcase"
+				]
+			},
+			"css": {
+				"border-radius": "var(--ds-radius-dialog)",
+				"background-color": "var(--ds-color-bg-default)",
+				"box-shadow": "var(--ds-shadow-card)"
+			},
+			"tailwind": "bg-surface shadow-card",
+			"rules": [
+				"A white panel ringed by a 1px Stone line: a table body, a selected tab, a select. No drop shadow."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"window": {
+			"name": "Fog well",
+			"match": {
+				"words": [
+					"window",
+					"terminal",
+					"dir",
+					"case",
+					"file"
+				]
+			},
+			"css": {
+				"padding": "var(--ds-space-3-5)",
+				"border-radius": "var(--ds-radius-control)",
+				"background-color": "var(--ds-color-bg-subtle)"
+			},
+			"tailwind": "p-3.5 bg-subtle",
+			"rules": [
+				"A Fog well inside a panel: a site chip, a data tag row, a read-only value."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"window-bar": {
+			"name": "Code head",
+			"match": {
+				"words": [
+					"windowbar",
+					"titlebar",
+					"window-bar",
+					"title-bar",
+					"chrome"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-10)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-bottom": "1px solid var(--ds-color-border-code)",
+				"background-color": "var(--ds-color-bg-code-head)",
+				"color": "var(--ds-color-code-head-fg)",
+				"font-size": "var(--ds-text-body)"
+			},
+			"tailwind": "flex items-center gap-2 h-10 px-3 border-b border-line-code bg-code-head text-code-head-fg text-body",
+			"rules": [
+				"The Fog head of a code block: the language at the left in DM Mono, a copy key at the right."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"card-title": {
+			"name": "Card title",
+			"match": {
+				"tags": [
+					"h3",
+					"h4"
+				],
+				"words": [
+					"card-title",
+					"title",
+					"name",
+					"heading"
+				],
+				"context": [
+					"card"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-body)",
+				"font-weight": "var(--ds-font-weight-regular)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "text-body font-normal leading-body text-fg",
+			"rules": [
+				"13px regular Forest; a section title is 16px regular."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"body-text": {
+			"name": "Body text",
+			"match": {
+				"tags": [
+					"p",
+					"li"
+				],
+				"words": [
+					"text",
+					"body",
+					"copy",
+					"desc",
+					"description",
+					"summary",
+					"excerpt"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "text-body leading-body text-fg",
+			"rules": [
+				"14px ink; secondary copy under a title in #70637E."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"caption": {
+			"name": "Caption",
+			"match": {
+				"tags": [
+					"small",
+					"figcaption",
+					"time"
+				],
+				"words": [
+					"caption",
+					"meta",
+					"note",
+					"date",
+					"small",
+					"fine",
+					"hint"
+				]
+			},
+			"css": {
+				"font-size": "var(--ds-text-caption)",
+				"line-height": "var(--ds-leading-body)",
+				"color": "var(--ds-color-text-muted)"
+			},
+			"tailwind": "text-caption leading-body text-fg-muted",
+			"rules": [
+				"12px muted for small print (Will be displayed as, reCAPTCHA notes)."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"link": {
+			"name": "Link",
+			"match": {
+				"tags": [
+					"a"
+				],
+				"words": [
+					"link",
+					"more",
+					"arrow",
+					"readmore"
+				]
+			},
+			"css": {
+				"color": "var(--ds-color-text-brand)",
+				"text-decoration": "none",
+				"transition": "color var(--ds-duration-fast) var(--ds-easing-out)"
+			},
+			"tailwind": "text-fg-brand no-underline transition-colors duration-150 ease-out hover:underline underline-offset-4",
+			"rules": [
+				"Links are the ink, underlined 3px below the text; the underline darkens nothing else on hover."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"text-decoration": "underline"
+				}
+			}
+		},
+		"button-primary": {
+			"name": "Primary button",
+			"match": {
+				"tags": [
+					"button",
+					"a"
+				],
+				"words": [
+					"btn-primary",
+					"primary",
+					"cta",
+					"get-started",
+					"signup",
+					"start",
+					"solid",
+					"filled",
+					"main"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"justify-content": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-4)",
+				"border": "0",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-action-primary)",
+				"color": "var(--ds-color-action-primary-fg)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"font-weight": "var(--ds-font-weight-medium)",
+				"line-height": "1",
+				"white-space": "nowrap",
+				"text-decoration": "none",
+				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
+			},
+			"tailwind": "ds-cut [--ds-shape-fill:var(--ds-color-action-primary)] hover:[--ds-shape-fill:var(--ds-color-action-primary-hover)] active:[--ds-shape-fill:var(--ds-color-action-primary)] inline-flex items-center justify-center gap-2 h-9 px-4 text-on-primary font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+			"rules": [
+				"The one main action: a Forest key with the 8px cut corner, a white 13px medium label and an arrow. Hover steps to #3E443E; press steps back at once. One per view."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"background-color": "var(--ds-color-action-primary-hover)"
+				},
+				":active": {
+					"background-color": "var(--ds-color-action-primary)",
+					"transition": "none"
+				}
+			}
+		},
+		"button-secondary": {
+			"name": "Framed button",
+			"match": {
+				"tags": [
+					"button",
+					"a"
+				],
+				"words": [
+					"btn-secondary",
+					"secondary",
+					"outline",
+					"ghost",
+					"btn-ghost",
+					"learn",
+					"demo",
+					"explore",
+					"btn"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"justify-content": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-4)",
+				"border": "1px solid var(--ds-color-border-strong)",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-bg-default)",
+				"color": "var(--ds-color-text-default)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"font-weight": "var(--ds-font-weight-medium)",
+				"line-height": "1",
+				"white-space": "nowrap",
+				"text-decoration": "none",
+				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)"
+			},
+			"tailwind": "ds-cut-frame [--ds-shape-stroke:var(--ds-color-border-strong)] [--ds-shape-fill:var(--ds-color-bg-default)] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] inline-flex items-center justify-center gap-2 h-9 px-4 text-fg font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+			"rules": [
+				"The second action: a white key with a 1px Forest line and the cut corner. Hover steps to Fog, press to Mist."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"background-color": "var(--ds-color-bg-subtle)"
+				},
+				":active": {
+					"background-color": "var(--ds-color-bg-subtle-hover)",
+					"transition": "none"
+				}
+			}
+		},
+		"button-on-brand": {
+			"name": "Text action",
+			"match": {
+				"tags": [
+					"button",
+					"a"
+				],
+				"words": [
+					"btn"
+				],
+				"context": [
+					"section-blue",
+					"on-brand"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"justify-content": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "0",
+				"border": "0",
+				"border-radius": "0",
+				"background-color": "transparent",
+				"color": "var(--ds-color-text-secondary)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"line-height": "1",
+				"white-space": "nowrap",
+				"transition": "color var(--ds-duration-fast) var(--ds-easing-out)",
+				"font-weight": "var(--ds-font-weight-medium)"
+			},
+			"tailwind": "inline-flex items-center gap-2 h-9 px-0 bg-transparent text-fg-secondary font-sans text-body font-medium leading-none whitespace-nowrap transition-colors duration-150 ease-out hover:text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+			"rules": [
+				"A text action: an 80 percent Forest label and the arrow, no fill or shape; the label turns Forest under the pointer and nothing moves."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"color": "var(--ds-color-text-default)"
+				}
+			}
+		},
+		"header": {
+			"name": "Rail",
+			"match": {
+				"tags": [
+					"header"
+				],
+				"words": [
+					"header",
+					"nav",
+					"navbar",
+					"topbar",
+					"site-header",
+					"masthead"
+				],
+				"roles": [
+					"banner"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-1)",
+				"width": "var(--ds-layout-rail)",
+				"padding": "var(--ds-space-3)",
+				"border-color": "var(--ds-color-border-default)",
+				"background-color": "var(--ds-color-bg-default)"
+			},
+			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 border-r border-line bg-surface",
+			"rules": [
+				"Navigation lives in a 212px white rail at the left with a 1px Stone line at its edge: the mark, then square rows grouped under 12px labels.",
+				"There is no top bar on a desktop screen."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"header-action": {
+			"name": "Head action",
+			"match": {
+				"tags": [
+					"a",
+					"button"
+				],
+				"words": [
+					"btn",
+					"cta",
+					"login",
+					"signin",
+					"sign-in",
+					"demo",
+					"get-started",
+					"signup"
+				],
+				"context": [
+					"header"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-4)",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-bg-default)",
+				"color": "var(--ds-color-text-default)",
+				"font-size": "var(--ds-text-body)",
+				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)",
+				"font-weight": "var(--ds-font-weight-medium)",
+				"border": "1px solid var(--ds-color-border-strong)"
+			},
+			"tailwind": "ds-cut-frame [--ds-shape-stroke:var(--ds-color-border-strong)] [--ds-shape-fill:var(--ds-color-bg-default)] hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] active:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] inline-flex items-center justify-center gap-2 h-9 px-4 text-fg font-sans text-body font-medium leading-none whitespace-nowrap after:transition-[background-color] after:duration-150 after:ease-out active:after:duration-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+			"rules": [
+				"An action in a page head is the framed key."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"background-color": "var(--ds-color-bg-subtle)"
+				},
+				":active": {
+					"background-color": "var(--ds-color-bg-subtle-hover)",
+					"transition": "none"
+				}
+			}
+		},
+		"nav-link": {
+			"name": "Rail row",
+			"match": {
+				"tags": [
+					"a",
+					"button"
+				],
+				"words": [
+					"nav-link",
+					"menu-link",
+					"nav-item",
+					"link",
+					"menu-item"
+				],
+				"context": [
+					"header",
+					"nav"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"height": "var(--ds-space-8)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "0",
+				"color": "var(--ds-color-text-default)",
+				"font-size": "var(--ds-text-body)",
+				"text-decoration": "none",
+				"transition": "background-color var(--ds-duration-fast) var(--ds-easing-out)",
+				"font-weight": "var(--ds-font-weight-regular)"
+			},
+			"tailwind": "flex items-center gap-2 h-8 px-3 text-fg text-body font-normal no-underline transition-colors duration-150 ease-out hover:bg-subtle aria-[current=page]:bg-subtle-hover outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+			"rules": [
+				"32px square rows: a 16px glyph and a 13px regular label in Forest; Fog under the pointer, Mist for the current page."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":hover": {
+					"background-color": "var(--ds-color-bg-subtle)"
+				},
+				"[aria-current=page]": {
+					"background-color": "var(--ds-color-bg-subtle-hover)"
+				}
+			}
+		},
+		"nav-dock": {
+			"name": "Second rail",
+			"match": {
+				"words": [
+					"dock",
+					"nav-pill",
+					"pill-nav",
+					"floating-nav",
+					"navpill",
+					"bottom-nav"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-1)",
+				"width": "var(--ds-layout-rail)",
+				"padding": "var(--ds-space-3)",
+				"background-color": "var(--ds-color-bg-page)"
+			},
+			"tailwind": "flex flex-col gap-1 w-(--ds-layout-rail) p-3 bg-page",
+			"rules": [
+				"A second rail sits on the Canvas beside the white one; its current row is white."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"chip": {
+			"name": "Tag",
+			"match": {
+				"words": [
+					"chip",
+					"pill",
+					"tag",
+					"badge",
+					"token",
+					"label"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"height": "var(--ds-space-6)",
+				"padding": "0 var(--ds-space-2)",
+				"background-color": "var(--ds-color-tag)",
+				"color": "var(--ds-color-tag-fg)",
+				"font-family": "var(--ds-font-mono)",
+				"font-size": "var(--ds-text-caption)",
+				"font-weight": "var(--ds-font-weight-regular)",
+				"line-height": "1"
+			},
+			"tailwind": "inline-flex items-center h-6 px-2 bg-tag text-tag-fg font-mono text-caption font-normal leading-none",
+			"rules": [
+				"Data tags are square Fog chips with Forest ink in DM Mono (\"345 kV\", \"41.2 ac\"). Status is a diamond, never a colored chip."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"stat": {
+			"name": "Status well",
+			"match": {
+				"words": [
+					"stat",
+					"metric",
+					"number",
+					"figure",
+					"kpi",
+					"count",
+					"value"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"height": "var(--ds-space-8)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-status-success-bg)",
+				"color": "var(--ds-color-text-default)",
+				"font-size": "var(--ds-text-body)"
+			},
+			"tailwind": "inline-flex items-center h-8 px-3 bg-success-bg text-fg text-body",
+			"rules": [
+				"A state is shown as a 38px well with fully rounded corners: green for active, gray for idle, blue for a mode (Active, Idle, Edge)."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"code-window": {
+			"name": "Code block",
+			"match": {
+				"tags": [
+					"pre"
+				],
+				"words": [
+					"code",
+					"terminal",
+					"snippet",
+					"codeblock",
+					"console",
+					"editor",
+					"window"
+				]
+			},
+			"css": {
+				"overflow": "hidden",
+				"border": "1px solid var(--ds-color-border-default)",
+				"border-radius": "var(--ds-radius-control)",
+				"background-color": "var(--ds-color-bg-code)",
+				"color": "var(--ds-color-code-text)",
+				"font-family": "var(--ds-font-code)",
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-body)"
+			},
+			"tailwind": "overflow-hidden border border-line bg-code text-code-text font-code text-body leading-body",
+			"rules": [
+				"Code is light: an off-white body with the editor's gray edge and head, line numbers in teal, red keys and blue values.",
+				"Never a dark code block."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"media-frame": {
+			"name": "Media frame",
+			"match": {
+				"tags": [
+					"img",
+					"video",
+					"picture",
+					"figure",
+					"iframe"
+				],
+				"words": [
+					"screenshot",
+					"image",
+					"media",
+					"preview",
+					"shot",
+					"visual",
+					"frame",
+					"mockup"
+				]
+			},
+			"css": {
+				"overflow": "hidden",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-bg-subtle)"
+			},
+			"tailwind": "overflow-hidden bg-subtle",
+			"rules": [
+				"Photos sit square in a Fog frame, dimmed under map marks (ds-imagery)."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
+		},
+		"table": {
+			"name": "Table",
+			"match": {
+				"tags": [
+					"table"
+				],
+				"words": [
+					"table",
+					"comparison",
+					"compare",
+					"pricing-table",
+					"grid"
+				]
+			},
+			"css": {
+				"width": "100%",
+				"border-collapse": "separate",
+				"border-spacing": "0",
+				"font-size": "var(--ds-text-body)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "w-full border-separate border-spacing-0 text-body text-fg",
+			"rules": [
+				"The head is 12px Forest at 80 percent on a 1px Stone rule; rows are 13px with 1px Mist rules; values with units are DM Mono. Each cited value ends in its source number.",
+				"No fills, no corners, no shadow."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"faq": {
+			"name": "Collapsible row",
+			"match": {
+				"tags": [
+					"details"
+				],
+				"words": [
+					"faq",
+					"accordion",
+					"question",
+					"qa"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"align-items": "center",
+				"justify-content": "space-between",
+				"gap": "var(--ds-space-3)",
+				"padding-block": "var(--ds-space-3)",
+				"font-size": "var(--ds-text-body)",
+				"color": "var(--ds-color-text-default)"
+			},
+			"tailwind": "flex items-center justify-between gap-3 py-3 text-body text-fg",
+			"rules": [
+				"A disclosure is a 14px ink row with a caret at its right (Advanced settings - tunnel mode, phone state, line sharing)."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"tabs": {
+			"name": "Tabs",
+			"match": {
+				"roles": [
+					"tab",
+					"tablist"
+				],
+				"words": [
+					"tab",
+					"tabs",
+					"segment",
+					"toggle",
+					"switcher"
+				]
+			},
+			"css": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-4)",
+				"border-bottom": "1px solid var(--ds-color-border-default)"
+			},
+			"tailwind": "inline-flex items-center gap-4 border-b border-line",
+			"rules": [
+				"Tabs sit on a 1px Stone rule; the chosen tab is Forest with a 1px Forest line under it, the rest 72 percent Forest."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				"[aria-selected=true]": {
+					"color": "var(--ds-color-text-default)",
+					"box-shadow": "inset 0 -1px 0 var(--ds-color-border-strong)"
+				}
+			}
+		},
+		"input": {
+			"name": "Field",
+			"match": {
+				"tags": [
+					"input",
+					"textarea",
+					"select"
+				],
+				"words": [
+					"input",
+					"field",
+					"search",
+					"email"
+				]
+			},
+			"css": {
+				"height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-3)",
+				"border": "1px solid var(--ds-color-border-default)",
+				"border-radius": "0",
+				"background-color": "var(--ds-color-bg-default)",
+				"color": "var(--ds-color-text-default)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"line-height": "var(--ds-leading-tight)",
+				"transition": "border-color var(--ds-duration-fast) var(--ds-easing-out), box-shadow var(--ds-duration-fast) var(--ds-easing-out)"
+			},
+			"tailwind": "h-9 px-3 border border-line bg-surface text-fg font-sans text-body leading-tight outline-none transition-[border-color] duration-150 ease-out placeholder:text-fg-subtle focus-visible:border-line-strong aria-invalid:border-danger disabled:bg-subtle disabled:text-fg-subtle",
+			"rules": [
+				"Fields are 36px white frames with a 1px Stone line; focus turns the line Forest, no ring. A unit (ac, ft, kV) sits at the end in the secondary ink."
+			],
+			"source": "Mireye product UI boards (442:2)",
+			"states": {
+				":focus-visible": {
+					"border-color": "var(--ds-color-border-strong)"
+				},
+				"[aria-invalid=true]": {
+					"border-color": "var(--ds-color-status-danger)"
+				}
+			}
+		},
+		"logo-strip": {
+			"name": "Logo row",
+			"match": {
+				"words": [
+					"logos",
+					"logo-strip",
+					"clients",
+					"customers",
+					"trusted",
+					"marquee",
+					"partners",
+					"brands"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-wrap": "wrap",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"padding": "var(--ds-space-0-5)",
+				"border-radius": "var(--ds-radius-panel)",
+				"background-color": "var(--ds-color-bg-subtle)"
+			},
+			"tailwind": "flex flex-wrap items-center gap-2 p-0.5 bg-subtle",
+			"rules": [
+				"A row of sources or tools is a Fog track of square tiles with 13px ink names."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"footer": {
+			"name": "Rail foot",
+			"match": {
+				"tags": [
+					"footer"
+				],
+				"words": [
+					"footer",
+					"site-footer"
+				],
+				"roles": [
+					"contentinfo"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "var(--ds-space-1)",
+				"padding": "var(--ds-space-3)",
+				"border-top": "1px solid var(--ds-color-border-subtle)"
+			},
+			"tailwind": "flex flex-col gap-1 p-3 border-t border-line-subtle",
+			"rules": [
+				"The rail ends with help, the organization (with an ADMIN mark), the account and Collapse, ruled off above."
+			],
+			"source": "Mireye product UI boards (442:2)"
+		},
+		"menu-panel": {
+			"name": "Menu panel",
+			"match": {
+				"words": [
+					"dropdown-menu",
+					"dropdown-content",
+					"dropdown-menu-content",
+					"menu-panel",
+					"menu-content",
+					"select-content"
+				],
+				"roles": [
+					"menu",
+					"listbox"
+				]
+			},
+			"css": {
+				"padding": "var(--ds-space-1)",
+				"border-radius": "var(--ds-radius-panel)",
+				"background-color": "var(--ds-color-bg-default)",
+				"color": "var(--ds-color-text-default)",
+				"font-family": "var(--ds-font-sans)",
+				"font-size": "var(--ds-text-body)",
+				"border": "1px solid var(--ds-color-border-default)"
+			},
+			"tailwind": "bg-surface p-1 font-sans text-body text-fg border border-line outline-none",
+			"rules": [
+				"Menus and select lists are white with a 1px Stone line, square, 4px inside, 8px from the trigger. No shadow."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)",
+			"states": {}
+		},
+		"menu-item": {
+			"name": "Menu item",
+			"match": {
+				"words": [
+					"dropdown-item",
+					"dropdown-menu-item",
+					"menu-item",
+					"select-item"
+				],
+				"roles": [
+					"menuitem",
+					"menuitemcheckbox",
+					"menuitemradio",
+					"option"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"min-height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "var(--ds-radius-control)",
+				"color": "var(--ds-color-text-default)",
+				"font-size": "var(--ds-text-body)",
+				"padding-block": "var(--ds-space-2)"
+			},
+			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 text-fg text-body outline-none data-[highlighted]:bg-subtle",
+			"rules": [
+				"Square 36px rows, 13px Forest; Fog on the highlighted row with no fade; a chosen row ends in the check glyph."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)",
+			"states": {
+				"[data-highlighted]": {
+					"background-color": "var(--ds-color-bg-subtle)"
+				}
+			}
+		},
+		"glass-menu": {
+			"name": "Floating panel",
+			"match": {
+				"words": [
+					"glass-menu",
+					"glass-dropdown",
+					"dock-card"
+				]
+			},
+			"css": {
+				"padding": "var(--ds-space-1)",
+				"border-radius": "var(--ds-radius-panel)",
+				"background-color": "var(--ds-color-bg-default)",
+				"border": "1px solid var(--ds-color-border-default)"
+			},
+			"tailwind": "bg-surface p-1 border border-line",
+			"rules": [
+				"Mireye has no glass: floating panels are the white framed panel."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
+		},
+		"glass-menu-item": {
+			"name": "Floating panel item",
+			"match": {
+				"words": [
+					"glass-menu-item",
+					"glass-dropdown-item",
+					"dock-card-item"
+				]
+			},
+			"css": {
+				"display": "flex",
+				"align-items": "center",
+				"gap": "var(--ds-space-2)",
+				"min-height": "var(--ds-space-9)",
+				"padding-inline": "var(--ds-space-3)",
+				"border-radius": "var(--ds-radius-control)",
+				"color": "var(--ds-color-text-default)",
+				"font-size": "var(--ds-text-body)",
+				"padding-block": "var(--ds-space-2)"
+			},
+			"tailwind": "flex items-center gap-2 min-h-9 px-3 py-2 text-fg text-body",
+			"rules": [
+				"As a menu item."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
+		},
+		"popover-panel": {
+			"name": "Popover panel",
+			"match": {
+				"words": [
+					"popover-content",
+					"popover-panel"
+				]
+			},
+			"css": {
+				"padding": "var(--ds-space-4)",
+				"border-radius": "var(--ds-radius-panel)",
+				"background-color": "var(--ds-color-bg-default)",
+				"color": "var(--ds-color-text-default)",
+				"border": "1px solid var(--ds-color-border-default)"
+			},
+			"tailwind": "bg-surface p-4 text-fg border border-line",
+			"rules": [
+				"Popovers are the white framed panel with 16px inside."
+			],
+			"source": "Extrapolated from the Mireye product UI boards (442:2)"
+		}
+	}
+}

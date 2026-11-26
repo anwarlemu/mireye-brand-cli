@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "faq-section",
+  "useFor": "Use at the foot of the pricing or product page. Pass `groups` of question and answer. Keep answers to two sentences.",
+  "constraints": [
+    "Plus or minus icons that move on hover",
+    "Every answer open at once",
+    "Bold questions"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): PricingQuestions and faq-brand.css (group name left, questions right)",
+  "exports": [
+    "QuestionGroup",
+    "FaqSectionProps",
+    "FaqSection"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/faq-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/faq-section.md",
+  "examples": [
+    {
+      "path": "examples/faq-section.tsx",
+      "content": "\"use client\";\n\nimport { FaqSection } from \"@/components/blocks/faq-section\";\n\nexport function Preview() {\n  return <FaqSection closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "faq-section"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/faq-section/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "FAQ section",
+  "description": "Questions in groups: the group name on the left, its questions on the right as an accordion ruled in Mist; the first starts open.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "accordion"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/faq-section.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from \"@/components/ui/accordion\";\n\n// Questions in groups, as on the website's pricing page: each group's name on the left in Forest at 72%, its questions\n// on the right as an accordion ruled in Mist. The first question of the first group starts open. The accordion's own\n// motion applies (height under 200ms, ease-out); nothing else moves.\n\nexport type QuestionGroup = { group: string; entries: { question: string; answer: React.ReactNode }[] };\n\nconst GROUPS: QuestionGroup[] = [\n  {\n    group: \"The data\",\n    entries: [\n      { question: \"Where does the data come from?\", answer: \"County assessors, utilities, federal flood and elevation layers, and permit offices. Every value carries its source and the date it was read.\" },\n      { question: \"Which places do you cover?\", answer: \"Any U.S. location: a parcel, an address or a coordinate. Coverage varies by field and county; the response says when a value is missing.\" },\n      { question: \"How fresh is it?\", answer: \"Each source is read on its own schedule, from daily for permits to yearly for assessor rolls. The date travels with the value.\" },\n    ],\n  },\n  {\n    group: \"Billing\",\n    entries: [\n      { question: \"What counts as a request?\", answer: \"One call to the API, whatever it returns. Batch calls count once per place.\" },\n      { question: \"What happens if I go over my plan?\", answer: \"Extra requests are billed at your plan's rate. Nothing stops your agent mid-run.\" },\n    ],\n  },\n];\n\nexport type FaqSectionProps = Omit<PageSectionProps, \"children\"> & { groups?: QuestionGroup[] };\n\nexport function FaqSection({ label = \"Questions\", title = \"Questions, answered.\", intro = \"Anything else? Write to the team and an engineer answers.\", groups = GROUPS, ...props }: FaqSectionProps) {\n  return (\n    <PageSection label={label} title={title} intro={intro} {...props}>\n      <div className=\"grid gap-10\">\n        {groups.map((g, gi) => (\n          <div key={g.group} className=\"grid gap-3 border-t border-line pt-1 lg:grid-cols-3 lg:gap-10\">\n            <h3 className=\"pt-3 text-body leading-body font-normal text-fg-muted\">{g.group}</h3>\n            <Accordion type=\"single\" collapsible defaultValue={gi === 0 ? `${g.group}-0` : undefined} className=\"lg:col-span-2\">\n              {g.entries.map((e, i) => (\n                <AccordionItem key={e.question} value={`${g.group}-${i}`}>\n                  <AccordionTrigger>{e.question}</AccordionTrigger>\n                  <AccordionContent className=\"max-w-(--ds-layout-text)\">{e.answer}</AccordionContent>\n                </AccordionItem>\n              ))}\n            </Accordion>\n          </div>\n        ))}\n      </div>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "name": "alert-dialog",
+  "useFor": "Use to confirm an action that is destructive or hard to undo (remove a site, rescore every site). Name the action on the confirming key (Remove site), never just OK. Use size=\"sm\" with AlertDialogMedia for a short centered question. Content taller than the screen fades at an edge (fade-y) where more scrolls past it.",
+  "constraints": [
+    "Information that needs no answer (use a toast)",
+    "A close key",
+    "Rounded corners or a shadow",
+    "Two primary keys"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the dialog's panel",
+  "exports": [
+    "AlertDialog",
+    "AlertDialogAction",
+    "AlertDialogCancel",
+    "AlertDialogContent",
+    "AlertDialogDescription",
+    "AlertDialogFooter",
+    "AlertDialogHeader",
+    "AlertDialogMedia",
+    "AlertDialogOverlay",
+    "AlertDialogPortal",
+    "AlertDialogTitle",
+    "AlertDialogTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/alert-dialog",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/alert-dialog.md",
+  "examples": [
+    {
+      "path": "examples/alert-dialog.tsx",
+      "content": "\"use client\";\n\nimport { ArrowsClockwiseIcon, TrashIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from \"@/components/ui/alert-dialog\";\nimport { Button } from \"@/components/ui/button\";\n\nfunction RemoveSite() {\n  return (\n    <AlertDialogContent>\n      <AlertDialogHeader>\n        <AlertDialogTitle>Remove Site 14?</AlertDialogTitle>\n        <AlertDialogDescription>Its 6 parcels, notes and fit scores are removed with it. Exports you already shared keep their copy. This cannot be undone.</AlertDialogDescription>\n      </AlertDialogHeader>\n      <AlertDialogFooter>\n        <AlertDialogCancel>Cancel</AlertDialogCancel>\n        <AlertDialogAction variant=\"destructive\">Remove site</AlertDialogAction>\n      </AlertDialogFooter>\n    </AlertDialogContent>\n  );\n}\n\nexport function Preview() {\n  return (\n    <div className=\"flex justify-center\">\n      <AlertDialog>\n        <AlertDialogTrigger asChild>\n          <Button variant=\"destructive\">\n            <TrashIcon />\n            Remove site\n          </Button>\n        </AlertDialogTrigger>\n        <RemoveSite />\n      </AlertDialog>\n    </div>\n  );\n}\n\nexport function Small() {\n  return (\n    <div className=\"flex justify-center\">\n      <AlertDialog>\n        <AlertDialogTrigger asChild>\n          <Button variant=\"outline\">\n            <ArrowsClockwiseIcon />\n            Rescore sites\n          </Button>\n        </AlertDialogTrigger>\n        <AlertDialogContent size=\"sm\">\n          <AlertDialogHeader>\n            <AlertDialogMedia>\n              <ArrowsClockwiseIcon />\n            </AlertDialogMedia>\n            <AlertDialogTitle>Rescore 24 sites?</AlertDialogTitle>\n            <AlertDialogDescription>Fit scores change to the new requirements. The old scores stay in the history.</AlertDialogDescription>\n          </AlertDialogHeader>\n          <AlertDialogFooter>\n            <AlertDialogCancel>Cancel</AlertDialogCancel>\n            <AlertDialogAction>Rescore</AlertDialogAction>\n          </AlertDialogFooter>\n        </AlertDialogContent>\n      </AlertDialog>\n    </div>\n  );\n}\n\nexport function Open() {\n  return (\n    <div className=\"min-h-100\">\n      <AlertDialog defaultOpen>\n        <RemoveSite />\n      </AlertDialog>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Small",
+        "Open"
+      ],
+      "requires": [
+        "alert-dialog",
+        "button"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/alert-dialog/Preview"
+        },
+        {
+          "name": "Small",
+          "url": "https://mireye-ds.agencidev.com/preview/alert-dialog/Small"
+        },
+        {
+          "name": "Open",
+          "url": "https://mireye-ds.agencidev.com/preview/alert-dialog/Open"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Alert Dialog",
+  "description": "The dialog's framed cut panel for a confirmation: a 16px regular title, a line in the secondary ink and two keys at the end; no close key, and a click outside does not dismiss it.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "button",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/alert-dialog.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { AlertDialog as AlertDialogPrimitive } from \"radix-ui\";\n\nimport { buttonVariants } from \"@/components/ui/button\";\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A confirmation, drawn as the dialog (Figma has none; this is Mireye's grammar): a white panel with the 8px cut corner\n// and a 1px Stone line, no shadow, on the page under Forest at 40 percent; 20px of padding, the 16px regular title over\n// a 13px line in the secondary ink, then the actions 8px apart: the cancel as the secondary key and the action as the\n// primary one (the destructive key for a destructive action), side by side at the end, stacked full width on phones.\n// It is at most 448px wide. Below 768px it fills the screen (square, without the line, inside the safe area), as the\n// dialog does. `size=\"sm\"` is a 320px panel with the title centered under an optional media tile (AlertDialogMedia, a\n// square 40px Fog tile), on phones too. It has no close key: the person answers it. Opens from 98 percent with a fade\n// (180ms), centered; closes to 98 percent faster (120ms).\nfunction AlertDialog(props: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {\n  return <AlertDialogPrimitive.Root data-slot=\"alert-dialog\" {...props} />;\n}\n\nfunction AlertDialogTrigger(props: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {\n  return <AlertDialogPrimitive.Trigger data-slot=\"alert-dialog-trigger\" {...props} />;\n}\n\nfunction AlertDialogPortal(props: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {\n  const container = usePortalContainer();\n  return <AlertDialogPrimitive.Portal data-slot=\"alert-dialog-portal\" container={container} {...props} />;\n}\n\nfunction AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {\n  return (\n    <AlertDialogPrimitive.Overlay\n      data-slot=\"alert-dialog-overlay\"\n      className={cn(\"fixed inset-0 z-50 bg-scrim data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogContent({ className, size = \"default\", children, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & { size?: \"default\" | \"sm\" }) {\n  return (\n    <AlertDialogPortal>\n      <AlertDialogOverlay />\n      <AlertDialogPrimitive.Content\n        data-slot=\"alert-dialog-content\"\n        data-size={size}\n        className={cn(\n          \"group/alert-dialog ds-cut-frame fixed top-1/2 left-1/2 z-50 flex flex-col max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden p-5 text-fg outline-none [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[size=default]:max-w-112 data-[size=sm]:max-w-80 data-[state=closed]:animate-dialog-out data-[state=open]:animate-dialog-in max-md:data-[size=default]:top-0 max-md:data-[size=default]:left-0 max-md:data-[size=default]:translate-x-0 max-md:data-[size=default]:translate-y-0 max-md:data-[size=default]:h-dvh max-md:data-[size=default]:max-h-dvh max-md:data-[size=default]:w-full max-md:data-[size=default]:max-w-none max-md:data-[size=default]:content-start max-md:data-[size=default]:[--ds-cut:0px] max-md:data-[size=default]:[--ds-shape-stroke:var(--ds-color-bg-default)] max-md:data-[size=default]:px-[calc(env(safe-area-inset-left,0px)+16px)] max-md:data-[size=default]:pt-[calc(env(safe-area-inset-top,0px)+20px)] max-md:data-[size=default]:pb-[calc(env(safe-area-inset-bottom,0px)+20px)]\",\n          className,\n        )}\n        {...props}\n      >\n        {/* The scrolling box sits inside the frame: its edges fade where more scrolls past them, and the content's own\n            enter and exit animations stay on the frame. */}\n        <div data-slot=\"alert-dialog-body\" className=\"grid min-h-0 content-start gap-5 overflow-y-auto fade-y\">\n          {children}\n        </div>\n      </AlertDialogPrimitive.Content>\n    </AlertDialogPortal>\n  );\n}\n\nfunction AlertDialogHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"alert-dialog-header\" className={cn(\"grid gap-1.5 group-data-[size=sm]/alert-dialog:justify-items-center group-data-[size=sm]/alert-dialog:text-center\", className)} {...props} />;\n}\n\nfunction AlertDialogFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"alert-dialog-footer\"\n      className={cn(\"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end group-data-[size=sm]/alert-dialog:grid group-data-[size=sm]/alert-dialog:grid-cols-2 group-data-[size=sm]/alert-dialog:[&>*]:w-full\", className)}\n      {...props}\n    />\n  );\n}\n\n/** A square 40px Fog tile above the title: put a 20px glyph inside. */\nfunction AlertDialogMedia({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"alert-dialog-media\" className={cn(\"mb-1 inline-flex size-10 items-center justify-center bg-subtle text-fg [&_svg:not([class*='size-'])]:size-5\", className)} {...props} />;\n}\n\nfunction AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {\n  return <AlertDialogPrimitive.Title data-slot=\"alert-dialog-title\" className={cn(\"font-sans text-h3 leading-tight font-normal text-fg\", className)} {...props} />;\n}\n\nfunction AlertDialogDescription({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {\n  return <AlertDialogPrimitive.Description data-slot=\"alert-dialog-description\" className={cn(\"text-body leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nfunction AlertDialogAction({ className, variant = \"default\", ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Action> & { variant?: \"default\" | \"destructive\" }) {\n  return <AlertDialogPrimitive.Action data-slot=\"alert-dialog-action\" className={cn(buttonVariants({ variant }), className)} {...props} />;\n}\n\nfunction AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {\n  return <AlertDialogPrimitive.Cancel data-slot=\"alert-dialog-cancel\" className={cn(buttonVariants({ variant: \"secondary\" }), className)} {...props} />;\n}\n\nexport {\n  AlertDialog,\n  AlertDialogAction,\n  AlertDialogCancel,\n  AlertDialogContent,\n  AlertDialogDescription,\n  AlertDialogFooter,\n  AlertDialogHeader,\n  AlertDialogMedia,\n  AlertDialogOverlay,\n  AlertDialogPortal,\n  AlertDialogTitle,\n  AlertDialogTrigger,\n};\n"
+    }
+  ]
+}

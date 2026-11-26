@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "careers-page",
+  "useFor": "Use for /careers. Pass `roles` (title, team, location, href) and the team's own `principles` and `story`.",
+  "constraints": [
+    "Team photos",
+    "Perks lists with emoji",
+    "A real person's name in the sample copy"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): careers page (ResourcePages CareersPage) and pages-company.css",
+  "exports": [
+    "Role",
+    "Principle",
+    "CareersPageProps",
+    "CareersPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/careers-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/careers-page.md",
+  "examples": [
+    {
+      "path": "examples/careers-page.tsx",
+      "content": "import { CareersPage } from \"@/components/blocks/careers-page\";\n\nexport function Preview() {\n  return <CareersPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "careers-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/careers-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Careers page",
+  "description": "The careers page: the line as the title, why the work matters, how the team works as ruled rows with solid nodes, and the open roles as rows with a mono location.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "cta-section",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "button",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/careers-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { Button } from \"@/components/ui/button\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// The careers page, as on the website: the line as the title with two actions, why the work matters beside its\n// prose, how the team works as ruled rows, then the open roles as rows with a mono location and the way to apply.\n\nexport type Role = { title: string; team: string; location: string; href: string };\nexport type Principle = { title: string; description: string };\n\nconst ROLES: Role[] = [\n  { title: \"Data engineer, parcels\", team: \"Data\", location: \"Remote, U.S.\", href: \"#apply\" },\n  { title: \"Product engineer, API\", team: \"Platform\", location: \"Remote, U.S.\", href: \"#apply\" },\n  { title: \"Field researcher\", team: \"Coverage\", location: \"Remote, U.S.\", href: \"#apply\" },\n];\n\nconst PRINCIPLES: Principle[] = [\n  { title: \"Show the source\", description: \"Every value names its record, in the product and in how we argue.\" },\n  { title: \"Small and fast\", description: \"What you build reaches customers in days, and you own a large part of it.\" },\n  { title: \"Plain words\", description: \"We write for the person reading, not for the person writing.\" },\n];\n\nexport type CareersPageProps = { header?: SiteHeaderProps; title?: string; intro?: string; story?: string[]; principles?: Principle[]; roles?: Role[]; cta?: CtaSectionProps | null; footer?: SiteFooterProps };\n\nexport function CareersPage({\n  header,\n  title = \"Help us index the physical world.\",\n  intro = \"We give AI agents, and the teams who build on land, an answer about any place in the U.S., with its source.\",\n  story = [\"The next decade gets built in the real world: data centers, chargers, homes, the grid.\", \"Every one of those projects starts with the same questions, and the answers sit across thousands of agencies. We gather them into one source agents can call.\"],\n  principles = PRINCIPLES,\n  roles = ROLES,\n  cta = { label: \"Not listed?\", title: \"Write to us anyway.\", description: \"Tell us what you would build. We read every note.\", primary: { label: \"Write to us\", href: \"#contact\" }, secondary: null },\n  footer,\n}: CareersPageProps) {\n  return (\n    <div data-slot=\"careers-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#careers\" {...header} />\n      <main>\n        <PageSection label=\"Careers\" as=\"h1\" title={title} intro={intro} actions={<><Button asChild><a href=\"#roles\">See open roles<ArrowRightIcon size={20} /></a></Button></>} />\n        <PageSection title=\"Why this work.\">\n          <div className=\"grid gap-4 lg:ml-[50%] lg:pl-5\">\n            {story.map((p) => (\n              <p key={p} className=\"max-w-(--ds-layout-text) text-body-lg leading-relaxed text-fg-secondary\">{p}</p>\n            ))}\n          </div>\n        </PageSection>\n        <PageSection title=\"How we work.\">\n          <dl className=\"grid\">\n            {principles.map((p) => (\n              <div key={p.title} className=\"grid gap-2 border-t border-line py-5 md:grid-cols-2 md:gap-10\">\n                <dt className=\"flex items-center gap-2.5 text-h3 leading-heading text-fg\"><Diamond size={12} />{p.title}</dt>\n                <dd className=\"m-0 text-body leading-body text-fg-secondary\">{p.description}</dd>\n              </div>\n            ))}\n          </dl>\n        </PageSection>\n        <PageSection id=\"roles\" label=\"Open roles\" title={`${roles.length} roles.`}>\n          <ul className=\"grid\">\n            {roles.map((r) => (\n              <li key={r.title}>\n                <a href={r.href} className=\"grid gap-1 border-t border-line py-5 outline-none transition-colors duration-150 ease-out hover:bg-subtle focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong motion-reduce:transition-none md:grid-cols-[2fr_1fr_1fr] md:items-center md:gap-6 md:px-3\">\n                  <span className=\"text-h3 leading-heading text-fg\">{r.title}</span>\n                  <span className=\"text-body leading-body text-fg-secondary\">{r.team}</span>\n                  <span className=\"font-mono text-caption leading-tight text-fg-muted\">{r.location}</span>\n                </a>\n              </li>\n            ))}\n          </ul>\n        </PageSection>\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

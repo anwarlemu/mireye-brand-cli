@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "name": "list-detail-page",
+  "useFor": "Use for any list of records with a detail view (sites, reports, searches). Pass `sites`, `defaultSelected` and `onAsk`. On a phone the list sits above the detail.",
+  "constraints": [
+    "Opening the detail in a modal on wide screens",
+    "Values without their source",
+    "More than one Forest key"
+  ],
+  "documentation": "",
+  "source": "brand/reference product UI boards (Figma 442:2) and the library's product parts: Figma UI · Agent chat (443:433), cited-fields, sources, site-chip, fit-score, status, tag",
+  "exports": [
+    "SavedSite",
+    "ListDetailPageProps",
+    "ListDetailPage"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/list-detail-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/list-detail-page.md",
+  "examples": [
+    {
+      "path": "examples/list-detail-page.tsx",
+      "content": "\"use client\";\n\nimport { ListDetailPage } from \"@/components/blocks/list-detail-page\";\n\n// Embedded at 900px; in an app the shell fills the viewport.\nexport function Preview() {\n  return <ListDetailPage className=\"h-225\" />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "list-detail-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/list-detail-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "List detail page",
+  "description": "Saved sites in the app shell: a filterable list (name, parcel ID in DM Mono, fit bar) beside the chosen site's name, coordinates, status, tags, survey plate, cited fields with sources and the composer with the site chip.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "app-shell",
+    "survey-plate",
+    "button",
+    "chat",
+    "cited-fields",
+    "fit-score",
+    "input",
+    "site-chip",
+    "sources",
+    "status",
+    "tag",
+    "utils"
+  ],
+  "packages": [
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/list-detail-page.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { MagnifyingGlassIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { AppShell, type AppShellProps } from \"@/components/blocks/app-shell\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Button } from \"@/components/ui/button\";\nimport { ChatInput } from \"@/components/ui/chat\";\nimport { CitedField, CitedFields } from \"@/components/ui/cited-fields\";\nimport { FitScore } from \"@/components/ui/fit-score\";\nimport { Input } from \"@/components/ui/input\";\nimport { SiteChip } from \"@/components/ui/site-chip\";\nimport { Source, SourceGroup, Sources } from \"@/components/ui/sources\";\nimport { Status, type StatusVariant } from \"@/components/ui/status\";\nimport { Tag } from \"@/components/ui/tag\";\nimport { cn } from \"@/lib/utils\";\n\n// Saved sites as a list beside the chosen site, in the app shell. The list: a filter field, then rows (name, parcel ID\n// in DM Mono, the fit bar); a row fills Fog under the pointer and Mist when chosen (150ms, color only). The detail: the\n// site's name, coordinates and status pill, its tags, the survey plate, the cited fields with their sources, and the\n// composer to ask about it with the site chip. On a phone the list sits above the detail.\n\nexport type SavedSite = {\n  id: string;\n  name: string;\n  parcel: string;\n  coordinates: string;\n  fit: number;\n  status: StatusVariant;\n  tags: string[];\n  fields: { label: string; value: string; source: number }[];\n  sources: string[];\n};\n\nconst SITES: SavedSite[] = [\n  {\n    id: \"ellis-14\",\n    name: \"Ellis County site 14\",\n    parcel: \"042-117-09\",\n    coordinates: \"32.4113, -96.8302\",\n    fit: 92,\n    status: \"verified\",\n    tags: [\"212.6 ac\", \"138 kV\", \"Zone X\", \"I-2 Industrial\"],\n    fields: [\n      { label: \"Owner\", value: \"Acme Land LLC\", source: 1 },\n      { label: \"Nearest substation\", value: \"0.8 mi, 138 kV\", source: 2 },\n      { label: \"Flood zone\", value: \"Zone X\", source: 3 },\n      { label: \"Slope\", value: \"2.8%\", source: 4 },\n    ],\n    sources: [\"Ellis County appraisal roll\", \"Transmission lines and substations\", \"FEMA flood hazard layer\", \"USGS elevation model\"],\n  },\n  {\n    id: \"navarro-3\",\n    name: \"Navarro County site 3\",\n    parcel: \"175-020-41\",\n    coordinates: \"32.0954, -96.4689\",\n    fit: 84,\n    status: \"verified\",\n    tags: [\"318.0 ac\", \"345 kV\", \"Zone X\", \"Agricultural\"],\n    fields: [\n      { label: \"Owner\", value: \"Acme Holdings\", source: 1 },\n      { label: \"Nearest substation\", value: \"2.1 mi, 345 kV\", source: 2 },\n      { label: \"Flood zone\", value: \"Zone X\", source: 3 },\n      { label: \"Slope\", value: \"1.9%\", source: 4 },\n    ],\n    sources: [\"Navarro County appraisal roll\", \"Transmission lines and substations\", \"FEMA flood hazard layer\", \"USGS elevation model\"],\n  },\n  {\n    id: \"kaufman-8\",\n    name: \"Kaufman County site 8\",\n    parcel: \"129-334-02\",\n    coordinates: \"32.5891, -96.3087\",\n    fit: 71,\n    status: \"processing\",\n    tags: [\"164.3 ac\", \"69 kV\", \"Zone AE\"],\n    fields: [\n      { label: \"Owner\", value: \"Acme Farms\", source: 1 },\n      { label: \"Nearest substation\", value: \"4.6 mi, 69 kV\", source: 2 },\n      { label: \"Flood zone\", value: \"Zone AE\", source: 3 },\n      { label: \"Slope\", value: \"3.4%\", source: 4 },\n    ],\n    sources: [\"Kaufman County appraisal roll\", \"Transmission lines and substations\", \"FEMA flood hazard layer\", \"USGS elevation model\"],\n  },\n  {\n    id: \"ellis-22\",\n    name: \"Ellis County site 22\",\n    parcel: \"042-131-17\",\n    coordinates: \"32.3620, -96.9011\",\n    fit: 63,\n    status: \"queued\",\n    tags: [\"126.8 ac\", \"138 kV\"],\n    fields: [\n      { label: \"Owner\", value: \"Acme Trust\", source: 1 },\n      { label: \"Nearest substation\", value: \"3.2 mi, 138 kV\", source: 2 },\n    ],\n    sources: [\"Ellis County appraisal roll\", \"Transmission lines and substations\"],\n  },\n];\n\nconst ROW =\n  \"grid w-full cursor-pointer gap-2 border-b border-line-subtle px-4 py-3 text-left outline-none transition-colors duration-150 ease-out hover:bg-subtle focus-visible:outline-solid focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-line-strong aria-[current=true]:bg-subtle-hover motion-reduce:transition-none\";\n\nexport type ListDetailPageProps = Omit<AppShellProps, \"title\" | \"children\"> & {\n  sites?: SavedSite[];\n  defaultSelected?: string;\n  onAsk?: (site: SavedSite, question: string) => void;\n};\n\nexport function ListDetailPage({ sites = SITES, defaultSelected, onAsk, ...shell }: ListDetailPageProps) {\n  const [query, setQuery] = React.useState(\"\");\n  const [selected, setSelected] = React.useState(defaultSelected ?? sites[0]?.id);\n  const [question, setQuestion] = React.useState(\"\");\n  const q = query.trim().toLowerCase();\n  const shown = q ? sites.filter((s) => s.name.toLowerCase().includes(q) || s.parcel.includes(q)) : sites;\n  const site = sites.find((s) => s.id === selected) ?? sites[0];\n  return (\n    <AppShell current=\"sites\" title=\"Saved sites\" meta={`${sites.length} sites`} actions={<Button size=\"sm\" variant=\"outline\">Export</Button>} contentClassName=\"lg:flex lg:overflow-hidden\" {...shell}>\n      <aside aria-label=\"Sites\" className=\"flex shrink-0 flex-col border-b border-line lg:w-80 lg:border-r lg:border-b-0\">\n        <div className=\"relative border-b border-line-subtle p-3\">\n          <MagnifyingGlassIcon aria-hidden className=\"pointer-events-none absolute top-1/2 left-6 z-10 size-4 -translate-y-1/2 text-fg-subtle\" />\n          <Input type=\"search\" value={query} onChange={(e) => setQuery(e.target.value)} placeholder=\"Filter sites\" aria-label=\"Filter sites\" className=\"pl-9\" />\n        </div>\n        <ul className=\"min-h-0 flex-1 overflow-y-auto fade-y max-lg:max-h-72\">\n          {shown.map((s) => (\n            <li key={s.id}>\n              <button type=\"button\" aria-current={s.id === site?.id} onClick={() => setSelected(s.id)} className={ROW}>\n                <span className=\"flex items-baseline justify-between gap-3\">\n                  <span className=\"truncate text-body text-fg\">{s.name}</span>\n                  <span className=\"shrink-0 font-mono text-caption text-fg-muted\">{s.parcel}</span>\n                </span>\n                <FitScore value={s.fit} className=\"w-full\" />\n              </button>\n            </li>\n          ))}\n          {!shown.length && <li className=\"px-4 py-6 text-body text-fg-muted\">No site matches.</li>}\n        </ul>\n      </aside>\n      {site && (\n        <article aria-label={site.name} className=\"min-w-0 flex-1 lg:overflow-y-auto lg:fade-y\">\n          <div className=\"grid gap-6 p-4 sm:p-6\">\n            <header className=\"flex flex-wrap items-start justify-between gap-4\">\n              <div className=\"grid gap-1.5\">\n                <h2 className=\"text-h1 leading-heading font-normal text-fg\">{site.name}</h2>\n                <p className=\"font-mono text-caption text-fg-muted\">\n                  {site.parcel} · {site.coordinates}\n                </p>\n              </div>\n              <div className=\"flex items-center gap-2\">\n                <Status variant={site.status} />\n                <Button size=\"sm\">Open report</Button>\n              </div>\n            </header>\n            <div className=\"flex flex-wrap gap-2\">\n              {site.tags.map((t) => (\n                <Tag key={t}>{t}</Tag>\n              ))}\n            </div>\n            <SurveyPlate className=\"aspect-video w-full max-sm:aspect-4/3\" caption={site.coordinates} marker={{ x: 47, y: 61, value: site.tags[0], coordinates: site.coordinates }} parcels={[{ x: 8, y: 14, w: 22, h: 26, state: \"plain\" }, { x: 34, y: 46, w: 26, h: 30, state: \"selected\", label: site.parcel }, { x: 66, y: 20, w: 20, h: 24, state: \"hatched\" }]} />\n            <SourceGroup>\n              <div className=\"grid gap-6 lg:grid-cols-2 lg:gap-8\">\n                <CitedFields>\n                  {site.fields.map((f) => (\n                    <CitedField key={f.label} label={f.label} source={f.source}>\n                      {f.value}\n                    </CitedField>\n                  ))}\n                </CitedFields>\n                <Sources aria-label=\"Sources\">\n                  {site.sources.map((s, i) => (\n                    <Source key={s} number={i + 1} cut={false}>\n                      {s}\n                    </Source>\n                  ))}\n                </Sources>\n              </div>\n            </SourceGroup>\n            <ChatInput\n              placeholder={`Ask about ${site.name}`}\n              site={<SiteChip>{site.coordinates}</SiteChip>}\n              submitDisabled={!question.trim()}\n              textareaProps={{ value: question, onChange: (e) => setQuestion(e.target.value) }}\n              onSubmit={(e) => {\n                e.preventDefault();\n                if (!question.trim()) return;\n                onAsk?.(site, question.trim());\n                setQuestion(\"\");\n              }}\n              className={cn(\"w-full\")}\n            />\n          </div>\n        </article>\n      )}\n    </AppShell>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "blog-page",
+  "useFor": "Use for /blog. Pass `posts` (ISO dates) and `topics`. The first post in the current topic leads.",
+  "constraints": [
+    "Thumbnails with rounded corners",
+    "Animated filtering",
+    "Author photos in circles"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): blog page and ResourcePages",
+  "exports": [
+    "Post",
+    "formatPostDate",
+    "BlogPageProps",
+    "BlogPage"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/blog-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/blog-page.md",
+  "examples": [
+    {
+      "path": "examples/blog-page.tsx",
+      "content": "\"use client\";\n\nimport { BlogPage } from \"@/components/blocks/blog-page\";\n\nexport function Preview() {\n  return <BlogPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "blog-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/blog-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Blog page",
+  "description": "The blog index: the title, topic tabs that filter at once, the newest post as a lead with a survey plate, the rest as ruled rows (date in DM Mono, title, one line, a Fog topic tag) and pagination.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "cta-section",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "survey-plate",
+    "badge",
+    "pagination",
+    "tabs"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/blog-page.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from \"@/components/ui/pagination\";\nimport { Tabs, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\n\n// The blog index: the page title, topic tabs that filter the list at once (no motion), the newest post as a lead card\n// with a survey plate, then the rest as ruled rows (date in DM Mono, title, one line, the topic as a Fog tag) and\n// pagination. A row's title takes a Stone underline under the pointer that turns Forest (150ms, color only).\n\nexport type Post = { title: string; excerpt: string; date: string; topic: string; href: string; readingTime?: string };\n\nconst POSTS: Post[] = [\n  { title: \"Why every value needs a source\", excerpt: \"An agent that cannot show where a fact came from cannot be trusted with a site decision.\", date: \"2026-11-12\", topic: \"Product\", href: \"#post-sources\", readingTime: \"6 min\" },\n  { title: \"Reading flood zones from federal layers\", excerpt: \"How we turn flood hazard maps into one field an agent can read.\", date: \"2026-10-28\", topic: \"Data\", href: \"#post-flood\", readingTime: \"8 min\" },\n  { title: \"Screening a county overnight\", excerpt: \"What it takes to hold every parcel in a county to one buy box.\", date: \"2026-10-14\", topic: \"Engineering\", href: \"#post-screening\", readingTime: \"10 min\" },\n  { title: \"Permits data is available now\", excerpt: \"Filed and issued permits, with status and dates, for every county we read.\", date: \"2026-09-30\", topic: \"Product\", href: \"#post-permits\", readingTime: \"3 min\" },\n  { title: \"Slope from an elevation model\", excerpt: \"A short note on sampling terrain across an irregular parcel.\", date: \"2026-09-16\", topic: \"Data\", href: \"#post-slope\", readingTime: \"5 min\" },\n];\n\nconst DATE = new Intl.DateTimeFormat(\"en-US\", { month: \"short\", day: \"numeric\", year: \"numeric\", timeZone: \"UTC\" });\nexport const formatPostDate = (iso: string) => DATE.format(new Date(`${iso}T00:00:00Z`));\n\nconst TITLE_LINK =\n  \"underline decoration-transparent underline-offset-4 outline-none transition-[text-decoration-color] duration-150 ease-out hover:decoration-line-strong focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\";\n\nexport type BlogPageProps = {\n  header?: SiteHeaderProps;\n  title?: string;\n  intro?: string;\n  posts?: Post[];\n  topics?: string[];\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nexport function BlogPage({\n  header,\n  title = \"Blog\",\n  intro = \"Notes on the data, the product and the engineering behind physical world context.\",\n  posts = POSTS,\n  topics = [\"All\", \"Product\", \"Data\", \"Engineering\"],\n  cta = { title: \"Get new posts by email.\", description: \"One email when we publish. Nothing else.\", primary: { label: \"Subscribe\", href: \"#subscribe\" }, secondary: null, tone: \"light\" },\n  footer,\n}: BlogPageProps) {\n  const [topic, setTopic] = React.useState(topics[0]);\n  const shown = topic === topics[0] ? posts : posts.filter((p) => p.topic === topic);\n  const [lead, ...rest] = shown;\n  return (\n    <div data-slot=\"blog-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#blog\" {...header} />\n      <main>\n        <PageSection as=\"h1\" title={title} intro={intro}>\n          <Tabs value={topic} onValueChange={setTopic} className=\"mb-8\">\n            <TabsList aria-label=\"Topics\">\n              {topics.map((t) => (\n                <TabsTrigger key={t} value={t}>\n                  {t}\n                </TabsTrigger>\n              ))}\n            </TabsList>\n          </Tabs>\n          {lead ? (\n            <article className=\"grid gap-6 border-b border-line pb-10 lg:grid-cols-2 lg:items-center lg:gap-12\">\n              <SurveyPlate className=\"aspect-video w-full\" caption={lead.topic} scale={null} />\n              <div className=\"grid content-start gap-4\">\n                <p className=\"flex items-center gap-3 font-mono text-caption text-fg-muted\">\n                  <time dateTime={lead.date}>{formatPostDate(lead.date)}</time>\n                  {lead.readingTime && <span>{lead.readingTime}</span>}\n                </p>\n                <h2 className=\"text-h1 leading-heading font-normal text-balance text-fg\">\n                  <a href={lead.href} className={TITLE_LINK}>\n                    {lead.title}\n                  </a>\n                </h2>\n                <p className=\"text-body-lg leading-body text-fg-secondary\">{lead.excerpt}</p>\n                <a href={lead.href} className=\"inline-flex w-fit items-center gap-2 text-body font-medium text-fg-secondary outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\">\n                  Read the post\n                  <ArrowRightIcon size={16} />\n                </a>\n              </div>\n            </article>\n          ) : (\n            <p className=\"text-body text-fg-muted\">No posts in this topic yet.</p>\n          )}\n          <ul className=\"grid\">\n            {rest.map((p) => (\n              <li key={p.href} className=\"grid gap-2 border-b border-line-subtle py-6 sm:grid-cols-4 sm:gap-6\">\n                <time dateTime={p.date} className=\"font-mono text-caption leading-body text-fg-muted\">\n                  {formatPostDate(p.date)}\n                </time>\n                <div className=\"grid gap-2 sm:col-span-2\">\n                  <h3 className=\"text-h3 leading-heading font-normal text-fg\">\n                    <a href={p.href} className={TITLE_LINK}>\n                      {p.title}\n                    </a>\n                  </h3>\n                  <p className=\"text-body leading-body text-fg-secondary\">{p.excerpt}</p>\n                </div>\n                <div className=\"sm:justify-self-end\">\n                  <Badge>{p.topic}</Badge>\n                </div>\n              </li>\n            ))}\n          </ul>\n          <Pagination className=\"mt-8\">\n            <PaginationContent>\n              <PaginationItem>\n                <PaginationPrevious href=\"#\" aria-disabled />\n              </PaginationItem>\n              <PaginationItem>\n                <PaginationLink href=\"#\" isActive>\n                  1\n                </PaginationLink>\n              </PaginationItem>\n              <PaginationItem>\n                <PaginationLink href=\"#\">2</PaginationLink>\n              </PaginationItem>\n              <PaginationItem>\n                <PaginationNext href=\"#\" />\n              </PaginationItem>\n            </PaginationContent>\n          </Pagination>\n        </PageSection>\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

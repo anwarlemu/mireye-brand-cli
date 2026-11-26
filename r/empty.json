@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "name": "empty",
+  "useFor": "Use where a list, map panel or report has nothing to show yet (No sites yet, No parcels match, No site selected). Use EmptyMark for the first-run state of a main view and EmptyMedia variant=\"icon\" with a Phosphor glyph for a filtered or selection state. Say what is missing and what to do next; offer at most one action.",
+  "constraints": [
+    "Illustrations or mascots",
+    "Rounded or circular glyph tiles",
+    "More than one action",
+    "Bold titles",
+    "Motion"
+  ],
+  "documentation": "",
+  "source": "Brand principles (thin rules with nodes at their crossings) and the Diamond node, for a designer's review",
+  "exports": [
+    "Empty",
+    "EmptyContent",
+    "EmptyDescription",
+    "EmptyHeader",
+    "EmptyMark",
+    "EmptyMedia",
+    "EmptyTitle"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/empty",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/empty.md",
+  "examples": [
+    {
+      "path": "examples/empty.tsx",
+      "content": "import { MagnifyingGlassIcon, MapPinIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMark, EmptyMedia, EmptyTitle } from \"@/components/ui/empty\";\n\nexport function Preview() {\n  return (\n    <Empty className=\"min-h-90\">\n      <EmptyMedia>\n        <EmptyMark />\n      </EmptyMedia>\n      <EmptyHeader>\n        <EmptyTitle>No sites yet</EmptyTitle>\n        <EmptyDescription>Describe the land you need, and matching sites appear here with their sources.</EmptyDescription>\n      </EmptyHeader>\n      <EmptyContent>\n        <Button>Start a search</Button>\n      </EmptyContent>\n    </Empty>\n  );\n}\n\nexport function NoResults() {\n  return (\n    <Empty className=\"min-h-72\">\n      <EmptyMedia variant=\"icon\">\n        <MagnifyingGlassIcon />\n      </EmptyMedia>\n      <EmptyHeader>\n        <EmptyTitle>No parcels match</EmptyTitle>\n        <EmptyDescription>Nothing in Ellis County is over 200 ac within 2 mi of 138 kV. Widen the radius or lower the voltage.</EmptyDescription>\n      </EmptyHeader>\n      <EmptyContent>\n        <Button variant=\"outline\">Edit requirements</Button>\n      </EmptyContent>\n    </Empty>\n  );\n}\n\nexport function NoSelection() {\n  return (\n    <Empty className=\"min-h-72\">\n      <EmptyMedia variant=\"icon\">\n        <MapPinIcon />\n      </EmptyMedia>\n      <EmptyHeader>\n        <EmptyTitle>No site selected</EmptyTitle>\n        <EmptyDescription>Choose a site on the map to read its report.</EmptyDescription>\n      </EmptyHeader>\n    </Empty>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "NoResults",
+        "NoSelection"
+      ],
+      "requires": [
+        "empty",
+        "button"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/empty/Preview"
+        },
+        {
+          "name": "NoResults",
+          "url": "https://mireye-ds.agencidev.com/preview/empty/NoResults"
+        },
+        {
+          "name": "NoSelection",
+          "url": "https://mireye-ds.agencidev.com/preview/empty/NoSelection"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Empty",
+  "description": "A centered empty state: the survey node (an outlined diamond where two 1px rules cross) or a square glyph tile, a 16px regular title, a muted line and one action.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "diamond",
+    "utils"
+  ],
+  "packages": [
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/empty.tsx",
+      "content": "import * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { cn } from \"@/lib/utils\";\n\n// An empty state, as a survey sheet with nothing on it yet. Centered: the media, a 16px regular Forest title, a 13px\n// description in Forest at 72% (at most 280px wide), then the action. Media: `icon` is a 40px white square with the\n// 1px Stone line and a 20px glyph; EmptyMark is the brand's survey node, an outlined diamond where two 1px rules cross\n// (the principles' \"thin rules with nodes at their crossings\"). Nothing moves: an empty state is seen every time the\n// page loads.\nfunction Empty({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"empty\" className={cn(\"flex min-w-0 flex-1 flex-col items-center justify-center gap-5 p-6 text-center text-balance\", className)} {...props} />;\n}\n\nfunction EmptyHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"empty-header\" className={cn(\"flex max-w-sm flex-col items-center gap-2\", className)} {...props} />;\n}\n\nconst emptyMediaVariants = cva(\"flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0\", {\n  variants: {\n    variant: {\n      default: \"bg-transparent\",\n      icon: \"size-10 border border-line bg-surface text-fg [&_svg:not([class*='size-'])]:size-5\",\n    },\n  },\n  defaultVariants: { variant: \"default\" },\n});\n\nfunction EmptyMedia({ className, variant = \"default\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof emptyMediaVariants>) {\n  return <div data-slot=\"empty-media\" data-variant={variant} className={cn(emptyMediaVariants({ variant }), className)} {...props} />;\n}\n\n/** The survey node: an outlined Forest diamond where a 1px Stone rule across meets one down, 120 by 72px. */\nfunction EmptyMark({ className, ...props }: React.ComponentProps<\"span\">) {\n  return (\n    <span data-slot=\"empty-mark\" aria-hidden className={cn(\"relative flex h-18 w-30 items-center justify-center text-fg\", className)} {...props}>\n      <span className=\"absolute inset-x-0 top-1/2 h-px bg-line\" />\n      <span className=\"absolute inset-y-0 left-1/2 w-px bg-line\" />\n      <Diamond size={20} variant=\"outline\" fill=\"var(--ds-color-bg-default)\" className=\"relative\" />\n    </span>\n  );\n}\n\nfunction EmptyTitle({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"empty-title\" className={cn(\"font-sans text-h3 leading-heading font-normal text-fg\", className)} {...props} />;\n}\n\nfunction EmptyDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  return <p data-slot=\"empty-description\" className={cn(\"max-w-70 text-body leading-body text-pretty text-fg-muted [&>a]:text-fg [&>a]:underline [&>a]:underline-offset-4\", className)} {...props} />;\n}\n\nfunction EmptyContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"empty-content\" className={cn(\"flex w-full max-w-sm min-w-0 flex-col items-center gap-3 text-body text-balance\", className)} {...props} />;\n}\n\nexport { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMark, EmptyMedia, EmptyTitle };\n"
+    }
+  ]
+}

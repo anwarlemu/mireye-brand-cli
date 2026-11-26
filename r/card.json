@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "name": "card",
+  "useFor": "Use the default card for a block of facts about one thing (a site, a source, a requirement): a 16px regular title, a muted description, Fog tags or values in CardContent and an action in CardAction or CardFooter. Use muted for a group of values inside a Bone panel, and inverse for the one card that leads (the best fit). Put cards on the canvas; inside a Bone panel prefer rules over nested cards.",
+  "constraints": [
+    "Rounded corners",
+    "Drop shadows",
+    "A cut corner anywhere but the top-left",
+    "A coloured header bar",
+    "More than one inverse card on a screen",
+    "Nesting cards more than one level"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Agent chat (443:433): the message panel's cut frame, at the product scale",
+  "exports": [
+    "Card",
+    "CardAction",
+    "CardContent",
+    "CardDescription",
+    "CardFooter",
+    "CardHeader",
+    "CardTitle",
+    "cardVariants"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/card",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/card.md",
+  "examples": [
+    {
+      "path": "examples/card.tsx",
+      "content": "import { DropIcon, LightningIcon, MountainsIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Badge, BadgeMark } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from \"@/components/ui/card\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid w-full gap-4 sm:grid-cols-3\">\n      <Card>\n        <CardHeader>\n          <CardTitle>\n            <LightningIcon />\n            Power\n          </CardTitle>\n          <CardDescription>Nearest substation 0.8 mi east, 138 kV, with capacity on the queue.</CardDescription>\n        </CardHeader>\n      </Card>\n      <Card>\n        <CardHeader>\n          <CardTitle>\n            <DropIcon />\n            Water\n          </CardTitle>\n          <CardDescription>Municipal main along the north edge. Outside the 100-year flood zone.</CardDescription>\n        </CardHeader>\n      </Card>\n      <Card>\n        <CardHeader>\n          <CardTitle>\n            <MountainsIcon />\n            Terrain\n          </CardTitle>\n          <CardDescription>412 ft average elevation, 2.8% slope.</CardDescription>\n        </CardHeader>\n      </Card>\n    </div>\n  );\n}\n\nexport function Site() {\n  return (\n    <Card className=\"w-full max-w-110\">\n      <CardHeader>\n        <CardTitle>Ellis County site 14</CardTitle>\n        <CardDescription className=\"font-mono text-caption\">32.4113, -96.8302</CardDescription>\n        <CardAction>\n          <Badge variant=\"outline\">\n            <BadgeMark state=\"verified\" />\n            Verified\n          </Badge>\n        </CardAction>\n      </CardHeader>\n      <CardContent className=\"flex flex-wrap gap-2\">\n        <Badge>212.6 ac</Badge>\n        <Badge>138 kV</Badge>\n        <Badge>Zone X</Badge>\n        <Badge>I-2 Industrial</Badge>\n      </CardContent>\n      <CardFooter className=\"justify-end\">\n        <Button variant=\"outline\">Open report</Button>\n      </CardFooter>\n    </Card>\n  );\n}\n\nexport function Variants() {\n  return (\n    <div className=\"grid w-full gap-4 sm:grid-cols-2\">\n      <Card variant=\"muted\">\n        <CardHeader>\n          <CardTitle>Buy box</CardTitle>\n          <CardDescription>200+ ac, 138 kV within 2 mi, outside flood zones.</CardDescription>\n        </CardHeader>\n      </Card>\n      <Card variant=\"inverse\">\n        <CardHeader>\n          <CardTitle>Best fit</CardTitle>\n          <CardDescription>Parcel 042-117-09 meets 9 of 9 requirements.</CardDescription>\n        </CardHeader>\n      </Card>\n    </div>\n  );\n}\n\nexport function Small() {\n  return (\n    <Card size=\"sm\" className=\"w-full max-w-72\">\n      <CardHeader>\n        <CardTitle>Last surveyed</CardTitle>\n        <CardDescription>Oct 28, 2026, 4:12 PM</CardDescription>\n      </CardHeader>\n    </Card>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Site",
+        "Variants",
+        "Small"
+      ],
+      "requires": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/card/Preview"
+        },
+        {
+          "name": "Site",
+          "url": "https://mireye-ds.agencidev.com/preview/card/Site"
+        },
+        {
+          "name": "Variants",
+          "url": "https://mireye-ds.agencidev.com/preview/card/Variants"
+        },
+        {
+          "name": "Small",
+          "url": "https://mireye-ds.agencidev.com/preview/card/Small"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Card",
+  "description": "The Bone cut frame (a 1px Stone line with the 8px chamfer at the top-left), the Fog card with no line and the Forest inverse card. Square everywhere else, no shadow.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/card.tsx",
+      "content": "import * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's card: the cut frame of the message panel (Figma \"UI · Agent chat\", 443:433), a 1px Stone line around white\n// with the 8px chamfer at the top-left, 16px in (Figma's 24 to 28px at 0.6). No radius and no shadow.\n// - `default` (also `outline`, `raised`, `elevated`): the white cut frame. A card does not lift; a raised card is\n//   the same line.\n// - `muted` (also `filled`): Fog with no line, for a group of values inside a white panel.\n// - `inverse`: Forest with white ink, for the one card that leads (a verdict, a selected site).\n// The title is 16px regular, the description 13px in Forest at 72%. Size sm tightens the insides to 12px. Nothing\n// moves. The shape is drawn on ::before and ::after (ds-cut-frame), so the card's own background stays transparent.\nconst cardVariants = cva(\n  \"group/card flex flex-col gap-4 py-4 font-sans text-body leading-body text-fg data-[size=sm]:gap-3 data-[size=sm]:py-3\",\n  {\n    variants: {\n      variant: {\n        default: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\",\n        outline: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\",\n        raised: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\",\n        elevated: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\",\n        muted: \"ds-cut [--ds-shape-fill:var(--ds-color-bg-subtle)]\",\n        filled: \"ds-cut [--ds-shape-fill:var(--ds-color-bg-subtle)]\",\n        inverse: \"ds-cut text-fg-inverse [--ds-shape-fill:var(--ds-color-bg-inverse)]\",\n      },\n    },\n    defaultVariants: { variant: \"default\" },\n  },\n);\n\nfunction Card({ className, variant, size = \"default\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof cardVariants> & { size?: \"default\" | \"sm\" }) {\n  return <div data-slot=\"card\" data-variant={variant ?? \"default\"} data-size={size} className={cn(cardVariants({ variant }), className)} {...props} />;\n}\n\nfunction CardHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"card-header\"\n      className={cn(\"grid auto-rows-min items-start gap-x-3 gap-y-1 px-4 group-data-[size=sm]/card:px-3 has-data-[slot=card-action]:grid-cols-[minmax(0,1fr)_auto]\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction CardTitle({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"card-title\"\n      className={cn(\"flex min-w-0 items-center gap-2 text-h3 leading-heading font-normal group-data-[size=sm]/card:text-body-lg [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction CardDescription({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"card-description\" className={cn(\"text-body leading-body text-fg-muted group-data-[variant=inverse]/card:text-fg-inverse-muted\", className)} {...props} />;\n}\n\nfunction CardAction({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"card-action\" className={cn(\"col-start-2 row-span-2 row-start-1 flex self-start justify-self-end\", className)} {...props} />;\n}\n\nfunction CardContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"card-content\" className={cn(\"px-4 group-data-[size=sm]/card:px-3\", className)} {...props} />;\n}\n\n/** The card's last row: actions at the end. */\nfunction CardFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"card-footer\" className={cn(\"flex items-center gap-2 px-4 group-data-[size=sm]/card:px-3\", className)} {...props} />;\n}\n\nexport { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, cardVariants };\n"
+    }
+  ]
+}

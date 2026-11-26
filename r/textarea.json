@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "textarea",
+  "useFor": "Use for notes and questions to the agent: site notes, criteria in words. Put a Label above it. For a box with a caption or actions inside, use Input Group with a textarea.",
+  "constraints": [
+    "A resize handle",
+    "A fixed height that scrolls a short note",
+    "Rounded corners"
+  ],
+  "documentation": "",
+  "source": "Drawn from Figma \"UI · Inputs\" (442:107)",
+  "exports": [
+    "Textarea"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/textarea",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/textarea.md",
+  "examples": [
+    {
+      "path": "examples/textarea.tsx",
+      "content": "import { Label } from \"@/components/ui/label\";\nimport { Textarea } from \"@/components/ui/textarea\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid w-full max-w-96 gap-2\">\n      <Label htmlFor=\"site-notes\">Site notes</Label>\n      <Textarea id=\"site-notes\" placeholder=\"What should the agent look for?\" />\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"grid w-full max-w-96 gap-4\">\n      <Textarea aria-label=\"Notes\" defaultValue=\"Flat, cleared land within 2 miles of a 345 kV line. Avoid the floodplain along the river.\" />\n      <Textarea aria-label=\"Locked notes\" defaultValue=\"Criteria are locked while the scan runs.\" readOnly />\n      <Textarea aria-label=\"Disabled notes\" placeholder=\"Notes\" disabled />\n      <Textarea aria-label=\"Invalid notes\" defaultValue=\"?\" aria-invalid />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States"
+      ],
+      "requires": [
+        "textarea",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/textarea/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/textarea/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Textarea",
+  "description": "The field for more than a line: the field's frame and states with 13px Forest text on 18px lines, 8px above and below. It grows with its content from 72px and is not resized by hand.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "input",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/textarea.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Textarea as ChakraTextarea } from \"@chakra-ui/react\";\n\nimport { inputClassName } from \"@/components/ui/input\";\nimport { cn } from \"@/lib/utils\";\n\n// The field for more than a line: Input's frame (white, 1px Stone line, the 8px cut, Forest line on focus, brick when\n// invalid, Fog read-only, Mist disabled) with 13px Forest text on 18px lines, 8px above and below and 16px at the sides.\n// It grows with its content (field-sizing) from 72px, two field heights, and is not resized by hand.\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <ChakraTextarea\n      unstyled\n      data-slot=\"textarea\"\n      className={cn(inputClassName, \"field-sizing-content flex h-auto min-h-18 resize-none py-2 leading-line-body\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Textarea };\n"
+    }
+  ]
+}

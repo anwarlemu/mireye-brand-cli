@@ -1,0 +1,29 @@
+{
+  "name": "mireye-ds",
+  "version": "2.1.0",
+  "description": "Components, design tokens and checks for building Mireye pages and interfaces.",
+  "type": "module",
+  "bin": {
+    "mireye-ds": "./bin.js"
+  },
+  "files": [
+    "bin.js",
+    "dist",
+    "brand",
+    "build",
+    "r",
+    "registry/docs",
+    "registry/examples"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {},
+  "optionalDependencies": {
+    "@napi-rs/canvas": "^1.2.0",
+    "playwright-core": "^1.63.0"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

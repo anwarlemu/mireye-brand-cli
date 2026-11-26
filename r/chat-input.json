@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "chat-input",
+  "useFor": "Use under a conversation. Pass `placeholder`, `site` (a SiteChip), `textareaProps` for the value and an `onSubmit`. `submitDisabled` disables Ask and Enter while the question is empty; `loading` keeps Enter from sending while the agent answers; `compact` makes Ask the chip's height.",
+  "constraints": [
+    "A send icon in place of Ask",
+    "A composer taller than its question",
+    "Sending on Shift+Enter"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Agent chat\" (443:433): frame 443:455",
+  "exports": [
+    "ChatInput"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/chat-input",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/chat-input.md",
+  "examples": [
+    {
+      "path": "examples/chat-input.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ChatInput } from \"@/components/ui/chat-input\";\nimport { ChatMessage } from \"@/components/ui/chat-message\";\nimport { SiteChip } from \"@/components/ui/site-chip\";\nimport { NodeLoader } from \"@/components/ui/node-loader\";\n\n// The composer: the question is about the chosen site, which can be removed. Ask sends it; the\n// agent's waiting line takes its place under the message.\nconst SITE = \"39.8561, −104.6737\";\n\nexport function Preview() {\n  const [site, setSite] = React.useState<string | null>(SITE);\n  const [draft, setDraft] = React.useState(\"\");\n  const [asked, setAsked] = React.useState<string | null>(null);\n  return (\n    <div className=\"flex w-full flex-col items-center gap-3.5\">\n      {asked && (\n        <div className=\"flex w-full max-w-90 flex-col items-start gap-2.5\">\n          <ChatMessage className=\"w-full max-w-60\">{asked}</ChatMessage>\n          <p role=\"status\" className=\"flex items-center gap-2 text-body text-fg-secondary\">\n            <NodeLoader size=\"sm\" />\n            <span className=\"ds-trim\">Reading {site ? \"the parcel's records\" : \"the location\"}</span>\n          </p>\n        </div>\n      )}\n      <ChatInput\n        className=\"w-full max-w-90\"\n        placeholder={site ? \"Ask about this parcel\" : \"Ask about any U.S. location\"}\n        site={site && <SiteChip onRemove={() => setSite(null)}>{site}</SiteChip>}\n        textareaProps={{ value: draft, onChange: (e) => setDraft(e.target.value), name: \"question\" }}\n        onSubmit={(e) => {\n          e.preventDefault();\n          if (!draft.trim()) return;\n          setAsked(draft.trim());\n          setDraft(\"\");\n        }}\n      />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "chat-input",
+        "chat-message",
+        "site-chip",
+        "node-loader"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/chat-input/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Chat input",
+  "description": "The composer: a text area that grows with the question, the site chip and Ask, in the large cut frame.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "chat"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/chat-input.tsx",
+      "content": "// Moved into Chat (chat.tsx) on 29 Oct. This path stays so existing imports keep working.\nexport { ChatInput } from \"@/components/ui/chat\";\n"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "cited-fields",
+  "useFor": "Use under an answer to show the values it read (\"Flood zone, Zone X, 1\"). Each `CitedField` takes a label, its value as children and a source number; put them in `CitedFields`, and both under a `SourceGroup` with the `Sources` list so pointing links them.",
+  "constraints": [
+    "Values without a source",
+    "Fills on rows",
+    "More than one value per row"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Agent chat\" (443:433): rows 443:471 to 443:487",
+  "exports": [
+    "CitedFields",
+    "CitedField"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/cited-fields",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/cited-fields.md",
+  "examples": [
+    {
+      "path": "examples/cited-fields.tsx",
+      "content": "import { CitedFields, CitedField } from \"@/components/ui/cited-fields\";\nimport { Sources, Source, SourceGroup } from \"@/components/ui/sources\";\n\n// Every value points at its source. Point at or focus a row and its source chip turns Forest,\n// with the matching source; the other sources step back. No row gets a fill.\nconst FIELDS = [\n  { label: \"Flood zone\", value: \"Zone X\", source: 1 },\n  { label: \"Elevation\", value: \"412 ft\", source: 2 },\n  { label: \"Slope\", value: \"2.8%\", source: 3 },\n];\nconst SOURCES = [\"FEMA flood hazard layer\", \"USGS 3DEP elevation model\", \"Slope, from the elevation model\"];\nconst focus = \"cursor-default outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-line-strong\";\n\nexport function Preview() {\n  return (\n    <SourceGroup>\n      <div className=\"flex w-full max-w-102 flex-col gap-6\">\n        <CitedFields>\n          {FIELDS.map((f) => (\n            <CitedField key={f.label} label={f.label} source={f.source} tabIndex={0} className={focus}>\n              {f.value}\n            </CitedField>\n          ))}\n        </CitedFields>\n        <Sources aria-label=\"Sources\">\n          {SOURCES.map((s, i) => (\n            <Source key={s} number={i + 1} cut={false} tabIndex={0} className={focus}>\n              {s}\n            </Source>\n          ))}\n        </Sources>\n      </div>\n    </SourceGroup>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "cited-fields",
+        "sources"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/cited-fields/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Cited fields",
+  "description": "The values an agent answer reports, each with its label and source chip, between Mist rules.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "sources"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/cited-fields.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\nimport { SourceRef, useSourceLink } from \"@/components/ui/sources\";\n\n/**\n * Cited fields: the values an agent answer reports, each with the source it came from.\n * Source: Figma \"UI · Agent chat\" (443:433). Rules 443:470, 443:476, 443:482, 443:488; rows\n * \"Flood zone\" (443:471…443:475), \"Elevation\" (443:477…443:481), \"Slope\" (443:483…443:487).\n *\n * - 1px Mist rules above the first row and under every row; rows are 52px apart.\n * - Columns: 18px label (80% Forest) at 0, 20px value at 240px, source ref 22px from the right\n *   edge (Figma: x = 1000, 1240, 1658 in a 680px table).\n * - Label, value and ref number share a baseline 19px above the next rule (Figma: y = 297, rule\n *   at 316). With single-line text that is the bottom of each trimmed box, so the row aligns its\n *   cells to the end, with 19px of bottom padding in a row at least 51px tall (52px pitch minus\n *   the rule). That leaves Figma's 18px above the 14px value, and keeps the pitch whatever font\n *   renders the text. A value that wraps grows the row.\n * - The ref is the Fog source chip as a plain rectangle (no cut corner, so the column of chips\n *   stays quiet), right-aligned to the rules and centered on the row's text (the later chat\n *   mock, \"Chat 16 F1\"). Pair it with `<Source cut={false}>`. `refVariant=\"marker\"` keeps the\n *   first board's diamond and number in a fixed 22px column; the specimen uses it.\n * - Inside a `SourceGroup`, pointing at or focusing a row marks its source chip and the matching\n *   source (see Sources). The row itself gets no fill.\n *\n * Product scale: the sizes above are Figma's. Here a row is 32px at least with 12px under the\n * baseline (a 33px pitch with the rule), the value column starts at 144px and the chip is 20px.\n *\n * Semantics: a <dl>. The rules are decorative elements between the rows, hidden from screen\n * readers, so the audit can measure each one as Figma draws it.\n */\nexport function CitedFields({ className, children, ...props }: React.HTMLAttributes<HTMLDListElement>) {\n  return (\n    <dl data-slot=\"cited-fields\" className={cn(\"flex flex-col font-sans\", className)} {...props}>\n      <Rule />\n      {React.Children.map(children, (child) =>\n        child ? (\n          <>\n            {child}\n            <Rule />\n          </>\n        ) : null,\n      )}\n    </dl>\n  );\n}\n\nexport function CitedField({\n  label,\n  source,\n  refVariant = \"chip\",\n  className,\n  children,\n  ...props\n}: React.HTMLAttributes<HTMLDivElement> & {\n  /** Field name, e.g. \"Flood zone\". */\n  label: React.ReactNode;\n  /** Number of the source in the Sources list. */\n  source: number | string;\n  /** \"chip\" (default) or the first board's \"marker\". */\n  refVariant?: \"chip\" | \"marker\";\n}) {\n  const { handlers } = useSourceLink(source);\n  const chip = refVariant === \"chip\";\n  return (\n    <div\n      data-slot=\"cited-field\"\n      className={cn(\n        \"grid min-h-8 items-end pb-3\",\n        chip ? \"grid-cols-[calc(var(--spacing)*36)_minmax(0,1fr)_auto]\" : \"grid-cols-[calc(var(--spacing)*36)_minmax(0,1fr)_calc(var(--spacing)*3.5)]\",\n        className,\n      )}\n      {...handlers}\n      {...props}\n    >\n      {/* justify-self-start: label and value hug their text, like Figma's auto-width text\n          layers, instead of stretching across the column. A long value still wraps at the\n          column edge. */}\n      <dt data-slot=\"label\" className=\"ds-trim justify-self-start text-caption font-normal text-fg-secondary\">\n        {label}\n      </dt>\n      <dd data-slot=\"value\" className=\"ds-trim justify-self-start text-body font-normal text-fg\">\n        {children}\n      </dd>\n      {/* The 20px chip is centered on the text's cap boxes: its bottom sits 6px under their baseline. */}\n      <dd data-slot=\"ref\" className={chip ? \"-mb-1.5\" : undefined}>\n        <SourceRef number={source} variant={refVariant} cut={false} />\n      </dd>\n    </div>\n  );\n}\n\nfunction Rule() {\n  return <div data-slot=\"rule\" aria-hidden className=\"h-px shrink-0 bg-line-subtle\" />;\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "radio-group",
+  "useFor": "Use for one choice among two to five options that all need to be seen (zoning, a search radius). Pass each label as the item's children. For more options use Select; for a view switch use Toggle Group.",
+  "constraints": [
+    "A circle radio",
+    "A radio group with one option (use Checkbox)",
+    "Options chosen by default when there is no safe default"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Controls\" (442:145): Industrial, selected and not",
+  "exports": [
+    "RadioGroup",
+    "RadioGroupItem"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/radio-group",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/radio-group.md",
+  "examples": [
+    {
+      "path": "examples/radio-group.tsx",
+      "content": "import { RadioGroup, RadioGroupItem } from \"@/components/ui/radio-group\";\n\nexport function Preview() {\n  return (\n    <RadioGroup defaultValue=\"industrial\" aria-label=\"Zoning\">\n      <RadioGroupItem value=\"industrial\">Industrial</RadioGroupItem>\n      <RadioGroupItem value=\"agricultural\">Agricultural</RadioGroupItem>\n      <RadioGroupItem value=\"mixed\">Mixed use</RadioGroupItem>\n    </RadioGroup>\n  );\n}\n\nexport function States() {\n  return (\n    <RadioGroup defaultValue=\"30\" aria-label=\"Search radius\" className=\"grid-flow-col gap-6\">\n      <RadioGroupItem value=\"10\">10 mi</RadioGroupItem>\n      <RadioGroupItem value=\"30\">30 mi</RadioGroupItem>\n      <RadioGroupItem value=\"100\" disabled>\n        100 mi\n      </RadioGroupItem>\n    </RadioGroup>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States"
+      ],
+      "requires": [
+        "radio-group"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/radio-group/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/radio-group/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Radio group",
+  "description": "The diamond radio: a 16px outline diamond, Stone when not chosen and Forest when chosen with a solid 7px Forest diamond in its center. Its label is 13px Forest 12px after it; options stack 12px apart.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "diamond",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/radio-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { RadioGroup as ChakraRadioGroup } from \"@chakra-ui/react\";\n\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's radio (Figma \"UI · Controls\", 442:145: Industrial) is the survey diamond, not a circle: a 16px outline\n// diamond (Figma's 28px) with a 1px stroke kept inside its box, Stone when not chosen and Forest when chosen, with a\n// solid 7px Forest diamond in its center (Figma's 12px, 8px in from each side). The choice changes at once; only an\n// unchosen diamond's line steps to Slate under the pointer, over 150ms. Keyboard focus is the 1px Forest outline 2px\n// outside the box; aria-invalid turns the line brick; disabled turns it and the label Slate. Options stack 12px apart.\n// `children` is the label: 13px Forest, 12px after the diamond, and a click on it chooses the option.\ntype RadioGroupProps = Omit<React.ComponentProps<typeof ChakraRadioGroup.Root>, \"onValueChange\"> & { onValueChange?: (value: string | null) => void };\nfunction RadioGroup({ className, onValueChange, ...props }: RadioGroupProps) {\n  return <ChakraRadioGroup.Root unstyled data-slot=\"radio-group\" className={cn(\"grid gap-3\", className)} onValueChange={(details) => onValueChange?.(details.value)} {...props} />;\n}\n\nfunction RadioGroupItem({ className, children, ...props }: React.ComponentProps<typeof ChakraRadioGroup.Item>) {\n  return (\n    <ChakraRadioGroup.Item\n      data-slot=\"radio-group-item\"\n      unstyled\n      className={cn(\n        \"peer group/radio inline-flex w-fit shrink-0 cursor-pointer items-center gap-3 font-sans text-body leading-line-body text-fg outline-none data-disabled:cursor-not-allowed data-disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    >\n      <ChakraRadioGroup.ItemHiddenInput />\n      <ChakraRadioGroup.ItemControl\n        data-slot=\"radio-group-control\"\n        className={cn(\n          \"relative flex size-4 shrink-0 items-center justify-center text-line transition-[color] duration-fast ease-out motion-reduce:transition-none\",\n          \"group-hover/radio:text-slate group-data-[state=checked]/radio:text-line-strong group-data-[state=checked]/radio:transition-none\",\n          \"group-data-focus-visible/radio:outline-solid group-data-focus-visible/radio:outline-1 group-data-focus-visible/radio:outline-offset-2 group-data-focus-visible/radio:outline-line-strong\",\n          \"group-data-invalid/radio:text-danger group-aria-invalid/radio:text-danger group-data-disabled/radio:text-line\",\n        )}\n      >\n        <Diamond size={16} variant=\"outline\" fill=\"var(--ds-color-bg-default)\" className=\"absolute inset-0 size-4\" />\n        {/* Chakra's ItemIndicator draws its own dot, so the center diamond is ours. */}\n        <Diamond size={7} data-slot=\"radio-group-indicator\" className=\"relative hidden size-1.75 group-data-[state=checked]/radio:block group-data-disabled/radio:text-fg-subtle\" />\n      </ChakraRadioGroup.ItemControl>\n      {children != null && (\n        <ChakraRadioGroup.ItemText data-slot=\"radio-group-label\" className=\"select-none\">\n          {children}\n        </ChakraRadioGroup.ItemText>\n      )}\n    </ChakraRadioGroup.Item>\n  );\n}\n\nexport { RadioGroup, RadioGroupItem };\n"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+	"name": "Mireye",
+	"bin": "mireye-ds",
+	"source": "github:anwarlemu/mireye-brand-cli#release",
+	"reviewModel": "claude-opus-5-5",
+	"reviewThreshold": 7,
+	"registryUrl": "https://mireye-ds.agencidev.com",
+	"registryHost": "https://mireye-ds-registry.vercel.app",
+	"site": "https://mireye.com",
+	"surfaces": [
+		"site"
+	],
+	"fonts": {
+		"css": "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap",
+		"next": [
+			{
+				"import": "DM_Mono",
+				"variable": "--font-dm-mono",
+				"options": {
+					"display": "swap",
+					"weight": [
+						"400",
+						"500"
+					]
+				}
+			}
+		],
+		"local": {
+			"family": "Gilroy",
+			"files": {
+				"400": "Gilroy-Regular.woff2",
+				"500": "Gilroy-Medium.woff2"
+			},
+			"license": "Paid (Radomir Tinkov); the license for Mireye's use is still to be confirmed. Keep this repo private."
+		},
+		"mono": {
+			"family": "DM Mono",
+			"files": {
+				"400": "DMMono-Regular.ttf",
+				"500": "DMMono-Medium.ttf"
+			},
+			"license": "SIL Open Font License 1.1 (brand/fonts/DMMono-OFL.txt). Vendored so image rendering does not fetch a font."
+		},
+		"native": "Add Gilroy Regular and Medium (all text) and DM Mono (coordinates, IDs, values and code) to the app as fonts and set them on its text styles"
+	},
+	"icons": {
+		"name": "Phosphor",
+		"packages": [
+			"@phosphor-icons/react",
+			"phosphor-react-native"
+		]
+	},
+	"touches": {},
+	"type": {
+		"caps": false,
+		"bold": false
+	},
+	"variants": {
+		"site": {
+			"filled": "default",
+			"outlined": "outline",
+			"quiet": "ghost",
+			"onBrand": "secondary",
+			"card": "default",
+			"size": "default",
+			"badges": {
+				"brand": "default",
+				"success": "success",
+				"warning": "warning",
+				"destructive": "destructive",
+				"tag": "secondary",
+				"chip": "outline"
+			}
+		}
+	},
+	"themes": {
+		"api": {
+			"label": "API · Field",
+			"lead": "forest",
+			"default": true
+		},
+		"enterprise": {
+			"label": "Enterprise · Earth",
+			"lead": "umber",
+			"attribute": "data-brand=\"enterprise\""
+		}
+	}
+}

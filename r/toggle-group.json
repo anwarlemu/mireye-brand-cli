@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "name": "toggle-group",
+  "useFor": "Use for switching a view (Map, List, Compare), a unit or a distance band, with two to five short options. Use type single for one choice and multiple for layers. For more options or long labels use Select or Radio Group. A row too wide for its container fades at the side (fade-x) where more items scroll past it.",
+  "constraints": [
+    "A sliding or animated chosen item",
+    "More than five items",
+    "Icons without labels unless each has an aria-label"
+  ],
+  "documentation": "",
+  "source": "Not in Figma; drawn from \"UI · Buttons\" (442:3) and the field frame (442:107)",
+  "exports": [
+    "ToggleGroup",
+    "ToggleGroupItem"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/toggle-group",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/toggle-group.md",
+  "examples": [
+    {
+      "path": "examples/toggle-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { ToggleGroup, ToggleGroupItem } from \"@/components/ui/toggle-group\";\n\nexport function Preview() {\n  const [view, setView] = React.useState(\"map\");\n  return (\n    <ToggleGroup type=\"single\" value={view} onValueChange={(v) => v && setView(v)} aria-label=\"View\">\n      <ToggleGroupItem value=\"map\">Map</ToggleGroupItem>\n      <ToggleGroupItem value=\"list\">List</ToggleGroupItem>\n      <ToggleGroupItem value=\"compare\">Compare</ToggleGroupItem>\n    </ToggleGroup>\n  );\n}\n\nexport function Outline() {\n  return (\n    <ToggleGroup type=\"multiple\" variant=\"outline\" spacing={0} defaultValue={[\"parcels\"]} aria-label=\"Layers\">\n      <ToggleGroupItem value=\"parcels\">Parcels</ToggleGroupItem>\n      <ToggleGroupItem value=\"substations\">Substations</ToggleGroupItem>\n      <ToggleGroupItem value=\"wetlands\">Wetlands</ToggleGroupItem>\n    </ToggleGroup>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <div className=\"grid gap-3\">\n      <ToggleGroup type=\"single\" size=\"sm\" defaultValue=\"ac\" aria-label=\"Area unit\">\n        <ToggleGroupItem value=\"ac\">ac</ToggleGroupItem>\n        <ToggleGroupItem value=\"ha\">ha</ToggleGroupItem>\n      </ToggleGroup>\n      <ToggleGroup type=\"single\" size=\"lg\" defaultValue=\"30\" aria-label=\"Distance\">\n        <ToggleGroupItem value=\"10\">10 mi</ToggleGroupItem>\n        <ToggleGroupItem value=\"30\">30 mi</ToggleGroupItem>\n        <ToggleGroupItem value=\"60\">60 mi</ToggleGroupItem>\n      </ToggleGroup>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Outline",
+        "Sizes"
+      ],
+      "requires": [
+        "toggle-group"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/toggle-group/Preview"
+        },
+        {
+          "name": "Outline",
+          "url": "https://mireye-ds.agencidev.com/preview/toggle-group/Outline"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/toggle-group/Sizes"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Toggle group",
+  "description": "A choice among a few: a segmented track in the field's frame (36px, Bone, 1px Stone line, the cut) whose chosen item is a Forest key with a Bone label. The outline variant is a row of framed toggles, joined with spacing 0.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "toggle",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/toggle-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ToggleGroup as ToggleGroupPrimitive } from \"radix-ui\";\nimport { type VariantProps } from \"class-variance-authority\";\n\nimport { toggleVariants } from \"@/components/ui/toggle\";\nimport { cn } from \"@/lib/utils\";\n\n// A choice among a few (Figma has none; drawn from the keys and fields at the product scale). The default is the\n// segmented track: Input's frame (white, 1px Stone line, the 8px cut) holding 32px choices 1px in, so the track is\n// 36px like a field. Choices have no fill and an 80% Forest label that turns Forest under the pointer; the chosen\n// one is a Forest key with a white label, the first one cut to sit inside the track's corner. Choosing is instant (no\n// sliding key): it is done often and must feel immediate. `variant=\"outline\"` drops the track: separate framed\n// keys (see Toggle), joined into one bar with `spacing={0}`.\nconst ToggleGroupContext = React.createContext<VariantProps<typeof toggleVariants> & { spacing?: number; orientation?: \"horizontal\" | \"vertical\" }>({\n  size: \"default\",\n  variant: \"default\",\n  spacing: 2,\n  orientation: \"horizontal\",\n});\n\nfunction ToggleGroup({\n  className,\n  variant = \"default\",\n  size = \"default\",\n  spacing = 2,\n  orientation = \"horizontal\",\n  children,\n  ...props\n}: React.ComponentProps<typeof ToggleGroupPrimitive.Root> & VariantProps<typeof toggleVariants> & { spacing?: number; orientation?: \"horizontal\" | \"vertical\" }) {\n  return (\n    <ToggleGroupPrimitive.Root\n      data-slot=\"toggle-group\"\n      data-variant={variant}\n      data-size={size}\n      data-spacing={spacing}\n      data-orientation={orientation}\n      orientation={orientation}\n      style={{ \"--gap\": spacing } as React.CSSProperties}\n      className={cn(\n        \"group/toggle-group flex w-fit max-w-full items-center gap-[calc(var(--spacing)*var(--gap))] data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch\",\n        variant === \"default\" && \"ds-cut-frame overflow-x-auto fade-x p-px [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [scrollbar-width:none]\",\n        variant === \"outline\" && spacing === 0 && \"data-[orientation=horizontal]:[&>*:not(:first-child)]:-ml-px data-[orientation=vertical]:[&>*:not(:first-child)]:-mt-px [&>*:not(:first-child)]:[--ds-cut:0px]\",\n        className,\n      )}\n      {...props}\n    >\n      <ToggleGroupContext.Provider value={{ variant, size, spacing, orientation }}>{children}</ToggleGroupContext.Provider>\n    </ToggleGroupPrimitive.Root>\n  );\n}\n\nfunction ToggleGroupItem({ className, children, variant, size, ...props }: React.ComponentProps<typeof ToggleGroupPrimitive.Item> & VariantProps<typeof toggleVariants>) {\n  const context = React.useContext(ToggleGroupContext);\n  const v = context.variant || variant || \"default\";\n  return (\n    <ToggleGroupPrimitive.Item\n      data-slot=\"toggle-group-item\"\n      data-variant={v}\n      data-size={context.size || size}\n      data-spacing={context.spacing}\n      className={cn(\n        toggleVariants({ variant: v, size: context.size || size }),\n        // In the track the chosen choice is the Forest key; only the first keeps a cut, inside the track's corner.\n        v === \"default\" && \"not-first:[--ds-cut:0px] data-[state=on]:text-on-primary data-[state=on]:[--ds-shape-fill:var(--ds-color-action-primary)] data-[state=on]:hover:[--ds-shape-fill:var(--ds-color-action-primary)] group-data-[size=default]/toggle-group:h-8 group-data-[size=sm]/toggle-group:h-7 group-data-[size=lg]/toggle-group:h-9\",\n        \"focus-visible:z-10\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n    </ToggleGroupPrimitive.Item>\n  );\n}\n\nexport { ToggleGroup, ToggleGroupItem };\n"
+    }
+  ]
+}

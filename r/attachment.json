@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "name": "attachment",
+  "useFor": "Use for a file attached to a question or produced by a report (a parcel export, a site plan, a KML boundary). Show the size or the upload state in AttachmentDescription. Add AttachmentTrigger to open the file and AttachmentAction for remove, retry or download. Use orientation=\"vertical\" for images and AttachmentGroup for a row of files. A row of attachments fades at the side (fade-x) where more scroll past it.",
+  "constraints": [
+    "Rounded or pill cards",
+    "Dashed lines",
+    "Coloured file tiles",
+    "A pulsing card",
+    "Shadows"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Inputs (442:107): the field's cut frame and the site chip's Fog, at the product scale",
+  "exports": [
+    "Attachment",
+    "AttachmentAction",
+    "AttachmentActions",
+    "AttachmentContent",
+    "AttachmentDescription",
+    "AttachmentGroup",
+    "AttachmentMedia",
+    "AttachmentTitle",
+    "AttachmentTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/attachment",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/attachment.md",
+  "examples": [
+    {
+      "path": "examples/attachment.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ArrowClockwiseIcon, DownloadSimpleIcon, FileCsvIcon, FilePdfIcon, GlobeHemisphereWestIcon, ImageIcon, XIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Attachment, AttachmentAction, AttachmentActions, AttachmentContent, AttachmentDescription, AttachmentGroup, AttachmentMedia, AttachmentTitle, AttachmentTrigger } from \"@/components/ui/attachment\";\n\nexport function Preview() {\n  const [files, setFiles] = React.useState([\n    { name: \"site-14-report.pdf\", size: \"2.4 MB\", icon: FilePdfIcon },\n    { name: \"ellis-parcels.csv\", size: \"1.2 MB\", icon: FileCsvIcon },\n    { name: \"site-boundary.kml\", size: \"18 KB\", icon: GlobeHemisphereWestIcon },\n  ]);\n  return (\n    <AttachmentGroup className=\"max-w-full\">\n      {files.map(({ name, size, icon: Icon }) => (\n        <Attachment key={name}>\n          <AttachmentTrigger aria-label={`Open ${name}`} />\n          <AttachmentMedia>\n            <Icon />\n          </AttachmentMedia>\n          <AttachmentContent>\n            <AttachmentTitle>{name}</AttachmentTitle>\n            <AttachmentDescription>{size}</AttachmentDescription>\n          </AttachmentContent>\n          <AttachmentActions>\n            <AttachmentAction aria-label={`Remove ${name}`} onClick={() => setFiles((all) => all.filter((f) => f.name !== name))}>\n              <XIcon />\n            </AttachmentAction>\n          </AttachmentActions>\n        </Attachment>\n      ))}\n    </AttachmentGroup>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"flex flex-wrap items-start gap-3\">\n      <Attachment state=\"idle\">\n        <AttachmentMedia>\n          <FileCsvIcon />\n        </AttachmentMedia>\n        <AttachmentContent>\n          <AttachmentTitle>buy-box.csv</AttachmentTitle>\n          <AttachmentDescription>Waiting</AttachmentDescription>\n        </AttachmentContent>\n      </Attachment>\n      <Attachment state=\"uploading\">\n        <AttachmentMedia>\n          <FilePdfIcon />\n        </AttachmentMedia>\n        <AttachmentContent>\n          <AttachmentTitle>site-plan.pdf</AttachmentTitle>\n          <AttachmentDescription>62% of 4.8 MB</AttachmentDescription>\n        </AttachmentContent>\n      </Attachment>\n      <Attachment state=\"error\">\n        <AttachmentMedia>\n          <FileCsvIcon />\n        </AttachmentMedia>\n        <AttachmentContent>\n          <AttachmentTitle>navarro-parcels.csv</AttachmentTitle>\n          <AttachmentDescription>Larger than 25 MB</AttachmentDescription>\n        </AttachmentContent>\n        <AttachmentActions>\n          <AttachmentAction aria-label=\"Retry navarro-parcels.csv\">\n            <ArrowClockwiseIcon />\n          </AttachmentAction>\n        </AttachmentActions>\n      </Attachment>\n    </div>\n  );\n}\n\nexport function Vertical() {\n  return (\n    <div className=\"flex flex-wrap items-start gap-3\">\n      <Attachment orientation=\"vertical\">\n        <AttachmentMedia variant=\"image\">\n          {/* eslint-disable-next-line @next/next/no-img-element */}\n          <img src=\"/examples/farmland-aerial.jpg\" alt=\"\" />\n        </AttachmentMedia>\n        <AttachmentContent>\n          <AttachmentTitle>aerial-site-14.jpg</AttachmentTitle>\n          <AttachmentDescription>164 KB</AttachmentDescription>\n        </AttachmentContent>\n        <AttachmentActions>\n          <AttachmentAction aria-label=\"Download aerial-site-14.jpg\">\n            <DownloadSimpleIcon />\n          </AttachmentAction>\n        </AttachmentActions>\n      </Attachment>\n      <Attachment orientation=\"vertical\" state=\"processing\">\n        <AttachmentMedia>\n          <ImageIcon />\n        </AttachmentMedia>\n        <AttachmentContent>\n          <AttachmentTitle>survey-scan.png</AttachmentTitle>\n          <AttachmentDescription>Reading</AttachmentDescription>\n        </AttachmentContent>\n      </Attachment>\n    </div>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      {([\"default\", \"sm\", \"xs\"] as const).map((size) => (\n        <Attachment key={size} size={size}>\n          <AttachmentMedia>\n            <FilePdfIcon />\n          </AttachmentMedia>\n          <AttachmentContent>\n            <AttachmentTitle>site-14-report.pdf</AttachmentTitle>\n            <AttachmentDescription>2.4 MB</AttachmentDescription>\n          </AttachmentContent>\n        </Attachment>\n      ))}\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States",
+        "Vertical",
+        "Sizes"
+      ],
+      "requires": [
+        "attachment"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/attachment/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/attachment/States"
+        },
+        {
+          "name": "Vertical",
+          "url": "https://mireye-ds.agencidev.com/preview/attachment/Vertical"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/attachment/Sizes"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Attachment",
+  "description": "A file in the Bone cut frame with a 6px chamfer: a square Fog tile with the file's glyph, the name in Forest and its size in DM Mono; uploading names shimmer, failed files take the danger line.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "button",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/attachment.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { cn } from \"@/lib/utils\";\n\n// A file attached to a question or a report (a parcel export, a site plan, a KML), drawn as a field: the white cut\n// frame with the 1px Stone line and the 6px chamfer at the top-left. The file sits in a square Fog tile with a 16px\n// Forest glyph; its name is 13px Forest and its size or state 12px DM Mono, muted. A waiting file keeps its line and\n// mutes its name; one uploading or processing shimmers its name (the system's sign of work); one that failed takes\n// the danger line and a danger note. A card that opens its file fills with Fog under the pointer (150ms).\nconst attachmentVariants = cva(\n  \"group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap ds-cut-frame text-fg [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] after:transition-[background-color] after:duration-fast after:ease-out has-[>[data-slot=attachment-trigger]:hover]:[--ds-shape-fill:var(--ds-color-bg-subtle)] has-[>[data-slot=attachment-trigger]:focus-visible]:outline-solid has-[>[data-slot=attachment-trigger]:focus-visible]:outline-1 has-[>[data-slot=attachment-trigger]:focus-visible]:outline-offset-2 has-[>[data-slot=attachment-trigger]:focus-visible]:outline-line-strong data-[state=error]:[--ds-shape-stroke:var(--ds-color-status-danger)] motion-reduce:after:transition-none\",\n  {\n    variants: {\n      size: {\n        default: \"gap-3 text-body has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-content]:pr-3 has-data-[slot=attachment-content]:pl-2 has-data-[slot=attachment-media]:p-2\",\n        sm: \"gap-2.5 text-body has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-content]:pr-2.5 has-data-[slot=attachment-content]:pl-1.5 has-data-[slot=attachment-media]:p-1.5\",\n        xs: \"gap-2 text-caption [--ds-cut:var(--ds-cut-sm)] has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-content]:pr-2 has-data-[slot=attachment-content]:pl-1 has-data-[slot=attachment-media]:p-1\",\n      },\n      orientation: {\n        horizontal: \"min-w-48 items-center\",\n        vertical: \"w-28 flex-col has-data-[slot=attachment-content]:w-36\",\n      },\n    },\n    defaultVariants: { size: \"default\", orientation: \"horizontal\" },\n  },\n);\n\ntype AttachmentState = \"idle\" | \"uploading\" | \"processing\" | \"error\" | \"done\";\n\nfunction Attachment({ className, state = \"done\", size = \"default\", orientation = \"horizontal\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof attachmentVariants> & { state?: AttachmentState }) {\n  return <div data-slot=\"attachment\" data-state={state} data-size={size} data-orientation={orientation} aria-busy={state === \"uploading\" || state === \"processing\" || undefined} className={cn(attachmentVariants({ size, orientation }), className)} {...props} />;\n}\n\nconst attachmentMediaVariants = cva(\n  \"relative flex aspect-square w-9 shrink-0 items-center justify-center overflow-hidden bg-subtle text-fg group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-6 group-data-[state=error]/attachment:text-danger [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5\",\n  {\n    variants: {\n      variant: {\n        icon: \"\",\n        // An image shows itself; it stays faint until it has uploaded.\n        image: \"opacity-60 group-data-[state=done]/attachment:opacity-100 group-data-[state=idle]/attachment:opacity-100 *:[img]:aspect-square *:[img]:w-full *:[img]:object-cover\",\n      },\n    },\n    defaultVariants: { variant: \"icon\" },\n  },\n);\n\nfunction AttachmentMedia({ className, variant = \"icon\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof attachmentMediaVariants>) {\n  return <div data-slot=\"attachment-media\" data-variant={variant} className={cn(attachmentMediaVariants({ variant }), className)} {...props} />;\n}\n\nfunction AttachmentContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"attachment-content\" className={cn(\"max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1 group-data-[orientation=vertical]/attachment:pb-1\", className)} {...props} />;\n}\n\nfunction AttachmentTitle({ className, children, ...props }: React.ComponentProps<\"span\">) {\n  return (\n    <span data-slot=\"attachment-title\" className={cn(\"block max-w-full min-w-0 truncate font-sans text-fg group-data-[state=idle]/attachment:text-fg-muted\", className)} {...props}>\n      <span className=\"group-data-[state=processing]/attachment:ds-shimmer group-data-[state=uploading]/attachment:ds-shimmer\">{children}</span>\n    </span>\n  );\n}\n\nfunction AttachmentDescription({ className, ...props }: React.ComponentProps<\"span\">) {\n  return <span data-slot=\"attachment-description\" className={cn(\"mt-1 block max-w-full min-w-0 truncate font-mono text-caption leading-tight text-fg-muted group-data-[state=error]/attachment:font-sans group-data-[state=error]/attachment:text-danger\", className)} {...props} />;\n}\n\nfunction AttachmentActions({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"attachment-actions\" className={cn(\"relative z-20 flex shrink-0 items-center gap-0.5 group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:right-3\", className)} {...props} />;\n}\n\n/** A row action on the attachment (remove, retry, download): a ghost glyph key, white on an image. */\nfunction AttachmentAction({ className, variant, size = \"icon-sm\", ...props }: React.ComponentProps<typeof Button>) {\n  return <Button data-slot=\"attachment-action\" variant={variant ?? \"ghost\"} size={size} className={cn(\"group-data-[orientation=vertical]/attachment:bg-surface\", className)} {...props} />;\n}\n\n/** Makes the whole card open the file: a button (or a link with asChild) stretched over it. */\nfunction AttachmentTrigger({ className, asChild = false, type, ...props }: React.ComponentProps<\"button\"> & { asChild?: boolean }) {\n  const Comp = asChild ? chakra.button : \"button\";\n  // Chakra's factory renders its child in its place only when told to.\n  const slotProps = asChild ? { asChild: true } : {};\n  return <Comp {...slotProps} data-slot=\"attachment-trigger\" type={asChild ? undefined : (type ?? \"button\")} className={cn(\"absolute inset-0 z-10 cursor-pointer outline-none\", className)} {...props} />;\n}\n\nfunction AttachmentGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"attachment-group\"\n      className={cn(\"flex min-w-0 snap-x snap-mandatory scroll-px-1 gap-2 overflow-x-auto overscroll-x-contain fade-x p-1 [scrollbar-width:none] *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Attachment, AttachmentAction, AttachmentActions, AttachmentContent, AttachmentDescription, AttachmentGroup, AttachmentMedia, AttachmentTitle, AttachmentTrigger };\n"
+    }
+  ]
+}

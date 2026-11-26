@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "map-marker",
+  "useFor": "Put `MapMarker` inside the map viewport with `x`, `y`, `value` and `coordinates`. Leave out the reading to show only lines and nodes. `variant=\"crosshair\"` draws one crosshair with a framed node and the one-row tag beside it; `side=\"left\"` near the right edge. `MapTag` is the tag alone.",
+  "constraints": [
+    "More than one marker with a tag at once",
+    "Moving the offsets; only the point moves"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Map marker\" (443:395): 443:406 to 443:420",
+  "exports": [
+    "MapMarker",
+    "MapTag"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/map-marker",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/map-marker.md",
+  "examples": [
+    {
+      "path": "examples/map-marker.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { MapMarker, MapTag } from \"@/components/ui/map-marker\";\nimport { CONTOURS_INDEX, CONTOURS_MINOR } from \"@/components/ui/parcel-scan\";\n\n/** The system's survey contours (ParcelScan's 240 by 128 artwork), stretched to cover a light map ground. */\nfunction ContourGround() {\n  return (\n    <svg aria-hidden viewBox=\"0 0 240 128\" preserveAspectRatio=\"xMidYMid slice\" className=\"absolute inset-0 block size-full\" fill=\"none\">\n      <path d={CONTOURS_MINOR} vectorEffect=\"non-scaling-stroke\" className=\"stroke-line-subtle\" />\n      <path d={CONTOURS_INDEX} vectorEffect=\"non-scaling-stroke\" className=\"stroke-line\" />\n    </svg>\n  );\n}\n\n/** The viewport's size, so marks can sit at its center. */\nfunction useSize<T extends HTMLElement>() {\n  const ref = React.useRef<T>(null);\n  const [size, setSize] = React.useState({ w: 0, h: 0 });\n  React.useLayoutEffect(() => {\n    const el = ref.current;\n    if (!el) return;\n    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }));\n    ro.observe(el);\n    return () => ro.disconnect();\n  }, []);\n  return [ref, size] as const;\n}\n\n// A survey point on the map: click anywhere to move it. Its survey lines run edge to edge and the tag reads the point.\nexport function Preview() {\n  const [ref, size] = useSize<HTMLDivElement>();\n  const [point, setPoint] = React.useState<{ x: number; y: number } | null>(null);\n  const p = point ?? { x: Math.round(size.w * 0.55), y: Math.round(size.h * 0.62) };\n  return (\n    <div\n      ref={ref}\n      onClick={(e) => {\n        const r = e.currentTarget.getBoundingClientRect();\n        setPoint({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });\n      }}\n      className=\"relative h-80 w-full cursor-crosshair overflow-hidden border border-line-subtle bg-surface\"\n    >\n      <ContourGround />\n      {size.w > 0 && <MapMarker x={p.x} y={p.y} value=\"412 ft\" coordinates=\"32.1745, -96.8921\" />}\n    </div>\n  );\n}\n\n// The crosshair marker from the map exploration, its tag beside the point.\nexport function Crosshair() {\n  const [ref, size] = useSize<HTMLDivElement>();\n  return (\n    <div ref={ref} className=\"relative h-64 w-full overflow-hidden border border-line-subtle bg-surface\">\n      <ContourGround />\n      {size.w > 0 && <MapMarker variant=\"crosshair\" x={Math.round(size.w * 0.4)} y={Math.round(size.h / 2)} value=\"41.3 ac\" coordinates=\"32.1745, -96.8921\" />}\n    </div>\n  );\n}\n\n// The tag alone, on Forest and on white.\nexport function Tags() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-4\">\n      <MapTag value=\"412 ft\" coordinates=\"32.1745, -96.8921\" />\n      <MapTag tone=\"photo\" value=\"412 ft\" coordinates=\"32.1745, -96.8921\" className=\"ds-cut-frame [--ds-shape-stroke:var(--ds-color-border-default)]\" />\n      <MapTag layout=\"row\" value=\"41.3 ac\" coordinates=\"32.1745, -96.8921\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Crosshair",
+        "Tags"
+      ],
+      "requires": [
+        "map-marker",
+        "parcel-scan"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/map-marker/Preview"
+        },
+        {
+          "name": "Crosshair",
+          "url": "https://mireye-ds.agencidev.com/preview/map-marker/Crosshair"
+        },
+        {
+          "name": "Tags",
+          "url": "https://mireye-ds.agencidev.com/preview/map-marker/Tags"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Map marker",
+  "description": "A survey point: two pairs of survey lines across the map, four nodes and a Forest tag with the reading.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "map"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/map-marker.tsx",
+      "content": "// Moved into Map (map.tsx) on 29 Oct. This path stays so existing imports keep working.\nexport { MapMarker, MapTag } from \"@/components/ui/map\";\n"
+    }
+  ]
+}

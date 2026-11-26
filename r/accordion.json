@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "accordion",
+  "useFor": "Use for details people open one at a time (how a check works, the layers behind a value) or for groups of a site's facts. Pass type=\"single\" collapsible for one open at a time, type=\"multiple\" for several. Keep the label a short phrase; the content is 13px secondary text, values or fields.",
+  "constraints": [
+    "Boxing each item in a card",
+    "A chevron at the left",
+    "Bold labels",
+    "A chevron that moves on hover",
+    "Opening animation longer than 200ms"
+  ],
+  "documentation": "",
+  "source": "Not in Figma: Mist rules from Cited fields (443:470) and the arrow head from UI · Buttons (442:3), for a designer's review",
+  "exports": [
+    "Accordion",
+    "AccordionContent",
+    "AccordionItem",
+    "AccordionTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/accordion",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/accordion.md",
+  "examples": [
+    {
+      "path": "examples/accordion.tsx",
+      "content": "import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from \"@/components/ui/accordion\";\n\nexport function Preview() {\n  return (\n    <Accordion type=\"single\" collapsible defaultValue=\"flood\" className=\"w-full max-w-120\">\n      <AccordionItem value=\"flood\">\n        <AccordionTrigger>How is flood risk checked?</AccordionTrigger>\n        <AccordionContent>The parcel is matched against the national flood hazard layer. Zone X means outside the 100-year and 500-year flood plains.</AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"power\">\n        <AccordionTrigger>Which substations count as nearby?</AccordionTrigger>\n        <AccordionContent>Substations at 138 kV or above within 2 mi of the parcel edge, measured in a straight line.</AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"sources\">\n        <AccordionTrigger>Where do the values come from?</AccordionTrigger>\n        <AccordionContent>Every value cites its source: county parcel records, the utility&apos;s interconnection queue and a 10 m elevation model.</AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  );\n}\n\nexport function Multiple() {\n  return (\n    <Accordion type=\"multiple\" defaultValue={[\"parcel\", \"terrain\"]} className=\"w-full max-w-120\">\n      <AccordionItem value=\"parcel\">\n        <AccordionTrigger>Parcel</AccordionTrigger>\n        <AccordionContent>042-117-09, 212.6 ac, zoned I-2 Industrial.</AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"terrain\">\n        <AccordionTrigger>Terrain</AccordionTrigger>\n        <AccordionContent>412 ft average elevation, 2.8% slope.</AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"water\" disabled>\n        <AccordionTrigger>Water (no source yet)</AccordionTrigger>\n        <AccordionContent>No water source has been matched for this county.</AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Multiple"
+      ],
+      "requires": [
+        "accordion"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/accordion/Preview"
+        },
+        {
+          "name": "Multiple",
+          "url": "https://mireye-ds.agencidev.com/preview/accordion/Multiple"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Accordion",
+  "description": "Sections that open in place: 13px Forest labels ruled by 1px Mist lines, with Mireye's chevron at the right that turns when open.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/accordion.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Accordion as ChakraAccordion } from \"@chakra-ui/react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { cn } from \"@/lib/utils\";\n\n// Sections that open in place, ruled like a survey sheet: 1px Mist rules between items, a 13px Forest label and\n// Mireye's chevron (the arrow's head alone, pointing down) at the right. The label holds still on hover; the chevron\n// steps from Forest at 72% to Forest (150ms). The panel opens with its height (the accordion keyframes, under 200ms,\n// ease-out) and the chevron turns to point up as state, never on hover. Focus is the 1px Forest outline, 2px out.\n// Square throughout.\ntype AccordionProps = Omit<React.ComponentProps<typeof ChakraAccordion.Root>, \"multiple\" | \"collapsible\" | \"value\" | \"defaultValue\"> & { type?: \"single\" | \"multiple\"; collapsible?: boolean; value?: string | string[]; defaultValue?: string | string[] };\nfunction Accordion({ type = \"single\", collapsible, value, defaultValue, ...props }: AccordionProps) {\n  return <ChakraAccordion.Root unstyled data-slot=\"accordion\" multiple={type === \"multiple\"} collapsible={collapsible} value={value === undefined ? undefined : Array.isArray(value) ? value : [value]} defaultValue={defaultValue === undefined ? undefined : Array.isArray(defaultValue) ? defaultValue : [defaultValue]} {...props} />;\n}\n\nfunction AccordionItem({ className, ...props }: React.ComponentProps<typeof ChakraAccordion.Item>) {\n  return <ChakraAccordion.Item unstyled data-slot=\"accordion-item\" className={cn(\"border-b border-line-subtle\", className)} {...props} />;\n}\n\nfunction AccordionTrigger({ className, children, ...props }: React.ComponentProps<typeof ChakraAccordion.ItemTrigger>) {\n  return (\n    <ChakraAccordion.ItemTrigger\n      unstyled\n      data-slot=\"accordion-trigger\"\n      className={cn(\n        \"group/accordion-trigger flex w-full flex-1 cursor-pointer items-center justify-between gap-4 py-3 text-left font-sans text-body leading-body text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:cursor-default disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n      <ChakraAccordion.ItemIndicator unstyled className=\"flex shrink-0 text-fg-muted transition-colors duration-fast ease-out group-hover/accordion-trigger:text-fg group-disabled/accordion-trigger:text-fg-subtle motion-reduce:transition-none\">\n        <ArrowRightIcon\n          size={16}\n          head\n          data-slot=\"accordion-trigger-icon\"\n          className=\"rotate-90 transition-transform duration-base ease-out group-data-[state=open]/accordion-trigger:-rotate-90 motion-reduce:transition-none\"\n        />\n      </ChakraAccordion.ItemIndicator>\n    </ChakraAccordion.ItemTrigger>\n  );\n}\n\nfunction AccordionContent({ className, children, ...props }: React.ComponentProps<typeof ChakraAccordion.ItemContent>) {\n  return (\n    <ChakraAccordion.ItemContent unstyled data-slot=\"accordion-content\" className=\"overflow-hidden text-body leading-body text-fg-secondary data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down\" {...props}>\n      <ChakraAccordion.ItemBody unstyled className={cn(\"pb-4\", className)}>\n        {children}\n      </ChakraAccordion.ItemBody>\n    </ChakraAccordion.ItemContent>\n  );\n}\n\nexport { Accordion, AccordionContent, AccordionItem, AccordionTrigger };\n"
+    }
+  ]
+}

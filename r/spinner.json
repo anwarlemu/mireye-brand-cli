@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "spinner",
+  "useFor": "Use inside what is working, beside a word that says what is happening (Matching the parcel), or on an icon key that is loading. Default is about 14px for text and keys; lg (22px) sits beside a panel title; xl (84px) is the one loader on an empty screen. For a known amount, use Progress; in a labelled button, prefer its tick walk.",
+  "constraints": [
+    "A smooth spinning circle",
+    "A coloured spinner",
+    "A spinner with no words beside it",
+    "Two spinners on one screen",
+    "A full-page spinner for a short wait"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Buttons (442:3): icon button Loading (442:76); UI · Loaders (443:2): the 36px frames 443:103 to 443:207 and the hero 443:77",
+  "exports": [
+    "Spinner"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/spinner",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/spinner.md",
+  "examples": [
+    {
+      "path": "examples/spinner.tsx",
+      "content": "import { Button } from \"@/components/ui/button\";\nimport { Spinner } from \"@/components/ui/spinner\";\n\nexport function Preview() {\n  return (\n    <div className=\"flex items-center gap-3 text-body text-fg-secondary\">\n      <Spinner />\n      Matching the parcel\n    </div>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <div className=\"flex items-center gap-6\">\n      <Spinner />\n      <Spinner size=\"lg\" />\n      <Spinner size=\"xl\" />\n    </div>\n  );\n}\n\nexport function InButton() {\n  return (\n    <Button variant=\"outline\" disabled>\n      <Spinner aria-hidden />\n      Sampling elevation\n    </Button>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sizes",
+        "InButton"
+      ],
+      "requires": [
+        "spinner",
+        "button"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/spinner/Preview"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/spinner/Sizes"
+        },
+        {
+          "name": "InButton",
+          "url": "https://mireye-ds.agencidev.com/preview/spinner/InButton"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Spinner",
+  "description": "The Dial: ticks around a circle, the head in Forest and the tail fading to Mist, turning one tick per step.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "dial"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/spinner.tsx",
+      "content": "import * as React from \"react\";\n\nimport { Dial, DIALS } from \"@/components/ui/dial\";\n\n// Mireye's spinner is the Dial (Figma: the icon button's loading state, 442:76, and the Loaders board, 443:2): ticks\n// around a circle, the head tick in Forest and the tail fading to Mist, turning one tick per step. Sizes: default is the\n// 24px Figma dial (about 14px, beside 13px text), lg the 36px one (about 22px), xl the 140px hero (84px). A width or height class still\n// wins. Under reduced motion it holds still with its tail drawn, so it still reads as a dial.\nconst SIZES = { default: 24, lg: 36, xl: 140 } as const satisfies Record<string, keyof typeof DIALS>;\n\nfunction Spinner({ size = \"default\", \"aria-label\": label = \"Loading\", ...props }: Omit<React.ComponentProps<typeof Dial>, \"size\"> & { size?: keyof typeof SIZES }) {\n  return <Dial size={SIZES[size]} aria-label={label} data-slot=\"spinner\" {...props} />;\n}\n\nexport { Spinner };\n"
+    }
+  ]
+}

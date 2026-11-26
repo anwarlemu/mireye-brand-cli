@@ -1,0 +1,36 @@
+/* Shared interaction rules for installed CSS and the component theme. */
+@layer base {
+ :where(button, [role="button"], a[href], input, select, textarea, summary) {
+  touch-action: manipulation;
+ }
+}
+
+/* Press feedback is immediate; the action still activates through the native click/keyboard path. */
+:where(button, [role="button"], a[href], summary):active {
+ transition-duration: 0s !important;
+ transition-delay: 0s !important;
+}
+
+/* Keyboard feedback and explicitly high-frequency surfaces never wait for motion. The scroll edge fades (fade-y,
+   fade-x, fade-xy) are exempt here and under reduced motion: they follow the scroll position, not time, and without
+   them content is cut off by a hard edge. */
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]):where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::before,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::after,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"])::before,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"])::after {
+ animation: none !important;
+ transition: none !important;
+ scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+ *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])), ::before, ::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+ }
+}

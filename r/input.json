@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "name": "input",
+  "useFor": "Use for one line of text or a number: a site name, a parcel number, a size. Put a Label 8px above it (or use Field). Pass `unit` when the value has one, and a Unit Select when the reader can change it. Set aria-invalid when the value is rejected and say why below it. For search, use Input Group with the parcel glyph.",
+  "constraints": [
+    "A placeholder as the only label",
+    "Rounded corners or a shadow",
+    "A focus ring around the field (the line turns Forest instead)",
+    "A hover effect on the field",
+    "A unit typed into the value"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Inputs\" (442:107): Default, Focused, Filled and Search rows",
+  "exports": [
+    "Input",
+    "inputClassName",
+    "fieldFrameClassName"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/input",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/input.md",
+  "examples": [
+    {
+      "path": "examples/input.tsx",
+      "content": "import { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid w-full max-w-96 gap-2\">\n      <Label htmlFor=\"parcel-size\">Parcel size</Label>\n      <Input id=\"parcel-size\" placeholder=\"e.g. 40\" inputMode=\"decimal\" unit=\"ac\" />\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"grid w-full max-w-96 gap-4\">\n      <Input aria-label=\"Site name\" placeholder=\"Site name\" />\n      <Input aria-label=\"Parcel ID\" defaultValue=\"041-220-17\" />\n      <Input aria-label=\"Voltage\" defaultValue=\"345\" unit=\"kV\" />\n      <Input aria-label=\"County\" defaultValue=\"Marion County\" readOnly />\n      <Input aria-label=\"Distance to substation\" placeholder=\"Distance\" disabled />\n      <Input aria-label=\"Acreage\" defaultValue=\"-4\" aria-invalid />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "States"
+      ],
+      "requires": [
+        "input",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/input/Preview"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/input/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Input",
+  "description": "Mireye's field: 36px, Bone inside a 1px Stone line with the 8px cut corner, 13px Forest text and a Slate placeholder 16px in. Focus turns the line Forest (no ring); invalid turns it brick; read-only is Fog, disabled Mist. `unit` puts a unit after the value (ac, kV) or a Unit Select.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/input.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Input as ChakraInput } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's field (Figma \"UI · Inputs\", 442:107) at the product scale: 36px tall (Figma's 72px), white inside a 1px\n// Stone line with the 8px cut corner, 13px Forest text and a Slate placeholder 16px in. Focus turns the line Forest,\n// at once, and draws no ring: the line is the focus. aria-invalid turns it brick. Read-only sits on Fog and disabled\n// on Mist, both with Slate text. Nothing changes on hover.\n// An <input> has no ::before or ::after, so the cut is drawn on the input itself: clip-path cuts the corner and a\n// 135° gradient paints the 1px diagonal on the same line ds-cut-frame uses (the stroke's outer edge at x + y = cut −\n// 0.2071px, its inner edge at cut + 1.2071px), so the field matches a framed key or card exactly.\n// `unit` puts a unit after the value, as in Figma (\"ac\"): the field becomes a frame around a borderless input and the\n// unit, and a click anywhere in it focuses the input. Pass a UnitSelect as `unit` to let the reader change it.\nconst FRAME_VARS =\n  \"[--ds-shape-stroke:var(--ds-color-border-default)] [--ds-shape-fill:var(--ds-color-bg-default)] aria-invalid:[--ds-shape-stroke:var(--ds-color-status-danger)]\";\nconst FIELD = cn(\n  \"h-9 w-full min-w-0 border border-(--ds-shape-stroke) px-4 font-sans text-body leading-tight text-fg caret-fg outline-none\",\n  FRAME_VARS,\n  \"[clip-path:polygon(calc(var(--ds-cut)_-_0.2071px)_0,100%_0,100%_100%,0_100%,0_calc(var(--ds-cut)_-_0.2071px))]\",\n  \"[background:linear-gradient(135deg,transparent_calc((var(--ds-cut)_-_0.2071px)_*_0.7071),var(--ds-shape-stroke)_0_calc((var(--ds-cut)_+_1.2071px)_*_0.7071),var(--ds-shape-fill)_0)_border-box]\",\n  \"placeholder:text-fg-subtle selection:bg-subtle-hover\",\n  \"focus:[--ds-shape-stroke:var(--ds-color-border-strong)] aria-invalid:focus:[--ds-shape-stroke:var(--ds-color-status-danger)]\",\n  \"[&:is(input,textarea):read-only:not(:disabled)]:[--ds-shape-fill:var(--ds-color-bg-subtle)] [&:is(input,textarea):read-only]:text-fg-subtle disabled:cursor-not-allowed disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] disabled:text-fg-subtle\",\n  \"file:mr-3 file:h-full file:border-0 file:bg-transparent file:font-sans file:text-body file:font-medium file:text-fg\",\n);\n\n/** The same frame for an element that can draw on ::before and ::after (a group, a trigger): ds-cut-frame. */\nconst FRAME = cn(\n  \"ds-cut-frame\",\n  FRAME_VARS,\n  \"has-[input:focus,textarea:focus,[data-slot=input-group-control]:focus]:[--ds-shape-stroke:var(--ds-color-border-strong)]\",\n  \"has-[[aria-invalid=true]]:[--ds-shape-stroke:var(--ds-color-status-danger)]\",\n  \"has-[input:disabled,textarea:disabled]:cursor-not-allowed has-[input:disabled,textarea:disabled]:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] has-[[data-slot=input]:read-only:not(:disabled),[data-slot=input-group-control]:read-only:not(:disabled)]:[--ds-shape-fill:var(--ds-color-bg-subtle)]\",\n);\n\ntype InputProps = Omit<React.ComponentProps<\"input\">, \"size\"> & {\n  size?: number;\n  /** A unit after the value (\"ac\", \"kV\"), or a UnitSelect. `className` then styles the frame. */\n  unit?: React.ReactNode;\n};\n\nfunction Input({ className, type = \"text\", size, unit, ...props }: InputProps) {\n  if (unit == null) return <ChakraInput unstyled type={type} htmlSize={size} data-slot=\"input\" className={cn(FIELD, className)} {...props} />;\n  return (\n    <div\n      data-slot=\"input-frame\"\n      className={cn(FRAME, \"flex h-9 w-full min-w-0 cursor-text items-center gap-3 px-4\", className)}\n      // A click on the padding or the unit focuses the input, except on a control of the unit's own (a UnitSelect).\n      onMouseDown={(e) => {\n        const input = e.currentTarget.querySelector(\"input\");\n        if (input && e.target !== input && !(e.target as Element).closest(\"button, [role=listbox]\")) {\n          e.preventDefault();\n          input.focus();\n        }\n      }}\n    >\n      <ChakraInput\n        unstyled\n        type={type}\n        htmlSize={size}\n        data-slot=\"input\"\n        className=\"h-full w-full min-w-0 flex-1 bg-transparent p-0 pl-px font-sans text-body leading-tight text-fg caret-fg outline-none placeholder:text-fg-subtle selection:bg-subtle-hover read-only:text-fg-subtle disabled:cursor-not-allowed disabled:text-fg-subtle\"\n        {...props}\n      />\n      <span data-slot=\"input-unit\" className=\"shrink-0 font-sans text-body leading-tight text-fg\">\n        {unit}\n      </span>\n    </div>\n  );\n}\n\nexport { Input, FIELD as inputClassName, FRAME as fieldFrameClassName };\n"
+    }
+  ]
+}

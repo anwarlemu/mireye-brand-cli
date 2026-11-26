@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "error-page",
+  "useFor": "Use as the app's or site's error boundary page. Pass `code`, `title`, `retry` and `status` (null when there is no status page).",
+  "constraints": [
+    "Stack traces or error ids as the headline",
+    "Blaming the user",
+    "Jokes"
+  ],
+  "documentation": "",
+  "source": "Derived: the website has only a not-found page; this keeps its layout (not-found.tsx and NotFoundScene).",
+  "exports": [
+    "ErrorPageProps",
+    "ErrorPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/error-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/error-page.md",
+  "examples": [
+    {
+      "path": "examples/error-page.tsx",
+      "content": "import { ErrorPage } from \"@/components/blocks/error-page\";\n\nexport function Preview() {\n  return <ErrorPage />;\n}\n\nexport function Unavailable() {\n  return <ErrorPage code=\"503 · Down for maintenance\" title=\"We are updating the records.\" description=\"The service is back within the hour.\" status={null} />;\n}\n",
+      "exports": [
+        "Preview",
+        "Unavailable"
+      ],
+      "requires": [
+        "error-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/error-page/Preview"
+        },
+        {
+          "name": "Unavailable",
+          "url": "https://mireye-ds.agencidev.com/preview/error-page/Unavailable"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Error page",
+  "description": "The server error page (500, 503): the code in DM Mono, one line that owns the fault, a way to try again and the status page, beside an empty survey plate.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "survey-plate",
+    "button"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/error-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Button } from \"@/components/ui/button\";\n\n// The server error page (500, 503): the code in DM Mono, one line that says the fault is ours, a way to try again and\n// the status page, beside the survey plate with its parcel struck through. Built on the not-found page's layout.\n\nexport type ErrorPageProps = { header?: SiteHeaderProps; code?: string; title?: string; description?: string; retry?: { label: string; href: string }; status?: { label: string; href: string } | null; footer?: SiteFooterProps };\n\nexport function ErrorPage({ header, code = \"500 · Server error\", title = \"Something broke on our side.\", description = \"Nothing you did caused this. Try again in a moment; if it keeps happening, the status page says what we know.\", retry = { label: \"Try again\", href: \"\" }, status = { label: \"Status page\", href: \"#status\" }, footer }: ErrorPageProps) {\n  return (\n    <div data-slot=\"error-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader {...header} />\n      <main>\n        <PageSection>\n          <div className=\"grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-12\">\n            <div className=\"grid content-start gap-5\">\n              <p className=\"font-mono text-caption leading-tight text-fg-muted\">{code}</p>\n              <h1 className=\"text-display leading-display font-normal text-balance text-fg\">{title}</h1>\n              <p className=\"max-w-(--ds-layout-text) text-body-lg leading-body text-fg-secondary\">{description}</p>\n              <div className=\"flex flex-wrap items-center gap-3\">\n                <Button asChild>\n                  <a href={retry.href}>\n                    {retry.label}\n                    <ArrowRightIcon size={20} />\n                  </a>\n                </Button>\n                {status && (\n                  <Button asChild variant=\"outline\">\n                    <a href={status.href}>{status.label}</a>\n                  </Button>\n                )}\n              </div>\n            </div>\n            <SurveyPlate className=\"aspect-4/3 w-full\" marker={null} caption=\"The survey could not finish\" scale={null} parcels={[{ x: 30, y: 28, w: 40, h: 44, state: \"plain\", label: code.split(\" \")[0] }]} />\n          </div>\n        </PageSection>\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

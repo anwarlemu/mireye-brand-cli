@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "name": "use-loop-frame",
+  "useFor": "Use `useLoopFrame(frame, count, running, ms)` in frame-based loaders and `usePrefersReducedMotion()` to hold motion still.",
+  "constraints": [],
+  "documentation": "",
+  "exports": [
+    "useLoopFrame",
+    "usePrefersReducedMotion"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds-registry.vercel.app/r/use-loop-frame.md",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/use-loop-frame.md",
+  "examples": [],
+  "type": "lib",
+  "title": "Loop frame",
+  "description": "Hooks for loaders: step through frames while running, and follow the reduced-motion setting live.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [],
+  "packages": [],
+  "files": [
+    {
+      "path": "lib/use-loop-frame.ts",
+      "content": "import * as React from \"react\";\n\n/**\n * Steps through `count` frames while `running`, starting from `frame`. Returns `frame` when\n * not running or when the viewer prefers reduced motion. Every frame-based loader uses it\n * (NodeLoader, AgentSteps, ContourLoader, LineFillLoader).\n */\nexport function useLoopFrame(frame: number, count: number, running: boolean, ms: number) {\n  const reduced = usePrefersReducedMotion();\n  const [tick, setTick] = React.useState(frame);\n  React.useEffect(() => {\n    setTick(frame);\n    if (!running || reduced) return;\n    // ds-latency: a loader's frame clock; it runs beside the page and never gates input.\n    const id = window.setInterval(() => setTick((t) => (t + 1) % count), ms);\n    return () => window.clearInterval(id);\n  }, [frame, count, running, ms, reduced]);\n  return running && !reduced ? tick : frame;\n}\n\nconst QUERY = \"(prefers-reduced-motion: reduce)\";\n\n/** Follows the reduced-motion setting live, so loaders stop when the viewer turns it on. */\nexport function usePrefersReducedMotion() {\n  return React.useSyncExternalStore(\n    (onChange) => {\n      const mq = window.matchMedia(QUERY);\n      mq.addEventListener(\"change\", onChange);\n      return () => mq.removeEventListener(\"change\", onChange);\n    },\n    () => window.matchMedia(QUERY).matches,\n    () => false,\n  );\n}\n"
+    }
+  ]
+}

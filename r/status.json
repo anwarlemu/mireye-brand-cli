@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "status",
+  "useFor": "Use for the state of a site or a screen in a list. The pill keeps one width in every state, and changes swap the mark and word in place. Wrap it in your own `role=\"status\"` when one status updates in place.",
+  "constraints": [
+    "Colored status pills",
+    "A status that changes width",
+    "More than three states"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Status and tags\" (442:177): Verified 442:187, Processing 442:192, Queued 442:197",
+  "exports": [
+    "StatusVariant",
+    "Status",
+    "StatusMark"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/status",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/status.md",
+  "examples": [
+    {
+      "path": "examples/status.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Status, type StatusVariant } from \"@/components/ui/status\";\n\n// One site's status: click the pill to screen the site. It goes from Queued to Loading, and to Verified 1.2s later;\n// click again to queue it again. The pill keeps one width in every state; marks and words swap in place.\nexport function Preview() {\n  const [variant, setVariant] = React.useState<StatusVariant>(\"queued\");\n  React.useEffect(() => {\n    if (variant !== \"processing\") return;\n    // ds-latency: the demo plays a run on a clock; no input waits on this timer.\n    const id = window.setTimeout(() => setVariant(\"verified\"), 1200);\n    return () => window.clearTimeout(id);\n  }, [variant]);\n  const next = variant === \"queued\" ? \"Screen this site\" : variant === \"verified\" ? \"Queue it again\" : undefined;\n  const word = variant === \"processing\" ? \"Loading\" : variant === \"verified\" ? \"Verified\" : \"Queued\";\n  return (\n    <div className=\"flex justify-center\">\n      <button\n        type=\"button\"\n        aria-label={next ? `${word}. ${next}` : word}\n        aria-disabled={variant === \"processing\" || undefined}\n        onClick={() => setVariant((v) => (v === \"queued\" ? \"processing\" : v === \"verified\" ? \"queued\" : v))}\n        className=\"group cursor-pointer outline-none aria-disabled:cursor-progress focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\"\n      >\n        <Status\n          variant={variant}\n          className=\"after:transition-[background-color] after:duration-150 after:ease-out group-hover:group-not-aria-disabled:[--ds-shape-fill:var(--ds-color-fog)] group-active:after:duration-0 group-active:group-not-aria-disabled:[--ds-shape-fill:var(--ds-color-mist)]\"\n        />\n      </button>\n      {/* The change is announced outside the button, whose content is read as its name. */}\n      <span role=\"status\" className=\"sr-only\">\n        {word}\n      </span>\n    </div>\n  );\n}\n\n// The three statuses, as Figma draws them.\nexport function Variants() {\n  return (\n    <div className=\"flex flex-wrap justify-center gap-3\">\n      <Status variant=\"verified\" />\n      <Status variant=\"processing\" />\n      <Status variant=\"queued\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Variants"
+      ],
+      "requires": [
+        "status"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/status/Preview"
+        },
+        {
+          "name": "Variants",
+          "url": "https://mireye-ds.agencidev.com/preview/status/Variants"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Status",
+  "description": "A status pill: Verified, Loading or Queued, with a diamond or bars as its mark and the cut frame.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/status.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n/**\n * Status pill. Source: Figma \"UI · Status and tags\" (442:177): Verified (442:187, mark 442:189),\n * Loading (Figma's \"Processing\", 442:192, mark 442:194), Queued (442:197, mark 442:199).\n *\n * - 44px tall, 1px Stone border on white, 8px cut corner (`--ds-cut-sm`), drawn by ds-cut-frame.\n * - A 10px mark sits 18px from the left edge and the 20px Regular label starts 10px after it.\n *   Both are centered on the row (Figma: mark y = 17, label cap box y = 15).\n * - Marks: Verified is a solid diamond, Queued an outlined one (1px stroke kept inside the box,\n *   which is how the shared Diamond draws it), Loading three 1px bars at x = 1.5, 5 and 8.5.\n *   Figma's middle bar straddles a pixel edge and renders as two half-tone columns; the SVG keeps\n *   Figma's coordinates so the browser blends it the same way.\n * - Right padding: Figma sizes each pill by hand (23, 27 and 22px after the Gilroy label), so Figma\n *   has no single value. With no width set, the pill uses 22px, the tightest of the three. Pass a\n *   width (`className=\"w-19\"`) to reproduce a Figma frame exactly; content stays left-aligned.\n * - Labels: Verified, Loading, Queued (Figma says \"Processing\"; Loading is the product word, 29\n *   Oct). With the default labels, the label slot reserves the widest of the three, so a pill\n *   keeps one width and its mark and text never move when the state changes.\n * - Motion (29 Oct): when the status changes, the old mark shrinks to 60% and fades as the new one\n *   grows from 60% in the same 10px slot, and the old word leaves 4px up while the new word rises\n *   4px into place out of a 2px blur, all in 200ms on the ease-out curve. The words share one\n *   reserved slot, so neither the mark nor the text moves sideways. Loading's word carries the\n *   shimmer, the system's sign of work in progress. CSS transitions, so a quick second change\n *   turns around mid-way; nothing moves on first render or under reduced motion.\n *\n * Not a live region: a list of statuses would announce every change. Wrap it in your own\n * `role=\"status\"` element if a single status updates in place.\n */\nconst LABELS = { verified: \"Verified\", processing: \"Loading\", queued: \"Queued\" } as const;\n\nexport type StatusVariant = keyof typeof LABELS;\n\ntype StatusProps = React.HTMLAttributes<HTMLSpanElement> & {\n  variant?: StatusVariant;\n  /** Label text. Defaults to the Figma label for the variant. */\n  children?: React.ReactNode;\n};\n\nexport function Status({ className, variant = \"verified\", children, ...props }: StatusProps) {\n  // The status shown before this one: its word leaves upward, the others wait below.\n  const [seen, setSeen] = React.useState({ now: variant, before: variant });\n  if (seen.now !== variant) setSeen({ now: variant, before: seen.now });\n  const place = (v: StatusVariant) =>\n    v === variant ? \"opacity-100 translate-y-0 blur-none\" : v === seen.before ? \"opacity-0 -translate-y-[4px] blur-[2px]\" : \"opacity-0 translate-y-[4px] blur-[2px]\";\n  return (\n    <span\n      data-slot=\"status\"\n      data-variant={variant}\n      className={cn(\n        \"inline-flex h-7 shrink-0 items-center gap-1.5 pl-2.5 pr-3.5 whitespace-nowrap\",\n        \"font-sans text-body font-normal text-fg\",\n        \"ds-cut-frame [--ds-cut:var(--ds-cut-sm)]\",\n        \"[--ds-shape-stroke:var(--ds-color-border-default)] [--ds-shape-fill:var(--ds-color-bg-default)]\",\n        className,\n      )}\n      {...props}\n    >\n      {/* The three marks in one 10px slot: the current one at full size, the others at 60%. */}\n      <span aria-hidden className=\"grid shrink-0 place-items-center\">\n        {(Object.keys(LABELS) as StatusVariant[]).map((v) => (\n          <span\n            key={v}\n            className={cn(\n              \"[grid-area:1/1] transition-[opacity,scale] duration-200 ease-(--ds-easing-out) motion-reduce:transition-none\",\n              v === variant ? \"scale-100 opacity-100\" : \"scale-60 opacity-0\",\n            )}\n          >\n            <StatusMark variant={v} marked={v === variant} />\n          </span>\n        ))}\n      </span>\n      {children !== undefined ? (\n        <span data-slot=\"label\" className=\"ds-trim\">\n          {children}\n        </span>\n      ) : (\n        // Every default label in one grid cell; only the current one shows, so the slot is as\n        // wide as the widest and the pill never changes size.\n        <span className=\"grid\">\n          {Object.entries(LABELS).map(([v, text]) => (\n            <span\n              key={v}\n              data-slot={v === variant ? \"label\" : undefined}\n              aria-hidden={v === variant ? undefined : true}\n              className={cn(\n                \"ds-trim [grid-area:1/1] transition-[opacity,translate,filter] duration-200 ease-(--ds-easing-out) motion-reduce:transition-none\",\n                place(v as StatusVariant),\n              )}\n            >\n              {v === \"processing\" ? <span className=\"ds-shimmer\">{text}</span> : text}\n            </span>\n          ))}\n        </span>\n      )}\n    </span>\n  );\n}\n\n/**\n * The 10px mark for each status. Colors follow the text color (Forest in Figma). `marked`\n * (default) tags it `data-slot=\"mark\"`; Status leaves the tag off its hidden marks.\n */\nexport function StatusMark({ variant, marked = true }: { variant: StatusVariant; marked?: boolean }) {\n  const slot = marked ? \"mark\" : undefined;\n  if (variant === \"processing\") {\n    return (\n      <svg width={10} height={10} viewBox=\"0 0 10 10\" fill=\"none\" aria-hidden data-slot={slot} className={cn(\"block shrink-0\", svgBox)} style={svgSize(10)}>\n        <path d=\"M1.5 0V10M5 0V10M8.5 0V10\" stroke=\"currentColor\" vectorEffect=\"non-scaling-stroke\" />\n      </svg>\n    );\n  }\n  return <Diamond size={10} variant={variant === \"verified\" ? \"solid\" : \"outline\"} data-slot={slot} />;\n}\n"
+    }
+  ]
+}

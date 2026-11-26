@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "name": "badge",
+  "useFor": "Use the default Fog tag for a value that describes a site (345 kV, 41.2 ac, Zone X, I-2 Industrial). Use variant=\"outline\" with a BadgeMark for a record's state: state=\"verified\" (solid diamond), \"loading\" (three bars) or \"queued\" (outlined diamond). Use inverse for a tag on a map or photo, count for a small number beside a label, and success, warning or destructive only when the colour carries a verdict (Passes, Partial data, In a flood zone).",
+  "constraints": [
+    "Rounded or pill corners",
+    "A cut corner on a badge",
+    "A badge as a button",
+    "More than one inverse badge in a row",
+    "Status colour without a word",
+    "Bold labels"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Status and tags (442:177): Status 442:187, 442:192, 442:197; Tags 442:202, 442:205, 442:208, 442:211",
+  "exports": [
+    "Badge",
+    "BadgeMark",
+    "badgeVariants"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/badge",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/badge.md",
+  "examples": [
+    {
+      "path": "examples/badge.tsx",
+      "content": "import { Badge, BadgeMark } from \"@/components/ui/badge\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid gap-4\">\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <Badge variant=\"outline\">\n          <BadgeMark state=\"verified\" />\n          Verified\n        </Badge>\n        <Badge variant=\"outline\">\n          <BadgeMark state=\"loading\" />\n          Loading\n        </Badge>\n        <Badge variant=\"outline\">\n          <BadgeMark state=\"queued\" />\n          Queued\n        </Badge>\n      </div>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <Badge>345 kV</Badge>\n        <Badge>41.2 ac</Badge>\n        <Badge>Zone X</Badge>\n        <Badge>I-2 Industrial</Badge>\n      </div>\n    </div>\n  );\n}\n\nexport function Tags() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Badge>138 kV</Badge>\n      <Badge variant=\"secondary\">Unzoned</Badge>\n      <Badge variant=\"inverse\">Best fit</Badge>\n      <Badge variant=\"ghost\">2 sources</Badge>\n    </div>\n  );\n}\n\nexport function Count() {\n  return (\n    <span className=\"flex items-center gap-2 text-body text-fg\">\n      Saved sites\n      <Badge variant=\"count\">12</Badge>\n    </span>\n  );\n}\n\nexport function Status() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Badge variant=\"success\">Passes</Badge>\n      <Badge variant=\"warning\">Partial data</Badge>\n      <Badge variant=\"destructive\">In a flood zone</Badge>\n    </div>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Badge size=\"sm\">Zone X</Badge>\n      <Badge>Zone X</Badge>\n      <Badge size=\"lg\">Zone X</Badge>\n      <Badge variant=\"link\" asChild>\n        <a href=\"#parcel\">Parcel 042-117-09</a>\n      </Badge>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Tags",
+        "Count",
+        "Status",
+        "Sizes"
+      ],
+      "requires": [
+        "badge"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/badge/Preview"
+        },
+        {
+          "name": "Tags",
+          "url": "https://mireye-ds.agencidev.com/preview/badge/Tags"
+        },
+        {
+          "name": "Count",
+          "url": "https://mireye-ds.agencidev.com/preview/badge/Count"
+        },
+        {
+          "name": "Status",
+          "url": "https://mireye-ds.agencidev.com/preview/badge/Status"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/badge/Sizes"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Badge",
+  "description": "Square 24px tags and statuses: Fog data tags for site values, the Forest inverse tag, and the Bone status pill led by a diamond (Verified, Loading, Queued).",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "diamond",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/badge.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n// Mireye's tags and statuses (Figma \"UI · Status and tags\", 442:177), at the product scale. Badges are small, so they are\n// square: no cut corner, no radius.\n// - `default` (also `tag`): the Fog data tag for a site value (\"345 kV\", \"41.2 ac\", \"Zone X\"), Forest ink, no line.\n// - `inverse`: the Forest tag with white ink, for a tag on a map or photo, or one value that must lead.\n// - `outline` (also `status`): the status pill, white with the 1px Stone line. Lead it with a BadgeMark (Verified,\n//   Loading, Queued).\n// - `secondary`: Mist, a quieter tag beside Fog ones. `ghost`: no fill, muted ink. `link`: underlined ink.\n// - `success`, `warning` and `destructive`: the chosen status colours (Figma has none), a 1px line and ink in the colour\n//   on white. Use them sparingly; a status reads first by its mark and word.\n// - `count`: a small Forest number (unread, selected).\n// Sizes: sm 20px, default 24px (Figma's 44px tag at 0.6, on the 4px grid), lg 28px. 12px regular labels (13px at lg),\n// 8px sides. Nothing moves; a badge that links fills one step on hover (150ms).\nconst badgeVariants = cva(\n  \"inline-flex w-fit shrink-0 items-center justify-center gap-1.5 overflow-hidden border border-transparent font-sans font-normal whitespace-nowrap normal-case outline-none transition-[background-color,color] duration-fast ease-out focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none [&>svg]:pointer-events-none [&>svg]:shrink-0\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-tag text-tag-fg [a&]:hover:bg-subtle-hover\",\n        tag: \"bg-tag text-tag-fg [a&]:hover:bg-subtle-hover\",\n        inverse: \"bg-inverse text-fg-inverse [a&]:hover:bg-primary-hover\",\n        secondary: \"bg-subtle-hover text-fg\",\n        outline: \"border-line bg-surface text-fg [a&]:hover:bg-subtle\",\n        status: \"border-line bg-surface text-fg [a&]:hover:bg-subtle\",\n        ghost: \"text-fg-muted [a&]:hover:text-fg\",\n        link: \"px-0 text-fg underline decoration-line underline-offset-4 [a&]:hover:decoration-line-strong\",\n        success: \"border-success bg-surface text-success\",\n        warning: \"border-warning bg-surface text-warning\",\n        destructive: \"border-danger bg-surface text-danger\",\n        count: \"bg-inverse text-fg-inverse tabular-nums\",\n        // Older names, kept so existing code still renders: pink was the plan mark, now the status pill.\n        pink: \"border-line bg-surface text-fg\",\n      },\n      size: {\n        sm: \"h-5 px-1.5 text-micro leading-none [&>svg]:size-3\",\n        default: \"h-6 px-2 text-caption leading-none [&>svg]:size-3.5\",\n        lg: \"h-7 px-2.5 text-body leading-none [&>svg]:size-4\",\n      },\n    },\n    compoundVariants: [{ variant: \"count\", className: \"h-4 min-w-4 px-1 text-micro\" }],\n    defaultVariants: { variant: \"default\", size: \"default\" },\n  },\n);\n\nfunction Badge({ className, variant, size, asChild = false, ...props }: React.ComponentProps<\"span\"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {\n  const Comp = asChild ? chakra.span : \"span\";\n  // Chakra's factory renders its child in its place only when told to.\n  const slotProps = asChild ? { asChild: true } : {};\n  return <Comp {...slotProps} data-slot=\"badge\" data-variant={variant ?? \"default\"} className={cn(badgeVariants({ variant, size }), className)} {...props} />;\n}\n\n/**\n * The mark at the start of a status (Figma 442:189, 442:194, 442:199), 6px at the product scale: Verified is a solid\n * diamond, Queued an outlined one, Loading three 1px bars. It takes the text colour.\n */\nfunction BadgeMark({ state = \"verified\", className }: { state?: \"verified\" | \"loading\" | \"queued\"; className?: string }) {\n  // Wrapped, so the badge's glyph size does not stretch the 6px mark.\n  return (\n    <span data-slot=\"badge-mark\" className={cn(\"flex shrink-0 items-center\", className)}>\n      {state === \"loading\" ? (\n        <svg width={10} height={10} viewBox=\"0 0 10 10\" fill=\"none\" aria-hidden className={cn(\"block shrink-0\", svgBox)} style={svgSize(10)}>\n          <path d=\"M1.5 0V10M5 0V10M8.5 0V10\" stroke=\"currentColor\" vectorEffect=\"non-scaling-stroke\" />\n        </svg>\n      ) : (\n        <Diamond size={10} variant={state === \"verified\" ? \"solid\" : \"outline\"} />\n      )}\n    </span>\n  );\n}\n\nexport { Badge, BadgeMark, badgeVariants };\n"
+    }
+  ]
+}

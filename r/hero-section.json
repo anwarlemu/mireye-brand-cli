@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "hero-section",
+  "useFor": "Use once at the top of a home or product page. `layout=\"split\"` puts the copy beside the plate on wide screens; `center` stacks them. Pass `visual` to replace the plate (a product screen), or null for copy only. Keep the title to one sentence.",
+  "constraints": [
+    "Two Forest keys",
+    "A title heavier than regular",
+    "Stock photos",
+    "Gradients or glows behind the title"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): HomeHero (notice tag, one-line title, short line, header-sized actions)",
+  "exports": [
+    "HeroLink",
+    "HeroSectionProps",
+    "HeroSection"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/hero-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/hero-section.md",
+  "examples": [
+    {
+      "path": "examples/hero-section.tsx",
+      "content": "import { HeroSection } from \"@/components/blocks/hero-section\";\n\nexport function Preview() {\n  return <HeroSection />;\n}\n\nexport function Centered() {\n  return <HeroSection layout=\"center\" notice={null} title=\"Ask anything about any U.S. place.\" description=\"Your agent asks in plain words; Mireye answers with cited values from county, utility and federal records.\" />;\n}\n",
+      "exports": [
+        "Preview",
+        "Centered"
+      ],
+      "requires": [
+        "hero-section"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/hero-section/Preview"
+        },
+        {
+          "name": "Centered",
+          "url": "https://mireye-ds.agencidev.com/preview/hero-section/Centered"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Hero section",
+  "description": "The website hero: a notice chip with a solid node, the display title, one line, the Forest key and an outlined key, a mono line, and the survey plate beside or under the copy.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "page-section",
+    "survey-plate",
+    "button",
+    "diamond",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/hero-section.tsx",
+      "content": "import * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Button } from \"@/components/ui/button\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { cn } from \"@/lib/utils\";\n\n// The website hero: a notice tag that links to what is new, the display title, one short line, the main action (the one\n// Forest key on the screen) and a second, outlined, then the survey plate. `split` puts the copy beside the plate on\n// wide screens; `center` stacks them. The notice is an outlined chip with a solid node; it steps to Fog under the\n// pointer (150ms, color only). Nothing moves.\n\nexport type HeroLink = { label: string; href: string };\n\nexport type HeroSectionProps = {\n  notice?: HeroLink | null;\n  title?: React.ReactNode;\n  description?: React.ReactNode;\n  primary?: HeroLink | null;\n  secondary?: HeroLink | null;\n  /** The picture: the survey plate by default; pass null for a copy-only hero. */\n  visual?: React.ReactNode;\n  layout?: \"split\" | \"center\";\n  /** A mono line under the actions, e.g. what the product covers. */\n  meta?: React.ReactNode;\n  className?: string;\n};\n\nexport function HeroSection({\n  notice = { label: \"Permits data is available now\", href: \"#changelog\" },\n  title = \"Physical world context for AI agents.\",\n  description = \"One API for sourced facts about any U.S. place: parcels, power, water, terrain, zoning and permits.\",\n  primary = { label: \"Get started\", href: \"#get-started\" },\n  secondary = { label: \"Book a call\", href: \"#contact\" },\n  visual,\n  layout = \"split\",\n  meta = \"600+ fields · any U.S. place · every value cited\",\n  className,\n}: HeroSectionProps) {\n  const picture = visual === undefined ? <SurveyPlate className={cn(\"w-full\", layout === \"split\" ? \"aspect-4/3\" : \"aspect-video max-sm:aspect-4/3\")} /> : visual;\n  const center = layout === \"center\";\n  return (\n    <PageSection className={className} contentClassName=\"py-12 sm:py-20\">\n      <div className={cn(\"grid gap-10 lg:gap-12\", center ? \"justify-items-center\" : \"lg:grid-cols-2 lg:items-center\")}>\n        <div className={cn(\"grid gap-6\", center && \"max-w-(--ds-layout-text) justify-items-center text-center\")}>\n          {notice && (\n            <a\n              href={notice.href}\n              className=\"inline-flex h-7 w-fit items-center gap-2 border border-line bg-surface px-2.5 text-caption leading-none text-fg outline-none transition-colors duration-150 ease-out hover:bg-subtle focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\"\n            >\n              <Diamond size={12} />\n              {notice.label}\n              <ArrowRightIcon size={16} className=\"text-fg-muted\" />\n            </a>\n          )}\n          <h1 className=\"text-display leading-display font-normal text-balance text-fg\">{title}</h1>\n          {description != null && <p className=\"max-w-(--ds-layout-text) text-body-lg leading-body text-fg-secondary\">{description}</p>}\n          {(primary || secondary) && (\n            <div className=\"flex flex-wrap items-center gap-3\">\n              {primary && (\n                <Button asChild>\n                  <a href={primary.href}>\n                    {primary.label}\n                    <ArrowRightIcon size={20} />\n                  </a>\n                </Button>\n              )}\n              {secondary && (\n                <Button asChild variant=\"outline\">\n                  <a href={secondary.href}>{secondary.label}</a>\n                </Button>\n              )}\n            </div>\n          )}\n          {meta != null && <p className=\"font-mono text-caption leading-tight text-fg-muted\">{meta}</p>}\n        </div>\n        {picture && <div className=\"w-full min-w-0\">{picture}</div>}\n      </div>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

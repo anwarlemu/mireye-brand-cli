@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "name": "bubble",
+  "useFor": "Use inside Message for each piece of a conversation with the agent. Use the default Bone frame with align end for what the person asked, ghost for the agent's answer (it reads like a report), secondary for a short reply or a note from another agent, muted for a system note and destructive for a question that failed. Stack consecutive bubbles in a BubbleGroup. BubbleReactions pins a short tag (2 sources) to an edge.",
+  "constraints": [
+    "Rounded corners or tails",
+    "Shadows",
+    "A cut corner anywhere but the top-left",
+    "An entrance animation on each bubble",
+    "Text smaller than 13px"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Agent chat (443:433): Message, at the product scale",
+  "exports": [
+    "Bubble",
+    "BubbleContent",
+    "BubbleGroup",
+    "BubbleReactions",
+    "bubbleVariants"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/bubble",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/bubble.md",
+  "examples": [
+    {
+      "path": "examples/bubble.tsx",
+      "content": "import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from \"@/components/ui/bubble\";\n\nexport function Preview() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-120 flex-col gap-4\">\n      <Bubble align=\"end\">\n        <BubbleContent>Check flood risk and terrain for this parcel.</BubbleContent>\n      </Bubble>\n      <Bubble variant=\"ghost\">\n        <BubbleContent>The parcel is in Zone X, outside the 100-year flood plain. It sits at 412 ft with a 2.8% average slope.</BubbleContent>\n      </Bubble>\n      <BubbleGroup>\n        <Bubble variant=\"secondary\">\n          <BubbleContent>Elevation came from the 10 m model.</BubbleContent>\n        </Bubble>\n        <Bubble variant=\"secondary\">\n          <BubbleContent>Slope is computed from the same model.</BubbleContent>\n          <BubbleReactions align=\"start\">2 sources</BubbleReactions>\n        </Bubble>\n      </BubbleGroup>\n    </div>\n  );\n}\n\nexport function Variants() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-120 flex-col gap-3\">\n      <Bubble variant=\"muted\">\n        <BubbleContent>Search widened to 25 mi.</BubbleContent>\n      </Bubble>\n      <Bubble variant=\"inverse\" align=\"end\">\n        <BubbleContent>Shortlist Ellis County site 14.</BubbleContent>\n      </Bubble>\n      <Bubble variant=\"destructive\" align=\"end\">\n        <BubbleContent>Not answered. The elevation source did not respond.</BubbleContent>\n      </Bubble>\n      <Bubble align=\"end\">\n        <BubbleContent asChild>\n          <button type=\"button\">Ask again</button>\n        </BubbleContent>\n      </Bubble>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Variants"
+      ],
+      "requires": [
+        "bubble"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/bubble/Preview"
+        },
+        {
+          "name": "Variants",
+          "url": "https://mireye-ds.agencidev.com/preview/bubble/Variants"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Bubble",
+  "description": "A message in the Figma cut frame: Bone with the 1px Stone line and the 8px chamfer, Fog for replies, Mist for system notes, Forest when one must lead, or plain text for the agent's answer.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/bubble.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\n\n// A message in an agent conversation, drawn as the Figma message (UI · Agent chat, 443:433): 13px Forest text in a cut\n// frame, 16px sides and 12px above and below, the 8px chamfer at the top-left. No tails and no radius.\n// - `default` (also `outline`): the white cut frame with the 1px Stone line; what the person asked.\n// - `secondary` (also `tinted`): Fog with no line; a reply or a note from another agent.\n// - `muted`: Mist with no line and Forest at 80%; a system note.\n// - `inverse`: Forest with white text; use rarely, for the one message that must lead.\n// - `ghost`: no box; the agent's answer set as plain text, so long output reads like a report.\n// - `destructive`: the cut frame with the line in the chosen danger colour and danger text; a question that failed.\n// A bubble that is a button or link fills one step (white to Fog, Fog to Mist) under the pointer, 150ms. Bubbles never\n// animate in: a conversation is read all day.\nconst BubbleContext = React.createContext<string>(\"default\");\n\nfunction BubbleGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"bubble-group\" className={cn(\"flex min-w-0 flex-col gap-1\", className)} {...props} />;\n}\n\nfunction Bubble({ variant = \"default\", align = \"start\", className, ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof bubbleVariants> & { align?: \"start\" | \"end\" }) {\n  return (\n    <BubbleContext.Provider value={variant ?? \"default\"}>\n      <div data-slot=\"bubble\" data-variant={variant} data-align={align} className={cn(\"group/bubble relative flex w-fit max-w-[80%] min-w-0 flex-col gap-1 group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full\", className)} {...props} />\n    </BubbleContext.Provider>\n  );\n}\n\nconst FRAME = \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\";\nconst bubbleVariants = cva(\n  \"w-fit max-w-full min-w-0 font-sans text-body leading-body break-words group-data-[align=end]/bubble:self-end [button]:cursor-pointer [button]:text-left [button,a]:outline-none [button,a]:after:transition-[background-color] [button,a]:after:duration-fast [button,a]:after:ease-out [button,a]:focus-visible:outline-solid [button,a]:focus-visible:outline-1 [button,a]:focus-visible:outline-offset-2 [button,a]:focus-visible:outline-line-strong motion-reduce:after:transition-none\",\n  {\n    variants: {\n      variant: {\n        default: `${FRAME} px-4 py-3 text-fg [button,a]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle)]`,\n        outline: `${FRAME} px-4 py-3 text-fg [button,a]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle)]`,\n        secondary: \"ds-cut px-4 py-3 text-fg [--ds-shape-fill:var(--ds-color-bg-subtle)] [button,a]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)]\",\n        tinted: \"ds-cut px-4 py-3 text-fg [--ds-shape-fill:var(--ds-color-bg-subtle)] [button,a]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)]\",\n        muted: \"ds-cut px-4 py-3 text-fg-secondary [--ds-shape-fill:var(--ds-color-bg-subtle-hover)]\",\n        inverse: \"ds-cut px-4 py-3 text-fg-inverse [--ds-shape-fill:var(--ds-color-bg-inverse)] [button,a]:hover:[--ds-shape-fill:var(--ds-color-action-primary-hover)]\",\n        ghost: \"p-0 text-fg\",\n        destructive: \"ds-cut-frame px-4 py-3 text-danger [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-danger)] [button,a]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle)]\",\n      },\n    },\n    defaultVariants: { variant: \"default\" },\n  },\n);\n\nfunction BubbleContent({ asChild = false, className, ...props }: React.ComponentProps<\"div\"> & { asChild?: boolean }) {\n  const variant = React.useContext(BubbleContext) as VariantProps<typeof bubbleVariants>[\"variant\"];\n  const Comp = asChild ? chakra.div : \"div\";\n  // Chakra's factory renders its child in its place only when told to.\n  const slotProps = asChild ? { asChild: true } : {};\n  return <Comp {...slotProps} data-slot=\"bubble-content\" className={cn(bubbleVariants({ variant }), className)} {...props} />;\n}\n\nconst bubbleReactionsVariants = cva(\"absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 border border-line bg-surface px-1.5 py-0.5 text-caption leading-tight text-fg has-[button]:p-0\", {\n  variants: {\n    side: { top: \"top-0 -translate-y-3/4\", bottom: \"bottom-0 translate-y-3/4\" },\n    align: { start: \"left-3\", end: \"right-3\" },\n  },\n  defaultVariants: { side: \"bottom\", align: \"end\" },\n});\n\n/** Reactions or a short tag pinned to a bubble's edge: a white square with the 1px Stone line. */\nfunction BubbleReactions({ side = \"bottom\", align = \"end\", className, ...props }: React.ComponentProps<\"div\"> & { align?: \"start\" | \"end\"; side?: \"top\" | \"bottom\" }) {\n  return <div data-slot=\"bubble-reactions\" data-align={align} data-side={side} className={cn(bubbleReactionsVariants({ side, align }), className)} {...props} />;\n}\n\nexport { Bubble, BubbleContent, BubbleGroup, BubbleReactions, bubbleVariants };\n"
+    }
+  ]
+}

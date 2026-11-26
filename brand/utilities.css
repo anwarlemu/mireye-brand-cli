@@ -1,0 +1,407 @@
+/*
+ * Mireye shape, texture and motion utilities (Tailwind 4). They ship in theme.css. Components compose these; they never redraw them.
+ *
+ * 1. Trimmed text.	Every Figma text layer uses "Vertical trim: cap height to baseline".
+ *		`text-box` does the same in CSS, so a text box is exactly as tall as Figma's.
+ *
+ * 2. Cut shapes.	The signature 45° chamfer at the top-left. Figma draws it as a path,
+ *		e.g. a 256×64 button is	M12 0 H256 V64 H0 V12 L12 0 Z.
+ *		- ds-cut				fill only (primary buttons, tags on dark).
+ *		- ds-cut-frame	1px border + fill (secondary buttons, fields, cards).
+ *		Set the colours with --ds-shape-fill and --ds-shape-stroke, and the size with --ds-cut.
+ *
+ *		Why the odd decimals on .ds-cut-frame: Figma centres a 1px stroke on a path inset by
+ *		0.5px, so the diagonal edge runs along x + y = cut + 0.5. A 1px stroke centred on that
+ *		line spans ±0.7071px (half of √2) in x + y terms:
+ *			outer edge	x + y = cut − 0.2071	 → the frame's clip-path
+ *			inner edge	x + y = cut + 1.2071	 → minus 2 for the 1px inset = cut − 0.7929
+ *		With these offsets the diagonal border is exactly 1px wide, like Figma's.
+ *
+ * 3. Hatch.	A brand texture: 1px vertical lines every 6px, starting 3px in
+ *		(Figma: x = 3.5, 9.5, 15.5 … with a 1px stroke). Buttons and map controls draw it on
+ *		hover, as in Figma.
+ */
+
+/* Utilities, not plain classes, so variants work: `hover:ds-hatch`, `data-[state=hover]:ds-hatch`. */
+@utility ds-trim {
+	text-box: trim-both cap alphabetic;
+}
+
+/*
+ * The shape is drawn on pseudo-element layers behind the content, not on the element itself.
+ * A clip-path on the element would also clip its focus outline, so keyboard focus would not
+ * show on buttons. Layers: ::before = stroke (frame only), ::after = fill + pattern.
+ */
+@utility ds-cut {
+	position: relative;
+	isolation: isolate;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background-color: var(--ds-shape-fill, transparent);
+		background-image: var(--ds-shape-pattern, none);
+		clip-path: polygon(var(--ds-cut) 0, 100% 0, 100% 100%, 0 100%, 0 var(--ds-cut));
+	}
+}
+
+@utility ds-cut-frame {
+	position: relative;
+	isolation: isolate;
+
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background-color: var(--ds-shape-stroke, var(--ds-color-border-default));
+		clip-path: polygon(
+			calc(var(--ds-cut) - 0.2071px) 0,
+			100% 0,
+			100% 100%,
+			0 100%,
+			0 calc(var(--ds-cut) - 0.2071px)
+		);
+	}
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: var(--ds-border-width);
+		z-index: -1;
+		pointer-events: none;
+		background-color: var(--ds-shape-fill, var(--ds-color-bg-default));
+		background-image: var(--ds-shape-pattern, none);
+		/* Keep the pattern on the outer box's grid, so lines sit where Figma puts them. */
+		background-position: calc(-1 * var(--ds-border-width)) 0;
+		clip-path: polygon(
+			calc(var(--ds-cut) - 0.7929px) 0,
+			100% 0,
+			100% 100%,
+			0 100%,
+			0 calc(var(--ds-cut) - 0.7929px)
+		);
+	}
+}
+
+@utility ds-hatch {
+	--ds-shape-pattern: repeating-linear-gradient(
+		to right,
+		transparent 0 3px,
+		var(--ds-hatch-color, var(--ds-color-border-subtle)) 3px 4px,
+		transparent 4px var(--ds-hatch-pitch)
+	);
+}
+
+/* Imagery: aerial photos under map marks are dimmed so the white marks and the Forest tag read first. Put it on
+	 the photo, never on the marks. */
+@utility ds-imagery {
+	filter: brightness(0.55) saturate(0.75);
+}
+
+/* Tick walk: a loading button's lit ticks move one 6px tick a beat across the bar and wrap
+	 (Button). --ds-walk is the bar's length in ticks × 6px (144px for Figma's 24-line bar). The
+	 bar clips the lines that run past its end. */
+@keyframes ds-tick-walk {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(var(--ds-walk, 144px));
+	}
+}
+
+/* Steps: where the Forest line ends. Registered so it can transition from marker to marker. */
+@property --ds-steps-split {
+	syntax: "<length-percentage>";
+	inherits: true;
+	initial-value: 0px;
+}
+
+/* Enter: something appears in place, opacity only (streamed words, answer rows). */
+@keyframes ds-enter {
+	from {
+		opacity: 0;
+	}
+}
+
+/* Shimmer: a Forest band sweeps across Slate text that is being worked on (the current agent
+	 step, a waiting line), like a working step in an agent's log. Put it on an inline
+	 element inside the trimmed box: background-clip: text only paints inside the element's box, and
+	 a trimmed box would cut the tops and tails of the letters. Reduced motion: plain text. */
+@utility ds-shimmer {
+	color: transparent;
+	background-image: linear-gradient(
+		90deg,
+		var(--ds-color-text-subtle) 40%,
+		var(--ds-color-text-default) 50%,
+		var(--ds-color-text-subtle) 60%
+	);
+	background-size: 300% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	animation: ds-shimmer 1.6s linear infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		color: var(--ds-color-text-default);
+		background-image: none;
+		animation: none;
+	}
+}
+
+@keyframes ds-shimmer {
+	from {
+		background-position: 100% 0;
+	}
+	to {
+		background-position: 0% 0;
+	}
+}
+
+/* Node wave: a NodeLoader node's fill grows from half size and fades in, then fades out. */
+@keyframes ds-node-wave {
+	0%,
+	70%,
+	100% {
+		opacity: 0;
+		transform: scale(0.5);
+	}
+	30% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* Contour: one ring of the ContourLoader warms to 1.5px Forest and cools back to 1px Stone. */
+@keyframes ds-contour {
+	0%,
+	36%,
+	100% {
+		stroke: var(--ds-color-border-default);
+		stroke-width: 1px;
+	}
+	12% {
+		stroke: var(--ds-color-border-strong);
+		stroke-width: 1.5px;
+	}
+}
+
+/* Line wave: one LineFillLoader line rises into the travelling bell and falls back. The stops
+	 follow the bell's curve, 0.12 + 0.88 × e^−(t/σ)², with the peak at 25% of the loop. */
+@keyframes ds-line-wave {
+	0%,
+	48%,
+	100% {
+		transform: scaleY(0.12);
+		stroke: var(--ds-color-border-default);
+	}
+	13.6% {
+		transform: scaleY(0.445);
+		stroke: var(--ds-color-border-default);
+	}
+	19.3% {
+		transform: scaleY(0.805);
+		stroke: var(--ds-color-border-strong);
+	}
+	25% {
+		transform: scaleY(1);
+		stroke: var(--ds-color-border-strong);
+	}
+	30.7% {
+		transform: scaleY(0.805);
+		stroke: var(--ds-color-border-strong);
+	}
+	36.4% {
+		transform: scaleY(0.445);
+		stroke: var(--ds-color-border-default);
+	}
+}
+
+/* Rise: a new row in a list fades up 4px (search results). */
+@keyframes ds-rise {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+}
+
+/* Draw: a chart or line reveals left to right at a constant speed. */
+@keyframes ds-draw {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+}
+
+/* Breathe: the current step's dot while the agent works on it (AgentSteps). Opacity only. */
+@keyframes ds-breathe {
+	to {
+		opacity: 0.35;
+	}
+}
+
+/* Dial: one full turn, counter-clockwise, in steps set by the component. */
+@keyframes ds-dial {
+	to {
+		transform: rotate(-360deg);
+	}
+}
+
+/*
+ * Scroll edges fade, never cut content off: an edge with more content past it fades over 24px. The fade grows
+ * with the first and last 24px of scroll (tied to the scroll, not to time), so a list at rest shows its first row
+ * in full and a list that does not scroll has no fade. Browsers without scroll timelines get a short fixed fade.
+ * `fade-y` on a box that scrolls vertically, `fade-x` on one that scrolls sideways, `fade-xy` on one that scrolls
+ * both ways (a code block). The mask color only needs to be opaque; it never shows.
+ */
+@property --fade-start {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-end {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-x-start {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-x-end {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@keyframes fade-start {
+	from {
+		--fade-start: 0px;
+	}
+	to {
+		--fade-start: 24px;
+	}
+}
+
+@keyframes fade-end {
+	from {
+		--fade-end: 24px;
+	}
+	to {
+		--fade-end: 0px;
+	}
+}
+
+@keyframes fade-x-start {
+	from {
+		--fade-x-start: 0px;
+	}
+	to {
+		--fade-x-start: 24px;
+	}
+}
+
+@keyframes fade-x-end {
+	from {
+		--fade-x-end: 24px;
+	}
+	to {
+		--fade-x-end: 0px;
+	}
+}
+
+@utility fade-y {
+	mask-image: linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent);
+
+	@supports (animation-timeline: scroll()) {
+		animation: fade-start linear both, fade-end linear both;
+		animation-timeline: scroll(self block), scroll(self block);
+		animation-range: 0px 24px, calc(100% - 24px) 100%;
+	}
+
+	@supports not (animation-timeline: scroll()) {
+		--fade-start: 8px;
+		--fade-end: 8px;
+	}
+}
+
+@utility fade-x {
+	mask-image: linear-gradient(to right, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent);
+
+	@supports (animation-timeline: scroll()) {
+		animation: fade-start linear both, fade-end linear both;
+		animation-timeline: scroll(self inline), scroll(self inline);
+		animation-range: 0px 24px, calc(100% - 24px) 100%;
+	}
+
+	@supports not (animation-timeline: scroll()) {
+		--fade-start: 8px;
+		--fade-end: 8px;
+	}
+}
+
+@utility fade-xy {
+	mask-image: linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent), linear-gradient(to right, transparent, black var(--fade-x-start), black calc(100% - var(--fade-x-end)), transparent);
+	mask-composite: intersect;
+
+	@supports (animation-timeline: scroll()) {
+		animation: fade-start linear both, fade-end linear both, fade-x-start linear both, fade-x-end linear both;
+		animation-timeline: scroll(self block), scroll(self block), scroll(self inline), scroll(self inline);
+		animation-range: 0px 24px, calc(100% - 24px) 100%, 0px 24px, calc(100% - 24px) 100%;
+	}
+
+	@supports not (animation-timeline: scroll()) {
+		--fade-start: 8px;
+		--fade-end: 8px;
+		--fade-x-start: 8px;
+		--fade-x-end: 8px;
+	}
+}
+
+/*
+ * A row that scrolls sideways under a sticky first column (compare-matrix). `fade-x-end` on the scroller fades only
+ * its end edge and names its scroll (--fade-x) for the column inside. `fade-under` on the sticky cells shows their
+ * trailing shade (their ::after, drawn by the component) with the first 24px of scroll, so cells fade under the
+ * column instead of being sliced. Without scroll timelines, or under reduced motion, the component's own scrolled
+ * state shows the shade.
+ */
+@keyframes fade-under {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@utility fade-x-end {
+	scroll-timeline: --fade-x inline;
+	mask-image: linear-gradient(to right, black calc(100% - var(--fade-x-end)), transparent);
+
+	@supports (animation-timeline: scroll()) {
+		animation: fade-x-end linear both;
+		animation-timeline: --fade-x;
+		animation-range: calc(100% - 24px) 100%;
+	}
+
+	@supports not (animation-timeline: scroll()) {
+		--fade-x-end: 8px;
+	}
+}
+
+@utility fade-under {
+	@supports (animation-timeline: scroll()) {
+		&::after {
+			animation: fade-under linear both;
+			animation-timeline: --fade-x;
+			animation-range: 0px 24px;
+		}
+	}
+}

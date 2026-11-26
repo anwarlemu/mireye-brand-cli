@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "name": "result-mark",
+  "useFor": "Use inside RequirementChecks and CompareMatrix, or wherever a single check shows. The mark shows how sure the reading is (a solid diamond is a reading, an outline is none, bars are a screen running); `ResultLabel` always says the outcome and reserves the widest word.",
+  "constraints": [
+    "Green and red for pass and fail",
+    "A mark without its word",
+    "Check and cross icons"
+  ],
+  "documentation": "",
+  "source": "Not in Figma yet; built from existing marks (status 442:177, diamond)",
+  "exports": [
+    "CheckResult",
+    "RESULT_LABELS",
+    "ResultMark",
+    "ResultLabel"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/result-mark",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/result-mark.md",
+  "examples": [
+    {
+      "path": "examples/result-mark.tsx",
+      "content": "import { RESULT_LABELS, ResultLabel, ResultMark, type CheckResult } from \"@/components/ui/result-mark\";\n\n// The four results of a requirement check: a solid diamond is a confirmed reading, an outline is no reading, three\n// bars are a screen still running. The word always says the outcome.\nconst RESULTS = Object.keys(RESULT_LABELS) as CheckResult[];\n\nexport function Preview() {\n  return (\n    <ul className=\"mx-auto flex w-fit flex-col gap-3\">\n      {RESULTS.map((r) => (\n        <li key={r} className=\"flex items-center gap-2 text-caption text-fg\">\n          <ResultMark result={r} />\n          <ResultLabel result={r} />\n        </li>\n      ))}\n    </ul>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "result-mark"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/result-mark/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Result mark",
+  "description": "The mark and word for one requirement checked against a site: Pass, Fail, Unknown or Screening.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "diamond",
+    "status"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/result-mark.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { StatusMark } from \"@/components/ui/status\";\n\n/**\n * Result of one requirement checked against one site, shared by RequirementChecks and\n * CompareMatrix so the two never disagree. Not in Figma yet (29 Oct); built from the product\n * survey of the Land platform and from existing marks only.\n *\n * - The mark shows how sure the reading is, never the outcome alone: a solid 10px diamond is a\n *   confirmed reading (Pass, and Fail until the design gives Fail its own mark), an outlined diamond\n *   is no reading (Unknown), and Status's three bars are a screen still running (Screening).\n *   The outcome is always also a word, and a failed Must requirement also gets the Fog row band.\n * - Marks follow the text color, swap in one frame and are hidden from assistive tech.\n * - `ResultLabel` reserves the widest word (\"Screening\") in one grid cell, as Status does, so the\n *   text after it never moves when the result changes.\n */\nexport type CheckResult = \"pass\" | \"fail\" | \"unknown\" | \"screening\";\n\nexport const RESULT_LABELS: Record<CheckResult, string> = {\n  pass: \"Pass\",\n  fail: \"Fail\",\n  unknown: \"Unknown\",\n  screening: \"Screening\",\n};\n\nexport function ResultMark({ result, className }: { result: CheckResult; className?: string }) {\n  if (result === \"screening\") return <StatusMark variant=\"processing\" />;\n  return <Diamond size={10} variant={result === \"unknown\" ? \"outline\" : \"solid\"} data-slot=\"result-mark\" data-result={result} className={className} />;\n}\n\nexport function ResultLabel({ result, className }: { result: CheckResult; className?: string }) {\n  return (\n    <span className={cn(\"grid\", className)}>\n      {(Object.keys(RESULT_LABELS) as CheckResult[]).map((r) => (\n        <span\n          key={r}\n          aria-hidden={r === result ? undefined : true}\n          className={cn(\"ds-trim [grid-area:1/1] whitespace-nowrap\", r !== result && \"invisible\")}\n        >\n          {r === \"screening\" && r === result ? <span className=\"ds-shimmer\">{RESULT_LABELS[r]}</span> : RESULT_LABELS[r]}\n        </span>\n      ))}\n    </span>\n  );\n}\n"
+    }
+  ]
+}

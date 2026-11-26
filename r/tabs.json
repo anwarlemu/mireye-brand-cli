@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "name": "tabs",
+  "useFor": "Use line tabs to switch between views of one thing (Parcel, Power, Water, Terrain on a site). Use variant=\"segmented\" for two to four short choices that change how the same data is shown (Map, List, Compare); pass full to share the width. Labels are words, one or two each.",
+  "constraints": [
+    "Rounded or pill tabs",
+    "A thick or coloured underline",
+    "Bold or medium labels",
+    "A mark that animates on first paint or on resize",
+    "Icons that move on hover"
+  ],
+  "documentation": "",
+  "source": "Not in Figma: built from the system's 1px lines and the rail's Mist current row, for a designer's review",
+  "exports": [
+    "Tabs",
+    "TabsList",
+    "TabsTrigger",
+    "TabsContent"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/tabs",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/tabs.md",
+  "examples": [
+    {
+      "path": "examples/tabs.tsx",
+      "content": "\"use client\";\n\nimport { Tabs, TabsContent, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\n\nexport function Preview() {\n  return (\n    <Tabs defaultValue=\"parcel\" className=\"w-full\">\n      <TabsList>\n        <TabsTrigger value=\"parcel\">Parcel</TabsTrigger>\n        <TabsTrigger value=\"power\">Power</TabsTrigger>\n        <TabsTrigger value=\"water\">Water</TabsTrigger>\n        <TabsTrigger value=\"terrain\">Terrain</TabsTrigger>\n      </TabsList>\n      <TabsContent value=\"parcel\" className=\"text-body text-fg-secondary\">212.6 ac, zoned I-2 Industrial, one owner of record.</TabsContent>\n      <TabsContent value=\"power\" className=\"text-body text-fg-secondary\">138 kV substation 0.8 mi east of the parcel.</TabsContent>\n      <TabsContent value=\"water\" className=\"text-body text-fg-secondary\">Municipal main along the north edge.</TabsContent>\n      <TabsContent value=\"terrain\" className=\"text-body text-fg-secondary\">412 ft average elevation, 2.8% slope.</TabsContent>\n    </Tabs>\n  );\n}\n\nexport function Segmented() {\n  return (\n    <Tabs defaultValue=\"map\" className=\"w-full max-w-86\">\n      <TabsList variant=\"segmented\">\n        <TabsTrigger value=\"map\">Map</TabsTrigger>\n        <TabsTrigger value=\"list\">List</TabsTrigger>\n        <TabsTrigger value=\"compare\">Compare</TabsTrigger>\n      </TabsList>\n    </Tabs>\n  );\n}\n\nexport function Full() {\n  return (\n    <Tabs defaultValue=\"api\" className=\"w-full max-w-86\">\n      <TabsList variant=\"segmented\" full>\n        <TabsTrigger value=\"api\">API</TabsTrigger>\n        <TabsTrigger value=\"enterprise\">Enterprise</TabsTrigger>\n      </TabsList>\n    </Tabs>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Segmented",
+        "Full"
+      ],
+      "requires": [
+        "tabs"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/tabs/Preview"
+        },
+        {
+          "name": "Segmented",
+          "url": "https://mireye-ds.agencidev.com/preview/tabs/Segmented"
+        },
+        {
+          "name": "Full",
+          "url": "https://mireye-ds.agencidev.com/preview/tabs/Full"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Tabs",
+  "description": "Line tabs on a 1px Mist rule with a 1px Forest line under the selected one, and segmented tabs in a Stone-lined Bone track with the selected tab on Mist.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/tabs.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Tabs as ChakraTabs, useTabsContext } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's tabs. Figma has no tabs, so they are built from the system's lines (for a designer's review).\n// - `line` (default): 13px regular labels in Forest at 72% on a 1px Mist rule; the selected label is Forest and a 1px\n//   Forest line sits under it, on the rule. Tabs are 36px tall with 12px sides; hover darkens the label (150ms).\n// - `segmented`: a white track with the 1px Stone line and 2px inside; each tab is 28px tall with a 12px label, and the\n//   selected one sits on Mist (the rail's current row). For two to four short choices (Desktop, Phone).\n// The selected mark (the line or the Mist key) slides to the next tab: transform and width, 200ms, ease-out. It is\n// placed without motion the first time and whenever the list resizes, and holds still under reduced motion. Square\n// throughout. `full` stretches the tabs to share the width.\ntype TabsProps = Omit<React.ComponentProps<typeof ChakraTabs.Root>, \"onValueChange\"> & { onValueChange?: (value: string) => void };\nfunction Tabs({ className, onValueChange, ...props }: TabsProps) {\n  return <ChakraTabs.Root unstyled data-slot=\"tabs\" className={cn(\"flex flex-col gap-4\", className)} onValueChange={(details) => onValueChange?.(details.value)} {...props} />;\n}\n\nconst KEY_MOVE = [\"transform\", \"width\", \"height\"].map((property) => `${property} var(--ds-duration-base) var(--ds-easing-out)`).join(\", \");\n\n/** Puts the key under the selected tab. It slides only once it has been placed, and never under reduced motion. */\nfunction placeKey(box: HTMLElement | null, key: HTMLElement | null, animate: boolean) {\n  if (!box || !key) return;\n  const tab = box.querySelector<HTMLElement>('[role=\"tab\"][aria-selected=\"true\"]');\n  if (!tab?.offsetWidth) {\n    key.style.visibility = \"hidden\";\n    delete box.dataset.sliding;\n    return;\n  }\n  const still = typeof window !== \"undefined\" && window.matchMedia?.(\"(prefers-reduced-motion: reduce)\").matches;\n  key.style.transition = animate && !still && \"sliding\" in box.dataset ? KEY_MOVE : \"none\";\n  key.style.width = `${tab.offsetWidth}px`;\n  const line = box.dataset.variant === \"line\";\n  key.style.height = line ? \"1px\" : `${tab.offsetHeight}px`;\n  key.style.transform = `translate(${tab.offsetLeft}px, ${line ? tab.offsetTop + tab.offsetHeight - 1 : tab.offsetTop}px)`;\n  key.style.visibility = \"visible\";\n  box.dataset.sliding = \"\";\n}\n\nfunction TabsList({ className, full = false, variant = \"line\", children, ref, ...props }: React.ComponentProps<typeof ChakraTabs.List> & { full?: boolean; variant?: \"line\" | \"segmented\" }) {\n  const { value } = useTabsContext();\n  const list = React.useRef<HTMLDivElement | null>(null);\n  const key = React.useRef<HTMLSpanElement>(null);\n  const setRef = React.useCallback(\n    (node: HTMLDivElement | null) => {\n      list.current = node;\n      if (typeof ref === \"function\") ref(node);\n      else if (ref) ref.current = node;\n    },\n    [ref],\n  );\n\n  React.useLayoutEffect(() => placeKey(list.current, key.current, true), [value]);\n  React.useLayoutEffect(() => {\n    const box = list.current;\n    if (!box || typeof ResizeObserver === \"undefined\") return;\n    const observer = new ResizeObserver(() => placeKey(box, key.current, false));\n    observer.observe(box);\n    return () => observer.disconnect();\n  }, []);\n\n  return (\n    <ChakraTabs.List\n      unstyled\n      ref={setRef}\n      data-slot=\"tabs-list\"\n      data-variant={variant}\n      data-full={full ? \"true\" : undefined}\n      className={cn(\n        \"group/tabs-list relative inline-flex w-fit max-w-full flex-wrap items-center\",\n        variant === \"line\" ? \"gap-1 shadow-[inset_0_-1px_0_var(--ds-color-border-subtle)]\" : \"gap-0.5 border border-line bg-surface p-0.5\",\n        full && \"flex w-full\",\n        className,\n      )}\n      {...props}\n    >\n      <span ref={key} aria-hidden data-slot=\"tabs-key\" className={cn(\"pointer-events-none invisible absolute top-0 left-0\", variant === \"line\" ? \"bg-line-strong\" : \"bg-subtle-hover\")} />\n      {children}\n    </ChakraTabs.List>\n  );\n}\n\nfunction TabsTrigger({ className, ...props }: React.ComponentProps<typeof ChakraTabs.Trigger>) {\n  return (\n    <ChakraTabs.Trigger\n      unstyled\n      data-slot=\"tabs-trigger\"\n      className={cn(\n        \"relative z-1 inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 bg-transparent font-sans leading-none font-normal whitespace-nowrap text-fg-muted outline-none transition-[background-color,color] duration-fast ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:pointer-events-none disabled:text-fg-subtle data-[selected]:text-fg motion-reduce:transition-none in-data-[full=true]:flex-1 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        \"group-data-[variant=line]/tabs-list:h-9 group-data-[variant=line]/tabs-list:px-3 group-data-[variant=line]/tabs-list:text-body\",\n        // Before the key is placed (first paint, no script), the selected tab draws its own mark.\n        \"group-data-[variant=line]/tabs-list:data-[selected]:shadow-[inset_0_-1px_0_var(--ds-color-border-strong)] in-data-[sliding]:data-[selected]:shadow-none\",\n        \"group-data-[variant=segmented]/tabs-list:h-7 group-data-[variant=segmented]/tabs-list:px-3 group-data-[variant=segmented]/tabs-list:text-caption group-data-[variant=segmented]/tabs-list:hover:bg-subtle group-data-[variant=segmented]/tabs-list:data-[selected]:bg-subtle-hover in-data-[sliding]:data-[selected]:bg-transparent in-data-[sliding]:hover:data-[selected]:bg-transparent\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction TabsContent({ className, ...props }: React.ComponentProps<typeof ChakraTabs.Content>) {\n  return <ChakraTabs.Content unstyled data-slot=\"tabs-content\" className={cn(\"min-w-0 outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\", className)} {...props} />;\n}\n\nexport { Tabs, TabsList, TabsTrigger, TabsContent };\n"
+    }
+  ]
+}

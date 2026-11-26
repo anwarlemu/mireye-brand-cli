@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "collapsible",
+  "useFor": "Use for one optional group (search settings under a query, the layers behind a value). Make the trigger the whole row: a 13px label with Mireye's chevron (ArrowRightIcon with head, turned 90 degrees) at the right that turns when open. In a cut-frame panel let the content open at once (see Section). For several sections, use Accordion.",
+  "constraints": [
+    "Hiding required fields in it",
+    "A trigger without a chevron",
+    "Animating anything but the content height and the chevron's turn",
+    "A chevron that moves on hover"
+  ],
+  "documentation": "",
+  "source": "Not in Figma: built from the arrow head (UI · Buttons, 442:3) and the cut frame, for a designer's review",
+  "exports": [
+    "Collapsible",
+    "CollapsibleContent",
+    "CollapsibleTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/collapsible",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/collapsible.md",
+  "examples": [
+    {
+      "path": "examples/collapsible.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { Collapsible, CollapsibleContent, CollapsibleTrigger } from \"@/components/ui/collapsible\";\n\nconst TRIGGER =\n  \"group flex w-full cursor-pointer items-center justify-between gap-4 py-2 text-left text-body text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\";\nconst CHEVRON = \"shrink-0 rotate-90 text-fg-muted transition-[rotate,color] duration-base ease-out group-hover:text-fg group-data-[state=open]:-rotate-90 motion-reduce:transition-none\";\n\nexport function Preview() {\n  const [open, setOpen] = React.useState(false);\n  return (\n    <Collapsible open={open} onOpenChange={setOpen} className=\"w-full max-w-120\">\n      <CollapsibleTrigger className={TRIGGER}>\n        Search settings: radius, minimum acres, voltage\n        <ArrowRightIcon size={16} head aria-hidden className={CHEVRON} />\n      </CollapsibleTrigger>\n      <CollapsibleContent>\n        <dl className=\"grid grid-cols-[8rem_1fr] gap-x-4 gap-y-2 pt-3 text-body\">\n          <dt className=\"text-caption text-fg-secondary\">Radius</dt>\n          <dd className=\"text-fg\">25 mi from Waxahachie, TX</dd>\n          <dt className=\"text-caption text-fg-secondary\">Minimum size</dt>\n          <dd className=\"text-fg\">200 ac</dd>\n          <dt className=\"text-caption text-fg-secondary\">Voltage</dt>\n          <dd className=\"text-fg\">138 kV or above</dd>\n        </dl>\n      </CollapsibleContent>\n    </Collapsible>\n  );\n}\n\n/** A collapsible section in a white cut-frame panel whose content opens at once. */\nexport function Section() {\n  return (\n    <Collapsible defaultOpen className=\"ds-cut-frame w-full max-w-120 px-4 py-3 [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\">\n      <CollapsibleTrigger className={TRIGGER}>\n        Excluded counties\n        <ArrowRightIcon size={16} head aria-hidden className={CHEVRON} />\n      </CollapsibleTrigger>\n      <CollapsibleContent className=\"data-[state=closed]:animate-none data-[state=open]:animate-none\">\n        <p className=\"pt-1 pb-1 text-body text-fg-muted\">Dallas and Tarrant are left out of the search. Their parcels never appear in results.</p>\n      </CollapsibleContent>\n    </Collapsible>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Section"
+      ],
+      "requires": [
+        "collapsible",
+        "icons"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/collapsible/Preview"
+        },
+        {
+          "name": "Section",
+          "url": "https://mireye-ds.agencidev.com/preview/collapsible/Section"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Collapsible",
+  "description": "A part that shows and hides in place, opening with its height; the trigger is the row it sits in.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/collapsible.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Collapsible as ChakraCollapsible } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// A part that shows and hides in place. The parts carry no look of their own beyond the motion: the content opens with\n// its height (the collapsible keyframes, under 200ms, ease-out). Style the trigger as the row it is: a 13px label with\n// Mireye's chevron (ArrowRightIcon head, turned) at the right (see the example).\ntype CollapsibleProps = Omit<React.ComponentProps<typeof ChakraCollapsible.Root>, \"onOpenChange\"> & { onOpenChange?: (open: boolean) => void };\nfunction Collapsible({ onOpenChange, ...props }: CollapsibleProps) {\n  return <ChakraCollapsible.Root unstyled data-slot=\"collapsible\" onOpenChange={(details) => onOpenChange?.(details.open)} {...props} />;\n}\n\nfunction CollapsibleTrigger(props: React.ComponentProps<typeof ChakraCollapsible.Trigger>) {\n  return <ChakraCollapsible.Trigger unstyled data-slot=\"collapsible-trigger\" {...props} />;\n}\n\nfunction CollapsibleContent({ className, ...props }: React.ComponentProps<typeof ChakraCollapsible.Content>) {\n  return <ChakraCollapsible.Content unstyled data-slot=\"collapsible-content\" className={cn(\"overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down\", className)} {...props} />;\n}\n\nexport { Collapsible, CollapsibleContent, CollapsibleTrigger };\n"
+    }
+  ]
+}

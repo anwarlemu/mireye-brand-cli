@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "name": "page-section",
+  "useFor": "Use as the outer wrapper of any website section so pages read as one survey sheet. Pass label, title and intro for the head (title left, intro right on wide screens) and the section's content as children. Pass `closing` on the last section of a page to draw the bottom rule. SECTION_GUTTER, SECTION_COLUMN and SECTION_INSET align anything else (a header) to the rails; SITE_LINK and SiteLockup are the website's link and lockup.",
+  "constraints": [
+    "Rounded corners or shadows",
+    "Sections without the rails on a page that has them",
+    "Nodes anywhere but where two rules cross",
+    "Coloured section grounds"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): PageRails and page-rails.css (rails at the content edges, rules at section boundaries, nodes at crossings), section-rhythm.css",
+  "exports": [
+    "SECTION_GUTTER",
+    "SECTION_COLUMN",
+    "SECTION_INSET",
+    "SiteLink",
+    "SITE_LINK",
+    "SiteLockup",
+    "PageSectionProps",
+    "PageSection"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/page-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/page-section.md",
+  "examples": [
+    {
+      "path": "examples/page-section.tsx",
+      "content": "import { PageSection } from \"@/components/blocks/page-section\";\nimport { Button } from \"@/components/ui/button\";\n\nexport function Preview() {\n  return (\n    <div className=\"pt-6\">\n      <PageSection label=\"Coverage\" title=\"Every value carries its source.\" intro=\"Point at a parcel and the answer comes back with the record it was read from and the date.\" />\n      <PageSection closing space=\"compact\">\n        <p className=\"text-body text-fg-secondary\">The last section on a page closes the rails with the bottom rule and its nodes.</p>\n      </PageSection>\n    </div>\n  );\n}\n\nexport function WithActions() {\n  return (\n    <div className=\"py-6\">\n      <PageSection\n        closing\n        label=\"Platform\"\n        title=\"Screen every parcel in a county.\"\n        intro=\"Describe the site you need. The platform checks each parcel against it and shortlists the ones that fit.\"\n        actions={\n          <>\n            <Button>Open the platform</Button>\n            <Button variant=\"ghost\" arrow>\n              Read the docs\n            </Button>\n          </>\n        }\n      />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "WithActions"
+      ],
+      "requires": [
+        "page-section",
+        "button"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/page-section/Preview"
+        },
+        {
+          "name": "WithActions",
+          "url": "https://mireye-ds.agencidev.com/preview/page-section/WithActions"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Page section",
+  "description": "The survey frame every website section sits in: 1px Stone rails at the content edges, a rule edge to edge at the top, a solid Forest diamond at each crossing, an optional mono label, title and intro.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "diamond",
+    "mireye-mark",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/page-section.tsx",
+      "content": "import * as React from \"react\";\n\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { MireyeMark } from \"@/components/ui/mireye-mark\";\nimport { cn } from \"@/lib/utils\";\n\n// The survey frame every website section sits in (the website's \"window and rules\"): two 1px Stone rails run down the\n// page at the content edges, a rule runs edge to edge at the top of each section, and a solid Forest diamond marks each\n// crossing. The last section on a page passes `closing` to draw the bottom rule and its nodes. Rails sit 12px in on a\n// phone and 32px on wider screens, so text never touches a line. Nothing moves.\n\n/** The space outside the rails. */\nexport const SECTION_GUTTER = \"px-3 sm:px-8\";\n/** The column between the rails. */\nexport const SECTION_COLUMN = \"relative mx-auto w-full max-w-(--ds-layout-column)\";\n/** The space inside the rails. */\nexport const SECTION_INSET = \"px-5 sm:px-10\";\n\nexport type SiteLink = { label: string; href: string };\n\n/** A website link: Forest at 80%, Forest under the pointer (150ms, color only). */\nexport const SITE_LINK =\n  \"text-body leading-none text-fg-secondary outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong aria-[current=page]:text-fg motion-reduce:transition-none\";\n\n/** The mark with the name set in Gilroy (the wordmark is not final). */\nexport function SiteLockup({ name = \"Mireye\", href = \"#\" }: { name?: string; href?: string }) {\n  return (\n    <a href={href} className=\"inline-flex items-center gap-2 text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\">\n      <MireyeMark aria-hidden role=\"presentation\" className=\"h-4 w-5.5\" />\n      <span className=\"text-body-lg leading-none\">{name}</span>\n    </a>\n  );\n}\n\n/** A node on a crossing: centered on the 1px lines, so it starts half a line before them. */\nfunction Node({ side, edge }: { side: \"left\" | \"right\"; edge: \"top\" | \"bottom\" }) {\n  return (\n    <span\n      aria-hidden\n      className={cn(\n        \"absolute z-10\",\n        side === \"left\" ? \"left-[calc(var(--ds-border-width)/2)] -translate-x-1/2\" : \"right-[calc(var(--ds-border-width)/2)] translate-x-1/2\",\n        edge === \"top\" ? \"top-[calc(var(--ds-border-width)/-2)] -translate-y-1/2\" : \"bottom-[calc(var(--ds-border-width)/-2)] translate-y-1/2\",\n      )}\n    >\n      <Diamond size={12} className=\"text-fg\" />\n    </span>\n  );\n}\n\nexport type PageSectionProps = Omit<React.ComponentProps<\"section\">, \"title\"> & {\n  /** A mono label over the title, e.g. \"Coverage\". */\n  label?: React.ReactNode;\n  title?: React.ReactNode;\n  /** One paragraph beside the title on wide screens, under it on a phone. */\n  intro?: React.ReactNode;\n  /** Actions after the intro. */\n  actions?: React.ReactNode;\n  /** The last section on the page: draws the bottom rule and its nodes. */\n  closing?: boolean;\n  /** Vertical rhythm: `default` 64 to 96px, `compact` 32 to 48px (a logo strip), `none` (the block pads itself). */\n  space?: \"default\" | \"compact\" | \"none\";\n  /** Heading level of the title. */\n  as?: \"h1\" | \"h2\";\n  /** Classes for the column between the rails. */\n  contentClassName?: string;\n};\n\nexport function PageSection({ label, title, intro, actions, closing = false, space = \"default\", as: Heading = \"h2\", className, contentClassName, children, ...props }: PageSectionProps) {\n  const hasHead = label != null || title != null || intro != null || actions != null;\n  return (\n    <section data-slot=\"page-section\" className={cn(\"border-t border-line bg-page font-sans text-fg\", closing && \"border-b\", SECTION_GUTTER, className)} {...props}>\n      <div className={cn(SECTION_COLUMN, \"border-x border-line\")}>\n        <Node side=\"left\" edge=\"top\" />\n        <Node side=\"right\" edge=\"top\" />\n        {closing && (\n          <>\n            <Node side=\"left\" edge=\"bottom\" />\n            <Node side=\"right\" edge=\"bottom\" />\n          </>\n        )}\n        <div className={cn(SECTION_INSET, space === \"default\" && \"py-16 sm:py-24\", space === \"compact\" && \"py-8 sm:py-12\", contentClassName)}>\n          {hasHead && (\n            <header className={cn(\"grid gap-4 lg:grid-cols-2 lg:items-end lg:gap-10\", children != null && \"mb-10 sm:mb-12\")}>\n              <div className=\"grid gap-3\">\n                {label != null && <p className=\"font-mono text-caption leading-tight text-fg-muted\">{label}</p>}\n                {title != null && <Heading className=\"max-w-(--ds-layout-heading) text-h1 leading-heading font-normal text-balance text-fg\">{title}</Heading>}\n              </div>\n              {(intro != null || actions != null) && (\n                <div className=\"grid gap-5 lg:justify-items-start\">\n                  {intro != null && <p className=\"max-w-(--ds-layout-text) text-body-lg leading-body text-fg-secondary\">{intro}</p>}\n                  {actions != null && <div className=\"flex flex-wrap items-center gap-3\">{actions}</div>}\n                </div>\n              )}\n            </header>\n          )}\n          {children}\n        </div>\n      </div>\n    </section>\n  );\n}\n"
+    }
+  ]
+}

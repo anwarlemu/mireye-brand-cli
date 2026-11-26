@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "name": "dial",
+  "useFor": "Use as the spinner: on an icon key while it works (24), inline (36) or where a whole panel waits (140). `running={false}` with `head` holds a still frame. It is named \"Loading\" while it runs.",
+  "constraints": [
+    "A smooth spinning wheel or a circle spinner",
+    "More than one dial in view",
+    "A dial without words nearby saying what is loading, outside an icon key"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Buttons\" (442:76) and \"UI · Loaders\" (443:2)",
+  "exports": [
+    "DIALS",
+    "Dial"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/dial",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/dial.md",
+  "examples": [
+    {
+      "path": "examples/dial.tsx",
+      "content": "import { Dial } from \"@/components/ui/dial\";\n\n// The dial at its three sizes, turning: 24px inside an icon key, 36px inline, 140px where a whole panel waits (Figma\n// sizes; they render at 0.6). One tick a step, a turn every 1.2s.\nexport function Preview() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-7\">\n      <Dial size={140} />\n      <Dial size={36} />\n      <Dial size={24} />\n    </div>\n  );\n}\n\n// Still, as under reduced motion: the head holds where `head` puts it.\nexport function Still() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-7\">\n      <Dial size={140} running={false} head={6} />\n      <Dial size={36} running={false} />\n      <Dial size={24} running={false} />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Still"
+      ],
+      "requires": [
+        "dial"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/dial/Preview"
+        },
+        {
+          "name": "Still",
+          "url": "https://mireye-ds.agencidev.com/preview/dial/Still"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Dial",
+  "description": "Mireye's spinner: ticks around a circle with a Forest head fading to Mist, turning one tick a step.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/dial.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/**\n * Dial: Mireye's spinner. Ticks around a circle; the head tick is Forest and the ticks behind\n * it fade to Mist. Geometry and colors are Figma's (\"Dial\" layers on the Buttons and Loaders\n * boards). It turns one tick per step, so it reads as a survey instrument, not a smooth wheel.\n *\n * The two boards draw it turning opposite ways, and we keep both:\n * - 24px (Buttons): 12 ticks, the tail trails clockwise, so the head turns counter-clockwise.\n * - 36px and 140px (Loaders, 443:2): 24 ticks, the tail trails counter-clockwise, and the design's\n *   five 36px frames step the head clockwise, five ticks at a time (heads 0, 5, 10, 15, 20).\n * `head` sets where the head tick sits when the dial is still (specimens, reduced motion).\n */\n\ntype DialSpec = {\n  ticks: number;\n  /** Radius where each tick starts and ends, from the center. */\n  inner: number;\n  outer: number;\n  stroke: number;\n  /** Colors from the head backwards; ticks past the ramp use the last color. */\n  ramp: string[];\n  /** The head turns clockwise and the tail trails counter-clockwise. */\n  clockwise?: boolean;\n  /** Spin animation (one tick per step). Defaults to the 24px dial's 12-step turn. */\n  spin?: string;\n};\n\n/**\n * A ramp from Forest towards Mist: `steps` colors, each `share` more Mist than the last, then\n * Mist. Figma's ramps are exactly these mixes, within rounding: the 24px dial's nine colors\n * (#1E231C, #363B34 … #DCDEDA) step by an eighth; the Loaders' eighteen (#1E231C, #2A2E28 …\n * #D7D9D5, then #DCDEDA) by about 6%.\n */\nconst ramp = (steps: number, share: number) => [\n  ...Array.from({ length: steps }, (_, i) => `color-mix(in srgb, var(--ds-color-forest) ${Math.round((1 - i * share) * 1000) / 10}%, var(--ds-color-mist))`),\n  \"var(--ds-color-mist)\",\n];\n\n// Loaders board ramp (443:77, 443:103 …): 17 steps from Forest towards Mist, then Mist.\nconst RAMP_24_TICKS = ramp(17, 0.0608);\n\nexport const DIALS = {\n  // Buttons board, icon button \"Loading\" (442:76): 24×24, 12 ticks, head at 12 o'clock.\n  24: {\n    ticks: 12,\n    inner: 6.72,\n    outer: 11,\n    stroke: 1.5,\n    ramp: ramp(8, 1 / 8),\n  },\n  // Loaders board frames (443:103, 443:129, 443:155, 443:181, 443:207): 36×36, 24 ticks.\n  // Figma gives no timing. One turn takes 1.2s, like the 24px dial, so both turn at the same speed.\n  // `reverse` runs the shared counter-clockwise keyframes backwards, so the head turns clockwise.\n  36: {\n    ticks: 24,\n    inner: 10.08,\n    outer: 17,\n    stroke: 1.5,\n    ramp: RAMP_24_TICKS,\n    clockwise: true,\n    spin: \"motion-safe:animate-[ds-dial_1.2s_steps(24)_infinite_reverse]\",\n  },\n  // Loaders board hero (443:77): 140×140, 24 ticks, 2px strokes, head at 3 o'clock (`head={6}`).\n  140: {\n    ticks: 24,\n    inner: 39.2,\n    outer: 69,\n    stroke: 2,\n    ramp: RAMP_24_TICKS,\n    clockwise: true,\n    spin: \"motion-safe:animate-[ds-dial_1.2s_steps(24)_infinite_reverse]\",\n  },\n} satisfies Record<number, DialSpec>;\n\nexport function Dial({\n  size = 24,\n  spec,\n  running = true,\n  head = 0,\n  className,\n  ...props\n}: React.SVGProps<SVGSVGElement> & {\n  size?: keyof typeof DIALS;\n  spec?: DialSpec;\n  running?: boolean;\n  /** Tick index of the head when still, counted clockwise from 12 o'clock. */\n  head?: number;\n}) {\n  const s: DialSpec = spec ?? DIALS[size];\n  const box = size;\n  const c = box / 2;\n  const n = s.ticks;\n  const lines = Array.from({ length: n }, (_, k) => {\n    // Tick k sits at k steps clockwise from 12 o'clock. Its distance behind the head picks the\n    // color: clockwise from the head on the 24px dial, counter-clockwise on the Loaders dials.\n    const a = (k * 2 * Math.PI) / n;\n    const behind = (((s.clockwise ? head - k : k - head) % n) + n) % n;\n    const r2 = (v: number) => Math.round(v * 100) / 100;\n    return {\n      x1: r2(c + s.inner * Math.sin(a)),\n      y1: r2(c - s.inner * Math.cos(a)),\n      x2: r2(c + s.outer * Math.sin(a)),\n      y2: r2(c - s.outer * Math.cos(a)),\n      color: s.ramp[Math.min(behind, s.ramp.length - 1)],\n    };\n  });\n  return (\n    <svg\n      width={box}\n      height={box}\n      viewBox={`0 0 ${box} ${box}`}\n      fill=\"none\"\n      // An image named \"Loading\" while it runs; decoration when still.\n      role={running ? \"img\" : undefined}\n      aria-label={running ? \"Loading\" : undefined}\n      aria-hidden={running ? undefined : true}\n      data-slot=\"dial\"\n      className={cn(\n        \"shrink-0\",\n        // One tick per step, counter-clockwise so the head leads the fading tail.\n        running && (s.spin ?? \"motion-safe:animate-[ds-dial_1.2s_steps(12)_infinite]\"),\n        svgBox,\n        className,\n      )}\n      {...props}\n      style={svgSize(box, box, props.style)}\n    >\n      {lines.map((l, i) => (\n        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} strokeWidth={s.stroke} style={{ stroke: l.color }} />\n      ))}\n    </svg>\n  );\n}\n"
+    }
+  ]
+}

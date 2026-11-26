@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "docs-page",
+  "useFor": "Use for product documentation. Pass `groups` for the rail and `sections` (with optional `code`).",
+  "constraints": [
+    "Code without a language",
+    "Long sections without headings",
+    "A second sidebar"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): docs route and interior.css; the code block is the library's",
+  "exports": [
+    "DocSection",
+    "DocGroup",
+    "DocsPageProps",
+    "DocsPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/docs-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/docs-page.md",
+  "examples": [
+    {
+      "path": "examples/docs-page.tsx",
+      "content": "import { DocsPage } from \"@/components/blocks/docs-page\";\n\nexport function Preview() {\n  return <DocsPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "docs-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/docs-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Docs page",
+  "description": "A documentation page: a contents rail on wide screens, the title and a lead, then sections of prose with code blocks at a 680px measure.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "code-block",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/docs-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { CodeBlock, CodeBlockActions, CodeBlockContent, CodeBlockCopyButton, CodeBlockHeader, CodeBlockTitle } from \"@/components/ui/code-block\";\nimport { cn } from \"@/lib/utils\";\n\n// A documentation page: a contents rail of sections on wide screens, the title and a lead, then sections of prose with\n// code blocks at a 680px measure. Rail links are Forest at 80% and Forest when current (150ms, color only).\n\nexport type DocSection = { id: string; title: string; body: string[]; code?: { language: string; code: string } };\nexport type DocGroup = { title: string; links: { label: string; href: string; current?: boolean }[] };\n\nconst GROUPS: DocGroup[] = [\n  { title: \"Start\", links: [{ label: \"Quickstart\", href: \"#quickstart\", current: true }, { label: \"Authentication\", href: \"#auth\" }] },\n  { title: \"Endpoints\", links: [{ label: \"Search\", href: \"#search\" }, { label: \"Enrich\", href: \"#enrich\" }, { label: \"Ask\", href: \"#ask\" }] },\n];\n\nconst SECTIONS: DocSection[] = [\n  { id: \"install\", title: \"Make a request\", body: [\"Send an address, a parcel id or coordinates. The response lists every field with its source.\"], code: { language: \"bash\", code: 'curl https://api.example.com/v1/enrich \\\\\\n  -H \"Authorization: Bearer $KEY\" \\\\\\n  -d \\'{\"address\": \"1 Example St\"}\\'' } },\n  { id: \"fields\", title: \"Read the fields\", body: [\"Each value carries the record it came from and the date that record was read. A field the county has not published comes back empty, never guessed.\"] },\n];\n\nconst LINK = \"block py-1.5 text-body leading-body text-fg-secondary outline-none transition-colors duration-150 ease-out hover:text-fg focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong aria-[current=page]:text-fg motion-reduce:transition-none\";\n\nexport type DocsPageProps = { header?: SiteHeaderProps; title?: string; lead?: string; groups?: DocGroup[]; sections?: DocSection[]; footer?: SiteFooterProps };\n\nexport function DocsPage({ header, title = \"Quickstart\", lead = \"Make your first request and read the answer, in five minutes.\", groups = GROUPS, sections = SECTIONS, footer }: DocsPageProps) {\n  return (\n    <div data-slot=\"docs-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#docs\" {...header} />\n      <main>\n        <PageSection space=\"default\" closing>\n          <div className=\"grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-16\">\n            <nav aria-label=\"Documentation\" className=\"lg:sticky lg:top-24 lg:self-start\">\n              {groups.map((g) => (\n                <div key={g.title} className=\"mb-6\">\n                  <p className=\"mb-2 font-mono text-caption leading-tight text-fg-muted\">{g.title}</p>\n                  {g.links.map((l) => (\n                    <a key={l.href} href={l.href} aria-current={l.current ? \"page\" : undefined} className={cn(LINK)}>{l.label}</a>\n                  ))}\n                </div>\n              ))}\n            </nav>\n            <article className=\"grid max-w-170 gap-10\">\n              <header className=\"grid gap-4\">\n                <h1 className=\"text-h1 leading-heading font-normal text-fg\">{title}</h1>\n                <p className=\"text-body-lg leading-body text-fg-secondary\">{lead}</p>\n              </header>\n              {sections.map((s) => (\n                <section key={s.id} id={s.id} className=\"grid gap-4 border-t border-line pt-8\">\n                  <h2 className=\"text-h2 leading-heading font-normal text-fg\">{s.title}</h2>\n                  {s.body.map((p) => <p key={p} className=\"text-body leading-relaxed text-fg-secondary\">{p}</p>)}\n                  {s.code && (\n                    <CodeBlock>\n                      <CodeBlockHeader>\n                        <CodeBlockTitle language={s.code.language}>{s.code.language}</CodeBlockTitle>\n                        <CodeBlockActions>\n                          <CodeBlockCopyButton value={s.code.code} />\n                        </CodeBlockActions>\n                      </CodeBlockHeader>\n                      <CodeBlockContent code={s.code.code} language={s.code.language} wrap />\n                    </CodeBlock>\n                  )}\n                </section>\n              ))}\n            </article>\n          </div>\n        </PageSection>\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

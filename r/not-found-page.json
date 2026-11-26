@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "name": "not-found-page",
+  "useFor": "Use as the app's or site's not-found page. Pass `title`, `description` and `home`.",
+  "constraints": [
+    "Jokes or illustrations off the brand",
+    "More than two actions",
+    "A search field as the only way out"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): not-found page and NotFoundScene (the survey scene)",
+  "exports": [
+    "NotFoundPageProps",
+    "NotFoundPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/not-found-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/not-found-page.md",
+  "examples": [
+    {
+      "path": "examples/not-found-page.tsx",
+      "content": "import { NotFoundPage } from \"@/components/blocks/not-found-page\";\n\nexport function Preview() {\n  return <NotFoundPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "not-found-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/not-found-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Not found page",
+  "description": "The 404 page: the code in DM Mono, one line that says the page is off the map, the way home (the Forest key) and to the docs, beside an empty survey plate.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "survey-plate",
+    "button"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/not-found-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { SurveyPlate } from \"@/components/blocks/survey-plate\";\nimport { Button } from \"@/components/ui/button\";\n\n// The 404 page: the code in DM Mono, one line that says the page is not here, the way home (the Forest key) and to the\n// docs, beside an empty survey plate: the grid, the contours and one outlined parcel with no marker.\n\nexport type NotFoundPageProps = { header?: SiteHeaderProps; title?: string; description?: string; home?: { label: string; href: string }; footer?: SiteFooterProps };\n\nexport function NotFoundPage({ header, title = \"This page is off the map.\", description = \"The link may be old, or the page may have moved. Start again from the home page.\", home = { label: \"Back to home\", href: \"#\" }, footer }: NotFoundPageProps) {\n  return (\n    <div data-slot=\"not-found-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader {...header} />\n      <main>\n        <PageSection>\n          <div className=\"grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-12\">\n            <div className=\"grid content-start gap-5\">\n              <p className=\"font-mono text-caption leading-tight text-fg-muted\">404 · Not found</p>\n              <h1 className=\"text-display leading-display font-normal text-balance text-fg\">{title}</h1>\n              <p className=\"max-w-(--ds-layout-text) text-body-lg leading-body text-fg-secondary\">{description}</p>\n              <div className=\"flex flex-wrap items-center gap-3\">\n                <Button asChild>\n                  <a href={home.href}>\n                    {home.label}\n                    <ArrowRightIcon size={20} />\n                  </a>\n                </Button>\n                <Button asChild variant=\"outline\">\n                  <a href=\"#docs\">Read the docs</a>\n                </Button>\n              </div>\n            </div>\n            <SurveyPlate className=\"aspect-4/3 w-full\" marker={null} caption=\"No parcel at this address\" scale={null} parcels={[{ x: 36, y: 30, w: 28, h: 40, state: \"plain\", label: \"404\" }]} />\n          </div>\n        </PageSection>\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

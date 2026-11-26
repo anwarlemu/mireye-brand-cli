@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "testimonial-section",
+  "useFor": "Use once on a page for one approved quote. The defaults are a fictional person at a placeholder company. Keep the quote under 40 words and the figures to three.",
+  "constraints": [
+    "Real people or quotes without approval",
+    "Round avatars",
+    "Quote marks as decoration",
+    "Star ratings"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): HomeVoices and home-numbers.css (mono figures over muted labels); person and quote are fictional",
+  "exports": [
+    "Figure",
+    "TestimonialSectionProps",
+    "TestimonialSection"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/testimonial-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/testimonial-section.md",
+  "examples": [
+    {
+      "path": "examples/testimonial-section.tsx",
+      "content": "import { TestimonialSection } from \"@/components/blocks/testimonial-section\";\n\nexport function Preview() {\n  return <TestimonialSection closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "testimonial-section"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/testimonial-section/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Testimonial section",
+  "description": "One customer's words set at 24px regular, the person under it (square initials, name, role and company) and the figures the quote is about in DM Mono.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "avatar"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/testimonial-section.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Avatar, AvatarFallback } from \"@/components/ui/avatar\";\n\n// One customer's words, set large: the quote in 24px regular Forest, the person under it (square initials, name, role\n// and company), and beside it the figures the quote is about, in DM Mono over a muted label, split by Mist rules.\n// The defaults are a fictional person at a placeholder company; a product passes a real, approved quote.\n\nexport type Figure = { value: string; label: string };\n\nexport type TestimonialSectionProps = Omit<PageSectionProps, \"children\" | \"title\" | \"intro\"> & {\n  quote?: string;\n  name?: string;\n  role?: string;\n  company?: string;\n  initials?: string;\n  figures?: Figure[];\n};\n\nconst FIGURES: Figure[] = [\n  { value: \"212\", label: \"Sites screened in the first week\" },\n  { value: \"9 of 9\", label: \"Requirements checked on every site\" },\n  { value: \"3 days\", label: \"From buy box to shortlist\" },\n];\n\nexport function TestimonialSection({\n  label = \"Customer\",\n  quote = \"We used to spend a week pulling county records for each site. Now our agent screens every parcel in a county overnight, and every answer links back to its source.\",\n  name = \"Jordan Lee\",\n  role = \"Head of site selection\",\n  company = \"Acme Energy\",\n  initials = \"JL\",\n  figures = FIGURES,\n  ...props\n}: TestimonialSectionProps) {\n  return (\n    <PageSection {...props}>\n      <div className=\"grid gap-10 lg:grid-cols-3 lg:gap-12\">\n        <figure className=\"m-0 grid content-start gap-8 lg:col-span-2\">\n          {label != null && <p className=\"font-mono text-caption leading-tight text-fg-muted\">{label}</p>}\n          <blockquote className=\"m-0 text-h1 leading-heading font-normal text-balance text-fg\">{quote}</blockquote>\n          <figcaption className=\"flex items-center gap-3\">\n            <Avatar>\n              <AvatarFallback>{initials}</AvatarFallback>\n            </Avatar>\n            <span className=\"grid gap-1\">\n              <span className=\"text-body leading-tight text-fg\">{name}</span>\n              <span className=\"text-caption leading-tight text-fg-muted\">\n                {role}, {company}\n              </span>\n            </span>\n          </figcaption>\n        </figure>\n        <dl className=\"grid content-start border-t border-line-subtle\">\n          {figures.map((f) => (\n            <div key={f.label} className=\"grid gap-2 border-b border-line-subtle py-5\">\n              <dt className=\"order-2 text-body leading-body text-fg-secondary\">{f.label}</dt>\n              <dd className=\"order-1 m-0 font-mono text-h2 leading-tight text-fg\">{f.value}</dd>\n            </div>\n          ))}\n        </dl>\n      </div>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

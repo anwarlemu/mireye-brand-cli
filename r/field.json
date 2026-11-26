@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "name": "field",
+  "useFor": "Use Field, FieldLabel, FieldDescription and FieldError around any control; FieldGroup to stack fields; FieldSet and FieldLegend for a titled group; orientation horizontal for a checkbox, radio or switch beside its label; FieldLabel around a Field for choice cards; FieldSeparator for or between two ways in.",
+  "constraints": [
+    "Errors in the label",
+    "A description above the control",
+    "Fields closer than 16px",
+    "A red label on an invalid field (only the line and the message turn brick)"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Inputs\" (442:107): the label, the field and the helper under the Range",
+  "exports": [
+    "Field",
+    "FieldContent",
+    "FieldDescription",
+    "FieldError",
+    "FieldGroup",
+    "FieldLabel",
+    "FieldLegend",
+    "FieldSeparator",
+    "FieldSet",
+    "FieldTitle"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/field",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/field.md",
+  "examples": [
+    {
+      "path": "examples/field.tsx",
+      "content": "import { Checkbox } from \"@/components/ui/checkbox\";\nimport { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet, FieldTitle } from \"@/components/ui/field\";\nimport { Input } from \"@/components/ui/input\";\nimport { RadioGroup, RadioGroupItem } from \"@/components/ui/radio-group\";\nimport { Switch } from \"@/components/ui/switch\";\n\nexport function Preview() {\n  return (\n    <FieldGroup className=\"max-w-96\">\n      <Field>\n        <FieldLabel htmlFor=\"f-size\">Parcel size</FieldLabel>\n        <Input id=\"f-size\" defaultValue=\"41.2\" inputMode=\"decimal\" unit=\"ac\" />\n        <FieldDescription>Within 40 to 120 ac</FieldDescription>\n      </Field>\n      <Field>\n        <FieldLabel htmlFor=\"f-location\">Location</FieldLabel>\n        <Input id=\"f-location\" placeholder=\"Search any U.S. location\" />\n      </Field>\n    </FieldGroup>\n  );\n}\n\nexport function Invalid() {\n  return (\n    <Field data-invalid className=\"max-w-96\">\n      <FieldLabel htmlFor=\"f-voltage\">Minimum voltage</FieldLabel>\n      <Input id=\"f-voltage\" defaultValue=\"1200\" unit=\"kV\" aria-invalid aria-describedby=\"f-voltage-error\" />\n      <FieldError id=\"f-voltage-error\">No transmission line in this county carries more than 500 kV.</FieldError>\n    </Field>\n  );\n}\n\nexport function Horizontal() {\n  return (\n    <FieldGroup className=\"max-w-96\">\n      <Field orientation=\"horizontal\">\n        <Switch id=\"f-terrain\" defaultChecked />\n        <FieldLabel htmlFor=\"f-terrain\">Terrain</FieldLabel>\n      </Field>\n      <Field orientation=\"horizontal\">\n        <Checkbox id=\"f-flood\" />\n        <FieldContent>\n          <FieldLabel htmlFor=\"f-flood\">Exclude floodplain</FieldLabel>\n          <FieldDescription>Drops parcels in FEMA zones A and AE.</FieldDescription>\n        </FieldContent>\n      </Field>\n      <FieldSeparator>or</FieldSeparator>\n      <Field orientation=\"horizontal\">\n        <Checkbox id=\"f-wet\" defaultChecked />\n        <FieldLabel htmlFor=\"f-wet\">Exclude wetlands</FieldLabel>\n      </Field>\n    </FieldGroup>\n  );\n}\n\nexport function Fieldset() {\n  return (\n    <FieldSet className=\"max-w-96\">\n      <FieldLegend>Land use</FieldLegend>\n      <FieldDescription>The zoning the site must already have.</FieldDescription>\n      <RadioGroup defaultValue=\"industrial\">\n        <FieldLabel htmlFor=\"z-industrial\">\n          <Field orientation=\"horizontal\">\n            <RadioGroupItem value=\"industrial\" id=\"z-industrial\" />\n            <FieldContent>\n              <FieldTitle>Industrial</FieldTitle>\n              <FieldDescription>I-1 and I-2, ready to build.</FieldDescription>\n            </FieldContent>\n          </Field>\n        </FieldLabel>\n        <FieldLabel htmlFor=\"z-agricultural\">\n          <Field orientation=\"horizontal\">\n            <RadioGroupItem value=\"agricultural\" id=\"z-agricultural\" />\n            <FieldContent>\n              <FieldTitle>Agricultural</FieldTitle>\n              <FieldDescription>Needs a conditional use permit.</FieldDescription>\n            </FieldContent>\n          </Field>\n        </FieldLabel>\n      </RadioGroup>\n    </FieldSet>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Invalid",
+        "Horizontal",
+        "Fieldset"
+      ],
+      "requires": [
+        "field",
+        "checkbox",
+        "input",
+        "radio-group",
+        "switch"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/field/Preview"
+        },
+        {
+          "name": "Invalid",
+          "url": "https://mireye-ds.agencidev.com/preview/field/Invalid"
+        },
+        {
+          "name": "Horizontal",
+          "url": "https://mireye-ds.agencidev.com/preview/field/Horizontal"
+        },
+        {
+          "name": "Fieldset",
+          "url": "https://mireye-ds.agencidev.com/preview/field/Fieldset"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Field",
+  "description": "Mireye's form layout: a 12px label in 80% Forest 8px above the control, fields 16px apart, a 12px description in 72% Forest or a 12px brick error below. Legends are 16px Forest. A label that wraps a whole field is a choice card in the cut frame, Forest-lined on Fog when chosen.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "label",
+    "utils"
+  ],
+  "packages": [
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/field.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { Label } from \"@/components/ui/label\";\nimport { cn } from \"@/lib/utils\";\n\n// A form's fields in Mireye's layout (Figma \"UI · Inputs\", 442:107, at the product scale). A field is its 12px label in\n// 80% Forest, 8px above the control; fields sit 16px apart. A description under the control is 12px in 72% Forest 8px\n// below it (\"Within 40 to 120 ac\"); an error is 12px brick 8px below it. A legend is 16px Forest, the size of a section\n// title. \"or\" between two ways in is 12px between two Mist rules, 12px from each. A field marked data-invalid keeps its\n// label: only the control's line and the message turn brick. A label that wraps a whole field is a choice card: the\n// cut frame, its line Forest and its fill Fog while its control is checked.\nfunction FieldSet({ className, ...props }: React.ComponentProps<\"fieldset\">) {\n  return <fieldset data-slot=\"field-set\" className={cn(\"m-0 flex min-w-0 flex-col gap-4 border-0 p-0 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3\", className)} {...props} />;\n}\n\nfunction FieldLegend({ className, variant = \"legend\", ...props }: React.ComponentProps<\"legend\"> & { variant?: \"legend\" | \"label\" }) {\n  return (\n    <legend\n      data-slot=\"field-legend\"\n      data-variant={variant}\n      className={cn(\"mb-2 p-0 font-sans font-normal text-fg data-[variant=label]:text-caption data-[variant=label]:leading-line-caption data-[variant=label]:text-fg-secondary data-[variant=legend]:text-h3 data-[variant=legend]:leading-heading\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction FieldGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"field-group\" className={cn(\"group/field-group @container/field-group flex w-full flex-col gap-4 [&>[data-slot=field-group]]:gap-4\", className)} {...props} />;\n}\n\nconst fieldVariants = cva(\"group/field flex w-full gap-2\", {\n  variants: {\n    orientation: {\n      // Label over control (Email address over its field).\n      vertical: \"flex-col [&>*]:w-full [&>.sr-only]:w-auto\",\n      // Label beside its control (a channel row and its switch, a checkbox and its label).\n      horizontal: \"flex-row items-center gap-3 [&>[data-slot=field-label]]:flex-auto has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[data-slot=checkbox],&>[data-slot=radio-group-item],&>[data-slot=switch]]:mt-px\",\n      // Over on a narrow form, beside from 28rem of container.\n      responsive: \"flex-col [&>*]:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:gap-3 @md/field-group:[&>*]:w-auto @md/field-group:[&>[data-slot=field-label]]:flex-auto\",\n    },\n  },\n  defaultVariants: { orientation: \"vertical\" },\n});\n\nfunction Field({ className, orientation = \"vertical\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof fieldVariants>) {\n  return <div role=\"group\" data-slot=\"field\" data-orientation={orientation} className={cn(fieldVariants({ orientation }), className)} {...props} />;\n}\n\nfunction FieldContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"field-content\" className={cn(\"group/field-content flex min-w-0 flex-1 flex-col gap-1\", className)} {...props} />;\n}\n\n// A label that wraps a whole field becomes a choice card: the cut frame, 12px in; the checked one takes the Forest line\n// on Fog.\nfunction FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {\n  return (\n    <Label\n      data-slot=\"field-label\"\n      className={cn(\n        \"group/field-label peer/field-label flex w-fit gap-2\",\n        \"has-[>[data-slot=field]]:ds-cut-frame has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:text-body has-[>[data-slot=field]]:text-fg *:data-[slot=field]:p-3\",\n        \"has-[>[data-slot=field]]:[--ds-shape-stroke:var(--ds-color-border-default)] has-[>[data-slot=field]]:[--ds-shape-fill:var(--ds-color-bg-default)] has-[>[data-slot=field]]:after:transition-[background-color] has-[>[data-slot=field]]:after:duration-fast has-[>[data-slot=field]]:after:ease-out motion-reduce:after:transition-none\",\n        \"has-[>[data-slot=field]]:hover:[--ds-shape-fill:var(--ds-color-bg-subtle)] has-data-[state=checked]:[--ds-shape-stroke:var(--ds-color-border-strong)] has-data-[state=checked]:[--ds-shape-fill:var(--ds-color-bg-subtle)]\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction FieldTitle({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"field-title\" className={cn(\"flex w-fit items-center gap-2 font-sans text-body leading-line-body font-normal text-fg group-data-[disabled=true]/field:text-fg-subtle\", className)} {...props} />;\n}\n\nfunction FieldDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  return (\n    <p\n      data-slot=\"field-description\"\n      className={cn(\n        \"m-0 font-sans text-caption leading-line-caption font-normal text-fg-muted group-has-[[data-orientation=horizontal]]/field:text-balance [[data-variant=legend]+&]:-mt-1 [&>a]:text-fg [&>a]:underline [&>a]:decoration-line [&>a]:underline-offset-4 [&>a:hover]:decoration-line-strong\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\n/** The \"or\" between two ways in: a 12px word in 72% Forest between two Mist rules. */\nfunction FieldSeparator({ children, className, ...props }: React.ComponentProps<\"div\"> & { children?: React.ReactNode }) {\n  return (\n    <div data-slot=\"field-separator\" data-content={!!children} className={cn(\"relative flex h-4 items-center gap-3 text-caption leading-line-caption\", className)} {...props}>\n      <div aria-hidden className=\"h-px flex-1 bg-line-subtle\" />\n      {children && (\n        <span data-slot=\"field-separator-content\" className=\"shrink-0 text-fg-muted\">\n          {children}\n        </span>\n      )}\n      {children && <div aria-hidden className=\"h-px flex-1 bg-line-subtle\" />}\n    </div>\n  );\n}\n\nfunction FieldError({ className, children, errors, ...props }: React.ComponentProps<\"div\"> & { errors?: Array<{ message?: string } | undefined> }) {\n  const content = React.useMemo(() => {\n    if (children) return children;\n    if (!errors?.length) return null;\n    const unique = [...new Map(errors.map((error) => [error?.message, error])).values()];\n    if (unique.length === 1) return unique[0]?.message;\n    return <ul className=\"m-0 flex list-disc flex-col gap-0.5 pl-4\">{unique.map((error, index) => error?.message && <li key={index}>{error.message}</li>)}</ul>;\n  }, [children, errors]);\n  if (!content) return null;\n  return (\n    <div role=\"alert\" data-slot=\"field-error\" className={cn(\"font-sans text-caption leading-line-caption font-normal text-danger\", className)} {...props}>\n      {content}\n    </div>\n  );\n}\n\nexport { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet, FieldTitle };\n"
+    }
+  ]
+}

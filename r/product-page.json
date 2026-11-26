@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "product-page",
+  "useFor": "Use for a product or feature page. Pass `rows` of label, title, description and a `visual` (a library item with sample data). Keep pictures to real parts, never screenshots.",
+  "constraints": [
+    "Screenshots or stock photos as pictures",
+    "Rows without a picture",
+    "More than five rows"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): ProductPages and FeatureRow (copy beside a product picture, alternating)",
+  "exports": [
+    "FeatureRow",
+    "ProductPageProps",
+    "ProductPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/product-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/product-page.md",
+  "examples": [
+    {
+      "path": "examples/product-page.tsx",
+      "content": "\"use client\";\n\nimport { ProductPage } from \"@/components/blocks/product-page\";\n\nexport function Preview() {\n  return <ProductPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "product-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/product-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Product page",
+  "description": "A product or features page: the hero with a cited answer as its picture, alternating feature rows that each show a real library part (a request, cited fields, the buy box checks), the field grid, questions and the closing card.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "cta-section",
+    "faq-section",
+    "feature-grid",
+    "hero-section",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "cited-fields",
+    "code-block",
+    "requirement-checks",
+    "sources",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/product-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { FaqSection, type FaqSectionProps } from \"@/components/blocks/faq-section\";\nimport { FeatureGrid, type FeatureGridProps } from \"@/components/blocks/feature-grid\";\nimport { HeroSection, type HeroSectionProps } from \"@/components/blocks/hero-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { CitedField, CitedFields } from \"@/components/ui/cited-fields\";\nimport { CodeBlock, CodeBlockContent, CodeBlockHeader, CodeBlockTitle } from \"@/components/ui/code-block\";\nimport { RequirementCheck, RequirementChecks } from \"@/components/ui/requirement-checks\";\nimport { Source, SourceGroup, Sources } from \"@/components/ui/sources\";\nimport { cn } from \"@/lib/utils\";\n\n// A product or features page: the hero with the product's own answer as its picture, then feature rows (copy on one\n// side, a real library part on the other, alternating on wide screens), the coverage grid, questions and the closing\n// card. Every picture is a library item showing sample data, never a screenshot.\n\nexport type FeatureRow = { label: string; title: string; description: string; visual: React.ReactNode };\n\nconst REQUEST = `curl https://api.mireye.com/v1/place \\\\\n  -H \"Authorization: Bearer $MIREYE_KEY\" \\\\\n  -d '{ \"point\": [32.4113, -96.8302], \"fields\": [\"flood_zone\", \"elevation\", \"slope\"] }'`;\n\nfunction AnswerCard() {\n  return (\n    <SourceGroup>\n      <div className=\"ds-cut-frame grid gap-6 p-5 sm:p-6 [--ds-cut:var(--ds-cut-lg)] [--ds-shape-fill:var(--ds-color-bg-page)] [--ds-shape-stroke:var(--ds-color-border-default)]\">\n        <p className=\"font-mono text-caption text-fg-muted\">042-117-09 · 32.4113, -96.8302</p>\n        <CitedFields>\n          <CitedField label=\"Flood zone\" source={1}>\n            Zone X\n          </CitedField>\n          <CitedField label=\"Elevation\" source={2}>\n            412 ft\n          </CitedField>\n          <CitedField label=\"Slope\" source={3}>\n            2.8%\n          </CitedField>\n        </CitedFields>\n        <Sources aria-label=\"Sources\">\n          <Source number={1} cut={false}>\n            FEMA flood hazard layer\n          </Source>\n          <Source number={2} cut={false}>\n            USGS elevation model\n          </Source>\n          <Source number={3} cut={false}>\n            Slope, from the elevation model\n          </Source>\n        </Sources>\n      </div>\n    </SourceGroup>\n  );\n}\n\nconst ROWS: FeatureRow[] = [\n  {\n    label: \"One request\",\n    title: \"Ask for a place, get its facts.\",\n    description: \"Send a parcel, an address or a coordinate and the fields you need. The answer is plain JSON your agent can read.\",\n    visual: (\n      <CodeBlock>\n        <CodeBlockHeader>\n          <CodeBlockTitle language=\"bash\">request.sh</CodeBlockTitle>\n        </CodeBlockHeader>\n        <CodeBlockContent code={REQUEST} language=\"bash\" lineNumbers={false} wrap />\n      </CodeBlock>\n    ),\n  },\n  {\n    label: \"Every value cited\",\n    title: \"Your agent can check every answer.\",\n    description: \"Each value names the record it came from and when it was read, so an answer can be traced and trusted.\",\n    visual: <AnswerCard />,\n  },\n  {\n    label: \"Screening\",\n    title: \"Hold every parcel to your buy box.\",\n    description: \"Describe the site you need once. Each parcel is checked against it, with the failing requirement called out.\",\n    visual: (\n      <SourceGroup>\n        <RequirementChecks title=\"Buy box\" summary=\"4 of 5 pass\" className=\"w-full\">\n          <RequirementCheck result=\"pass\" field=\"Acreage\" requirement=\"≥ 200 ac\" value=\"212.6 ac\" source={1} />\n          <RequirementCheck result=\"pass\" field=\"Voltage\" requirement=\"≥ 138 kV\" value=\"345 kV\" source={2} />\n          <RequirementCheck result=\"pass\" field=\"Distance to line\" requirement=\"≤ 5 mi\" value=\"0.8 mi\" source={2} />\n          <RequirementCheck result=\"fail\" field=\"Floodplain\" requirement=\"Outside\" value=\"Zone AE\" source={3} />\n          <RequirementCheck result=\"pass\" field=\"Zoning\" requirement=\"Industrial\" value=\"I-2\" source={1} />\n        </RequirementChecks>\n      </SourceGroup>\n    ),\n  },\n];\n\nexport type ProductPageProps = {\n  header?: SiteHeaderProps;\n  hero?: HeroSectionProps;\n  rows?: FeatureRow[];\n  features?: FeatureGridProps | null;\n  faq?: FaqSectionProps | null;\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nexport function ProductPage({ header, hero, rows = ROWS, features = { label: \"Fields\", title: \"What a request can return.\" }, faq = {}, cta = {}, footer }: ProductPageProps) {\n  return (\n    <div data-slot=\"product-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#product\" {...header} />\n      <main>\n        <HeroSection notice={null} title=\"The place API for AI agents.\" description=\"Parcels, power, water, terrain, zoning and permits for any U.S. place, in one request, with a source on every value.\" meta={null} {...hero} />\n        {rows.map((r, i) => (\n          <PageSection key={r.title}>\n            <div className=\"grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12\">\n              <div className={cn(\"grid content-start gap-3\", i % 2 === 1 && \"lg:order-2\")}>\n                <p className=\"font-mono text-caption leading-tight text-fg-muted\">{r.label}</p>\n                <h2 className=\"text-h1 leading-heading font-normal text-balance text-fg\">{r.title}</h2>\n                <p className=\"max-w-(--ds-layout-text) text-body-lg leading-body text-fg-secondary\">{r.description}</p>\n              </div>\n              <div className=\"min-w-0\">{r.visual}</div>\n            </div>\n          </PageSection>\n        ))}\n        {features && <FeatureGrid {...features} />}\n        {faq && <FaqSection {...faq} />}\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+/* Written by mireye-ds from its brand files. Do not edit; run the CLI again to update. */
+:root {
+	--ds-color-brand: #1E231C;
+	--ds-color-black: #000000;
+	--ds-color-white: #FFFFFF;
+
+	/* Surfaces: Bone (#F4F1EA), the brand's main color, for the ground, controls and panels, as on the website; the 1px
+	   Stone line separates them. Fog under the pointer, Mist when pressed or disabled. White stays in the palette only. */
+	--ds-color-bg-default: #F4F1EA;
+	--ds-color-bg-page: #F4F1EA;
+	--ds-color-bg-canvas: #F4F1EA;
+	--ds-color-bg-frame: #F4F1EA;
+	--ds-color-bg-tint: #F4F1EA;
+	--ds-color-bg-subtle: #E6E8E4;
+	--ds-color-bg-subtle-hover: #DCDEDA;
+	--ds-color-bg-brand: #1E231C;
+	--ds-color-bg-inverse: #1E231C;
+	--ds-color-bg-dark: #33402F;
+	--ds-color-bg-sheet: #F4F1EA;
+	/* Code: a Bone block with a Fog head, in DM Mono. */
+	--ds-color-bg-code: #F4F1EA;
+	--ds-color-bg-code-head: #E6E8E4;
+	/* The page behind a dialog: Forest ("ink, scrims, tags") at 40 percent. */
+	--ds-color-bg-scrim: rgb(30 35 28 / 0.4);
+	/* A switch that is off. */
+	--ds-color-bg-off: #B9BDB7;
+
+	/* Text: Forest, and Forest at 80 and 72 percent on white (#4B4F49, #5D615C, solid so they convert and contrast-check
+	   cleanly) for labels and annotations; Slate for placeholders and anything disabled. Links are the ink, underlined. */
+	--ds-color-text-default: #1E231C;
+	--ds-color-text-secondary: #4B4F49;
+	--ds-color-text-muted: #5D615C;
+	--ds-color-text-subtle: #8C918B;
+	--ds-color-text-faint: #8C918B;
+	--ds-color-text-nav: #1E231C;
+	--ds-color-text-inverse: #F4F1EA;
+	--ds-color-text-inverse-muted: #C9CDC8;
+	--ds-color-text-brand: #1E231C;
+	--ds-color-text-on-brand: #F4F1EA;
+	--ds-color-text-label: #4B4F49;
+	--ds-color-icon-default: #1E231C;
+	--ds-color-icon-secondary: #5D615C;
+	/* Code: a quiet light theme in the palette (Moss keys, Fern strings, Earth numbers). */
+	--ds-color-code-text: #1E231C;
+	--ds-color-code-key: #33402F;
+	--ds-color-code-string: #5E7052;
+	--ds-color-code-number: #7A5A34;
+	--ds-color-code-keyword: #1E231C;
+	--ds-color-code-comment: #8C918B;
+	--ds-color-code-function: #33402F;
+	--ds-color-code-type: #5E7052;
+	--ds-color-code-tag: #4A3E32;
+	--ds-color-code-attr: #7A5A34;
+	--ds-color-code-punct: #8C918B;
+	--ds-color-code-brace: #8C918B;
+	--ds-color-code-line: #B9BDB7;
+	--ds-color-code-line-active: #1E231C;
+	--ds-color-code-head-fg: #5D615C;
+
+	/* Lines: Stone for every 1px edge, Mist for rules inside a panel, Forest for a focused or strong edge. */
+	--ds-color-border-default: #B9BDB7;
+	--ds-color-border-subtle: #DCDEDA;
+	--ds-color-border-strong: #1E231C;
+	--ds-color-border-field: #B9BDB7;
+	--ds-color-border-row: #DCDEDA;
+	--ds-color-border-ring: #B9BDB7;
+	--ds-color-border-brand: #1E231C;
+	--ds-color-border-code: #DCDEDA;
+	/* No shadows: the drop is transparent, so a raised panel is only its 1px line. */
+	--ds-color-shadow-drop: rgb(30 35 28 / 0);
+	--ds-color-wash-hover: rgb(30 35 28 / 0.04);
+	--ds-color-wash-pressed: rgb(30 35 28 / 0.07);
+	--ds-color-ring-tint: rgb(30 35 28 / 0.12);
+
+	/* Actions: the Forest key, a step lighter under the pointer, Mist when disabled. */
+	--ds-color-action-primary: #1E231C;
+	--ds-color-action-primary-hover: #3E443E;
+	--ds-color-action-primary-fg: #F4F1EA;
+	--ds-color-action-disabled: #DCDEDA;
+	--ds-color-focus-ring: #1E231C;
+	/* States. Figma has Verified, Loading and Queued only; these are chosen in the palette for a designer's review. */
+	--ds-color-status-success: #5E7052;
+	--ds-color-status-success-bg: #E3E8DA;
+	--ds-color-status-warning: #8A6A3F;
+	--ds-color-status-warning-bg: #F1E8D8;
+	--ds-color-status-warning-fg: #2A2119;
+	--ds-color-status-warning-muted: #8A6A3F;
+	--ds-color-status-danger: #A04532;
+	--ds-color-status-danger-strong: #7E3324;
+	--ds-color-status-info: #33402F;
+	--ds-color-status-info-bg: #E6E8E4;
+	--ds-color-status-info-fg: #1E231C;
+	/* Data tags ("345 kV"): Fog with Forest ink (UI · Status and tags, 442:202). */
+	--ds-color-tag: #E6E8E4;
+	--ds-color-tag-fg: #1E231C;
+	--ds-color-chart-series-1: #1E231C;
+	--ds-color-chart-series-2: #5E7052;
+	--ds-color-chart-series-3: #A9B892;
+	--ds-color-chart-series-4: #C9A47A;
+	--ds-color-chart-series-5: #4A3E32;
+
+	/* Type: Gilroy (Regular 400 and Medium 500, the only weights in Figma) for everything; DM Mono for coordinates, IDs,
+	   values and code. Every Figma text style uses a 1.4 line height. Hierarchy comes from size, color and space,
+	   never weight: nothing is heavier than medium. */
+	--ds-font-sans: "Gilroy", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+	--ds-font-display: "Gilroy", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+	--ds-font-mono: var(--font-dm-mono, "DM Mono"), ui-monospace, "SF Mono", Menlo, monospace;
+	--ds-font-code: var(--font-dm-mono, "DM Mono"), ui-monospace, "SF Mono", Menlo, monospace;
+	--ds-font-weight-regular: 400;
+	--ds-font-weight-medium: 500;
+	--ds-font-weight-semibold: 500;
+	--ds-font-weight-bold: 500;
+	--ds-font-weight-heading: 400;
+	/* The product scale: 12 to 14px controls and copy, 16 to 32px titles. */
+	--ds-text-display: 2rem;
+	--ds-text-h1: 1.5rem;
+	--ds-text-h2: 1.25rem;
+	--ds-text-h3: 1rem;
+	--ds-text-h4: 0.875rem;
+	--ds-text-body-lg: 0.875rem;
+	--ds-text-body: 0.8125rem;
+	--ds-text-body-sm: 0.75rem;
+	--ds-text-caption: 0.75rem;
+	--ds-text-micro: 0.6875rem;
+	--ds-line-body: 18px;
+	--ds-line-caption: 16px;
+	--ds-leading-tight: 1.2;
+	--ds-leading-heading: 1.4;
+	--ds-leading-display: 1.25;
+	--ds-leading-snug: 1.25;
+	--ds-leading-body: 1.4;
+	--ds-leading-relaxed: 1.6;
+	--ds-leading-code: 1.6;
+	--ds-tracking-normal: 0;
+	--ds-tracking-tight: 0;
+	--ds-tracking-caps: 0.04em;
+
+	/* Space: a 4px grid, rem so it follows the root. */
+	--ds-space-0: 0;
+	--ds-space-px: 1px;
+	--ds-space-0-5: 0.125rem;
+	--ds-space-1: 0.25rem;
+	--ds-space-1-5: 0.375rem;
+	--ds-space-2: 0.5rem;
+	--ds-space-2-5: 0.625rem;
+	--ds-space-3: 0.75rem;
+	--ds-space-3-5: 0.875rem;
+	--ds-space-4: 1rem;
+	--ds-space-5: 1.25rem;
+	--ds-space-6: 1.5rem;
+	--ds-space-7: 1.75rem;
+	--ds-space-8: 2rem;
+	--ds-space-9: 2.25rem;
+	--ds-space-9-5: 2.375rem;
+	--ds-space-10: 2.5rem;
+	--ds-space-10-5: 2.625rem;
+	--ds-space-12: 3rem;
+	--ds-space-14: 3.5rem;
+	--ds-space-16: 4rem;
+	--ds-space-20: 5rem;
+	--ds-space-24: 6rem;
+	--ds-section-padding: 24px;
+	--ds-component-padding: 16px;
+
+	/* Layout: a 212px rail beside the page, 48px page gutters. */
+	--ds-layout-column: 75rem;
+	--ds-layout-gutter: 3rem;
+	--ds-layout-text: 42.5rem;
+	--ds-layout-heading: 42rem;
+	--ds-layout-header: 4.5rem;
+	--ds-layout-rail: 13.25rem;
+	--ds-frame-column: min(100% - 2 * var(--ds-layout-gutter), var(--ds-layout-column));
+
+	/* Shape: nothing is rounded. The only shape is the cut corner, a 45° chamfer at the top-left taken from the cuts in
+	   the logomark (ds-cut and ds-cut-frame); these are its sizes at the product scale (Figma's 12, 10, 16 and 8px at
+	   0.6). The radius steps exist for the engine and are all square. */
+	--ds-cut: 8px;
+	--ds-cut-md: 6px;
+	--ds-cut-lg: 10px;
+	--ds-cut-sm: 5px;
+	--ds-radius-xs: 0;
+	--ds-radius-sm: 0;
+	--ds-radius-control: 0;
+	--ds-radius-panel: 0;
+	--ds-radius-dialog: 0;
+	--ds-radius-pill: 0;
+	/* Hatch: 1px vertical lines every 6px, starting 3px in. Tick rows share the pitch. */
+	--ds-hatch-pitch: 6px;
+	--ds-border-width: 1px;
+	/* No shadows. A raised panel is its 1px Stone line; focus is a 1px Forest ring 2px outside the control. */
+	--ds-shadow-s: 0 0 0 1px #B9BDB7;
+	--ds-shadow-card: 0 0 0 1px #B9BDB7;
+	--ds-shadow-line: 0 1px 0 #DCDEDA;
+	--ds-shadow-floating: 0 0 0 1px #B9BDB7;
+	--ds-shadow-dialog: 0 0 0 1px #B9BDB7;
+	--ds-shadow-knob: 0 0 0 1px #B9BDB7;
+	--ds-shadow-focus: 0 0 0 2px #F4F1EA, 0 0 0 3px #1E231C;
+	--ds-blur-scrim: 0px;
+
+	/* Motion: a strong ease-out for hovers and entrances; in-out only for what travels (a switch knob). Figma has
+	   motion only on loaders and spinners, so the rest stays quiet. Never ease-in. */
+	--ds-duration-fast: 150ms;
+	--ds-duration-base: 200ms;
+	--ds-duration-moderate: 200ms;
+	--ds-duration-slow: 300ms;
+	--ds-easing-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ds-easing-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+	--ds-easing-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+	/* The named palette, after the roles so a value that matches both converts to its role. */
+	/* Palette · API · Field (the default): green leads, brown supports. */
+	--ds-color-forest: #1E231C;
+	--ds-color-moss: #33402F;
+	--ds-color-fern: #5E7052;
+	--ds-color-lichen: #A9B892;
+	--ds-color-earth: #2A2119;
+	--ds-color-bone: #F4F1EA;
+	/* Palette · Enterprise · Earth: brown leads (the platform: site selection, sector pages, reports). */
+	--ds-color-umber: #1F1813;
+	--ds-color-bark: #4A3E32;
+	--ds-color-clay: #C9A47A;
+	--ds-color-sand: #D9CDB8;
+	--ds-color-bone-warm: #F4EFE6;
+	/* The product's green-tinted grays (UI boards 442:2). */
+	--ds-color-mist: #DCDEDA;
+	--ds-color-stone: #B9BDB7;
+	--ds-color-slate: #8C918B;
+	--ds-color-haze: #C9CDC8;
+	--ds-color-fog: #E6E8E4;
+	/* A primary key's hover: Forest a step lighter (the hatch lines on Figma's hover). */
+	--ds-color-hatch-dark: #3E443E;
+	/* Unlit loader ticks on a dark fill. */
+	--ds-color-track-dark: #5E645E;
+}
+
+[data-brand="enterprise"] {
+	--ds-color-brand: #1F1813;
+	--ds-color-text-default: #1F1813;
+	--ds-color-text-nav: #1F1813;
+	--ds-color-text-brand: #1F1813;
+	--ds-color-icon-default: #1F1813;
+	--ds-color-bg-brand: #1F1813;
+	--ds-color-bg-inverse: #1F1813;
+	--ds-color-bg-dark: #4A3E32;
+	--ds-color-bg-scrim: rgb(31 24 19 / 0.4);
+	--ds-color-border-strong: #1F1813;
+	--ds-color-border-brand: #1F1813;
+	--ds-color-action-primary: #1F1813;
+	--ds-color-action-primary-hover: #4A3E32;
+	--ds-color-focus-ring: #1F1813;
+	--ds-color-tag-fg: #1F1813;
+	--ds-shadow-focus: 0 0 0 2px #F4F1EA, 0 0 0 3px #1F1813;
+}
+
+/* The base layer: what every Mireye screen has before any component is styled. Defaults use :where() so the app's
+   own rules still win; there are no markup touches. */
+
+/* Element defaults sit in the base layer, so a utility class on an element wins over them. */
+@layer base {
+	html {
+		background-color: var(--ds-color-bg-page);
+	}
+
+	html,
+	body {
+		color: var(--ds-color-text-default);
+	}
+
+	/* The canvas is the ground; white is for controls and panels on it. */
+	body {
+		background-color: var(--ds-color-bg-page);
+		font-family: var(--ds-font-sans);
+		font-size: var(--ds-text-body);
+		line-height: var(--ds-leading-body);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	/* Titles are Gilroy Regular: hierarchy comes from size, never weight. */
+	:where(h1, h2, h3, h4, h5, h6) {
+		font-family: var(--ds-font-display);
+		font-weight: var(--ds-font-weight-heading);
+		color: inherit;
+		line-height: var(--ds-leading-heading);
+		text-wrap: balance;
+	}
+
+	:where(p, li, blockquote, figcaption, dd, td) {
+		text-wrap: pretty;
+	}
+
+	/* Coordinates, IDs, values and code are DM Mono. */
+	:where(code, kbd, pre, samp) {
+		font-family: var(--ds-font-mono);
+	}
+
+	/* Links are the ink, underlined. */
+	:where(a) {
+		color: var(--ds-color-text-brand);
+		text-underline-offset: 3px;
+	}
+
+	::selection {
+		background-color: var(--ds-color-ring-tint);
+	}
+
+	/* Focus: a 1px ink outline 2px outside the control, square like everything else. */
+	:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+		outline: 1px solid var(--ds-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
+/* A section label: 12px in the secondary ink. */
+.ds-label {
+	font-size: var(--ds-text-caption);
+	line-height: var(--ds-leading-tight);
+	color: var(--ds-color-text-label);
+}
+
+/* Shared interaction rules for installed CSS and the component theme. */
+@layer base {
+ :where(button, [role="button"], a[href], input, select, textarea, summary) {
+  touch-action: manipulation;
+ }
+}
+
+/* Press feedback is immediate; the action still activates through the native click/keyboard path. */
+:where(button, [role="button"], a[href], summary):active {
+ transition-duration: 0s !important;
+ transition-delay: 0s !important;
+}
+
+/* Keyboard feedback and explicitly high-frequency surfaces never wait for motion. The scroll edge fades (fade-y,
+   fade-x, fade-xy) are exempt here and under reduced motion: they follow the scroll position, not time, and without
+   them content is cut off by a hard edge. */
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where(button, [role="button"], a[href], input, select, textarea, summary):focus-visible *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]):where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])),
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::before,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"]) *::after,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"])::before,
+:where([data-ds-motion="instant"], [data-instant="true"], [data-slot^="command"])::after {
+ animation: none !important;
+ transition: none !important;
+ scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+ *:where(:not(.fade-y, .fade-x, .fade-xy, .fade-x-end, [class*=":fade-x"], [class*=":fade-y"])), ::before, ::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+ }
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "name": "drawer",
+  "useFor": "Use on phones for a choice or short task that comes from the bottom of the screen (choose a basemap). People can drag or flick it away. The body fades at an edge (fade-xy) where more content scrolls past it, either way.",
+  "constraints": [
+    "Rounded corners or a shadow",
+    "Long forms",
+    "A drawer that cannot be dismissed by dragging",
+    "Bouncing on release"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the sheet",
+  "exports": [
+    "Drawer",
+    "DrawerClose",
+    "DrawerContent",
+    "DrawerDescription",
+    "DrawerFooter",
+    "DrawerHeader",
+    "DrawerOverlay",
+    "DrawerPortal",
+    "DrawerTitle",
+    "DrawerTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/drawer",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/drawer.md",
+  "examples": [
+    {
+      "path": "examples/drawer.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { CheckIcon } from \"@/components/icons/check\";\nimport { Button } from \"@/components/ui/button\";\nimport { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from \"@/components/ui/drawer\";\n\nconst BASEMAPS = [\n  { id: \"survey\", title: \"Survey\", body: \"Parcel lines and survey nodes on the canvas ground.\" },\n  { id: \"aerial\", title: \"Aerial\", body: \"Recent imagery, dimmed so parcels and tags read first.\" },\n];\n\nfunction ChooseBasemap({ onChoose }: { onChoose?: () => void }) {\n  const [basemap, setBasemap] = React.useState(\"survey\");\n  return (\n    <>\n      <DrawerHeader>\n        <DrawerTitle>Basemap</DrawerTitle>\n        <DrawerDescription>Choose what the map shows under Site 14.</DrawerDescription>\n      </DrawerHeader>\n      <div role=\"radiogroup\" aria-label=\"Basemap\" className=\"grid gap-2 px-5\">\n        {BASEMAPS.map((b) => (\n          <button\n            key={b.id}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={basemap === b.id}\n            onClick={() => setBasemap(b.id)}\n            className=\"flex items-center gap-3 border border-line bg-surface p-3 text-left outline-none transition-[background-color,border-color] duration-150 ease-out hover:bg-subtle active:bg-subtle-hover active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong aria-checked:border-line-strong motion-reduce:transition-none\"\n          >\n            <span className=\"grid flex-1 gap-1\">\n              <span className=\"text-body font-medium text-fg\">{b.title}</span>\n              <span className=\"text-body text-fg-secondary\">{b.body}</span>\n            </span>\n            {basemap === b.id && <CheckIcon className=\"text-fg\" />}\n          </button>\n        ))}\n      </div>\n      <DrawerFooter>\n        <Button className=\"w-full\" onClick={onChoose}>\n          Use {basemap} basemap\n        </Button>\n        <DrawerClose asChild>\n          <Button variant=\"ghost\" className=\"w-full\">\n            Cancel\n          </Button>\n        </DrawerClose>\n      </DrawerFooter>\n    </>\n  );\n}\n\nexport function Preview() {\n  const [open, setOpen] = React.useState(false);\n  return (\n    <div className=\"flex justify-center\">\n      <Drawer open={open} onOpenChange={setOpen}>\n        <DrawerTrigger asChild>\n          <Button variant=\"outline\">Choose a basemap</Button>\n        </DrawerTrigger>\n        <DrawerContent>\n          <div className=\"mx-auto w-full max-w-md\">\n            <ChooseBasemap onChoose={() => setOpen(false)} />\n          </div>\n        </DrawerContent>\n      </Drawer>\n    </div>\n  );\n}\n\nexport function Directions() {\n  const directions = [\"bottom\", \"top\", \"right\", \"left\"] as const;\n  return (\n    <div className=\"flex flex-wrap justify-center gap-3\">\n      {directions.map((direction) => (\n        <Drawer key={direction} direction={direction}>\n          <DrawerTrigger asChild>\n            <Button variant=\"outline\" className=\"capitalize\">\n              {direction}\n            </Button>\n          </DrawerTrigger>\n          <DrawerContent>\n            <DrawerHeader>\n              <DrawerTitle>Drawer from the {direction}</DrawerTitle>\n              <DrawerDescription>Drag it back toward its edge, or flick it, to close.</DrawerDescription>\n            </DrawerHeader>\n            <DrawerFooter>\n              <DrawerClose asChild>\n                <Button variant=\"outline\">Close</Button>\n              </DrawerClose>\n            </DrawerFooter>\n          </DrawerContent>\n        </Drawer>\n      ))}\n    </div>\n  );\n}\n\nexport function Open() {\n  return (\n    <div className=\"min-h-120\">\n      <Drawer defaultOpen>\n        <DrawerContent>\n          <div className=\"mx-auto w-full max-w-md\">\n            <ChooseBasemap />\n          </div>\n        </DrawerContent>\n      </Drawer>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Directions",
+        "Open"
+      ],
+      "requires": [
+        "drawer",
+        "icons",
+        "button"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/drawer/Preview"
+        },
+        {
+          "name": "Directions",
+          "url": "https://mireye-ds.agencidev.com/preview/drawer/Directions"
+        },
+        {
+          "name": "Open",
+          "url": "https://mireye-ds.agencidev.com/preview/drawer/Open"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Drawer",
+  "description": "A square Bone panel pulled from an edge with a 1px Stone line on its inner edge, a square Stone handle, and a drag that follows the finger; it slides on the drawer curve.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/drawer.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Dialog as DrawerPrimitive } from \"radix-ui\";\n\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A drawer, drawn as the sheet in Mireye's grammar (Figma has none) and pulled from an edge: white, square and flush\n// with its edge, a 1px Stone line on its inner edge and no shadow, on the page under Forest at 40 percent; a square 40\n// by 4px handle in Stone, the 16px regular title over a 13px line in the secondary ink, and 20px sides. It slides in on\n// the drawer curve (300ms in, 200ms out) and can be dragged away: a flick (faster than 0.11px per ms) or a pull past a\n// third of its size closes it, a shorter pull springs back on the same curve, and pulling the other way meets growing\n// resistance instead of a wall. The drag follows the pointer even off the panel (pointer capture) and ignores a\n// second finger.\ntype Direction = \"bottom\" | \"top\" | \"left\" | \"right\";\n\nconst DrawerContext = React.createContext<{ direction: Direction; setOpen: (open: boolean) => void }>({ direction: \"bottom\", setOpen: () => {} });\n\nfunction Drawer({ open: openProp, defaultOpen = false, onOpenChange, direction = \"bottom\", ...props }: React.ComponentProps<typeof DrawerPrimitive.Root> & { direction?: Direction }) {\n  const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);\n  const open = openProp ?? uncontrolled;\n  const setOpen = React.useCallback(\n    (next: boolean) => {\n      if (openProp === undefined) setUncontrolled(next);\n      onOpenChange?.(next);\n    },\n    [openProp, onOpenChange],\n  );\n  return (\n    <DrawerContext.Provider value={{ direction, setOpen }}>\n      <DrawerPrimitive.Root data-slot=\"drawer\" open={open} onOpenChange={setOpen} {...props} />\n    </DrawerContext.Provider>\n  );\n}\n\nfunction DrawerTrigger(props: React.ComponentProps<typeof DrawerPrimitive.Trigger>) {\n  return <DrawerPrimitive.Trigger data-slot=\"drawer-trigger\" {...props} />;\n}\n\nfunction DrawerPortal(props: React.ComponentProps<typeof DrawerPrimitive.Portal>) {\n  const container = usePortalContainer();\n  return <DrawerPrimitive.Portal data-slot=\"drawer-portal\" container={container} {...props} />;\n}\n\nfunction DrawerClose(props: React.ComponentProps<typeof DrawerPrimitive.Close>) {\n  return <DrawerPrimitive.Close data-slot=\"drawer-close\" {...props} />;\n}\n\nfunction DrawerOverlay({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {\n  return (\n    <DrawerPrimitive.Overlay\n      data-slot=\"drawer-overlay\"\n      className={cn(\"fixed inset-0 z-50 bg-scrim data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in\", className)}\n      {...props}\n    />\n  );\n}\n\nconst PLACE: Record<Direction, string> = {\n  bottom: \"inset-x-0 bottom-0 max-h-[85dvh] border-t border-line data-[state=closed]:animate-sheet-out-bottom data-[state=open]:animate-sheet-in-bottom\",\n  top: \"inset-x-0 top-0 max-h-[85dvh] flex-col-reverse border-b border-line data-[state=closed]:animate-sheet-out-top data-[state=open]:animate-sheet-in-top\",\n  right: \"inset-y-0 right-0 w-3/4 flex-row-reverse border-l border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-right data-[state=open]:animate-sheet-in-right\",\n  left: \"inset-y-0 left-0 w-3/4 flex-row border-r border-line sm:max-w-96 data-[state=closed]:animate-sheet-out-left data-[state=open]:animate-sheet-in-left\",\n};\n\n// Where a pull closes the drawer: toward its own edge (positive for bottom and right).\nconst AXIS: Record<Direction, { axis: \"x\" | \"y\"; sign: 1 | -1 }> = { bottom: { axis: \"y\", sign: 1 }, top: { axis: \"y\", sign: -1 }, right: { axis: \"x\", sign: 1 }, left: { axis: \"x\", sign: -1 } };\nconst VELOCITY = 0.11;\nconst SKIP = \"button, a, input, textarea, select, [role=slider], [contenteditable=true], [data-drawer-no-drag]\";\n\nfunction useDrag(direction: Direction, close: () => void) {\n  const panel = React.useRef<HTMLDivElement>(null);\n  const drag = React.useRef<{ id: number; start: number; at: number; time: number } | null>(null);\n  const { axis, sign } = AXIS[direction];\n  const translate = (px: number) => (axis === \"y\" ? `translateY(${px}px)` : `translateX(${px}px)`);\n\n  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {\n    if (drag.current || event.button !== 0) return; // one pointer only\n    if ((event.target as Element).closest(SKIP)) return;\n    if (window.getSelection()?.toString()) return;\n    const start = axis === \"y\" ? event.clientY : event.clientX;\n    drag.current = { id: event.pointerId, start, at: 0, time: performance.now() };\n    event.currentTarget.setPointerCapture(event.pointerId);\n    if (panel.current) panel.current.style.transition = \"none\";\n  };\n\n  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {\n    const d = drag.current;\n    if (!d || d.id !== event.pointerId || !panel.current) return;\n    const raw = (axis === \"y\" ? event.clientY : event.clientX) - d.start;\n    const toward = raw * sign;\n    // Toward the edge it follows the pointer; away from it, resistance grows with distance.\n    const moved = toward >= 0 ? toward : -Math.sqrt(-toward) * 2;\n    d.at = moved;\n    panel.current.style.transform = translate(moved * sign);\n  };\n\n  const end = (event: React.PointerEvent<HTMLDivElement>) => {\n    const d = drag.current;\n    if (!d || d.id !== event.pointerId || !panel.current) return;\n    drag.current = null;\n    const el = panel.current;\n    const size = axis === \"y\" ? el.offsetHeight : el.offsetWidth;\n    const velocity = Math.abs(d.at) / Math.max(1, performance.now() - d.time);\n    if (d.at > 0 && (d.at > size / 3 || velocity > VELOCITY)) {\n      el.style.transition = \"\";\n      close();\n      return;\n    }\n    el.style.transition = \"transform var(--ds-duration-slow) var(--ds-easing-drawer)\";\n    el.style.transform = \"\";\n    const reset = () => {\n      el.style.transition = \"\";\n      el.removeEventListener(\"transitionend\", reset);\n    };\n    el.addEventListener(\"transitionend\", reset);\n  };\n\n  return { panel, handlers: { onPointerDown, onPointerMove, onPointerUp: end, onPointerCancel: end } };\n}\n\nfunction DrawerContent({ className, children, ...props }: React.ComponentProps<typeof DrawerPrimitive.Content>) {\n  const { direction, setOpen } = React.useContext(DrawerContext);\n  const { panel, handlers } = useDrag(direction, () => setOpen(false));\n  const vertical = direction === \"bottom\" || direction === \"top\";\n  return (\n    <DrawerPortal>\n      <DrawerOverlay />\n      <DrawerPrimitive.Content\n        ref={panel}\n        data-slot=\"drawer-content\"\n        data-direction={direction}\n        className={cn(\"group/drawer fixed z-50 flex touch-none bg-surface text-fg outline-none\", vertical ? \"flex-col\" : \"\", PLACE[direction], className)}\n        {...handlers}\n        {...props}\n      >\n        <div aria-hidden data-slot=\"drawer-handle\" className={cn(\"shrink-0 bg-line\", vertical ? \"mx-auto my-3 h-1 w-10\" : \"my-auto mx-3 h-10 w-1\")} />\n        <div className=\"flex min-h-0 min-w-0 flex-1 touch-auto flex-col overflow-auto fade-xy\">{children}</div>\n      </DrawerPrimitive.Content>\n    </DrawerPortal>\n  );\n}\n\nfunction DrawerHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"drawer-header\" className={cn(\"flex flex-col gap-1 px-5 pt-2 pb-4 group-data-[direction=bottom]/drawer:text-center group-data-[direction=top]/drawer:text-center md:text-left md:group-data-[direction=bottom]/drawer:text-left\", className)} {...props} />;\n}\n\nfunction DrawerFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"drawer-footer\" className={cn(\"mt-auto flex flex-col gap-2 p-5\", className)} {...props} />;\n}\n\nfunction DrawerTitle({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Title>) {\n  return <DrawerPrimitive.Title data-slot=\"drawer-title\" className={cn(\"font-sans text-h3 leading-tight font-normal text-fg\", className)} {...props} />;\n}\n\nfunction DrawerDescription({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Description>) {\n  return <DrawerPrimitive.Description data-slot=\"drawer-description\" className={cn(\"text-body leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nexport { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerPortal, DrawerTitle, DrawerTrigger };\n"
+    }
+  ]
+}

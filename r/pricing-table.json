@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "name": "pricing-table",
+  "useFor": "Use on the pricing page, or as a section of the home page. Pass `plans` (monthly and yearly prices, or a quote) and mark one `featured`. Every other plan gets an outlined key.",
+  "constraints": [
+    "More than one Forest key",
+    "Rolling or animated prices",
+    "Check icons instead of diamonds",
+    "Coloured plan headers"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): PricingPlans and pricing.css (plan row, one billing switch for every paid plan)",
+  "exports": [
+    "Plan",
+    "PricingTableProps",
+    "PricingTable"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/pricing-table",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/pricing-table.md",
+  "examples": [
+    {
+      "path": "examples/pricing-table.tsx",
+      "content": "\"use client\";\n\nimport { PricingTable } from \"@/components/blocks/pricing-table\";\n\nexport function Preview() {\n  return <PricingTable closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "pricing-table"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/pricing-table/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Pricing table",
+  "description": "Plans in cut frames: price in the display size with its unit in DM Mono, the included usage, solid-node bullets; the featured plan has a Forest line and the one Forest key, and one switch bills every plan yearly.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "page-section",
+    "badge",
+    "button",
+    "card",
+    "diamond",
+    "switch",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/pricing-table.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { Switch } from \"@/components/ui/switch\";\nimport { cn } from \"@/lib/utils\";\n\n// Plans side by side in cut frames: the name, who it is for, the price in the display size with its unit in DM Mono,\n// the included usage, then what it includes as solid-node bullets. The plan most teams pick has a Forest line and the\n// one Forest key; the others have outlined keys. One \"Billed yearly\" switch changes every monthly price at once (the\n// number swaps in place, no roll). One column on a phone, two on a tablet, four on wide screens.\n\nexport type Plan = {\n  name: string;\n  description: string;\n  /** Monthly price in dollars; null for a quoted price. */\n  monthly: number | null;\n  /** Monthly price when billed yearly. */\n  yearly?: number | null;\n  /** Shown instead of a number when the price is quoted. */\n  quote?: string;\n  usage: string;\n  features: string[];\n  cta: { label: string; href: string };\n  featured?: boolean;\n};\n\nconst PLANS: Plan[] = [\n  { name: \"Free\", description: \"For trying the API on a few places.\", monthly: 0, yearly: 0, usage: \"1,000 requests a month\", features: [\"Parcels, power, water and terrain\", \"Every value cited\", \"Community support\"], cta: { label: \"Start free\", href: \"#sign-up\" } },\n  { name: \"Builder\", description: \"For one agent in production.\", monthly: 49, yearly: 39, usage: \"25,000 requests a month\", features: [\"Everything in Free\", \"Permits and zoning\", \"Batch requests\", \"Email support\"], cta: { label: \"Choose Builder\", href: \"#sign-up\" } },\n  { name: \"Team\", description: \"For teams screening sites every day.\", monthly: 399, yearly: 319, usage: \"250,000 requests a month\", features: [\"Everything in Builder\", \"The site selection platform\", \"Saved searches and shortlists\", \"Five seats\"], cta: { label: \"Choose Team\", href: \"#sign-up\" }, featured: true },\n  { name: \"Enterprise\", description: \"For custom coverage and contracts.\", monthly: null, quote: \"Custom\", usage: \"Volume pricing\", features: [\"Everything in Team\", \"Custom sources and fields\", \"SSO and audit log\", \"A named engineer\"], cta: { label: \"Talk to us\", href: \"#contact\" } },\n];\n\nexport type PricingTableProps = Omit<PageSectionProps, \"children\"> & {\n  plans?: Plan[];\n  /** Start on yearly billing. */\n  defaultYearly?: boolean;\n  /** A line under the plans, e.g. taxes or overage. */\n  note?: React.ReactNode;\n};\n\nexport function PricingTable({\n  label = \"Pricing\",\n  title = \"Pay for the requests your agents make.\",\n  intro = \"Every plan includes every source. Upgrade when you need more requests or the platform.\",\n  plans = PLANS,\n  defaultYearly = true,\n  note = \"Prices in USD. Requests over the plan are billed at the plan rate; nothing stops your agent mid-run.\",\n  ...props\n}: PricingTableProps) {\n  const [yearly, setYearly] = React.useState(defaultYearly);\n  return (\n    <PageSection label={label} title={title} intro={intro} {...props}>\n      <div className=\"mb-6 flex justify-end\">\n        <Switch checked={yearly} onCheckedChange={setYearly}>\n          Billed yearly\n        </Switch>\n      </div>\n      <div className=\"grid gap-4 sm:grid-cols-2 xl:grid-cols-4\">\n        {plans.map((plan) => {\n          const price = yearly ? (plan.yearly ?? plan.monthly) : plan.monthly;\n          return (\n            <Card key={plan.name} className={cn(\"h-full\", plan.featured && \"[--ds-shape-stroke:var(--ds-color-border-strong)]\")}>\n              <CardHeader>\n                <CardTitle className=\"justify-between\">\n                  {plan.name}\n                  {plan.featured && <Badge variant=\"inverse\">Most teams</Badge>}\n                </CardTitle>\n                <CardDescription>{plan.description}</CardDescription>\n              </CardHeader>\n              <CardContent className=\"grid gap-1\">\n                <p className=\"flex items-baseline gap-2\">\n                  <span className=\"text-display leading-display font-normal text-fg tabular-nums\">{price == null ? plan.quote : `$${price}`}</span>\n                  {price != null && <span className=\"font-mono text-caption text-fg-muted\">/ mo</span>}\n                </p>\n                <p className=\"font-mono text-caption leading-tight text-fg-muted\">{plan.usage}</p>\n              </CardContent>\n              <CardContent className=\"flex-1\">\n                <ul className=\"grid gap-2 border-t border-line-subtle pt-4\">\n                  {plan.features.map((f) => (\n                    <li key={f} className=\"flex items-start gap-2.5 text-body leading-body text-fg-secondary\">\n                      <Diamond size={9} className=\"mt-1.5 text-fg\" />\n                      {f}\n                    </li>\n                  ))}\n                </ul>\n              </CardContent>\n              <CardFooter>\n                <Button asChild variant={plan.featured ? \"default\" : \"outline\"} className=\"w-full\">\n                  <a href={plan.cta.href}>\n                    {plan.cta.label}\n                    {plan.featured && <ArrowRightIcon size={20} />}\n                  </a>\n                </Button>\n              </CardFooter>\n            </Card>\n          );\n        })}\n      </div>\n      {note != null && <p className=\"mt-6 text-caption leading-body text-fg-muted\">{note}</p>}\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

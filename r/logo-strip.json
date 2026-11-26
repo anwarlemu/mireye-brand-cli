@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "logo-strip",
+  "useFor": "Use under the hero to show who builds on the product. The defaults are placeholder names (Acme, Acme Labs...); pass real customer names only with their permission.",
+  "constraints": [
+    "Real company names or logos without permission",
+    "Coloured logos",
+    "A moving marquee",
+    "More than eight names"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): CustomerLogoStrip layout (names in ruled cells); names are placeholders",
+  "exports": [
+    "LogoStripProps",
+    "LogoStrip"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/logo-strip",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/logo-strip.md",
+  "examples": [
+    {
+      "path": "examples/logo-strip.tsx",
+      "content": "import { LogoStrip } from \"@/components/blocks/logo-strip\";\n\nexport function Preview() {\n  return <LogoStrip closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "logo-strip"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/logo-strip/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Logo strip",
+  "description": "Customer names between two section rules: a mono label, then quiet wordmarks (an outlined node and the name in Forest at 72%) in cells split by Mist rules.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/logo-strip.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// A strip of customer names between two section rules: a label, then the names as quiet wordmarks (an outlined node and\n// the name in Forest at 72%) in cells split by 1px Stone rules. Placeholder names only; a product passes its own\n// customers' names (or logos as children of each cell) once it has permission to show them.\n\nconst NAMES = [\"Acme\", \"Acme Labs\", \"Acme Land\", \"Acme Energy\", \"Acme Grid\", \"Acme Survey\"];\n\nexport type LogoStripProps = Omit<PageSectionProps, \"children\" | \"title\" | \"intro\"> & {\n  names?: string[];\n};\n\nexport function LogoStrip({ label = \"Teams that build on Mireye\", names = NAMES, space = \"compact\", ...props }: LogoStripProps) {\n  return (\n    <PageSection space={space} {...props}>\n      <div className=\"grid gap-5 lg:grid-cols-4 lg:items-center lg:gap-8\">\n        <p className=\"font-mono text-caption leading-tight text-fg-muted\">{label}</p>\n        <ul className=\"grid grid-cols-2 border-t border-l border-line-subtle sm:grid-cols-3 lg:col-span-3\">\n          {names.map((n) => (\n            <li key={n} className=\"flex h-16 items-center justify-center gap-2 border-r border-b border-line-subtle px-3 text-body-lg leading-none text-fg-muted\">\n              <Diamond size={12} variant=\"outline\" />\n              <span className=\"truncate\">{n}</span>\n            </li>\n          ))}\n        </ul>\n      </div>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

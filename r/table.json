@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "name": "table",
+  "useFor": "Use for a short, fixed list of records to read (substations near a parcel, the parcels in an assembled site). Align numbers right with tabular-nums and units in the cell (138 kV, 0.8 mi); set parcel IDs and coordinates in DM Mono. Mark a selected row with data-state=\"selected\" and a row that opens a record with data-interactive. For sorting, filtering, selection or paging, use Data Table. A table wider than its container fades at the side (fade-x) where more columns scroll past it.",
+  "constraints": [
+    "Zebra stripes",
+    "A filled head",
+    "Rounded corners",
+    "Hover fills on read-only rows",
+    "Vertical rules between columns"
+  ],
+  "documentation": "",
+  "source": "LAND data-table (the Leads sites table) and Figma UI · Agent chat (443:433): Cited fields rules",
+  "exports": [
+    "Table",
+    "TableBody",
+    "TableCaption",
+    "TableCell",
+    "TableFooter",
+    "TableHead",
+    "TableHeader",
+    "TableRow"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/table",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/table.md",
+  "examples": [
+    {
+      "path": "examples/table.tsx",
+      "content": "import { Badge } from \"@/components/ui/badge\";\nimport { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from \"@/components/ui/table\";\n\nconst SUBSTATIONS = [\n  { name: \"Waxahachie North\", county: \"Ellis\", kv: 345, distance: 0.8, queue: \"Open\" },\n  { name: \"Ennis East\", county: \"Ellis\", kv: 138, distance: 2.4, queue: \"Open\" },\n  { name: \"Corsicana\", county: \"Navarro\", kv: 138, distance: 6.1, queue: \"Full\" },\n  { name: \"Kaufman South\", county: \"Kaufman\", kv: 69, distance: 9.7, queue: \"Open\" },\n];\n\nexport function Preview() {\n  return (\n    <Table>\n      <TableCaption>Substations within 10 mi of parcel 042-117-09.</TableCaption>\n      <TableHeader>\n        <TableRow>\n          <TableHead>Substation</TableHead>\n          <TableHead>County</TableHead>\n          <TableHead className=\"text-right\">Voltage</TableHead>\n          <TableHead className=\"text-right\">Distance</TableHead>\n          <TableHead>Queue</TableHead>\n        </TableRow>\n      </TableHeader>\n      <TableBody>\n        {SUBSTATIONS.map((s) => (\n          <TableRow key={s.name}>\n            <TableCell>{s.name}</TableCell>\n            <TableCell className=\"text-fg-secondary\">{s.county}</TableCell>\n            <TableCell className=\"text-right tabular-nums\">{s.kv} kV</TableCell>\n            <TableCell className=\"text-right tabular-nums\">{s.distance.toFixed(1)} mi</TableCell>\n            <TableCell>\n              <Badge variant={s.queue === \"Open\" ? \"default\" : \"secondary\"}>{s.queue}</Badge>\n            </TableCell>\n          </TableRow>\n        ))}\n      </TableBody>\n    </Table>\n  );\n}\n\nexport function WithFooter() {\n  return (\n    <Table variant=\"framed\">\n      <TableHeader>\n        <TableRow>\n          <TableHead>Parcel</TableHead>\n          <TableHead>Zoning</TableHead>\n          <TableHead className=\"text-right\">Acres</TableHead>\n        </TableRow>\n      </TableHeader>\n      <TableBody>\n        <TableRow>\n          <TableCell className=\"font-mono text-caption\">042-117-09</TableCell>\n          <TableCell>I-2 Industrial</TableCell>\n          <TableCell className=\"text-right tabular-nums\">141.3</TableCell>\n        </TableRow>\n        <TableRow data-state=\"selected\">\n          <TableCell className=\"font-mono text-caption\">042-117-10</TableCell>\n          <TableCell>I-2 Industrial</TableCell>\n          <TableCell className=\"text-right tabular-nums\">48.9</TableCell>\n        </TableRow>\n        <TableRow>\n          <TableCell className=\"font-mono text-caption\">042-118-02</TableCell>\n          <TableCell>Agricultural</TableCell>\n          <TableCell className=\"text-right tabular-nums\">22.4</TableCell>\n        </TableRow>\n      </TableBody>\n      <TableFooter>\n        <TableRow>\n          <TableCell colSpan={2}>Assembled site</TableCell>\n          <TableCell className=\"text-right tabular-nums\">212.6</TableCell>\n        </TableRow>\n      </TableFooter>\n    </Table>\n  );\n}\n\nexport function Interactive() {\n  return (\n    <Table>\n      <TableHeader>\n        <TableRow>\n          <TableHead>Site</TableHead>\n          <TableHead className=\"text-right\">Acres</TableHead>\n          <TableHead className=\"text-right\">Fit</TableHead>\n        </TableRow>\n      </TableHeader>\n      <TableBody>\n        {[\n          [\"Ellis County site 14\", \"212.6\", \"9 of 9\"],\n          [\"Navarro County site 3\", \"305.0\", \"7 of 9\"],\n          [\"Kaufman County site 8\", \"198.2\", \"6 of 9\"],\n        ].map(([site, acres, fit]) => (\n          <TableRow key={site} data-interactive=\"\">\n            <TableCell>\n              <a href=\"#site\" className=\"outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\">\n                {site}\n              </a>\n            </TableCell>\n            <TableCell className=\"text-right tabular-nums\">{acres}</TableCell>\n            <TableCell className=\"text-right tabular-nums\">{fit}</TableCell>\n          </TableRow>\n        ))}\n      </TableBody>\n    </Table>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "WithFooter",
+        "Interactive"
+      ],
+      "requires": [
+        "table",
+        "badge"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/table/Preview"
+        },
+        {
+          "name": "WithFooter",
+          "url": "https://mireye-ds.agencidev.com/preview/table/WithFooter"
+        },
+        {
+          "name": "Interactive",
+          "url": "https://mireye-ds.agencidev.com/preview/table/Interactive"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Table",
+  "description": "A table ruled like a survey sheet: 12px head labels over a 1px Stone rule, 44px rows ruled in Mist, no frame and no head fill; framed puts it in the Bone cut frame.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/table.tsx",
+      "content": "import * as React from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's table, ruled like a survey sheet (the Leads table and Cited fields, Figma 443:433): no frame and no head\n// fill. A 36px head of 12px labels in Forest at 80% over a 1px Stone rule; 44px rows of 13px Forest ruled by 1px Mist\n// lines. Numbers align right in tabular figures. Cells keep 12px sides, so a table lines up with a panel's 16px edge\n// when it sits inside one (put it in a Card or pass `variant=\"framed\"` for the white cut frame). A selected row\n// (data-state=selected) sits on Fog; a row that opens a record (data-interactive) fills with Fog under the pointer\n// (150ms). Read-only rows have no hover. It scrolls sideways inside its container on a narrow screen.\nfunction Table({ className, variant = \"default\", ...props }: React.ComponentProps<\"table\"> & { variant?: \"default\" | \"framed\" | \"open\" }) {\n  return (\n    <div\n      data-slot=\"table-container\"\n      data-variant={variant}\n      className={cn(\n        \"relative w-full overflow-x-auto fade-x\",\n        variant === \"framed\" && \"ds-cut-frame px-2 pt-1 pb-2 [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)]\",\n      )}\n    >\n      <table data-slot=\"table\" className={cn(\"w-full caption-bottom border-collapse font-sans text-body leading-tight text-fg\", className)} {...props} />\n    </div>\n  );\n}\n\nfunction TableHeader({ className, ...props }: React.ComponentProps<\"thead\">) {\n  return <thead data-slot=\"table-header\" className={cn(\"[&_tr]:border-b [&_tr]:border-line\", className)} {...props} />;\n}\n\nfunction TableBody({ className, ...props }: React.ComponentProps<\"tbody\">) {\n  return <tbody data-slot=\"table-body\" className={cn(\"[&_tr:last-child]:border-0\", className)} {...props} />;\n}\n\nfunction TableFooter({ className, ...props }: React.ComponentProps<\"tfoot\">) {\n  return <tfoot data-slot=\"table-footer\" className={cn(\"border-t border-line font-medium [&>tr]:border-b-0\", className)} {...props} />;\n}\n\nfunction TableRow({ className, ...props }: React.ComponentProps<\"tr\">) {\n  return (\n    <tr\n      data-slot=\"table-row\"\n      className={cn(\n        \"border-b border-line-subtle transition-[background-color] duration-fast ease-out data-[interactive]:cursor-pointer data-[interactive]:hover:bg-subtle data-[state=selected]:bg-subtle motion-reduce:transition-none\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction TableHead({ className, ...props }: React.ComponentProps<\"th\">) {\n  return (\n    <th\n      data-slot=\"table-head\"\n      className={cn(\"h-9 px-3 text-left align-middle text-caption leading-tight font-normal whitespace-nowrap text-fg-secondary [&:has([role=checkbox])]:w-8 [&:has([role=checkbox])]:pr-0\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction TableCell({ className, ...props }: React.ComponentProps<\"td\">) {\n  return <td data-slot=\"table-cell\" className={cn(\"h-11 px-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:w-8 [&:has([role=checkbox])]:pr-0\", className)} {...props} />;\n}\n\nfunction TableCaption({ className, ...props }: React.ComponentProps<\"caption\">) {\n  return <caption data-slot=\"table-caption\" className={cn(\"mt-3 text-left text-caption leading-body text-fg-muted\", className)} {...props} />;\n}\n\nexport { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow };\n"
+    }
+  ]
+}

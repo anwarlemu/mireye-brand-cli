@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "name": "empty-value",
+  "useFor": "Use `EmptyValue` (and the constants) wherever data components show a missing value, so the wording never drifts. Never a dash or a blank.",
+  "constraints": [],
+  "documentation": "",
+  "exports": [
+    "NOT_SCREENED",
+    "NOT_RECORDED",
+    "NONE_ON_RECORD",
+    "NO_SOURCE_RECORDED",
+    "EmptyValue"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds-registry.vercel.app/r/empty-value.md",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/empty-value.md",
+  "examples": [],
+  "type": "lib",
+  "title": "Empty value",
+  "description": "Words for values that are not there (\"Not screened\", \"Not recorded\", \"None on record\"), in 72 percent Forest.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "lib/empty-value.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/**\n * Words for values that are not there, shared by the data components so the wording and the\n * color never drift. Always real text in 72% Forest (about 6:1 on white), never Slate, a dash or\n * a blank.\n */\nexport const NOT_SCREENED = \"Not screened\"; // the screen has not read this field\nexport const NOT_RECORDED = \"Not recorded\"; // a record attribute with no data (owner, zoning)\nexport const NONE_ON_RECORD = \"None on record\"; // a list that was checked and is empty\nexport const NO_SOURCE_RECORDED = \"No source recorded\"; // a reading with no source\n\nexport function EmptyValue({ children = NOT_SCREENED, className }: { children?: React.ReactNode; className?: string }) {\n  return (\n    <span data-slot=\"empty-value\" className={cn(\"text-fg-muted\", className)}>\n      {children}\n    </span>\n  );\n}\n"
+    }
+  ]
+}

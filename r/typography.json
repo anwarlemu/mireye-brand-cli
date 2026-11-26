@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "name": "typography",
+  "useFor": "Use for running text and document pages (a site report, a method note). H1 is the page title, H3 a section or progress title, Lead the line under a page title, Muted an annotation. Set parcel IDs, coordinates and commands in TypographyInlineCode. For data, use Table.",
+  "constraints": [
+    "Bold or semibold weights",
+    "Letter spacing",
+    "Coloured headings",
+    "Rounded inline code",
+    "Body text above 14px in the product"
+  ],
+  "documentation": "",
+  "source": "Brand type rules (Gilroy Regular and Medium, 1.4 line height) and Figma UI · Progress (442:213): the 24px title, at the product scale",
+  "exports": [
+    "TypographyBlockquote",
+    "TypographyH1",
+    "TypographyH2",
+    "TypographyH3",
+    "TypographyH4",
+    "TypographyInlineCode",
+    "TypographyLarge",
+    "TypographyLead",
+    "TypographyList",
+    "TypographyMuted",
+    "TypographyP",
+    "TypographySmall",
+    "TypographyTable"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/typography",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/typography.md",
+  "examples": [
+    {
+      "path": "examples/typography.tsx",
+      "content": "import { TypographyBlockquote, TypographyH1, TypographyH2, TypographyH3, TypographyH4, TypographyInlineCode, TypographyLarge, TypographyLead, TypographyList, TypographyMuted, TypographyP, TypographySmall, TypographyTable } from \"@/components/ui/typography\";\n\nexport function Preview() {\n  return (\n    <article className=\"w-full max-w-160\">\n      <TypographyH3>Ellis County site 14</TypographyH3>\n      <TypographyMuted>212.6 ac assembled from three parcels, 0.8 mi from a 345 kV substation.</TypographyMuted>\n      <TypographyP>\n        The site sits at <TypographyInlineCode>32.4113, -96.8302</TypographyInlineCode>, outside the 100-year flood plain, with municipal water along the north edge.\n      </TypographyP>\n      <TypographyBlockquote>Zone X: an area of minimal flood hazard, outside the 0.2 percent annual chance flood plain.</TypographyBlockquote>\n      <TypographyList>\n        <li>Parcel records from the county appraisal district.</li>\n        <li>Substations and queue status from the grid operator.</li>\n        <li>Elevation and slope from a 10 m elevation model.</li>\n      </TypographyList>\n      <TypographyTable>\n        <thead>\n          <tr>\n            <th>Field</th>\n            <th>Value</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr>\n            <td>Flood zone</td>\n            <td>Zone X</td>\n          </tr>\n          <tr>\n            <td>Elevation</td>\n            <td>412 ft</td>\n          </tr>\n        </tbody>\n      </TypographyTable>\n    </article>\n  );\n}\n\nexport function Scale() {\n  return (\n    <div className=\"grid w-full max-w-160 gap-3\">\n      <TypographyH1>Sites near Waxahachie</TypographyH1>\n      <TypographyH2>Ellis County site 14</TypographyH2>\n      <TypographyH3>Loading terrain</TypographyH3>\n      <TypographyH4>Power</TypographyH4>\n      <TypographyLead>Find land that meets your requirements, with every value cited.</TypographyLead>\n      <TypographyLarge>9 of 9 requirements met</TypographyLarge>\n      <TypographySmall>Updated Oct 28, 2026 from county records.</TypographySmall>\n      <TypographyList ordered>\n        <li>Describe the site you need.</li>\n        <li>Review the matches and their sources.</li>\n      </TypographyList>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Scale"
+      ],
+      "requires": [
+        "typography"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/typography/Preview"
+        },
+        {
+          "name": "Scale",
+          "url": "https://mireye-ds.agencidev.com/preview/typography/Scale"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Typography",
+  "description": "Mireye's type as components: Gilroy at 400 and 500 only, a 24px page title down to the 12px caption, DM Mono on Fog for IDs and coordinates, quotes on a 1px Forest rule.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/typography.tsx",
+      "content": "import * as React from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's type as components. Gilroy throughout, Regular 400 and Medium 500 only, no tracking: hierarchy comes from\n// size, colour and space, never weight. H1 is the 24px page title, H2 20px, H3 the 16px section and progress title\n// (Figma's largest product text), H4 a 14px medium label. Body copy is 13px Forest on a 1.4 line; Lead is 14px in\n// Forest at 80%; Muted is 13px at 72%; Small is the 12px caption. Inline code and coordinates are DM Mono on Fog,\n// square. Quotes hang from a 1px Forest rule.\nfunction TypographyH1({ className, ...props }: React.ComponentProps<\"h1\">) {\n  return <h1 data-slot=\"typography-h1\" className={cn(\"font-sans text-h1 leading-heading font-normal text-balance text-fg\", className)} {...props} />;\n}\n\nfunction TypographyH2({ className, ...props }: React.ComponentProps<\"h2\">) {\n  return <h2 data-slot=\"typography-h2\" className={cn(\"font-sans text-h2 leading-heading font-normal text-balance text-fg\", className)} {...props} />;\n}\n\nfunction TypographyH3({ className, ...props }: React.ComponentProps<\"h3\">) {\n  return <h3 data-slot=\"typography-h3\" className={cn(\"font-sans text-h3 leading-heading font-normal text-fg\", className)} {...props} />;\n}\n\nfunction TypographyH4({ className, ...props }: React.ComponentProps<\"h4\">) {\n  return <h4 data-slot=\"typography-h4\" className={cn(\"font-sans text-h4 leading-heading font-medium text-fg\", className)} {...props} />;\n}\n\nfunction TypographyP({ className, ...props }: React.ComponentProps<\"p\">) {\n  return <p data-slot=\"typography-p\" className={cn(\"font-sans text-body leading-body text-pretty text-fg [&:not(:first-child)]:mt-4\", className)} {...props} />;\n}\n\nfunction TypographyLead({ className, ...props }: React.ComponentProps<\"p\">) {\n  return <p data-slot=\"typography-lead\" className={cn(\"font-sans text-body-lg leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nfunction TypographyLarge({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"typography-large\" className={cn(\"font-sans text-body-lg leading-body font-medium text-fg\", className)} {...props} />;\n}\n\nfunction TypographySmall({ className, ...props }: React.ComponentProps<\"small\">) {\n  return <small data-slot=\"typography-small\" className={cn(\"font-sans text-caption leading-tight text-fg\", className)} {...props} />;\n}\n\nfunction TypographyMuted({ className, ...props }: React.ComponentProps<\"p\">) {\n  return <p data-slot=\"typography-muted\" className={cn(\"font-sans text-body leading-body text-fg-muted\", className)} {...props} />;\n}\n\n/** A quote or a cited passage: indented behind a 1px Forest rule, in Forest at 80%. */\nfunction TypographyBlockquote({ className, ...props }: React.ComponentProps<\"blockquote\">) {\n  return <blockquote data-slot=\"typography-blockquote\" className={cn(\"mt-4 border-l border-line-strong pl-4 font-sans text-body leading-body text-fg-secondary\", className)} {...props} />;\n}\n\nfunction TypographyList({ className, ordered = false, ...props }: Omit<React.ComponentProps<\"ul\">, \"ref\"> & { ordered?: boolean }) {\n  const classes = cn(\"my-4 ml-5 grid gap-1.5 font-sans text-body leading-body text-fg marker:text-fg-subtle\", ordered ? \"list-decimal\" : \"list-disc\", className);\n  return ordered ? <ol data-slot=\"typography-list\" className={classes} {...props} /> : <ul data-slot=\"typography-list\" className={classes} {...props} />;\n}\n\n/** A parcel ID, coordinate or command inside text: DM Mono on Fog, square. */\nfunction TypographyInlineCode({ className, ...props }: React.ComponentProps<\"code\">) {\n  return <code data-slot=\"typography-inline-code\" className={cn(\"bg-subtle px-1 py-px font-mono text-caption text-fg [box-decoration-break:clone]\", className)} {...props} />;\n}\n\n/** A plain table in running text: caption-size head labels over a Stone rule, Mist rules between rows. For data, use Table. */\nfunction TypographyTable({ className, ...props }: React.ComponentProps<\"table\">) {\n  return (\n    <div data-slot=\"typography-table\" className=\"my-4 w-full overflow-x-auto fade-x\">\n      <table\n        className={cn(\n          \"w-full border-collapse font-sans text-body leading-body text-fg [&_td]:border-b [&_td]:border-line-subtle [&_td]:px-3 [&_td]:py-2.5 [&_th]:border-b [&_th]:border-line [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-caption [&_th]:font-normal [&_th]:text-fg-secondary\",\n          className,\n        )}\n        {...props}\n      />\n    </div>\n  );\n}\n\nexport { TypographyBlockquote, TypographyH1, TypographyH2, TypographyH3, TypographyH4, TypographyInlineCode, TypographyLarge, TypographyLead, TypographyList, TypographyMuted, TypographyP, TypographySmall, TypographyTable };\n"
+    }
+  ]
+}

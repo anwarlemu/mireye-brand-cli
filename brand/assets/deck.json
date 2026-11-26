@@ -1,0 +1,254 @@
+{
+	"$comment": "Deck slides at 1920 by 1080. The slide rules are the illustration skill's (section 6, Deck slide): the lockup top left at 64, a Gilroy 104 headline bottom left, and a drawing that may bleed off the right and bottom; the posts' 48 and 64 margins and their logomark bottom right. Statement, chart, closing and poster slides are the share-image layouts (image.json posters) drawn at 1920 by 1080. Each type has its ground (bone, green, brown, black) and sample copy from the share-image tool's occasions; every word is meant to be replaced.",
+	"width": 1920,
+	"height": 1080,
+	"pdfPageWidthPt": 960,
+	"metrics": {
+		"margin": 64,
+		"lockup": 32,
+		"headline": 104,
+		"title": 72,
+		"body": 36,
+		"label": 24,
+		"item": 40,
+		"stat": 240,
+		"quote": 64,
+		"mark": 40
+	},
+	"slides": {
+		"cover": {
+			"description": "The lockup top left, a big headline and a line under it bottom left, a wireframe scene bleeding off the right and bottom.",
+			"ground": "green",
+			"required": [
+				"title"
+			],
+			"optional": [
+				"subtitle",
+				"scene"
+			],
+			"sample": {
+				"title": "Physical world context for AI agents",
+				"subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals.",
+				"scene": "datacenter"
+			}
+		},
+		"section": {
+			"description": "A section label in DM Mono over a tick row, the section title bottom left, the sparse contours behind.",
+			"ground": "bone",
+			"required": [
+				"title"
+			],
+			"optional": [
+				"label"
+			],
+			"sample": {
+				"label": "01",
+				"title": "Site selection"
+			}
+		},
+		"statement": {
+			"description": "One sentence in a clear window framed by the grid, with the lockup above it (the window poster).",
+			"ground": "bone",
+			"required": [
+				"title"
+			],
+			"optional": [
+				"subtitle"
+			],
+			"sample": {
+				"title": "Every value your agent returns is cited.",
+				"subtitle": "Ownership, flood, terrain and utilities for any U.S. parcel."
+			}
+		},
+		"bullets": {
+			"description": "A title and up to six points, each led by a diamond and parted by a 1px rule.",
+			"ground": "bone",
+			"required": [
+				"title",
+				"items"
+			],
+			"optional": [],
+			"sample": {
+				"title": "What your agent can ask",
+				"items": "Who owns this parcel? | Is it in a flood zone? | How steep is the terrain? | How far is the nearest substation?"
+			}
+		},
+		"stat": {
+			"description": "A big number, a line under it and a tick row filled to the share it names (ticks show state).",
+			"ground": "green",
+			"required": [
+				"stat",
+				"title"
+			],
+			"optional": [
+				"subtitle",
+				"progress"
+			],
+			"sample": {
+				"stat": "138",
+				"title": "fields returned for data center siting",
+				"subtitle": "Every field cited to its source.",
+				"progress": "0.7"
+			}
+		},
+		"quote": {
+			"description": "A quote led by a solid diamond and an attribution in DM Mono.",
+			"ground": "bone",
+			"required": [
+				"quote"
+			],
+			"optional": [
+				"attribution"
+			],
+			"sample": {
+				"quote": "We sent hundreds of locations in one call, and one bad address did not fail the rest.",
+				"attribution": "Head of data, Acme"
+			}
+		},
+		"image": {
+			"description": "A title and a line at the left, your picture in a cut frame at the right (--image); without one, a wireframe scene.",
+			"ground": "bone",
+			"required": [
+				"title"
+			],
+			"optional": [
+				"subtitle",
+				"image",
+				"scene"
+			],
+			"sample": {
+				"title": "Find the parcels that fit.",
+				"subtitle": "Send hundreds of locations in one call.",
+				"scene": "residential"
+			}
+		},
+		"chart": {
+			"description": "A hatched column chart under the headline (the chart poster).",
+			"ground": "bone",
+			"required": [
+				"title",
+				"chart"
+			],
+			"optional": [],
+			"sample": {
+				"title": "Fields returned by each preset.",
+				"chart": "data_center_siting | 138\nsite_selection | 64\nutilities | 42\ngrid_interconnect | 38"
+			}
+		},
+		"poster": {
+			"description": "Any share-image poster laid out at 1920 by 1080 (--template: parcels, scene, tag, panel, app, partner, ...).",
+			"ground": "bone",
+			"required": [
+				"template"
+			],
+			"optional": [
+				"after",
+				"before",
+				"callout",
+				"chart",
+				"date",
+				"image",
+				"items",
+				"labels",
+				"left",
+				"partner",
+				"place",
+				"price",
+				"question",
+				"right",
+				"scene",
+				"speaker",
+				"stat",
+				"steps",
+				"subtitle",
+				"suggestions",
+				"title"
+			],
+			"sample": {
+				"template": "parcels",
+				"title": "Find the parcels that fit.",
+				"subtitle": "Send hundreds of locations in one call, and one bad address does not fail the rest.",
+				"callout": "38.6 ac\n37.5407, −77.4360"
+			}
+		},
+		"closing": {
+			"description": "The lockup in a clear window on the dense contours (the identity poster) and the address in DM Mono at the foot.",
+			"ground": "bone",
+			"required": [],
+			"optional": [
+				"url"
+			],
+			"sample": {
+				"url": "mireye.com"
+			}
+		},
+		"agenda": {
+			"description": "A title and the agenda: numbered rows in DM Mono, each parted by a 1px rule (items split by |).",
+			"ground": "bone",
+			"required": [
+				"title",
+				"items"
+			],
+			"optional": [],
+			"sample": {
+				"title": "Agenda",
+				"items": "Why physical world context | The API in one call | What agents ask | Questions"
+			}
+		},
+		"team": {
+			"description": "A title and up to six people as cards, each a contour tile over the words you give (\"Role\" or \"Name, Role\"; no photos are drawn).",
+			"ground": "bone",
+			"required": [
+				"title",
+				"items"
+			],
+			"optional": [],
+			"sample": {
+				"title": "The team",
+				"items": "Engineering lead, Acme | Data lead, Acme | Design lead, Acme"
+			}
+		},
+		"timeline": {
+			"description": "A title and a line of milestones, each a diamond with its when and what (items: \"When: what\" split by |).",
+			"ground": "bone",
+			"required": [
+				"title",
+				"items"
+			],
+			"optional": [],
+			"sample": {
+				"title": "The year ahead",
+				"items": "Q1: Batch calls | Q2: MCP tools | Q3: Parcel history | Q4: Global coverage"
+			}
+		},
+		"gallery": {
+			"description": "A title and two to four of your pictures in cut frames on a grid (images split by |).",
+			"ground": "bone",
+			"required": [
+				"title",
+				"images"
+			],
+			"optional": [
+				"subtitle"
+			],
+			"sample": {
+				"title": "From the field"
+			}
+		},
+		"questions": {
+			"description": "Your closing words (a question prompt you write) on the dense contours, with the lockup and an optional address.",
+			"ground": "green",
+			"required": [
+				"title"
+			],
+			"optional": [
+				"subtitle",
+				"url"
+			],
+			"sample": {
+				"title": "Questions",
+				"url": "mireye.com"
+			}
+		}
+	}
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "name": "sources",
+  "useFor": "List sources with `Sources` and `Source number={n}`; cite inline with `SourceRef size=\"inline\"`. Inside `SourceGroup`, pointing at or focusing a cited value marks every chip with that number in Forest and steps the other sources back. `cut={false}` draws the chip square for tables.",
+  "constraints": [
+    "Footnote links in a new tab color",
+    "Sources without numbers",
+    "A fill on the row that is pointed at"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Agent chat\" (443:433): rows 443:490 to 443:501, refs 443:473 to 443:487",
+  "exports": [
+    "SourceGroup",
+    "useSourceLink",
+    "Sources",
+    "Source",
+    "SourceRef"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/sources",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/sources.md",
+  "examples": [
+    {
+      "path": "examples/sources.tsx",
+      "content": "\"use client\";\n\nimport { Sources, Source, SourceRef, SourceGroup, useSourceLink } from \"@/components/ui/sources\";\n\n// An answer cites its sources by number, in three layouts to choose from (29 Oct). In each, point\n// at a number in the text or at a source: every chip with that number turns Forest while the\n// other sources step back (150ms). The list chips are the small size, at the answer's scale.\n//   A · Footnotes: the sources as a compact list under a rule, like footnotes.\n//   B · Sidenotes: the sources in a narrow column beside the answer, stacked under it on a phone.\n//   C · Cards: each source as a card under the answer, with what kind of data it is.\nconst SOURCES = [\n  { title: \"FEMA flood hazard layer\", kind: \"Flood zones\" },\n  { title: \"USGS 3DEP elevation model\", kind: \"Elevation and slope\" },\n  { title: \"HIFLD electric substations\", kind: \"Grid\" },\n];\nconst focus = \"cursor-default outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-line-strong\";\n\nfunction Answer() {\n  const ref = (n: number) => <SourceRef number={n} size=\"inline\" />;\n  return (\n    <p className=\"text-body text-fg\">\n      The parcel is in flood zone X{ref(1)}, sits at 412 ft with a 2.8% slope{ref(2)}, and the nearest substation is 1.8 miles away{ref(3)}.\n    </p>\n  );\n}\n\nfunction SourceList() {\n  return (\n    <Sources aria-label=\"Sources\" className=\"gap-1.5\">\n      {SOURCES.map((s, i) => (\n        <Source key={s.title} number={i + 1} size=\"sm\" tabIndex={0} className={focus}>\n          {s.title}\n        </Source>\n      ))}\n    </Sources>\n  );\n}\n\nexport function Preview() {\n  return (\n    <SourceGroup>\n      <div className=\"flex w-full max-w-90 flex-col gap-3.5\">\n        <Answer />\n        <div className=\"border-t border-line-subtle pt-2.5\">\n          <SourceList />\n        </div>\n      </div>\n    </SourceGroup>\n  );\n}\n\nexport function Sidenotes() {\n  return (\n    <SourceGroup>\n      {/* Side by side when the container is 420px or wider; stacked below that. */}\n      <div className=\"@container w-full max-w-114\">\n        <div className=\"flex flex-col gap-3.5 @[420px]:flex-row @[420px]:gap-5\">\n          <div className=\"min-w-0 flex-1\">\n            <Answer />\n          </div>\n          <div className=\"border-line-subtle @max-[420px]:border-t @max-[420px]:pt-2.5 @[420px]:w-51 @[420px]:shrink-0 @[420px]:border-l @[420px]:pl-3\">\n            <SourceList />\n          </div>\n        </div>\n      </div>\n    </SourceGroup>\n  );\n}\n\nfunction SourceCard({ number, title, kind }: { number: number; title: string; kind: string }) {\n  const { active, dimmed, handlers } = useSourceLink(number);\n  return (\n    <li\n      tabIndex={0}\n      {...handlers}\n      className={[\n        \"flex min-w-0 flex-1 basis-27 flex-col gap-2 p-2\",\n        \"ds-cut-frame [--ds-cut:0px] [--ds-shape-fill:var(--ds-color-bg-default)] before:transition-colors before:duration-150 before:ease-out\",\n        active ? \"[--ds-shape-stroke:var(--ds-color-border-strong)]\" : \"[--ds-shape-stroke:var(--ds-color-border-subtle)]\",\n        focus,\n      ].join(\" \")}\n    >\n      <SourceRef number={number} size=\"sm\" className=\"self-start\" />\n      <span className={`ds-trim text-caption transition-colors duration-150 ease-out ${dimmed ? \"text-fg-secondary\" : \"text-fg\"}`}>{title}</span>\n      <span className=\"ds-trim text-caption text-fg-muted\">{kind}</span>\n    </li>\n  );\n}\n\nexport function Cards() {\n  return (\n    <SourceGroup>\n      <div className=\"flex w-full max-w-96 flex-col gap-3.5\">\n        <Answer />\n        <ul aria-label=\"Sources\" role=\"list\" className=\"flex flex-wrap gap-1\">\n          {SOURCES.map((s, i) => (\n            <SourceCard key={s.title} number={i + 1} title={s.title} kind={s.kind} />\n          ))}\n        </ul>\n      </div>\n    </SourceGroup>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sidenotes",
+        "Cards"
+      ],
+      "requires": [
+        "sources"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/sources/Preview"
+        },
+        {
+          "name": "Sidenotes",
+          "url": "https://mireye-ds.agencidev.com/preview/sources/Sidenotes"
+        },
+        {
+          "name": "Cards",
+          "url": "https://mireye-ds.agencidev.com/preview/sources/Cards"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Sources",
+  "description": "The numbered sources behind an agent answer, and SourceRef, the Fog chip that points a cited value at one.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "diamond"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/sources.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n/**\n * Sources: the numbered list of data sources behind an agent answer, and SourceRef, the marker\n * that points a cited value at one of them.\n * Source: Figma \"UI · Agent chat\" (443:433), list rows 443:490…443:501, refs 443:473…443:487;\n * the chip is from the later chat mock \"Chat 16 F1, Cut-corner source\".\n *\n * - The ref is a small Fog chip with the number centered in it and the small cut corner: 36px\n *   tall, 44px wide at least, 18px number. A list row is the chip, then the 20px title 16px\n *   after it, centered on the chip.\n * - `size=\"inline\"` is the chip inside a sentence: 24px tall, 24px wide at least, its 6px\n *   cut corner and the number in the text's own size, sitting on the line like a footnote.\n * - `size=\"sm\"` (29 Oct, for lists under an answer): the same 24px chip with the label's 18px\n *   number, so a source list reads at the answer's scale instead of the first board's 36px.\n * - `cut={false}` draws the chip as a plain rectangle, for tables where the cut corners\n *   would repeat down a column (CitedFields uses it).\n * - Rows are 16px apart; the first board spaces its marker rows 22px (`className=\"gap-3.5\"`).\n * - `variant=\"marker\"` keeps the first board's look (a 7px diamond and the number); the\n *   specimen uses it.\n * - Linking: inside `SourceGroup`, pointing at a cited value or a source marks every chip with\n *   that number. The chip turns Forest with a white number and the other source titles fade to\n *   Slate-80, over 150ms on the ease-out curve. Nothing gets a background, so no fill runs into\n *   the table's edges. Keyboard focus does the same.\n *\n * Sizes above are Figma's; here they are 0.6 of it on the 4px grid: the chip is 20px tall and 28px\n * wide at least with the 5px cut, the inline and small chips 16px with a 4px cut.\n *\n * The number is visible text, so screen readers hear \"Source 1\" through a visually hidden word.\n */\ntype Link = { active: number | string | null; setActive: (n: number | string | null) => void };\nconst LinkContext = React.createContext<Link | null>(null);\n\n/** Links refs and sources by number: pointing at one marks the others with the same number. */\nexport function SourceGroup({ children }: { children: React.ReactNode }) {\n  const [active, setActive] = React.useState<number | string | null>(null);\n  return <LinkContext.Provider value={{ active, setActive }}>{children}</LinkContext.Provider>;\n}\n\n/** Hover and focus handlers that mark `number` while the pointer or focus is on the element. */\nexport function useSourceLink(number: number | string) {\n  const link = React.useContext(LinkContext);\n  const on = () => link?.setActive(number);\n  const off = () => link?.setActive(null);\n  return {\n    active: link?.active === number,\n    dimmed: link ? link.active !== null && link.active !== number : false,\n    handlers: link ? { onPointerEnter: on, onPointerLeave: off, onFocus: on, onBlur: off } : {},\n  };\n}\n\nexport function Sources({ className, ...props }: React.OlHTMLAttributes<HTMLOListElement>) {\n  // role=\"list\": Safari drops list semantics from lists styled with list-style: none.\n  return <ol role=\"list\" data-slot=\"sources\" className={cn(\"flex flex-col gap-2.5\", className)} {...props} />;\n}\n\nexport function Source({\n  number,\n  variant = \"chip\",\n  className,\n  children,\n  cut,\n  size = \"default\",\n  ...props\n}: React.LiHTMLAttributes<HTMLLIElement> & { number: number | string; variant?: \"chip\" | \"marker\"; cut?: boolean; size?: \"default\" | \"sm\" }) {\n  const { dimmed, handlers } = useSourceLink(number);\n  if (variant === \"marker\") {\n    return (\n      <li data-slot=\"source\" className={cn(\"flex items-end font-sans text-body font-normal text-fg\", className)} {...props}>\n        <SourceRef number={number} variant=\"marker\" className=\"w-6 gap-1\" />\n        <span data-slot=\"title\" className=\"ds-trim\">\n          {children}\n        </span>\n      </li>\n    );\n  }\n  return (\n    <li data-slot=\"source\" className={cn(\"flex items-center font-sans font-normal\", size === \"sm\" ? \"gap-1.5 text-caption\" : \"gap-2.5 text-body\", className)} {...handlers} {...props}>\n      <SourceRef number={number} cut={cut} size={size} />\n      <span data-slot=\"title\" className={cn(\"ds-trim transition-colors duration-150 ease-out\", dimmed ? \"text-fg-secondary\" : \"text-fg\")}>\n        {children}\n      </span>\n    </li>\n  );\n}\n\nexport function SourceRef({\n  number,\n  variant = \"chip\",\n  size = \"default\",\n  cut = true,\n  className,\n  ...props\n}: React.HTMLAttributes<HTMLSpanElement> & {\n  number: number | string;\n  variant?: \"chip\" | \"marker\";\n  size?: \"default\" | \"inline\" | \"sm\";\n  /** The cut corner. `false` draws a plain rectangle. */\n  cut?: boolean;\n}) {\n  const { active, handlers } = useSourceLink(number);\n  if (variant === \"marker\") {\n    return (\n      <span\n        data-slot=\"source-ref\"\n        className={cn(\"flex shrink-0 items-end gap-1 font-sans text-caption font-normal text-fg whitespace-nowrap\", className)}\n        {...props}\n      >\n        <Diamond size={7} className=\"mb-0.5\" />\n        <span data-slot=\"number\" className=\"ds-trim\">\n          <span className=\"sr-only\">Source </span>\n          {number}\n        </span>\n      </span>\n    );\n  }\n  return (\n    <span\n      data-slot=\"source-ref\"\n      data-active={active || undefined}\n      // A number in running text links on its own; in a list or a table the row does it.\n      {...(size === \"inline\" ? handlers : {})}\n      className={cn(\n        \"inline-flex shrink-0 items-center justify-center font-sans font-normal whitespace-nowrap tabular-nums transition-colors duration-150 ease-out\",\n        size === \"inline\"\n          ? \"mx-0.5 h-4 min-w-4 px-1 align-[-0.15em] [font-size:0.8em] [--ds-cut:var(--spacing)]\"\n          : size === \"sm\"\n            ? \"h-4 min-w-4 px-1 text-caption [--ds-cut:var(--spacing)]\"\n            : \"h-5 min-w-7 px-2 text-caption [--ds-cut:var(--ds-cut-sm)]\",\n        active ? \"text-fg-inverse\" : \"text-fg\",\n        // The cut chip fills its shape; the plain one fills its box.\n        cut\n          ? cn(\"ds-cut\", active ? \"[--ds-shape-fill:var(--ds-color-forest)]\" : \"[--ds-shape-fill:var(--ds-color-fog)]\")\n          : active\n            ? \"bg-forest\"\n            : \"bg-fog\",\n        className,\n      )}\n      {...props}\n    >\n      <span data-slot=\"number\" className=\"ds-trim\">\n        <span className=\"sr-only\">Source </span>\n        {number}\n      </span>\n    </span>\n  );\n}\n"
+    }
+  ]
+}

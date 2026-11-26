@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "message",
+  "useFor": "Use for each turn of a conversation with the agent. Put the person's question in a default Bubble with align end on the Message, and the agent's answer in a ghost Bubble beside a Forest avatar holding a Diamond. Use MessageFooter for what backs the answer (Cited 3 sources). Group turns in MessageGroup.",
+  "constraints": [
+    "Circular avatars",
+    "Coloured sender names",
+    "Read receipts",
+    "Messages that slide or fade in"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Agent chat (443:433): Message and Sources, at the product scale",
+  "exports": [
+    "Message",
+    "MessageAvatar",
+    "MessageContent",
+    "MessageFooter",
+    "MessageGroup",
+    "MessageHeader"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/message",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/message.md",
+  "examples": [
+    {
+      "path": "examples/message.tsx",
+      "content": "import { Bubble, BubbleContent } from \"@/components/ui/bubble\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { Message, MessageAvatar, MessageContent, MessageFooter, MessageGroup, MessageHeader } from \"@/components/ui/message\";\n\nexport function Preview() {\n  return (\n    <MessageGroup className=\"mx-auto w-full max-w-140\">\n      <Message align=\"end\">\n        <MessageAvatar>A</MessageAvatar>\n        <MessageContent>\n          <MessageHeader>\n            You <time dateTime=\"2026-10-28T16:12\">4:12 PM</time>\n          </MessageHeader>\n          <Bubble align=\"end\">\n            <BubbleContent>Check flood risk and terrain for this parcel.</BubbleContent>\n          </Bubble>\n        </MessageContent>\n      </Message>\n      <Message>\n        <MessageAvatar className=\"bg-inverse text-fg-inverse\">\n          <Diamond size={14} />\n        </MessageAvatar>\n        <MessageContent>\n          <MessageHeader>\n            Mireye <time dateTime=\"2026-10-28T16:12\">4:12 PM</time>\n          </MessageHeader>\n          <Bubble variant=\"ghost\">\n            <BubbleContent>The parcel is in Zone X, outside the 100-year flood plain. It sits at 412 ft with a 2.8% average slope.</BubbleContent>\n          </Bubble>\n          <MessageFooter>\n            <Diamond size={8} variant=\"outline\" /> Cited 3 sources\n          </MessageFooter>\n        </MessageContent>\n      </Message>\n    </MessageGroup>\n  );\n}\n\nexport function Replies() {\n  return (\n    <Message className=\"mx-auto max-w-140\">\n      <MessageAvatar>A</MessageAvatar>\n      <MessageContent>\n        <MessageHeader>\n          Acme Energy <time dateTime=\"2026-10-28T16:20\">4:20 PM</time>\n        </MessageHeader>\n        <Bubble variant=\"secondary\">\n          <BubbleContent>Add the Navarro sites to the shortlist too.</BubbleContent>\n        </Bubble>\n      </MessageContent>\n    </Message>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Replies"
+      ],
+      "requires": [
+        "message",
+        "bubble",
+        "diamond"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/message/Preview"
+        },
+        {
+          "name": "Replies",
+          "url": "https://mireye-ds.agencidev.com/preview/message/Replies"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Message",
+  "description": "One message in an agent conversation: a square avatar, the sender and a DM Mono time, the bubbles and a muted footer.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/message.tsx",
+      "content": "import * as React from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// One message in an agent conversation: a 32px square avatar (an initial on Fog, or the agent's Forest tile), the\n// sender in 12px Forest at 80% with the time in DM Mono beside it, the bubbles, and a 12px muted footer (Cited 3\n// sources). What the person sent (align end) mirrors to the right. Nothing animates in.\nfunction MessageGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"message-group\" className={cn(\"flex min-w-0 flex-col gap-4\", className)} {...props} />;\n}\n\nfunction Message({ className, align = \"start\", ...props }: React.ComponentProps<\"div\"> & { align?: \"start\" | \"end\" }) {\n  return <div data-slot=\"message\" data-align={align} className={cn(\"group/message relative flex w-full min-w-0 gap-2.5 font-sans text-body data-[align=end]:flex-row-reverse\", className)} {...props} />;\n}\n\nfunction MessageAvatar({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"message-avatar\"\n      className={cn(\n        \"flex size-8 shrink-0 items-center justify-center self-start overflow-hidden bg-subtle text-body leading-none font-medium text-fg *:[img]:size-full *:[img]:object-cover\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction MessageContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"message-content\" className={cn(\"flex w-full min-w-0 flex-col gap-1.5 break-words group-data-[align=end]/message:items-end\", className)} {...props} />;\n}\n\n/** The sender and the time: \"Mireye\" in Forest at 80%, \"4:12 PM\" in DM Mono, muted. */\nfunction MessageHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"message-header\"\n      className={cn(\"flex max-w-full min-w-0 items-baseline gap-2 text-caption leading-tight text-fg-secondary group-data-[align=end]/message:flex-row-reverse [&_time]:font-mono [&_time]:text-fg-muted\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction MessageFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"message-footer\"\n      className={cn(\"flex max-w-full min-w-0 items-center gap-1.5 text-caption leading-tight text-fg-muted group-data-[align=end]/message:justify-end [&_svg:not([class*='size-'])]:size-3.5\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Message, MessageAvatar, MessageContent, MessageFooter, MessageGroup, MessageHeader };\n"
+    }
+  ]
+}

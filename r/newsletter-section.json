@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "newsletter-section",
+  "useFor": "Use near the foot of a blog index, a changelog or the home page. Pass `onSubscribe(email)`; the section shows sending, done and invalid states.",
+  "constraints": [
+    "Pop-ups or overlays",
+    "More than one field",
+    "Pre-ticked consent",
+    "A success message that hides the field's label"
+  ],
+  "documentation": "",
+  "source": "Derived: the website has no sign-up. Built from the library's Input, Button and PageSection, in the section frame.",
+  "exports": [
+    "NewsletterSectionProps",
+    "NewsletterSection"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/newsletter-section",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/newsletter-section.md",
+  "examples": [
+    {
+      "path": "examples/newsletter-section.tsx",
+      "content": "import { NewsletterSection } from \"@/components/blocks/newsletter-section\";\n\nexport function Preview() {\n  return <NewsletterSection closing note=\"One email a month. Unsubscribe from any of them.\" />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "newsletter-section"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/newsletter-section/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Newsletter section",
+  "description": "A sign-up for updates: the title and one line beside an email field and the Forest key, with the result said under the field.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "button",
+    "input"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/newsletter-section.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\n\n// A sign-up for updates: the title and one line beside an email field and the Forest key, in the page's section frame.\n// The form calls `onSubscribe` with the address; the page owns what happens next (and says so under the field).\n\nexport type NewsletterSectionProps = Omit<PageSectionProps, \"children\" | \"onSubmit\"> & {\n  placeholder?: string;\n  action?: string;\n  note?: React.ReactNode;\n  onSubscribe?: (email: string) => void | Promise<void>;\n};\n\nexport function NewsletterSection({ label = \"Updates\", title = \"What changed, once a month.\", intro = \"New fields, new coverage and what agents asked. No other email.\", placeholder = \"you@company.com\", action = \"Subscribe\", note, onSubscribe, ...props }: NewsletterSectionProps) {\n  const [email, setEmail] = React.useState(\"\");\n  const [state, setState] = React.useState<\"idle\" | \"sending\" | \"done\" | \"error\">(\"idle\");\n  const valid = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n  const submit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!valid) {\n      setState(\"error\");\n      return;\n    }\n    setState(\"sending\");\n    try {\n      await onSubscribe?.(email);\n      setState(\"done\");\n    } catch {\n      setState(\"error\");\n    }\n  };\n  return (\n    <PageSection label={label} title={title} intro={intro} {...props}>\n      <form data-slot=\"newsletter-section\" onSubmit={submit} noValidate className=\"grid max-w-140 gap-3\">\n        <div className=\"flex flex-wrap gap-3\">\n          <Input type=\"email\" aria-label=\"Email address\" placeholder={placeholder} value={email} aria-invalid={state === \"error\" || undefined} onChange={(e) => { setEmail(e.target.value); if (state === \"error\") setState(\"idle\"); }} className=\"min-w-0 flex-1\" />\n          <Button type=\"submit\" disabled={state === \"sending\"}>{state === \"sending\" ? \"Sending\" : action}</Button>\n        </div>\n        <p role=\"status\" className=\"text-caption leading-body text-fg-muted\">\n          {state === \"done\" ? \"Thanks. The next one goes out at the start of the month.\" : state === \"error\" ? \"Enter an email address, like you@company.com.\" : note}\n        </p>\n      </form>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

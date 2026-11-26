@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "name": "diamond",
+  "useFor": "Use wherever a circle would mark a point: a map node, a step, a status, a list bullet. `variant=\"solid\"` is confirmed or done, `variant=\"outline\"` is pending or empty; give `fill` (the ground color) when lines behind should stop at the node. Pass Figma's size in px; it renders at the product scale. The color follows the text color.",
+  "constraints": [
+    "Circles or dots for nodes and bullets",
+    "Colored nodes; they take the ink or Stone",
+    "Sizes off Figma's set (7, 9, 10, 12, 16, 22px)"
+  ],
+  "documentation": "",
+  "source": "Figma UI boards (442:2): the node on the map, steps, status and radio",
+  "exports": [
+    "Diamond"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/diamond",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/diamond.md",
+  "examples": [
+    {
+      "path": "examples/diamond.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// Survey points: a solid node is confirmed, an outline is pending. Click a point to confirm or reopen it; the node\n// changes at once, as a survey mark does.\nconst POINTS = [\"North-west corner\", \"Substation tap\", \"Access road\", \"South-east corner\"];\n\nexport function Preview() {\n  const [done, setDone] = React.useState<Record<string, boolean>>({ \"North-west corner\": true });\n  return (\n    <ul className=\"mx-auto flex w-fit flex-col gap-1\">\n      {POINTS.map((p) => (\n        <li key={p}>\n          <button\n            type=\"button\"\n            aria-pressed={!!done[p]}\n            onClick={() => setDone((d) => ({ ...d, [p]: !d[p] }))}\n            className=\"flex min-h-6 cursor-pointer items-center gap-2.5 text-body text-fg outline-none focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\"\n          >\n            <Diamond size={12} variant={done[p] ? \"solid\" : \"outline\"} className={done[p] ? \"text-fg\" : \"text-line\"} />\n            <span className=\"ds-trim\">{p}</span>\n          </button>\n        </li>\n      ))}\n    </ul>\n  );\n}\n\n// The sizes the system uses: a 7px bullet, a 9px map node, 10px status and result marks, 16px step markers.\nexport function Sizes() {\n  return (\n    <div className=\"flex items-center justify-center gap-6 text-fg\">\n      {[7, 9, 10, 12, 16].map((size) => (\n        <span key={size} className=\"flex flex-col items-center gap-2\">\n          <Diamond size={size} />\n          <Diamond size={size} variant=\"outline\" />\n          <span className=\"ds-trim text-caption text-fg-muted tabular-nums\">{size}</span>\n        </span>\n      ))}\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sizes"
+      ],
+      "requires": [
+        "diamond"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/diamond/Preview"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/diamond/Sizes"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Diamond",
+  "description": "The survey node: a square turned 45 degrees, solid or outlined, that marks map points, steps, statuses, bullets and the radio.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/diamond.tsx",
+      "content": "import * as React from \"react\";\nimport { cn, svgBox, svgSize } from \"@/lib/utils\";\n\n/**\n * Diamond: the survey node. It marks map points, steps, statuses, list bullets and the radio.\n * Figma draws it as a square turned 45°, e.g. a 9px node is M4.5 0 L9 4.5 L4.5 9 L0 4.5 Z.\n *\n * - `solid`    filled with `color`.\n * - `outline`  a stroke kept inside the box, as in Figma's 7px bullet M3.5 0.71 L6.29 3.5 …\n *              It is drawn as a square turned 45° (inset by half the stroke) rather than as that\n *              path: Chrome anti-aliases the turned square the way Figma renders the path, and\n *              the path version misses by up to 52 pixels on a 28px radio.\n *              `fill` paints the inside (Figma uses the canvas color so lines behind stop at\n *              the node).\n * Colors default to the current text color.\n * The outline stays a 1px line at the product scale (non-scaling stroke), as every line in the\n * system does; scaled with the mark it would be a faint 0.6px.\n */\nexport function Diamond({\n  size = 9,\n  variant = \"solid\",\n  color = \"currentColor\",\n  fill = \"none\",\n  strokeWidth = 1,\n  className,\n  style,\n  ...props\n}: Omit<React.SVGProps<SVGSVGElement>, \"fill\"> & {\n  size?: number;\n  variant?: \"solid\" | \"outline\";\n  color?: string;\n  fill?: string;\n  strokeWidth?: number;\n}) {\n  const h = size / 2;\n  const d = `M${h} 0L${size} ${h}L${h} ${size}L0 ${h}Z`;\n  const side = size / Math.SQRT2; // the square that spans the box once turned\n  return (\n    <svg\n      width={size}\n      height={size}\n      viewBox={`0 0 ${size} ${size}`}\n      aria-hidden\n      data-slot=\"diamond\"\n      className={cn(\"block shrink-0\", svgBox, className)}\n      style={svgSize(size, size, style)}\n      {...props}\n    >\n      {variant === \"solid\" ? (\n        <path d={d} fill={color} />\n      ) : (\n        <rect\n          x={h - side / 2 + strokeWidth / 2}\n          y={h - side / 2 + strokeWidth / 2}\n          width={side - strokeWidth}\n          height={side - strokeWidth}\n          transform={`rotate(45 ${h} ${h})`}\n          fill={fill}\n          stroke={color}\n          strokeWidth={strokeWidth}\n          vectorEffect=\"non-scaling-stroke\"\n        />\n      )}\n    </svg>\n  );\n}\n"
+    }
+  ]
+}

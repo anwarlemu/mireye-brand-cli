@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "name": "alert",
+  "useFor": "Use default for a fact the person should know before reading on (values are cited), warning for data that is partial or stale, success for a finished report, destructive for a source that failed. Lead with a Phosphor glyph at regular weight. Put a short note or one button in AlertAction. Use muted inside a Bone panel.",
+  "constraints": [
+    "Coloured fills",
+    "Rounded corners",
+    "More than one alert for one message",
+    "A bold title",
+    "Colour without words"
+  ],
+  "documentation": "",
+  "source": "Not in Figma (no risk or warning state yet): the cut frame of UI · Agent chat (443:433) with the chosen status colours, for a designer's review",
+  "exports": [
+    "Alert",
+    "AlertAction",
+    "AlertDescription",
+    "AlertTitle",
+    "alertVariants"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/alert",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/alert.md",
+  "examples": [
+    {
+      "path": "examples/alert.tsx",
+      "content": "import { CheckCircleIcon, InfoIcon, WarningIcon, XCircleIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Alert, AlertAction, AlertDescription, AlertTitle } from \"@/components/ui/alert\";\nimport { Button } from \"@/components/ui/button\";\n\nexport function Preview() {\n  return (\n    <Alert className=\"max-w-160\">\n      <InfoIcon />\n      <AlertTitle>Values are cited</AlertTitle>\n      <AlertDescription>Every value in a report links to the record it came from: county parcels, the interconnection queue or the elevation model.</AlertDescription>\n    </Alert>\n  );\n}\n\nexport function Muted() {\n  return (\n    <Alert variant=\"muted\" className=\"max-w-160\">\n      <InfoIcon />\n      <AlertDescription>Parcels under 5 ac are left out of results for this buy box.</AlertDescription>\n    </Alert>\n  );\n}\n\nexport function Warning() {\n  return (\n    <Alert variant=\"warning\" className=\"max-w-160\">\n      <WarningIcon />\n      <AlertTitle>Partial data for Navarro County</AlertTitle>\n      <AlertDescription>Zoning is not published for 14 of its parcels.</AlertDescription>\n      <AlertAction>Updated Oct 28</AlertAction>\n    </Alert>\n  );\n}\n\nexport function Success() {\n  return (\n    <Alert variant=\"success\" className=\"max-w-160\">\n      <CheckCircleIcon />\n      <AlertTitle>Report ready</AlertTitle>\n      <AlertDescription>Ellis County site 14 meets 9 of 9 requirements.</AlertDescription>\n    </Alert>\n  );\n}\n\nexport function Destructive() {\n  return (\n    <Alert variant=\"destructive\" className=\"max-w-160\">\n      <XCircleIcon />\n      <AlertTitle>The elevation source did not respond</AlertTitle>\n      <AlertDescription>Slope and elevation are missing from this answer. Try again in a few minutes.</AlertDescription>\n      <AlertAction>\n        <Button variant=\"outline\" size=\"sm\">Retry</Button>\n      </AlertAction>\n    </Alert>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Muted",
+        "Warning",
+        "Success",
+        "Destructive"
+      ],
+      "requires": [
+        "alert",
+        "button"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/alert/Preview"
+        },
+        {
+          "name": "Muted",
+          "url": "https://mireye-ds.agencidev.com/preview/alert/Muted"
+        },
+        {
+          "name": "Warning",
+          "url": "https://mireye-ds.agencidev.com/preview/alert/Warning"
+        },
+        {
+          "name": "Success",
+          "url": "https://mireye-ds.agencidev.com/preview/alert/Success"
+        },
+        {
+          "name": "Destructive",
+          "url": "https://mireye-ds.agencidev.com/preview/alert/Destructive"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Alert",
+  "description": "A note in the cut frame: a 1px line around Bone with the chamfer at the top-left, a 16px glyph, a medium title and a secondary description. The line takes a status colour for success, warning and errors; muted is Fog.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/alert.tsx",
+      "content": "import * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\n\n// A note in the flow of a page, drawn as Mireye's cut frame: a 1px line around white with the 8px chamfer at the\n// top-left, 16px sides and 12px above and below. A 16px Phosphor glyph (regular weight) or a Diamond leads, 12px before\n// the words; the title is 13px medium in Forest, the description 13px in Forest at 80%. It fills the width it is given.\n// - `default` (also `info`): the Stone line, Forest glyph.\n// - `success`, `warning`, `destructive`: the line and the glyph in the chosen status colour, the words stay Forest so\n//   they read. Use them sparingly; Figma has no risk state yet.\n// - `muted`: Fog with no line, for a note inside a white panel.\n// Nothing moves.\nconst alertVariants = cva(\n  \"group/alert relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 px-4 py-3 font-sans text-body leading-body text-fg has-[>svg]:grid-cols-[auto_minmax(0,1fr)_auto] [&>svg]:mt-px [&>svg]:size-4 [&>svg]:shrink-0\",\n  {\n    variants: {\n      variant: {\n        default: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [&>svg]:text-fg\",\n        info: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] [&>svg]:text-fg\",\n        success: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-success)] [&>svg]:text-success\",\n        warning: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-warning)] [&>svg]:text-warning\",\n        destructive: \"ds-cut-frame [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-status-danger)] [&>svg]:text-danger [&>[data-slot=alert-title]]:text-danger\",\n        muted: \"ds-cut [--ds-shape-fill:var(--ds-color-bg-subtle)] [&>svg]:text-fg\",\n      },\n    },\n    defaultVariants: { variant: \"default\" },\n  },\n);\n\nfunction Alert({ className, variant, ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof alertVariants>) {\n  return <div data-slot=\"alert\" data-variant={variant ?? \"default\"} role=\"alert\" className={cn(alertVariants({ variant }), className)} {...props} />;\n}\n\nfunction AlertTitle({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"alert-title\" className={cn(\"col-start-1 min-w-0 font-medium group-has-[>svg]/alert:col-start-2\", className)} {...props} />;\n}\n\nfunction AlertDescription({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"alert-description\" className={cn(\"col-start-1 min-w-0 text-fg-secondary group-has-[>svg]/alert:col-start-2 [&_p]:leading-body\", className)} {...props} />;\n}\n\n/** What sits at the right of an alert: a short note or a button. Below the words on a phone. */\nfunction AlertAction({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"alert-action\"\n      className={cn(\n        \"col-start-2 row-span-2 row-start-1 self-center text-right text-caption text-fg-muted group-has-[>svg]/alert:col-start-3 max-sm:col-start-1 max-sm:col-end-[-1] max-sm:row-span-1 max-sm:row-start-3 max-sm:mt-1 max-sm:text-left max-sm:group-has-[>svg]/alert:col-start-2\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Alert, AlertAction, AlertDescription, AlertTitle, alertVariants };\n"
+    }
+  ]
+}

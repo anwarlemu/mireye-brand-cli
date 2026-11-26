@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "node-loader",
+  "useFor": "Use while a short step runs: inline at its default size, or `size=\"sm\"` before a waiting line in chat (\"Reading the parcel's records\"). It is a status named \"Loading\". `running={false}` holds one of Figma's five frames.",
+  "constraints": [
+    "A loader with no words beside it in chat",
+    "Bouncing dots",
+    "Two loaders side by side"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Loaders, agent\" (443:234): Nodes 443:241 and 443:249 to 443:281",
+  "exports": [
+    "NodeLoader"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/node-loader",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/node-loader.md",
+  "examples": [
+    {
+      "path": "examples/node-loader.tsx",
+      "content": "import { NodeLoader } from \"@/components/ui/node-loader\";\n\n// Three survey nodes filling in turn: inline (Figma's 20px) and in a chat line (Figma's 8px).\nexport function Preview() {\n  return (\n    <div className=\"flex flex-col items-center gap-6\">\n      <NodeLoader />\n      <p role=\"status\" className=\"flex items-center gap-2 text-body text-fg-secondary\">\n        <NodeLoader size=\"sm\" />\n        <span className=\"ds-trim\">Reading the parcel's records</span>\n      </p>\n    </div>\n  );\n}\n\n// Figma's five frames, still.\nexport function Frames() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-6\">\n      {[0, 1, 2, 3, 4].map((f) => (\n        <NodeLoader key={f} frame={f} running={false} />\n      ))}\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Frames"
+      ],
+      "requires": [
+        "node-loader"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/node-loader/Preview"
+        },
+        {
+          "name": "Frames",
+          "url": "https://mireye-ds.agencidev.com/preview/node-loader/Frames"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Node loader",
+  "description": "Three survey nodes that fill in turn: the inline and chat loader.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "diamond",
+    "use-loop-frame"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/node-loader.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { useLoopFrame, usePrefersReducedMotion } from \"@/lib/use-loop-frame\";\n\n/**\n * NodeLoader: three survey nodes that fill in turn. Source: Figma \"UI · Loaders, agent\"\n * (443:234), the \"Nodes\" frames.\n *\n * - `size=\"default\"` (443:241, 84×20): 20px nodes, 12px apart. For inline use.\n * - `size=\"sm\"` (443:249 … 443:281, 40×8): 8px nodes, 8px apart. For chat. Figma shows each\n *   frame centered in a 64px tile; the tile is presentation, not part of the loader.\n * - A filled node is solid Forest. An empty node is a 1px Stone outline kept inside the box\n *   (Diamond `outline`, the same path as Figma's).\n * - `frame` is one of Figma's five frames, in board order: ○○○, ●○○, ●●○, ●●●, ○●●. With\n *   `running` off (or under reduced motion) the loader holds that frame.\n * - Motion (29 Oct, second version: stepping through the frames read as jerky). Running, each\n *   node keeps its Stone outline and its fill lights up inside it, growing from half size while\n *   it fades in, then fading out: one 1s wave across the three nodes, 140ms apart, on an\n *   ease-in-out curve. CSS only (transform and opacity), so it stays smooth while the page works.\n */\n\nconst FRAMES = [\n  [false, false, false],\n  [true, false, false],\n  [true, true, false],\n  [true, true, true],\n  [false, true, true],\n] as const;\n\nconst SIZES = {\n  default: { node: 20, gap: \"gap-2\" },\n  sm: { node: 8, gap: \"gap-1\" },\n} as const;\n\n\nexport function NodeLoader({\n  size = \"default\",\n  frame = 2,\n  running = true,\n  className,\n  ...props\n}: React.HTMLAttributes<HTMLSpanElement> & {\n  size?: keyof typeof SIZES;\n  /** 0–4, Figma's frames. The inline example on the board (443:241) is frame 2. */\n  frame?: number;\n  running?: boolean;\n}) {\n  const s = SIZES[size];\n  const reduced = usePrefersReducedMotion();\n  const wave = running && !reduced;\n  const current = useLoopFrame(frame, FRAMES.length, false, 240);\n  const filled = FRAMES[((current % FRAMES.length) + FRAMES.length) % FRAMES.length];\n  return (\n    <span\n      role=\"status\"\n      data-slot=\"node-loader\"\n      data-size={size}\n      data-frame={current}\n      className={cn(\"inline-flex shrink-0 items-center\", s.gap, className)}\n      {...props}\n    >\n      <span className=\"sr-only\">Loading</span>\n      {wave\n        ? filled.map((_, i) => (\n            <span key={i} data-slot=\"node\" className=\"relative block shrink-0\">\n              <Diamond size={s.node} variant=\"outline\" className=\"text-line\" />\n              <Diamond\n                size={s.node}\n                className=\"absolute inset-0 text-fg opacity-0 animate-[ds-node-wave_1s_cubic-bezier(0.45,0,0.55,1)_infinite_both]\"\n                style={{ animationDelay: `${i * 140}ms` }}\n              />\n            </span>\n          ))\n        : filled.map((on, i) => (\n        <Diamond\n          key={i}\n          size={s.node}\n          variant={on ? \"solid\" : \"outline\"}\n          data-slot=\"node\"\n          data-state={on ? \"filled\" : \"empty\"}\n          className={on ? \"text-fg\" : \"text-line\"}\n        />\n          ))}\n    </span>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "name": "label",
+  "useFor": "Use above every field, tied to it with htmlFor (or aria-labelledby for a Select or Combobox). Keep labels short nouns (Parcel size, Location). Beside a checkbox, radio or switch, prefer the control's own children as its label.",
+  "constraints": [
+    "Bold or uppercase labels",
+    "A label after its field",
+    "A colon at the end"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Inputs\" (442:107): Parcel size, Location",
+  "exports": [
+    "Label"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/label",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/label.md",
+  "examples": [
+    {
+      "path": "examples/label.tsx",
+      "content": "import { Checkbox } from \"@/components/ui/checkbox\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid w-full max-w-80 gap-6\">\n      <div className=\"grid gap-2\">\n        <Label htmlFor=\"location\">\n          Location <span data-slot=\"label-required\" aria-hidden>*</span>\n        </Label>\n        <Input id=\"location\" placeholder=\"Search any U.S. location\" />\n      </div>\n      <div className=\"flex items-center gap-3\">\n        <Checkbox id=\"floodplain\" defaultChecked />\n        <Label htmlFor=\"floodplain\">Exclude floodplain</Label>\n      </div>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "label",
+        "checkbox",
+        "input"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/label/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Label",
+  "description": "A field's label: 12px regular in 80% Forest, 8px above its field. Beside a checkbox, radio or switch it becomes the control's own 13px Forest label. A required mark inside it is brick.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/label.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// A field's label (Figma \"UI · Inputs\": Parcel size, Location): 12px regular in 80% Forest on a 16px line, 8px above its\n// field. Beside a checkbox, radio or switch (a horizontal Field) it is the control's own label instead: 13px Forest.\n// A required mark inside it (`<span aria-hidden>*</span>` with data-slot=\"label-required\") is brick. A disabled field's\n// label turns Slate with it.\nfunction Label({ className, ...props }: React.ComponentProps<\"label\">) {\n  return (\n    <chakra.label\n      data-slot=\"label\"\n      className={cn(\n        \"flex items-center gap-2 font-sans text-caption leading-line-caption font-normal text-fg-secondary select-none\",\n        \"*:data-[slot=label-required]:-ms-1 *:data-[slot=label-required]:text-danger\",\n        \"group-data-[orientation=horizontal]/field:text-body group-data-[orientation=horizontal]/field:leading-line-body group-data-[orientation=horizontal]/field:text-fg\",\n        \"peer-data-[slot=checkbox]:text-body peer-data-[slot=checkbox]:text-fg peer-data-[slot=switch]:text-body peer-data-[slot=switch]:text-fg peer-data-[slot=radio-group-item]:text-body peer-data-[slot=radio-group-item]:text-fg\",\n        \"group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:text-fg-subtle peer-disabled:cursor-not-allowed peer-disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Label };\n"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "pricing-page",
+  "useFor": "Use for /pricing. Pass `plans` (through PricingTable's props), `planNames` and `rows` for the comparison, and `faq` for billing questions.",
+  "constraints": [
+    "More than one Forest key per plan row",
+    "Check icons in the table",
+    "Rolling prices"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): PricingPage, PricingPlans, PricingQuestions and pricing.css",
+  "exports": [
+    "PricingRow",
+    "PricingPageProps",
+    "PricingPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/pricing-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/pricing-page.md",
+  "examples": [
+    {
+      "path": "examples/pricing-page.tsx",
+      "content": "\"use client\";\n\nimport { PricingPage } from \"@/components/blocks/pricing-page\";\n\nexport function Preview() {\n  return <PricingPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "pricing-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/pricing-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Pricing page",
+  "description": "The pricing page template: the page title, the plans with one yearly switch, a ruled comparison table with values in DM Mono, billing questions and the closing card.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "cta-section",
+    "faq-section",
+    "page-section",
+    "pricing-table",
+    "site-footer",
+    "site-header",
+    "table"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/pricing-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { FaqSection, type FaqSectionProps } from \"@/components/blocks/faq-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { PricingTable, type PricingTableProps } from \"@/components/blocks/pricing-table\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from \"@/components/ui/table\";\n\n// The pricing page: the page title, the plans, what every plan includes as a ruled table (values in DM Mono), the\n// billing questions and the closing card.\n\nexport type PricingRow = { label: string; values: string[] };\n\nconst ROWS: PricingRow[] = [\n  { label: \"Requests a month\", values: [\"1,000\", \"25,000\", \"250,000\", \"Custom\"] },\n  { label: \"Rate limit\", values: [\"2 / s\", \"20 / s\", \"100 / s\", \"Custom\"] },\n  { label: \"Batch size\", values: [\"None\", \"100\", \"1,000\", \"Custom\"] },\n  { label: \"Seats on the platform\", values: [\"None\", \"None\", \"5\", \"Unlimited\"] },\n  { label: \"Support\", values: [\"Community\", \"Email\", \"Shared channel\", \"Named engineer\"] },\n];\n\nexport type PricingPageProps = {\n  header?: SiteHeaderProps;\n  title?: string;\n  intro?: string;\n  plans?: PricingTableProps;\n  /** Column heads of the comparison table, in plan order. */\n  planNames?: string[];\n  rows?: PricingRow[] | null;\n  faq?: FaqSectionProps | null;\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nexport function PricingPage({\n  header,\n  title = \"Pricing\",\n  intro = \"Start free. Pay for the requests your agents make, and add the platform when your team screens sites every day.\",\n  plans,\n  planNames = [\"Free\", \"Builder\", \"Team\", \"Enterprise\"],\n  rows = ROWS,\n  faq = { label: \"Billing\", title: \"Billing questions.\" },\n  cta = {},\n  footer,\n}: PricingPageProps) {\n  return (\n    <div data-slot=\"pricing-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#pricing\" {...header} />\n      <main>\n        <PageSection as=\"h1\" title={title} intro={intro} space=\"compact\" />\n        <PricingTable label={null} title={null} intro={null} {...plans} />\n        {rows && (\n          <PageSection label=\"Compare\" title=\"What every plan includes.\">\n            <div className=\"overflow-x-auto fade-x\">\n              <Table className=\"min-w-160\">\n                <TableHeader>\n                  <TableRow>\n                    <TableHead>Plan</TableHead>\n                    {planNames.map((n) => (\n                      <TableHead key={n}>{n}</TableHead>\n                    ))}\n                  </TableRow>\n                </TableHeader>\n                <TableBody>\n                  {rows.map((r) => (\n                    <TableRow key={r.label}>\n                      <TableCell className=\"text-fg-secondary\">{r.label}</TableCell>\n                      {r.values.map((v, i) => (\n                        <TableCell key={i} className=\"font-mono text-caption\">\n                          {v}\n                        </TableCell>\n                      ))}\n                    </TableRow>\n                  ))}\n                </TableBody>\n              </Table>\n            </div>\n          </PageSection>\n        )}\n        {faq && <FaqSection {...faq} />}\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

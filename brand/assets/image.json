@@ -1,0 +1,227 @@
+{
+	"$comment": "Share images and social posts. Sizes started from the agd-playground Mireye tool's (src/components/mireye-og/draw.ts OG, banner, social and post sizes, at 4536d86) plus the shared social set. Grounds are the tool's themes (brand.ts THEMES) with every color taken from brand/tokens.css; where the tool and the tokens disagree the tokens win and the note says so. Poster templates are the tool's own layouts (draw.ts layoutFor), redrawn as vectors by src/image/poster.ts; sheet templates are this repo's earlier cut-frame sheets. Sample copy is the tool's occasions (content.ts), shown only with --sample; every word is meant to be replaced.",
+	"source": "agd-playground src/components/mireye-og at 4536d86 (layouts.ts, draw.ts, brand.ts, content.ts, iso.ts, contours.ts, app.ts)",
+	"sizes": {
+		"$comment": "The sizes every brand shares, with each platform's covered and cropped areas, are in src/design/platforms.ts. These are the further sizes this CLI draws (more platforms, IAB display ads, video-call backgrounds, wallpapers), with zones marked official or approximate, and this brand's older names. They belong in the shared table; until it has them they live here.",
+		"extra": {
+			"linkedin-square": {
+				"width": 1200,
+				"height": 1200,
+				"use": "LinkedIn square post",
+				"aliases": [
+					"li-square"
+				],
+				"shown": 468
+			},
+			"tiktok-cover": {
+				"width": 1080,
+				"height": 1920,
+				"use": "TikTok video cover (9:16)",
+				"aliases": [
+					"tiktok"
+				],
+				"shown": 390,
+				"avoid": [
+					{
+						"name": "the buttons on the right",
+						"official": false,
+						"rect": {
+							"x": 0.86,
+							"y": 0.36,
+							"w": 0.14,
+							"h": 0.48
+						}
+					},
+					{
+						"name": "the caption at the bottom",
+						"official": false,
+						"rect": {
+							"x": 0,
+							"y": 0.8,
+							"w": 1,
+							"h": 0.2
+						}
+					},
+					{
+						"name": "the bar at the top",
+						"official": false,
+						"rect": {
+							"x": 0,
+							"y": 0,
+							"w": 1,
+							"h": 0.1
+						}
+					}
+				]
+			},
+			"meta-story": {
+				"width": 1080,
+				"height": 1920,
+				"use": "Meta (Instagram and Facebook) story ad",
+				"aliases": [
+					"facebook-story",
+					"fb-story"
+				],
+				"shown": 390,
+				"avoid": [
+					{
+						"name": "the profile bar at the top",
+						"official": false,
+						"rect": {
+							"x": 0,
+							"y": 0,
+							"w": 1,
+							"h": 0.14
+						}
+					},
+					{
+						"name": "the call to action at the bottom",
+						"official": false,
+						"rect": {
+							"x": 0,
+							"y": 0.8,
+							"w": 1,
+							"h": 0.2
+						}
+					}
+				]
+			},
+			"linkedin-ad": {
+				"width": 1200,
+				"height": 628,
+				"use": "LinkedIn single image ad (1.91:1)",
+				"aliases": [
+					"li-ad"
+				],
+				"shown": 552
+			}
+		},
+		"aliases": {
+			"x": "landscape",
+			"card": "landscape",
+			"wide": "landscape",
+			"link": "og",
+			"li-link": "linkedin",
+			"li-post": "linkedin",
+			"li-profile": "linkedin-banner",
+			"li-page": "linkedin-page",
+			"yt": "youtube",
+			"wallpaper-desktop": "desktop",
+			"wallpaper-phone": "phone-wallpaper"
+		},
+		"custom": {
+			"min": 200,
+			"max": 4096
+		}
+	},
+	"floors": { "small": 9, "headline": 14, "note": "CSS pixels at the width a picture is usually shown at. Type is never set under them. A working floor: the brand gives none for pictures." },
+	"logoRules": { "clear": 1, "min": 8, "note": "The brand defines no clear space or minimum size (ASSUMPTIONS 14). Until it does: clear space is the mark's own height all round, and the mark is never under 8 CSS pixels tall at the width the picture is shown." },
+	"grounds": {
+		"bone": {
+			"label": "Bone",
+			"ground": "--ds-color-bg-default",
+			"ink": "--ds-color-text-default",
+			"muted": "--ds-color-text-secondary",
+			"window": "--ds-color-bg-inverse",
+			"windowInk": "--ds-color-text-inverse",
+			"windowMuted": "--ds-color-text-inverse-muted",
+			"grid": { "token": "--ds-color-text-default", "alpha": 0.22 },
+			"dark": false,
+			"note": "The tool's bone is #f3f0eb and its ink #000000; the tokens' Bone #F4F1EA and Forest ink #1E231C win. Grid alpha 0.22 is the tool's."
+		},
+		"green": {
+			"label": "Green",
+			"ground": "--ds-color-forest",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-text-inverse-muted",
+			"window": "--ds-color-bone",
+			"windowInk": "--ds-color-forest",
+			"windowMuted": "--ds-color-text-secondary",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.2 },
+			"dark": true,
+			"note": "The tool's green is #262b26 (also the illustration skill's ground); the tokens' Forest #1E231C wins. The tool's sage #b3bbad muted becomes the inverse muted token #C9CDC8."
+		},
+		"brown": {
+			"label": "Brown",
+			"ground": "--ds-color-earth",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-sand",
+			"window": "--ds-color-bone",
+			"windowInk": "--ds-color-earth",
+			"windowMuted": "--ds-color-bark",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.18 },
+			"dark": true,
+			"note": "Earth #2A2119 matches the tool's brown. Its muted #c9bfb2 has no token; Sand #D9CDB8 is the nearest warm token."
+		},
+		"black": {
+			"label": "Black",
+			"ground": "--ds-color-black",
+			"ink": "--ds-color-bone",
+			"muted": "--ds-color-text-inverse-muted",
+			"window": "--ds-color-earth",
+			"windowInk": "--ds-color-bone",
+			"windowMuted": "--ds-color-sand",
+			"grid": { "token": "--ds-color-bone", "alpha": 0.16 },
+			"dark": true,
+			"note": "The tool's black ground is #060606; the token black #000000 wins. The tool's white theme is left out: the illustration skill says finished designs never use pure white."
+		}
+	},
+	"art": {
+		"post": "residential",
+		"panel": "apicore",
+		"note": "The tool draws mireye.com's land drawings as tinted PNGs (art/residential.png, art/mcp.png). They are the illustration skill's residential and apicore scenes, so images draw those scenes as vectors instead."
+	},
+	"photo": {
+		"shade": { "token": "--ds-color-black", "alpha": 0.58 },
+		"note": "The tool darkens an aerial with rgba(14,12,9,0.56) over a stock photo (photos/farm.jpg). Stock photos are not shipped: pass --image. The shade is the black token at 0.58, the least that keeps bone words at 4.5:1 over a white picture (the tool's 0.56 gives 4.4:1)."
+	},
+	"app": {
+		"bg": "--ds-color-black",
+		"ink": "--ds-color-bone",
+		"muted": "--ds-color-text-inverse-muted",
+		"line": "--ds-color-track-dark",
+		"accent": "--ds-color-forest",
+		"accentInk": "--ds-color-bone",
+		"note": "The Ask panel (app.ts) uses #000000, #f3f0eb, #b3bbad, #3a3a36 and #262b26; each maps to the nearest token (the line to Track dark #5E645E, the darkest gray the product uses on a dark fill)."
+	},
+	"type": {
+		"note": "The tool sets every word in Gilroy (headline 400, -14/1000 em, 1.04 leading; line under it 400 at 1.42), Geist for interface text and Geist Mono for data. The repo ships Gilroy 400 and 500 and DM Mono, so Geist becomes Gilroy, Geist Mono becomes DM Mono, the chart numbers (Gilroy Light 300) are Regular and the partner name (600) is Medium, the heaviest weight the brand uses."
+	},
+	"lockup": {
+		"note": "The tool's lockup is the logomark beside mireye.com's lowercase wordmark. This repo's approved lockup (ASSUMPTIONS 7: the wordmark is not final) is the logomark with the name set in Gilroy, so images use that in the same box."
+	},
+	"posters": {
+		"backdrop": { "label": "Backdrop", "description": "A ground for video calls, desktops and phones: the dense contours, a wireframe drawing where nothing covers it (--scene) and the mark in a corner. No words.", "required": [], "optional": ["scene"], "ground": "green", "sample": {} },
+		"identity": { "label": "Logo", "description": "The lockup in a clear window on the dense contours, the grid along its edges and diamonds at its corners. No words.", "required": [], "optional": [], "ground": "bone", "sample": {} },
+		"window": { "label": "Window", "description": "A clear window framed by the grid on the sparse contours: the lockup, the headline and a line under it, centered.", "required": ["title"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Physical world context for AI agents.", "subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals." } },
+		"post": { "label": "Post", "description": "The headline top left, a wireframe drawing in the middle (residential by default, any scene with --scene), the line at the foot, the logomark bottom right.", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "Residential land", "subtitle": "Ownership, flood, terrain and utilities for any U.S. parcel, every field cited." } },
+		"parcels": { "label": "Parcels", "description": "Three surveyed parcels on the contours and grid, one filled, a callout tag over them (--callout) and a tag on each (--labels).", "required": ["title"], "optional": ["subtitle", "callout", "labels"], "ground": "bone", "sample": { "title": "Find the parcels that fit.", "subtitle": "Send hundreds of locations in one call, and one bad address does not fail the rest.", "callout": "38.6 ac\n37.5407, −77.4360", "labels": "01 | 02 | 03" } },
+		"scene": { "label": "Isometric", "description": "The headline top left, a quick isometric line drawing with one parcel picked out (solar by default; residential, datacenter, warehouse, hub or parcels with --scene), the grid in thirds.", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "Physical world context for AI agents" } },
+		"photo": { "label": "Aerial", "description": "Your aerial picture (--image) darkened, the headline in bone on it, a crosshair ending in a target, a parcel outlined and its callout.", "required": ["title", "image"], "optional": ["subtitle", "callout"], "ground": "black", "sample": { "title": "Find the parcels that fit.", "subtitle": "Send hundreds of locations in one call, and one bad address does not fail the rest.", "callout": "Central Iowa\n41.9, −93.5" } },
+		"tag": { "label": "Tag", "description": "The words in a solid tag with its corner cut, beside a crosshair and target on the sparse contours, the lockup top left.", "required": ["title"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Physical world context for AI agents.", "subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals." } },
+		"panel": { "label": "Panel", "description": "An inset panel with a hairline and corner diamonds, contours in the margin, the headline in it, the lockup at its foot and a wireframe drawing (the API core by default).", "required": ["title"], "optional": ["subtitle", "scene"], "ground": "bone", "sample": { "title": "One API with MCP tools.", "subtitle": "Search, enrich and ask about any U.S. location from your agent, every value cited." } },
+		"chart": { "label": "Chart", "description": "The headline top left, the logomark top right and a hatched column chart (--chart, one row a line: label | number).", "required": ["title", "chart"], "optional": [], "ground": "bone", "sample": { "title": "Fields returned by each preset.", "chart": "data_center_siting | 138\nsite_selection | 64\nutilities | 42\ngrid_interconnect | 38" } },
+		"app": { "label": "Ask", "description": "The words beside (or above) the product's Ask panel: a contour map strip and the ask box, with the question (--question), suggestions (--suggestions, split by |) and place (--place) you give it.", "required": ["title"], "optional": ["subtitle", "question", "suggestions", "place"], "ground": "bone", "sample": { "title": "One API with MCP tools.", "subtitle": "Search, enrich and ask about any U.S. location from your agent, every value cited.", "question": "What do you want to know about this site?", "suggestions": "Who owns this parcel? | Is it in a flood zone? | How steep is the terrain?", "place": "39.7392, -104.9903" } },
+		"partner": { "label": "Lockup", "description": "The lockup × a partner's name in a clear window on the dense contours, the headline under it.", "required": ["title", "partner"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Mireye now works with Acme.", "subtitle": "Acme agents can ask about any U.S. location and get cited facts back in one call.", "partner": "Acme" } },
+		"stat": { "label": "Stat", "description": "One number set as large as its room allows over a tick row, the headline as what it counts, the line at the foot.", "required": ["title", "stat"], "optional": ["subtitle"], "ground": "green", "sample": { "stat": "138", "title": "Fields returned for data center siting", "subtitle": "Every field cited to its source." } },
+		"event": { "label": "Event", "description": "The headline, and a solid card with the date and an optional speaker line (a role, not a real name).", "required": ["title", "date"], "optional": ["subtitle", "speaker"], "ground": "bone", "sample": { "title": "Siting data centers with agents", "date": "12 March 2027, 17:00 CET", "speaker": "Head of data, Acme", "subtitle": "A live session, with questions." } },
+		"pricing": { "label": "Pricing", "description": "The plan name as the headline, and a card with the price and what it includes, each led by a diamond.", "required": ["title", "price"], "optional": ["subtitle", "items"], "ground": "bone", "sample": { "title": "Team", "price": "$490 a month", "items": "Every field cited | Batch calls | MCP tools | Support from the team" } },
+		"compare": { "label": "Compare", "description": "Two columns side by side, the second filled: the first line of each is its title (--left and --right, lines split by |).", "required": ["title", "left", "right"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "One call instead of ten sites", "left": "Before | Ten sites to search | Days of work | Nothing cited", "right": "With the API | One call | Seconds | Every field cited" } },
+		"flow": { "label": "Flow", "description": "Steps in boxes joined by a line with the brand's diamonds, across on wide sizes and down on tall ones (--steps, split by |).", "required": ["title", "steps"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "How an agent answers", "steps": "Ask | Locate the parcel | Cite every field | Answer" } },
+		"split": { "label": "Before and after", "description": "Two of your pictures side by side in cut frames (--before and --after), with optional tags (--labels \"Before | After\").", "required": ["title", "before", "after"], "optional": ["subtitle", "labels"], "ground": "bone", "sample": { "title": "The same site, cited", "labels": "Before | After" } },
+		"line": { "label": "Line chart", "description": "The headline, and a line through the rows (--chart, label | number) with a diamond at each point and the area under it hatched.", "required": ["title", "chart"], "optional": [], "ground": "bone", "sample": { "title": "Calls a day, this quarter", "chart": "Jan | 1,200\nFeb | 2,900\nMar | 4,400\nApr | 6,100" } },
+		"donut": { "label": "Donut chart", "description": "The headline, and a ring split by the rows' shares (solid, hatched, outlined) with a legend of labels and numbers.", "required": ["title", "chart"], "optional": ["subtitle"], "ground": "bone", "sample": { "title": "Where the calls come from", "chart": "Agents | 62\nApps | 28\nScripts | 10" } }
+	},
+	"sheets": {
+		"headline": { "title": "Physical world context for AI agents." },
+		"subtext": { "title": "Physical world context for AI agents.", "subtitle": "One API to connect your agents to physical world data, enrichment, tools and signals." },
+		"frame": { "title": "Find the parcels that fit.", "subtitle": "Send hundreds of locations in one call.", "scene": "residential" },
+		"quote": { "quote": "We sent hundreds of locations in one call, and one bad address did not fail the rest.", "attribution": "Head of data, Acme" },
+		"announcement": { "kicker": "Field note", "title": "The sheet is ready.", "subtitle": "Same marks, new note." }
+	},
+	"appPanel": {
+		"title": "Ask Mireye",
+		"placeholder": "Ask about any U.S. location",
+		"button": "Ask"
+	}
+}

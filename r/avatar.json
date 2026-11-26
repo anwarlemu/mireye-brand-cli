@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "name": "avatar",
+  "useFor": "Use for an organisation, a team member or a site's thumbnail beside its name (size sm is 24px in rows). Always give an AvatarFallback with one uppercase initial. AvatarBadge marks someone or something live with a Fern diamond; AvatarGroup lists who shares a project, with AvatarGroupCount for the rest.",
+  "constraints": [
+    "Circles",
+    "Overlapping avatars",
+    "Gradient or random-coloured fallbacks",
+    "Two-letter initials",
+    "Bold initials"
+  ],
+  "documentation": "",
+  "source": "Not in Figma: square because Mireye has no circles; Fog and Forest from the palette (331:37), for a designer's review",
+  "exports": [
+    "Avatar",
+    "AvatarBadge",
+    "AvatarFallback",
+    "AvatarGroup",
+    "AvatarGroupCount",
+    "AvatarImage"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/avatar",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/avatar.md",
+  "examples": [
+    {
+      "path": "examples/avatar.tsx",
+      "content": "import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from \"@/components/ui/avatar\";\n\nexport function Preview() {\n  return (\n    <div className=\"grid gap-2\">\n      <div className=\"flex h-9 items-center gap-2.5\">\n        <Avatar size=\"sm\">\n          <AvatarFallback>A</AvatarFallback>\n        </Avatar>\n        <span className=\"text-body text-fg\">Acme Energy</span>\n      </div>\n      <div className=\"flex h-9 items-center gap-2.5\">\n        <Avatar size=\"sm\">\n          <AvatarImage src=\"/examples/map-aerial.jpg\" alt=\"\" />\n          <AvatarFallback>E</AvatarFallback>\n        </Avatar>\n        <span className=\"text-body text-fg\">Ellis County site 14</span>\n      </div>\n    </div>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-4\">\n      <Avatar size=\"sm\">\n        <AvatarFallback>A</AvatarFallback>\n      </Avatar>\n      <Avatar>\n        <AvatarFallback>A</AvatarFallback>\n      </Avatar>\n      <Avatar size=\"lg\">\n        <AvatarFallback>A</AvatarFallback>\n      </Avatar>\n      <Avatar size=\"lg\">\n        <AvatarImage src=\"/examples/farmland-aerial.jpg\" alt=\"Aerial of the parcel\" />\n        <AvatarFallback>P</AvatarFallback>\n      </Avatar>\n    </div>\n  );\n}\n\nexport function WithBadge() {\n  return (\n    <div className=\"flex items-center gap-4\">\n      <Avatar>\n        <AvatarFallback>A</AvatarFallback>\n        <AvatarBadge />\n      </Avatar>\n      <Avatar size=\"lg\">\n        <AvatarImage src=\"/examples/map-aerial.jpg\" alt=\"Aerial of the site\" />\n        <AvatarFallback>S</AvatarFallback>\n        <AvatarBadge />\n      </Avatar>\n    </div>\n  );\n}\n\nexport function Group() {\n  return (\n    <AvatarGroup>\n      <Avatar>\n        <AvatarFallback>A</AvatarFallback>\n      </Avatar>\n      <Avatar>\n        <AvatarFallback>B</AvatarFallback>\n      </Avatar>\n      <Avatar>\n        <AvatarFallback>C</AvatarFallback>\n      </Avatar>\n      <AvatarGroupCount>+3</AvatarGroupCount>\n    </AvatarGroup>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sizes",
+        "WithBadge",
+        "Group"
+      ],
+      "requires": [
+        "avatar"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/avatar/Preview"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/avatar/Sizes"
+        },
+        {
+          "name": "WithBadge",
+          "url": "https://mireye-ds.agencidev.com/preview/avatar/WithBadge"
+        },
+        {
+          "name": "Group",
+          "url": "https://mireye-ds.agencidev.com/preview/avatar/Group"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Avatar",
+  "description": "Square tiles: one Forest initial on Fog, or an image filling the square, with a diamond status node and a group.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "diamond",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/avatar.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Avatar as ChakraAvatar } from \"@chakra-ui/react\";\n\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's avatar is square: Mireye has no circles. A Fog tile with one Forest initial (pass it uppercase) in 13px\n// medium, or the image filling the tile. Sizes: sm 24px, default 32px, lg 40px. The fallback shows until the image has\n// loaded. `shape` is kept for compatibility and has no effect: every avatar is square.\nfunction Avatar({ className, size = \"default\", shape: _shape, ...props }: React.ComponentProps<typeof ChakraAvatar.Root> & { size?: \"sm\" | \"default\" | \"lg\"; shape?: \"square\" | \"circle\" }) {\n  return (\n    <ChakraAvatar.Root\n      unstyled\n      data-slot=\"avatar\"\n      data-size={size}\n      className={cn(\"group/avatar relative flex size-8 shrink-0 select-none data-[size=lg]:size-10 data-[size=sm]:size-6\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AvatarImage({ className, ...props }: React.ComponentProps<typeof ChakraAvatar.Image>) {\n  return <ChakraAvatar.Image unstyled data-slot=\"avatar-image\" className={cn(\"aspect-square size-full object-cover\", className)} {...props} />;\n}\n\nfunction AvatarFallback({ className, ...props }: React.ComponentProps<typeof ChakraAvatar.Fallback>) {\n  return (\n    <ChakraAvatar.Fallback\n      data-slot=\"avatar-fallback\"\n      className={cn(\"flex size-full items-center justify-center bg-subtle font-sans text-body leading-none font-medium text-fg group-data-[size=lg]/avatar:text-body-lg group-data-[size=sm]/avatar:text-caption\", className)}\n      {...props}\n    />\n  );\n}\n\n/**\n * A status node at the avatar's lower right (an agent at work, a reviewer online): a solid diamond in Fern on a white\n * square, so it reads on any image. Children are ignored; the node is the mark.\n */\nfunction AvatarBadge({ className, children: _children, ...props }: React.ComponentProps<\"span\">) {\n  return (\n    <span data-slot=\"avatar-badge\" className={cn(\"absolute -right-1 -bottom-1 z-10 flex size-3 items-center justify-center bg-surface text-success group-data-[size=lg]/avatar:size-3.5 group-data-[size=sm]/avatar:size-2.5\", className)} {...props}>\n      <Diamond size={12} />\n    </span>\n  );\n}\n\n/** Avatars side by side, 2px apart: squares do not overlap. */\nfunction AvatarGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"avatar-group\" className={cn(\"group/avatar-group flex gap-0.5\", className)} {...props} />;\n}\n\n/** The count of avatars not shown (+3): a white tile with the 1px Stone line. */\nfunction AvatarGroupCount({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"avatar-group-count\"\n      className={cn(\n        \"relative flex size-8 shrink-0 items-center justify-center border border-line bg-surface font-sans text-caption leading-none text-fg-secondary tabular-nums group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage };\n"
+    }
+  ]
+}

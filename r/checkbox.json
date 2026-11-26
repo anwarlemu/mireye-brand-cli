@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "checkbox",
+  "useFor": "Use for independent options applied when a form is submitted (exclude floodplain, layers to show). Pass the label as children so a click on it toggles the box. Use the indeterminate state for a parent that covers some of its children. For a setting that applies at once use Switch.",
+  "constraints": [
+    "A round or cut checkbox",
+    "An animated check",
+    "A checkbox that acts at once like a switch"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Controls\" (442:145): Exclude floodplain, on and off",
+  "exports": [
+    "Checkbox"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/checkbox",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/checkbox.md",
+  "examples": [
+    {
+      "path": "examples/checkbox.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Checkbox } from \"@/components/ui/checkbox\";\n\nconst LAYERS = [\"Parcels\", \"Substations\", \"Transmission lines\"];\n\nexport function Preview() {\n  return (\n    <div className=\"grid gap-3\">\n      <Checkbox defaultChecked>Exclude floodplain</Checkbox>\n      <Checkbox>Exclude wetlands</Checkbox>\n      <Checkbox>Exclude protected land</Checkbox>\n    </div>\n  );\n}\n\n// \"Show all\" is mixed while some layers are on.\nexport function Group() {\n  const [on, setOn] = React.useState<string[]>([\"Parcels\"]);\n  const all = on.length === LAYERS.length ? true : on.length ? \"indeterminate\" : false;\n  return (\n    <div className=\"grid gap-3\">\n      <Checkbox checked={all} onCheckedChange={(c) => setOn(c === true ? LAYERS : [])}>\n        Show all layers\n      </Checkbox>\n      <div className=\"grid gap-3 pl-7\">\n        {LAYERS.map((l) => (\n          <Checkbox key={l} checked={on.includes(l)} onCheckedChange={(c) => setOn((v) => (c === true ? [...v, l] : v.filter((x) => x !== l)))}>\n            {l}\n          </Checkbox>\n        ))}\n      </div>\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"grid gap-3\">\n      <Checkbox disabled>Zoning (no data)</Checkbox>\n      <Checkbox disabled defaultChecked>\n        County boundary\n      </Checkbox>\n      <Checkbox aria-invalid>Accept the data terms</Checkbox>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Group",
+        "States"
+      ],
+      "requires": [
+        "checkbox"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/checkbox/Preview"
+        },
+        {
+          "name": "Group",
+          "url": "https://mireye-ds.agencidev.com/preview/checkbox/Group"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/checkbox/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Checkbox",
+  "description": "A 16px square with no cut: Bone inside a 1px Stone line when off, Forest with Mireye's Bone check when on, Forest with a Bone rule when mixed. An empty box steps to Fog under the pointer. Its label is 13px Forest 12px after it.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/checkbox.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Checkbox as ChakraCheckbox } from \"@chakra-ui/react\";\n\nimport { CheckIcon } from \"@/components/icons/check\";\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's checkbox (Figma \"UI · Controls\", 442:145: Exclude floodplain) at the product scale: a 16px square (Figma's\n// 28px), no cut, as every small control. Off it is white inside a 1px Stone line; on it is a Forest fill with Mireye's\n// white check (the 1.75px stroke from the board). Figma has no mixed state: \"indeterminate\" is the Forest fill with a\n// white 8px rule. Under the pointer an empty box steps to Fog over 150ms; the check itself appears at once. Keyboard\n// focus is the 1px Forest outline 2px outside; aria-invalid turns the line brick. Disabled sits on Mist with a Slate\n// mark. `children` is the label: 13px Forest, 12px after the box (Figma's 20px), and a click on it toggles the box.\ntype CheckboxProps = Omit<React.ComponentProps<typeof ChakraCheckbox.Root>, \"onCheckedChange\"> & {\n  onCheckedChange?: (checked: boolean | \"indeterminate\") => void;\n};\n\nfunction Checkbox({ className, onCheckedChange, children, ...props }: CheckboxProps) {\n  return (\n    <ChakraCheckbox.Root\n      unstyled\n      data-slot=\"checkbox\"\n      className={cn(\n        \"peer group/checkbox inline-flex shrink-0 cursor-pointer items-center gap-3 font-sans text-body leading-line-body text-fg outline-none data-disabled:cursor-not-allowed data-disabled:text-fg-subtle\",\n        className,\n      )}\n      onCheckedChange={(details) => onCheckedChange?.(details.checked)}\n      {...props}\n    >\n      <ChakraCheckbox.HiddenInput />\n      <ChakraCheckbox.Control\n        data-slot=\"checkbox-control\"\n        className={cn(\n          \"flex size-4 shrink-0 items-center justify-center border border-line bg-surface text-on-primary transition-[background-color] duration-fast ease-out motion-reduce:transition-none\",\n          \"group-hover/checkbox:bg-subtle group-data-[state=checked]/checkbox:border-line-strong group-data-[state=checked]/checkbox:bg-inverse group-data-[state=indeterminate]/checkbox:border-line-strong group-data-[state=indeterminate]/checkbox:bg-inverse\",\n          \"group-data-focus-visible/checkbox:outline-solid group-data-focus-visible/checkbox:outline-1 group-data-focus-visible/checkbox:outline-offset-2 group-data-focus-visible/checkbox:outline-line-strong\",\n          \"group-data-invalid/checkbox:border-danger group-aria-invalid/checkbox:border-danger\",\n          \"group-data-disabled/checkbox:border-line group-data-disabled/checkbox:bg-subtle-hover group-data-disabled/checkbox:text-fg-subtle\",\n        )}\n      >\n        <CheckIcon data-slot=\"checkbox-indicator\" className=\"hidden group-data-[state=checked]/checkbox:block\" />\n        <span aria-hidden data-slot=\"checkbox-indicator\" className=\"hidden h-px w-2 bg-current group-data-[state=indeterminate]/checkbox:block\" />\n      </ChakraCheckbox.Control>\n      {children != null && (\n        <ChakraCheckbox.Label data-slot=\"checkbox-label\" className=\"select-none\">\n          {children}\n        </ChakraCheckbox.Label>\n      )}\n    </ChakraCheckbox.Root>\n  );\n}\n\nexport { Checkbox };\n"
+    }
+  ]
+}

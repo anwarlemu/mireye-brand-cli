@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "hover-card",
+  "useFor": "Use to preview a linked thing in running text (a substation's voltage, owner and distance) without leaving the page. The link still works on click.",
+  "constraints": [
+    "The only place a fact appears",
+    "Actions or fields inside the card",
+    "Rounded corners or a shadow",
+    "Opening without a dwell"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the popover's panel",
+  "exports": [
+    "HoverCard",
+    "HoverCardContent",
+    "HoverCardTrigger"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/hover-card",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/hover-card.md",
+  "examples": [
+    {
+      "path": "examples/hover-card.tsx",
+      "content": "import { LightningIcon, MapPinIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { HoverCard, HoverCardContent, HoverCardTrigger } from \"@/components/ui/hover-card\";\n\nfunction SubstationCard() {\n  return (\n    <div className=\"grid gap-3\">\n      <div className=\"grid gap-1\">\n        <p className=\"text-body font-medium text-fg\">Ault substation</p>\n        <p className=\"text-body text-fg-secondary\">230 kV, owned by Acme Transmission. About 40 MW of spare capacity in the last study.</p>\n      </div>\n      <div className=\"grid gap-1.5 border-t border-line-subtle pt-3\">\n        <p className=\"flex items-center gap-2 text-body text-fg\">\n          <LightningIcon className=\"size-4 text-fg-secondary\" /> 2.1 mi from Site 14\n        </p>\n        <p className=\"flex items-center gap-2 font-mono text-caption text-fg-secondary\">\n          <MapPinIcon className=\"size-4\" /> 40.5853, −104.7322\n        </p>\n      </div>\n    </div>\n  );\n}\n\nconst LINK = \"text-fg underline decoration-line underline-offset-4 transition-[text-decoration-color] duration-150 ease-out hover:decoration-line-strong\";\n\nexport function Preview() {\n  return (\n    <p className=\"max-w-96 text-body text-fg\">\n      Site 14 ties in at the{\" \"}\n      <HoverCard>\n        <HoverCardTrigger href=\"#ault\" className={LINK}>\n          Ault substation\n        </HoverCardTrigger>\n        <HoverCardContent>\n          <SubstationCard />\n        </HoverCardContent>\n      </HoverCard>{\" \"}\n      along an existing county road.\n    </p>\n  );\n}\n\nexport function Open() {\n  return (\n    <div className=\"flex min-h-60 items-start justify-center\">\n      <HoverCard defaultOpen>\n        <HoverCardTrigger href=\"#ault\" className={LINK}>\n          Ault substation\n        </HoverCardTrigger>\n        <HoverCardContent>\n          <SubstationCard />\n        </HoverCardContent>\n      </HoverCard>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Open"
+      ],
+      "requires": [
+        "hover-card"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/hover-card/Preview"
+        },
+        {
+          "name": "Open",
+          "url": "https://mireye-ds.agencidev.com/preview/hover-card/Open"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Hover Card",
+  "description": "The popover's panel (Bone, 6px cut corner, 1px Stone line, no shadow) shown after a 400ms dwell on a link, with a short preview of what it points to.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/hover-card.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { HoverCard as HoverCardPrimitive } from \"radix-ui\";\n\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// A preview on hover, drawn as the popover (Figma has none): a white panel with the 6px cut corner and a 1px Stone\n// line, no shadow, 8px from its trigger, 16px of padding, 13px Forest text. It waits before opening (so a passing\n// pointer does not trigger it), then grows out of its trigger from 98 percent with a fade (150ms in, 120ms out). The\n// dwell prevents accidental previews; it never delays the link action.\nfunction HoverCard({ openDelay = 400, closeDelay = 150, ...props }: React.ComponentProps<typeof HoverCardPrimitive.Root>) {\n  return <HoverCardPrimitive.Root data-slot=\"hover-card\" openDelay={openDelay} closeDelay={closeDelay} {...props} />;\n}\n\nfunction HoverCardTrigger(props: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) {\n  return <HoverCardPrimitive.Trigger data-slot=\"hover-card-trigger\" {...props} />;\n}\n\nfunction HoverCardContent({ className, align = \"center\", sideOffset = 8, ...props }: React.ComponentProps<typeof HoverCardPrimitive.Content>) {\n  const container = usePortalContainer();\n  return (\n    <HoverCardPrimitive.Portal container={container} data-slot=\"hover-card-portal\">\n      <HoverCardPrimitive.Content\n        data-slot=\"hover-card-content\"\n        align={align}\n        sideOffset={sideOffset}\n        className={cn(\n          \"ds-cut-frame z-50 w-72 max-w-[calc(100vw-2rem)] origin-(--radix-hover-card-content-transform-origin) p-4 text-body leading-body text-fg outline-none [--ds-cut:var(--ds-cut-md)] [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in\",\n          className,\n        )}\n        {...props}\n      />\n    </HoverCardPrimitive.Portal>\n  );\n}\n\nexport { HoverCard, HoverCardContent, HoverCardTrigger };\n"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "progress",
+  "useFor": "Use for a known amount of work the agent reports (Loading terrain, sources read, parcels matched). Give it a label, which names the bar and shows the percentage; without one, pass aria-label. The fill counts up a tick at a time. For a wait with no known end, use Spinner.",
+  "constraints": [
+    "A solid or rounded fill",
+    "Striped or gradient fills",
+    "Easing or sliding the fill",
+    "Progress for something that takes under a second",
+    "A bar taller than 16px"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Progress (442:213): Determinate, title 442:222, value 442:223, bar 442:224",
+  "exports": [
+    "Progress"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/progress",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/progress.md",
+  "examples": [
+    {
+      "path": "examples/progress.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Progress } from \"@/components/ui/progress\";\n\nexport function Preview() {\n  const [value, setValue] = React.useState(24);\n  React.useEffect(() => {\n    // ds-latency: advances a presentation-only progress example; no user input is waiting.\n    const t = setTimeout(() => setValue(62), 600);\n    return () => clearTimeout(t);\n  }, []);\n  return (\n    <div className=\"w-full max-w-100\">\n      <Progress label=\"Loading terrain\" value={value} />\n    </div>\n  );\n}\n\nexport function Values() {\n  return (\n    <div className=\"grid w-full max-w-100 gap-6\">\n      <Progress value={0} aria-label=\"Parcels matched\" />\n      <Progress value={38} aria-label=\"Sources read\" />\n      <Progress value={100} aria-label=\"Report written\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Values"
+      ],
+      "requires": [
+        "progress"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/progress/Preview"
+        },
+        {
+          "name": "Values",
+          "url": "https://mireye-ds.agencidev.com/preview/progress/Values"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Progress",
+  "description": "A determinate tick bar: 1px lines every 6px, Forest where done and Stone ahead, under a 16px title and its percentage.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "ticks",
+    "use-loop-frame",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/progress.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Ticks } from \"@/components/ui/ticks\";\nimport { usePrefersReducedMotion } from \"@/lib/use-loop-frame\";\nimport { cn } from \"@/lib/utils\";\n\n/**\n * Progress: a determinate tick bar (Figma \"UI · Progress\", 442:213, row \"Determinate\": title 442:222, value 442:223,\n * bar 442:224), at the product scale.\n *\n * - The bar is a row of 1px lines every 6px, 16px tall (Figma's 28px at 0.6). Done lines are Forest, the rest Stone.\n * - The bar is as wide as the largest whole number of ticks that fits, so it never ends on a gap.\n * - With a `label`, a 16px regular title sits over the bar with the percentage at the right in a fixed box, so the\n *   title never moves while the digits change. The bar starts 12px under it.\n * - The bar carries role=\"progressbar\" and is named by the title (or `aria-label`). The visible percentage is hidden\n *   from assistive tech because aria-valuetext already says it.\n * - Motion: when the value rises, the fill and the percentage count up one tick at a time, linear, in 300ms at most.\n *   Ticks count; they never ease or slide. A value that falls drops at once. Under reduced motion the fill jumps.\n */\nconst PITCH = 6;\nconst TICKS_PER_SHARE = 100;\n\n/** Counts the shown share up to `target` in whole ticks, linear, in at most 300ms. */\nfunction useCountedShare(target: number) {\n  const reduced = usePrefersReducedMotion();\n  const [shown, setShown] = React.useState(target);\n  const last = React.useRef(target);\n  React.useEffect(() => {\n    const from = last.current;\n    if (reduced || target <= from) {\n      last.current = target;\n      setShown(target);\n      return;\n    }\n    const ticks = Math.max(1, Math.round((target - from) * TICKS_PER_SHARE));\n    const duration = Math.min(300, ticks * 50);\n    const start = performance.now();\n    let raf = 0;\n    const step = (now: number) => {\n      const done = Math.min(1, (now - start) / duration);\n      const v = from + (Math.floor(done * ticks) / ticks) * (target - from);\n      last.current = v;\n      setShown(v);\n      if (done < 1) raf = requestAnimationFrame(step);\n    };\n    raf = requestAnimationFrame(step);\n    return () => cancelAnimationFrame(raf);\n  }, [target, reduced]);\n  return shown;\n}\n\ntype ProgressProps = Omit<React.ComponentProps<\"div\">, \"children\"> & {\n  /** Current value, from 0 to `max`. */\n  value?: number | null;\n  max?: number;\n  /** Title above the bar (\"Loading terrain\"). */\n  label?: React.ReactNode;\n  /** Shows the percentage at the right of the title. On when there is a label. */\n  showValue?: boolean;\n};\n\nfunction Progress({ value, max = 100, label, showValue = label !== undefined, className, \"aria-label\": ariaLabel, ...props }: ProgressProps) {\n  const labelId = React.useId();\n  const v = value ?? 0;\n  const share = max > 0 ? Math.min(1, Math.max(0, v / max)) : 0;\n  const shown = useCountedShare(share);\n  return (\n    <div data-slot=\"progress\" className={cn(\"flex w-full flex-col gap-3 font-sans text-h3 leading-none font-normal text-fg\", className)} {...props}>\n      {(label !== undefined || showValue) && (\n        <div data-slot=\"progress-header\" className=\"flex items-start justify-between gap-4\">\n          {label !== undefined && (\n            <span id={labelId} data-slot=\"progress-label\" className=\"ds-trim min-w-0\">\n              {label}\n            </span>\n          )}\n          {showValue && (\n            <span data-slot=\"progress-value\" aria-hidden className=\"ds-trim ml-auto w-12 shrink-0 text-right whitespace-nowrap tabular-nums\">\n              {`${Math.round(shown * 100)}%`}\n            </span>\n          )}\n        </div>\n      )}\n      <Ticks\n        role=\"progressbar\"\n        aria-valuemin={0}\n        aria-valuemax={max}\n        aria-valuenow={Math.min(max, Math.max(0, v))}\n        aria-valuetext={`${Math.round(share * 100)}%`}\n        aria-label={label === undefined ? ariaLabel : undefined}\n        aria-labelledby={label !== undefined ? labelId : undefined}\n        data-slot=\"progress-indicator\"\n        pitch={PITCH}\n        value={shown}\n        on=\"var(--ds-color-border-strong)\"\n        off=\"var(--ds-color-border-default)\"\n        className=\"h-4\"\n        style={{ width: `calc(round(down, 100% - 1px, ${PITCH}px) + 1px)` }}\n      />\n    </div>\n  );\n}\n\nexport { Progress };\n"
+    }
+  ]
+}

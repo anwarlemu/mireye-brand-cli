@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "name": "line-fill-loader",
+  "useFor": "Use while data loads: `size={160}` for a panel, `size={40}` inline. `running={false}` with `frame` holds Figma's still frame.",
+  "constraints": [
+    "Over a map; use the contour loader there",
+    "A bar chart that pretends to be data"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Loaders\" (443:2): hero 443:52, frames 443:56 to 443:72",
+  "exports": [
+    "LineFillLoader",
+    "LINE_FILLS"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/line-fill-loader",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/line-fill-loader.md",
+  "examples": [
+    {
+      "path": "examples/line-fill-loader.tsx",
+      "content": "import { LineFillLoader } from \"@/components/ui/line-fill-loader\";\n\n// Data loading: a bell of lines travels left to right, like a chart filling in.\nexport function Preview() {\n  return (\n    <div className=\"flex flex-wrap items-end justify-center gap-8\">\n      <LineFillLoader size={160} />\n      <LineFillLoader />\n    </div>\n  );\n}\n\n// Figma's frames, still: the peak steps two lines a frame.\nexport function Frames() {\n  return (\n    <div className=\"flex flex-wrap items-end justify-center gap-4\">\n      {[0, 1, 2, 3, 4].map((f) => (\n        <LineFillLoader key={f} frame={f} running={false} />\n      ))}\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Frames"
+      ],
+      "requires": [
+        "line-fill-loader"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/line-fill-loader/Preview"
+        },
+        {
+          "name": "Frames",
+          "url": "https://mireye-ds.agencidev.com/preview/line-fill-loader/Frames"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Line fill loader",
+  "description": "The data loader: eleven lines rising into a bell that travels left to right.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "loader"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/line-fill-loader.tsx",
+      "content": "// Moved into Loader (loader.tsx) on 29 Oct. This path stays so existing imports keep working.\nexport { LineFillLoader, LINE_FILLS } from \"@/components/ui/loader\";\n"
+    }
+  ]
+}

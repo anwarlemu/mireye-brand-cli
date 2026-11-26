@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "name": "site-footer",
+  "useFor": "Use at the foot of every website page, as its last section. Pass `columns` of links, `legal` and a mono `meta` (a status).",
+  "constraints": [
+    "Social icons that move on hover",
+    "Coloured footer grounds",
+    "More than five columns"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): SiteFooter (Products, Solutions, Company, Explore and Connect columns, legal row)",
+  "exports": [
+    "FooterColumn",
+    "SiteFooterProps",
+    "SiteFooter"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/site-footer",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/site-footer.md",
+  "examples": [
+    {
+      "path": "examples/site-footer.tsx",
+      "content": "import { SiteFooter } from \"@/components/blocks/site-footer\";\n\nexport function Preview() {\n  return <SiteFooter />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "site-footer"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/site-footer/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Site footer",
+  "description": "The website footer: the lockup and one line, link columns under mono labels and the legal row under a Mist rule; it closes the page's rails.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/site-footer.tsx",
+      "content": "import * as React from \"react\";\n\nimport { PageSection, SITE_LINK, SiteLockup, type SiteLink } from \"@/components/blocks/page-section\";\n\n// The website footer, the last framed section: the lockup and one line, the link columns under mono labels, then the\n// legal row under a Mist rule. Links are Forest at 80% and turn Forest under the pointer (150ms, color only). It closes\n// the rails with the bottom rule and its nodes.\n\nexport type FooterColumn = { title: string; links: SiteLink[] };\n\nconst COLUMNS: FooterColumn[] = [\n  { title: \"Product\", links: [{ label: \"Overview\", href: \"#product\" }, { label: \"Parcels\", href: \"#parcels\" }, { label: \"Permits\", href: \"#permits\" }, { label: \"Platform\", href: \"#platform\" }] },\n  { title: \"Developers\", links: [{ label: \"Docs\", href: \"#docs\" }, { label: \"API reference\", href: \"#api\" }, { label: \"Changelog\", href: \"#changelog\" }, { label: \"Status\", href: \"#status\" }] },\n  { title: \"Company\", links: [{ label: \"About\", href: \"#about\" }, { label: \"Blog\", href: \"#blog\" }, { label: \"Careers\", href: \"#careers\" }, { label: \"Contact\", href: \"#contact\" }] },\n  { title: \"Legal\", links: [{ label: \"Terms\", href: \"#terms\" }, { label: \"Privacy\", href: \"#privacy\" }, { label: \"Security\", href: \"#security\" }] },\n];\n\nexport type SiteFooterProps = {\n  name?: string;\n  tagline?: React.ReactNode;\n  columns?: FooterColumn[];\n  /** The legal line, e.g. \"© 2026 Mireye\". */\n  legal?: React.ReactNode;\n  /** Mono text at the end of the legal row. */\n  meta?: React.ReactNode;\n  className?: string;\n};\n\nexport function SiteFooter({\n  name = \"Mireye\",\n  tagline = \"Physical world context for AI agents.\",\n  columns = COLUMNS,\n  legal = `© ${new Date().getFullYear()} ${name}`,\n  meta = \"All systems normal\",\n  className,\n}: SiteFooterProps) {\n  return (\n    <PageSection closing space=\"none\" className={className} contentClassName=\"pt-12 pb-8 sm:pt-16\">\n      <footer className=\"grid gap-12\">\n        <div className=\"grid gap-10 lg:grid-cols-3\">\n          <div className=\"grid content-start gap-4\">\n            <SiteLockup name={name} />\n            <p className=\"max-w-64 text-body leading-body text-fg-secondary\">{tagline}</p>\n          </div>\n          <nav aria-label=\"Footer\" className=\"grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-2\">\n            {columns.map((c) => (\n              <div key={c.title} className=\"grid content-start gap-3\">\n                <h2 className=\"font-mono text-caption leading-tight font-normal text-fg-muted\">{c.title}</h2>\n                <ul className=\"grid gap-3\">\n                  {c.links.map((l) => (\n                    <li key={l.href}>\n                      <a href={l.href} className={SITE_LINK}>\n                        {l.label}\n                      </a>\n                    </li>\n                  ))}\n                </ul>\n              </div>\n            ))}\n          </nav>\n        </div>\n        <div className=\"flex flex-wrap items-center justify-between gap-3 border-t border-line-subtle pt-5 text-caption leading-tight text-fg-muted\">\n          <span>{legal}</span>\n          {meta != null && <span className=\"font-mono\">{meta}</span>}\n        </div>\n      </footer>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

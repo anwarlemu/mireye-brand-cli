@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "name": "direction",
+  "useFor": "Wrap an app or a section in DirectionProvider dir=\"rtl\" when its language reads right to left, and set dir on the element too. Menus, sliders, tabs and carousels then flip their keyboard and layout direction.",
+  "constraints": [
+    "Mixing directions inside one menu or form",
+    "Mirroring logos or code"
+  ],
+  "documentation": "",
+  "source": "Radix Direction; no visual of its own",
+  "exports": [
+    "DirectionProvider",
+    "useDirection"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/direction",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/direction.md",
+  "examples": [
+    {
+      "path": "examples/direction.tsx",
+      "content": "import { DirectionProvider } from \"@/components/ui/direction\";\nimport { Tabs, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\n\nexport function Preview() {\n  return (\n    <DirectionProvider dir=\"rtl\">\n      <div dir=\"rtl\" className=\"grid gap-3\">\n        <p className=\"text-body text-fg\">الموقع ١٤</p>\n        <Tabs defaultValue=\"parcel\">\n          <TabsList>\n            <TabsTrigger value=\"parcel\">القطعة</TabsTrigger>\n            <TabsTrigger value=\"power\">الكهرباء</TabsTrigger>\n            <TabsTrigger value=\"water\">المياه</TabsTrigger>\n          </TabsList>\n        </Tabs>\n      </div>\n    </DirectionProvider>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "direction",
+        "tabs"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/direction/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Direction",
+  "description": "Sets left-to-right or right-to-left for every component inside it.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/direction.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Direction } from \"radix-ui\";\n\n// Sets the reading direction (ltr or rtl) for every Radix-based component inside it, so menus, sliders and tabs flip\n// for right-to-left text. It renders nothing of its own; set dir on the element you wrap too.\nfunction DirectionProvider({ dir, direction, children }: React.ComponentProps<typeof Direction.DirectionProvider> & { direction?: React.ComponentProps<typeof Direction.DirectionProvider>[\"dir\"] }) {\n  return <Direction.DirectionProvider dir={direction ?? dir}>{children}</Direction.DirectionProvider>;\n}\n\nconst useDirection = Direction.useDirection;\n\nexport { DirectionProvider, useDirection };\n"
+    }
+  ]
+}

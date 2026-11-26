@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "name": "select",
+  "useFor": "Use for one choice among a known list of up to about fifteen (a state, a voltage, a sort). Put a Label above it with aria-labelledby. Pass `name` to submit the value with its form (FormData). Use size sm in dense toolbars. For long or searchable lists use Combobox; for two to five short options use Radio Group or Toggle Group. A long list fades at an edge (fade-y) where more options scroll past it.",
+  "constraints": [
+    "A check mark or circle for the chosen row (it is the diamond)",
+    "A shadow under the list",
+    "Rounded rows",
+    "A select for a yes or no choice"
+  ],
+  "documentation": "",
+  "source": "Drawn from Figma \"UI · Inputs\" (442:107) and the design's unit list",
+  "exports": [
+    "Select",
+    "SelectContent",
+    "SelectGroup",
+    "SelectItem",
+    "SelectLabel",
+    "SelectScrollDownButton",
+    "SelectScrollUpButton",
+    "SelectSeparator",
+    "SelectTrigger",
+    "SelectValue"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/select",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/select.md",
+  "examples": [
+    {
+      "path": "examples/select.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Label } from \"@/components/ui/label\";\nimport { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from \"@/components/ui/select\";\n\nexport function Preview() {\n  const [state, setState] = React.useState<string>();\n  return (\n    <div className=\"grid w-full max-w-80 gap-2\">\n      <Label id=\"state-label\">State</Label>\n      <Select value={state} onValueChange={setState}>\n        <SelectTrigger aria-labelledby=\"state-label\">\n          <SelectValue placeholder=\"Any state\" />\n        </SelectTrigger>\n        <SelectContent>\n          <SelectGroup>\n            <SelectLabel>West</SelectLabel>\n            <SelectItem value=\"or\">Oregon</SelectItem>\n            <SelectItem value=\"wa\">Washington</SelectItem>\n            <SelectItem value=\"nv\">Nevada</SelectItem>\n          </SelectGroup>\n          <SelectSeparator />\n          <SelectGroup>\n            <SelectLabel>South</SelectLabel>\n            <SelectItem value=\"tx\">Texas</SelectItem>\n            <SelectItem value=\"ga\">Georgia</SelectItem>\n            <SelectItem value=\"az\" disabled>\n              Arizona (no data yet)\n            </SelectItem>\n          </SelectGroup>\n        </SelectContent>\n      </Select>\n    </div>\n  );\n}\n\nexport function Sizes() {\n  return (\n    <form className=\"flex w-full max-w-120 flex-wrap items-center gap-3\" onSubmit={(e) => e.preventDefault()}>\n      <Select defaultValue=\"345\">\n        <SelectTrigger aria-label=\"Minimum voltage\" className=\"w-40\">\n          <SelectValue />\n        </SelectTrigger>\n        <SelectContent>\n          <SelectItem value=\"115\">115 kV</SelectItem>\n          <SelectItem value=\"230\">230 kV</SelectItem>\n          <SelectItem value=\"345\">345 kV</SelectItem>\n          <SelectItem value=\"500\">500 kV</SelectItem>\n        </SelectContent>\n      </Select>\n      <Select defaultValue=\"fit\">\n        <SelectTrigger size=\"sm\" aria-label=\"Sort parcels\" className=\"w-40\">\n          <SelectValue />\n        </SelectTrigger>\n        <SelectContent>\n          <SelectItem value=\"fit\">Best fit</SelectItem>\n          <SelectItem value=\"size\">Largest first</SelectItem>\n          <SelectItem value=\"distance\">Nearest a substation</SelectItem>\n        </SelectContent>\n      </Select>\n      <Button type=\"submit\" size=\"sm\" arrow>\n        Find sites\n      </Button>\n    </form>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"grid w-full max-w-80 gap-4\">\n      <Select defaultValue=\"or\" disabled>\n        <SelectTrigger aria-label=\"Locked state\">\n          <SelectValue />\n        </SelectTrigger>\n        <SelectContent>\n          <SelectItem value=\"or\">Oregon</SelectItem>\n        </SelectContent>\n      </Select>\n      <div className=\"grid gap-2\">\n        <Select>\n          <SelectTrigger aria-label=\"Required zoning\" aria-invalid aria-describedby=\"zoning-error\">\n            <SelectValue placeholder=\"Choose a zoning\" />\n          </SelectTrigger>\n          <SelectContent>\n            <SelectItem value=\"i1\">I-1 Light industrial</SelectItem>\n            <SelectItem value=\"i2\">I-2 Industrial</SelectItem>\n          </SelectContent>\n        </Select>\n        <p id=\"zoning-error\" className=\"m-0 text-caption leading-line-caption text-danger\">\n          Choose the zoning the site needs.\n        </p>\n      </div>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sizes",
+        "States"
+      ],
+      "requires": [
+        "select",
+        "button",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/select/Preview"
+        },
+        {
+          "name": "Sizes",
+          "url": "https://mireye-ds.agencidev.com/preview/select/Sizes"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/select/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Select",
+  "description": "Mireye's select: the field's frame (36px, Bone, 1px Stone line, the cut) with the value and the brand arrow's head turned down. Its list floats 4px under it in the same frame: 28px rows in 80% Forest, the highlighted one a Fog plate with the small cut, the chosen one full Forest with a solid diamond.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "icons",
+    "diamond",
+    "surface",
+    "utils"
+  ],
+  "packages": [
+    "radix-ui"
+  ],
+  "files": [
+    {
+      "path": "components/ui/select.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Select as SelectPrimitive } from \"radix-ui\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { usePortalContainer } from \"@/lib/surface\";\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's select, drawn from the field (Figma \"UI · Inputs\", 442:107) and the unit list: the trigger is Input's frame\n// (white, 1px Stone line, the 8px cut, 36px; `size=\"sm\"` 32px) with the value in 13px Forest 16px in and the brand\n// arrow's head turned down 16px from the right; it turns up while the list is open (150ms). Open or focused, the line\n// is Forest; the placeholder is Slate; invalid turns the line brick; disabled sits on Mist with Slate text.\n// The list floats 4px under the trigger in the same frame (no shadow), 4px inside, at least the trigger's width and\n// at most 320px tall. Rows are 28px with 12px sides and 13px text in 80% Forest; the highlighted row is a Fog plate\n// with the small cut, at once (it follows the keys), and the chosen row is full Forest with a solid diamond before it.\n// Group labels are 12px in 72% Forest. The list fades in from 0.98 and out (the shared pop), from the trigger.\nfunction Select(props: React.ComponentProps<typeof SelectPrimitive.Root>) {\n  return <SelectPrimitive.Root data-slot=\"select\" {...props} />;\n}\n\nfunction SelectGroup({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {\n  return <SelectPrimitive.Group data-slot=\"select-group\" className={cn(\"scroll-my-1\", className)} {...props} />;\n}\n\nfunction SelectValue(props: React.ComponentProps<typeof SelectPrimitive.Value>) {\n  return <SelectPrimitive.Value data-slot=\"select-value\" {...props} />;\n}\n\nfunction SelectTrigger({ className, size = \"default\", children, ...props }: React.ComponentProps<typeof SelectPrimitive.Trigger> & { size?: \"sm\" | \"default\" }) {\n  return (\n    <SelectPrimitive.Trigger\n      data-slot=\"select-trigger\"\n      data-size={size}\n      className={cn(\n        \"ds-cut-frame group/select-trigger flex w-full min-w-0 cursor-pointer items-center justify-between gap-3 font-sans text-body leading-tight font-normal whitespace-nowrap text-fg outline-none data-[size=default]:h-9 data-[size=default]:px-4 data-[size=sm]:h-8 data-[size=sm]:px-3\",\n        \"[--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] focus-visible:[--ds-shape-stroke:var(--ds-color-border-strong)] data-[state=open]:[--ds-shape-stroke:var(--ds-color-border-strong)]\",\n        \"aria-invalid:[--ds-shape-stroke:var(--ds-color-status-danger)] disabled:cursor-not-allowed disabled:text-fg-subtle disabled:[--ds-shape-fill:var(--ds-color-bg-subtle-hover)] data-placeholder:text-fg-subtle\",\n        \"*:data-[slot=select-value]:flex *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 *:data-[slot=select-value]:truncate [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-slot]):not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n      <SelectPrimitive.Icon asChild>\n        <ArrowRightIcon size={16} head className=\"rotate-90 text-fg transition-transform duration-fast ease-out group-data-[state=open]/select-trigger:-rotate-90 group-disabled/select-trigger:text-fg-subtle motion-reduce:transition-none\" />\n      </SelectPrimitive.Icon>\n    </SelectPrimitive.Trigger>\n  );\n}\n\nfunction SelectContent({ className, children, position = \"popper\", align = \"center\", sideOffset = 4, ...props }: React.ComponentProps<typeof SelectPrimitive.Content>) {\n  const container = usePortalContainer();\n  return (\n    <SelectPrimitive.Portal container={container}>\n      <SelectPrimitive.Content\n        data-slot=\"select-content\"\n        className={cn(\n          \"ds-cut-frame relative z-50 max-h-[min(--spacing(80),var(--radix-select-content-available-height))] max-w-90 min-w-36 origin-(--radix-select-content-transform-origin) overflow-hidden text-fg [--ds-shape-fill:var(--ds-color-bg-default)] [--ds-shape-stroke:var(--ds-color-border-default)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in motion-reduce:animate-none\",\n          position === \"popper\" && \"w-full min-w-(--radix-select-trigger-width)\",\n          className,\n        )}\n        position={position}\n        align={align}\n        sideOffset={position === \"popper\" ? sideOffset : undefined}\n        {...props}\n      >\n        <SelectScrollUpButton />\n        <SelectPrimitive.Viewport data-position={position} className={cn(\"fade-y flex flex-col gap-px p-1 *:data-[slot=select-group]:flex *:data-[slot=select-group]:flex-col *:data-[slot=select-group]:gap-px\", position === \"popper\" && \"h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1\")}>\n          {children}\n        </SelectPrimitive.Viewport>\n        <SelectScrollDownButton />\n      </SelectPrimitive.Content>\n    </SelectPrimitive.Portal>\n  );\n}\n\nfunction SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>) {\n  return <SelectPrimitive.Label data-slot=\"select-label\" className={cn(\"mt-2 mr-3 mb-1 ml-7 font-sans text-caption leading-line-caption font-normal text-fg-muted\", className)} {...props} />;\n}\n\nfunction SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>) {\n  return (\n    <SelectPrimitive.Item\n      data-slot=\"select-item\"\n      className={cn(\n        \"group/select-item ds-cut relative flex h-7 w-full shrink-0 cursor-default items-center gap-2 px-3 font-sans text-body leading-tight font-normal text-fg-secondary outline-none select-none [--ds-cut:var(--ds-cut-sm)]\",\n        \"data-highlighted:[--ds-shape-fill:var(--ds-color-bg-subtle)] data-[state=checked]:text-fg data-disabled:pointer-events-none data-disabled:text-fg-subtle\",\n        \"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-slot]):not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      <span data-slot=\"select-item-indicator\" className=\"flex w-2 shrink-0 items-center justify-center\">\n        <SelectPrimitive.ItemIndicator>\n          <Diamond size={8} className=\"size-1.5\" />\n        </SelectPrimitive.ItemIndicator>\n      </span>\n      {/* Radix drops ItemText's className, so the truncating box is a span around it. */}\n      <span data-slot=\"select-item-text\" className=\"min-w-0 flex-1 truncate [&_svg]:me-1.5 [&_svg]:inline-block [&_svg]:align-middle\">\n        <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>\n      </span>\n    </SelectPrimitive.Item>\n  );\n}\n\nfunction SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>) {\n  return <SelectPrimitive.Separator data-slot=\"select-separator\" className={cn(\"pointer-events-none -mx-1 my-1 h-px shrink-0 bg-line-subtle\", className)} {...props} />;\n}\n\nfunction SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {\n  return (\n    <SelectPrimitive.ScrollUpButton data-slot=\"select-scroll-up-button\" className={cn(\"flex h-6 cursor-default items-center justify-center text-fg-muted\", className)} {...props}>\n      <ArrowRightIcon size={16} head className=\"-rotate-90\" />\n    </SelectPrimitive.ScrollUpButton>\n  );\n}\n\nfunction SelectScrollDownButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {\n  return (\n    <SelectPrimitive.ScrollDownButton data-slot=\"select-scroll-down-button\" className={cn(\"flex h-6 cursor-default items-center justify-center text-fg-muted\", className)} {...props}>\n      <ArrowRightIcon size={16} head className=\"rotate-90\" />\n    </SelectPrimitive.ScrollDownButton>\n  );\n}\n\nexport { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue };\n"
+    }
+  ]
+}

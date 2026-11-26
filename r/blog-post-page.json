@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "name": "blog-post-page",
+  "useFor": "Use for a post. Pass the post's fields and the article as `children` (typography items); the sample article shows the pattern, including a cited figure.",
+  "constraints": [
+    "Text wider than 680px",
+    "Round bullets (use diamonds)",
+    "Bold headings"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): blog post layout; typography from the library",
+  "exports": [
+    "BlogPostPageProps",
+    "BlogPostPage"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/blog-post-page",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/blog-post-page.md",
+  "examples": [
+    {
+      "path": "examples/blog-post-page.tsx",
+      "content": "import { BlogPostPage } from \"@/components/blocks/blog-post-page\";\n\nexport function Preview() {\n  return <BlogPostPage />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "blog-post-page"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/blog-post-page/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Blog post page",
+  "description": "A blog post: breadcrumb, topic, the title, the byline with the date in DM Mono, then the article in the typography items at a 680px measure with a cited figure.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "cta-section",
+    "page-section",
+    "site-footer",
+    "site-header",
+    "avatar",
+    "badge",
+    "breadcrumb",
+    "cited-fields",
+    "sources",
+    "diamond",
+    "typography",
+    "utils"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/blocks/blog-post-page.tsx",
+      "content": "import * as React from \"react\";\n\nimport { CtaSection, type CtaSectionProps } from \"@/components/blocks/cta-section\";\nimport { PageSection } from \"@/components/blocks/page-section\";\nimport { SiteFooter, type SiteFooterProps } from \"@/components/blocks/site-footer\";\nimport { SiteHeader, type SiteHeaderProps } from \"@/components/blocks/site-header\";\nimport { Avatar, AvatarFallback } from \"@/components/ui/avatar\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from \"@/components/ui/breadcrumb\";\nimport { CitedField, CitedFields } from \"@/components/ui/cited-fields\";\nimport { Source, SourceGroup, Sources } from \"@/components/ui/sources\";\nimport { Diamond } from \"@/components/ui/diamond\";\nimport { TypographyBlockquote, TypographyH2, TypographyP } from \"@/components/ui/typography\";\nimport { cn } from \"@/lib/utils\";\n\nconst PROSE = \"text-body-lg leading-relaxed\";\n\n// A blog post: breadcrumb, topic tag, the title, the byline (square initials, author, date and reading time in DM\n// Mono), then the article in the typography items at a 680px measure, with a figure that is a real library part\n// (cited fields and their sources). Pass `children` to replace the sample article.\n\nexport type BlogPostPageProps = {\n  header?: SiteHeaderProps;\n  title?: string;\n  topic?: string;\n  author?: string;\n  initials?: string;\n  date?: string;\n  readingTime?: string;\n  children?: React.ReactNode;\n  cta?: CtaSectionProps | null;\n  footer?: SiteFooterProps;\n};\n\nfunction SampleArticle() {\n  return (\n    <>\n      <TypographyP className={PROSE}>An agent that answers a question about land is only as useful as the record behind its answer. When a site selector asks whether a parcel floods, the answer has to say which map it read, and when.</TypographyP>\n      <TypographyH2 className=\"mt-10 mb-1\">The answer and its record</TypographyH2>\n      <TypographyP className={PROSE}>Every field we return carries a source number. The sources list names each record and the date it was read, so a person can follow the answer back to the county office or the federal layer.</TypographyP>\n      <figure className=\"my-8 grid gap-5 border-y border-line-subtle py-6\">\n        <SourceGroup>\n          <div className=\"grid gap-6\">\n            <CitedFields>\n              <CitedField label=\"Flood zone\" source={1}>\n                Zone X\n              </CitedField>\n              <CitedField label=\"Elevation\" source={2}>\n                412 ft\n              </CitedField>\n            </CitedFields>\n            <Sources aria-label=\"Sources\">\n              <Source number={1} cut={false}>\n                FEMA flood hazard layer, read Nov 2, 2026\n              </Source>\n              <Source number={2} cut={false}>\n                USGS elevation model, read Oct 18, 2026\n              </Source>\n            </Sources>\n          </div>\n        </SourceGroup>\n        <figcaption className=\"text-caption text-fg-muted\">A cited answer for parcel 042-117-09.</figcaption>\n      </figure>\n      <TypographyH2 className=\"mt-10 mb-1\">What we leave out</TypographyH2>\n      <TypographyP className={PROSE}>Some counties do not publish every field. When a value is missing, the response says so:</TypographyP>\n      <ul className=\"my-4 grid gap-2\">\n        {[\"The field is present, with a null value.\", \"The reason names the county and the record that was checked.\", \"No value is estimated without saying it is an estimate.\"].map((item) => (\n          <li key={item} className={cn(PROSE, \"flex items-start gap-3\")}>\n            <Diamond size={9} className=\"mt-2 text-fg\" />\n            {item}\n          </li>\n        ))}\n      </ul>\n      <TypographyBlockquote className={cn(PROSE, \"my-6\")}>A missing value that says it is missing is worth more than a confident guess.</TypographyBlockquote>\n    </>\n  );\n}\n\nexport function BlogPostPage({\n  header,\n  title = \"Why every value needs a source\",\n  topic = \"Product\",\n  author = \"The Mireye team\",\n  initials = \"M\",\n  date = \"Nov 12, 2026\",\n  readingTime = \"6 min read\",\n  children,\n  cta = { title: \"Try a cited answer.\", description: \"Ask about any U.S. place with 1,000 free requests a month.\" },\n  footer,\n}: BlogPostPageProps) {\n  return (\n    <div data-slot=\"blog-post-page\" className=\"min-h-dvh bg-page font-sans text-fg\">\n      <SiteHeader current=\"#blog\" {...header} />\n      <main>\n        <PageSection>\n          <article className=\"mx-auto grid max-w-(--ds-layout-text) gap-8\">\n            <header className=\"grid gap-5\">\n              <Breadcrumb>\n                <BreadcrumbList>\n                  <BreadcrumbItem>\n                    <BreadcrumbLink href=\"#blog\">Blog</BreadcrumbLink>\n                  </BreadcrumbItem>\n                  <BreadcrumbSeparator />\n                  <BreadcrumbItem>\n                    <BreadcrumbPage>{topic}</BreadcrumbPage>\n                  </BreadcrumbItem>\n                </BreadcrumbList>\n              </Breadcrumb>\n              <Badge variant=\"outline\">{topic}</Badge>\n              <h1 className=\"text-display leading-display font-normal text-balance text-fg\">{title}</h1>\n              <div className=\"flex items-center gap-3 border-y border-line-subtle py-4\">\n                <Avatar size=\"sm\">\n                  <AvatarFallback>{initials}</AvatarFallback>\n                </Avatar>\n                <span className=\"text-body text-fg\">{author}</span>\n                <span className=\"ml-auto flex gap-3 font-mono text-caption text-fg-muted\">\n                  <span>{date}</span>\n                  <span className=\"max-sm:hidden\">{readingTime}</span>\n                </span>\n              </div>\n            </header>\n            <div className=\"text-fg\">{children ?? <SampleArticle />}</div>\n          </article>\n        </PageSection>\n        {cta && <CtaSection {...cta} />}\n      </main>\n      <SiteFooter {...footer} />\n    </div>\n  );\n}\n"
+    }
+  ]
+}

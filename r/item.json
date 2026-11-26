@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "name": "item",
+  "useFor": "Use for rows in a list that are not a table: results (a site's image, name and DM Mono coordinates, Fog tags at the end), the sources behind an answer, or rail rows (size sm). Render a link or button with asChild so the row fills on hover; mark the current one with aria-current. Rule rows with ItemSeparator. Use outline for a standalone row, muted inside a Bone panel.",
+  "constraints": [
+    "Rounded rows",
+    "Coloured descriptions",
+    "Hover fills on rows that do nothing",
+    "Icons that move on hover",
+    "More than two tags per row"
+  ],
+  "documentation": "",
+  "source": "LAND data-table (the Leads sites list) and Figma UI · Agent chat (443:433): Sources",
+  "exports": [
+    "Item",
+    "ItemActions",
+    "ItemContent",
+    "ItemDescription",
+    "ItemFooter",
+    "ItemGroup",
+    "ItemHeader",
+    "ItemMedia",
+    "ItemSeparator",
+    "ItemTitle"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/item",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/item.md",
+  "examples": [
+    {
+      "path": "examples/item.tsx",
+      "content": "import { DropIcon, FileTextIcon, LightningIcon, MapTrifoldIcon, MountainsIcon, StackIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { ArrowRightIcon } from \"@/components/icons/arrow-right\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimport { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemHeader, ItemMedia, ItemSeparator, ItemTitle } from \"@/components/ui/item\";\n\nconst SITES = [\n  { name: \"Ellis County site 14\", at: \"32.4113, -96.8302\", acres: \"212.6 ac\", kv: \"345 kV\" },\n  { name: \"Navarro County site 3\", at: \"32.0954, -96.4689\", acres: \"305.0 ac\", kv: \"138 kV\" },\n  { name: \"Kaufman County site 8\", at: \"32.5890, -96.3087\", acres: \"198.2 ac\", kv: \"138 kV\" },\n];\n\nexport function Preview() {\n  return (\n    <ItemGroup className=\"w-full max-w-110\">\n      {SITES.map((site, i) => (\n        <div key={site.name}>\n          {i > 0 && <ItemSeparator />}\n          <Item asChild aria-current={i === 0 ? \"true\" : undefined}>\n            <a href=\"#site\">\n              <ItemMedia variant=\"image\">\n                {/* eslint-disable-next-line @next/next/no-img-element */}\n                <img src=\"/examples/farmland-aerial.jpg\" alt=\"\" />\n              </ItemMedia>\n              <ItemContent>\n                <ItemTitle>{site.name}</ItemTitle>\n                <ItemDescription className=\"font-mono\">{site.at}</ItemDescription>\n              </ItemContent>\n              <ItemActions className=\"max-sm:hidden\">\n                <Badge>{site.acres}</Badge>\n                <Badge>{site.kv}</Badge>\n              </ItemActions>\n            </a>\n          </Item>\n        </div>\n      ))}\n    </ItemGroup>\n  );\n}\n\nexport function Sources() {\n  return (\n    <ItemGroup className=\"w-full max-w-110\">\n      {[\n        { title: \"Flood zone map\", meta: \"National flood hazard layer, Oct 2026\" },\n        { title: \"Elevation model\", meta: \"10 m elevation model\" },\n        { title: \"Parcel records\", meta: \"Ellis County appraisal district\" },\n      ].map((source, i) => (\n        <div key={source.title}>\n          {i > 0 && <ItemSeparator />}\n          <Item asChild>\n            <button type=\"button\" className=\"w-full text-left\">\n              <ItemHeader className=\"justify-start gap-2 text-caption text-fg-muted\">\n                <span className=\"tabular-nums\">{i + 1}</span>\n                <span>Source</span>\n              </ItemHeader>\n              <ItemContent>\n                <ItemTitle>{source.title}</ItemTitle>\n                <ItemDescription>{source.meta}</ItemDescription>\n              </ItemContent>\n            </button>\n          </Item>\n        </div>\n      ))}\n    </ItemGroup>\n  );\n}\n\nexport function Rail() {\n  const rows = [\n    { label: \"Map\", icon: MapTrifoldIcon, current: true },\n    { label: \"Saved sites\", icon: StackIcon },\n    { label: \"Reports\", icon: FileTextIcon },\n    { label: \"Power\", icon: LightningIcon },\n    { label: \"Water\", icon: DropIcon },\n  ];\n  return (\n    <ItemGroup className=\"w-full max-w-53 gap-0.5\">\n      {rows.map(({ label, icon: Icon, current }) => (\n        <Item key={label} size=\"sm\" asChild aria-current={current ? \"page\" : undefined}>\n          <a href={`#${label}`}>\n            <ItemMedia variant=\"icon\">\n              <Icon />\n            </ItemMedia>\n            <ItemContent>\n              <ItemTitle>{label}</ItemTitle>\n            </ItemContent>\n          </a>\n        </Item>\n      ))}\n    </ItemGroup>\n  );\n}\n\nexport function Variants() {\n  return (\n    <div className=\"grid w-full max-w-120 gap-3\">\n      <Item variant=\"outline\">\n        <ItemMedia variant=\"icon\">\n          <MountainsIcon />\n        </ItemMedia>\n        <ItemContent>\n          <ItemTitle>Terrain</ItemTitle>\n          <ItemDescription>412 ft average elevation, 2.8% slope</ItemDescription>\n        </ItemContent>\n        <ItemActions>\n          <Button variant=\"ghost\" size=\"icon\" aria-label=\"Open terrain details\">\n            <ArrowRightIcon size={16} />\n          </Button>\n        </ItemActions>\n      </Item>\n      <Item variant=\"muted\" size=\"sm\">\n        <ItemMedia variant=\"icon\">\n          <LightningIcon />\n        </ItemMedia>\n        <ItemContent>\n          <ItemTitle>345 kV substation, 0.8 mi east</ItemTitle>\n        </ItemContent>\n      </Item>\n      <Item size=\"xs\">\n        <ItemContent>\n          <ItemTitle>Queue position: open</ItemTitle>\n        </ItemContent>\n      </Item>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Sources",
+        "Rail",
+        "Variants"
+      ],
+      "requires": [
+        "item",
+        "icons",
+        "badge",
+        "button"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/item/Preview"
+        },
+        {
+          "name": "Sources",
+          "url": "https://mireye-ds.agencidev.com/preview/item/Sources"
+        },
+        {
+          "name": "Rail",
+          "url": "https://mireye-ds.agencidev.com/preview/item/Rail"
+        },
+        {
+          "name": "Variants",
+          "url": "https://mireye-ds.agencidev.com/preview/item/Variants"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Item",
+  "description": "A row of content: a site with its aerial, name, coordinates and tags; a source; a rail row. Square, Fog under the pointer, Mist when current.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils",
+    "separator"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/item.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/lib/utils\";\nimport { Separator } from \"@/components/ui/separator\";\n\n// A row of content: a site in a result list (name and coordinates over its tags), a source behind an answer, a row in\n// a rail. `default` is bare; a row that is a link or button fills with Fog under the pointer and Mist when pressed\n// (150ms), and a current one (aria-current or data-selected) sits on Mist, the rail's current row. `outline` is a\n// white row in the 1px Stone line; `muted` is Fog. Square throughout; nothing moves.\nfunction ItemGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div role=\"list\" data-slot=\"item-group\" className={cn(\"group/item-group flex flex-col\", className)} {...props} />;\n}\n\nfunction ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {\n  return <Separator data-slot=\"item-separator\" orientation=\"horizontal\" className={cn(\"my-0.5\", className)} {...props} />;\n}\n\nconst itemVariants = cva(\n  \"group/item flex flex-wrap items-center border border-transparent font-sans text-body leading-body text-fg outline-none transition-[background-color] duration-fast ease-out focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none [a]:hover:bg-subtle [button]:hover:bg-subtle [a]:active:bg-subtle-hover [button]:active:bg-subtle-hover aria-[current=page]:bg-subtle-hover aria-[current=true]:bg-subtle-hover data-[selected=true]:bg-subtle-hover aria-[current=page]:hover:bg-subtle-hover aria-[current=true]:hover:bg-subtle-hover data-[selected=true]:hover:bg-subtle-hover\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-transparent\",\n        outline: \"border-line bg-surface\",\n        muted: \"bg-subtle [a]:hover:bg-subtle-hover [button]:hover:bg-subtle-hover\",\n      },\n      size: {\n        default: \"gap-3 p-3\",\n        sm: \"min-h-9 gap-2.5 px-3 py-1.5\",\n        xs: \"gap-2 px-2 py-1\",\n      },\n    },\n    defaultVariants: { variant: \"default\", size: \"default\" },\n  },\n);\n\nfunction Item({ className, variant = \"default\", size = \"default\", asChild = false, ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof itemVariants> & { asChild?: boolean }) {\n  const Comp = asChild ? chakra.div : \"div\";\n  // Chakra's factory renders its child in its place only when told to.\n  const slotProps = asChild ? { asChild: true } : {};\n  return <Comp {...slotProps} data-slot=\"item\" data-variant={variant} data-size={size} className={cn(itemVariants({ variant, size, className }))} {...props} />;\n}\n\nconst itemMediaVariants = cva(\"flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none\", {\n  variants: {\n    variant: {\n      default: \"bg-transparent\",\n      icon: \"text-fg [&_svg:not([class*='size-'])]:size-4\",\n      image: \"h-9 w-12 overflow-hidden bg-subtle [&_img]:size-full [&_img]:object-cover\",\n    },\n  },\n  defaultVariants: { variant: \"default\" },\n});\n\nfunction ItemMedia({ className, variant = \"default\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof itemMediaVariants>) {\n  return <div data-slot=\"item-media\" data-variant={variant} className={cn(itemMediaVariants({ variant, className }))} {...props} />;\n}\n\nfunction ItemContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"item-content\" className={cn(\"flex min-w-0 flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none\", className)} {...props} />;\n}\n\nfunction ItemTitle({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"item-title\" className={cn(\"flex w-fit min-w-0 items-center gap-2 text-body leading-tight text-fg\", className)} {...props} />;\n}\n\n/** The muted line under a title (coordinates, a count, a source), clamped to two lines. */\nfunction ItemDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  return <p data-slot=\"item-description\" className={cn(\"line-clamp-2 text-caption leading-tight font-normal text-balance text-fg-muted [&>a]:underline [&>a]:underline-offset-4\", className)} {...props} />;\n}\n\nfunction ItemActions({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"item-actions\" className={cn(\"flex items-center gap-1\", className)} {...props} />;\n}\n\n/** The top line of an item: what it is at the left (a tag, a county), when or where at the right (a date, a distance). */\nfunction ItemHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"item-header\" className={cn(\"flex basis-full items-center justify-between gap-2 text-body leading-tight\", className)} {...props} />;\n}\n\nfunction ItemFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div data-slot=\"item-footer\" className={cn(\"flex basis-full items-center justify-between gap-2\", className)} {...props} />;\n}\n\nexport { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia, ItemSeparator, ItemTitle };\n"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "slider",
+  "useFor": "Use to set a number or a span quickly where the exact value shows beside it (a search radius, a size span). Show the value next to the label. For a value under a field with helper text and the snapping lens of the design, use Range.",
+  "constraints": [
+    "A filled bar or a round knob",
+    "A slider without its value shown",
+    "A slider for a choice between named options"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Inputs\" (442:107): the Range under the Filled field",
+  "exports": [
+    "Slider"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/slider",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/slider.md",
+  "examples": [
+    {
+      "path": "examples/slider.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\n\nimport { Label } from \"@/components/ui/label\";\nimport { Slider } from \"@/components/ui/slider\";\n\nexport function Preview() {\n  const [value, setValue] = React.useState([30]);\n  return (\n    <div className=\"grid w-full max-w-96 gap-3\">\n      <div className=\"flex items-baseline justify-between\">\n        <Label id=\"radius-label\">Search radius</Label>\n        <span className=\"font-mono text-caption text-fg\">{value[0]} mi</span>\n      </div>\n      <Slider value={value} onValueChange={setValue} min={5} max={100} aria-labelledby=\"radius-label\" />\n    </div>\n  );\n}\n\nexport function Range() {\n  const [value, setValue] = React.useState([40, 120]);\n  return (\n    <div className=\"grid w-full max-w-96 gap-3\">\n      <div className=\"flex items-baseline justify-between\">\n        <Label id=\"acres-label\">Parcel size</Label>\n        <span className=\"font-mono text-caption text-fg\">\n          {value[0]} to {value[1]} ac\n        </span>\n      </div>\n      <Slider value={value} onValueChange={setValue} min={0} max={200} aria-labelledby=\"acres-label\" aria-label={[\"Minimum size\", \"Maximum size\"]} />\n    </div>\n  );\n}\n\nexport function States() {\n  return (\n    <div className=\"flex w-full max-w-96 items-center gap-8\">\n      <Slider defaultValue={[60]} disabled aria-label=\"Locked radius\" />\n      <Slider defaultValue={[40]} orientation=\"vertical\" aria-label=\"Opacity\" className=\"h-32\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Range",
+        "States"
+      ],
+      "requires": [
+        "slider",
+        "label"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/slider/Preview"
+        },
+        {
+          "name": "Range",
+          "url": "https://mireye-ds.agencidev.com/preview/slider/Range"
+        },
+        {
+          "name": "States",
+          "url": "https://mireye-ds.agencidev.com/preview/slider/States"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Slider",
+  "description": "A ruler: 1px Stone ticks 6px apart in a 16px band, with a 1.5px Forest line as the handle. One value shows only the handle; a range also draws the ticks between its handles in Forest. Vertical turns the ruler on its side.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/slider.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Slider as ChakraSlider } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's slider is a ruler (Figma \"UI · Inputs\", 442:107: the Range under the Filled field). The track is a row of\n// 1px Stone ticks, 8px tall and 6px apart (the hatch pitch), in a 16px band; the handle is a 1.5px Forest line the\n// full 16px tall, with a 12px wide hit area around it. One value marks itself with the handle alone, as in Figma; a\n// range (two values) also draws the ticks between its handles in Forest. The handle follows the pointer and never\n// animates its position. Keyboard focus is the 1px Forest outline 2px outside the handle; disabled turns the ticks\n// Mist and the handle Slate. For a value with a field and helper text, and the snapping, lens-like ruler of the\n// design, use Range. Pass two values for a range; `orientation=\"vertical\"` turns the ruler on its side.\nconst ticks = (color: string, vertical: boolean) =>\n  `repeating-linear-gradient(${vertical ? \"to bottom\" : \"to right\"}, ${color} 0 1px, transparent 1px var(--ds-hatch-pitch))`;\n\ntype SliderProps = Omit<React.ComponentProps<typeof ChakraSlider.Root>, \"onValueChange\" | \"aria-label\" | \"aria-labelledby\"> & {\n  onValueChange?: (value: number[]) => void;\n  \"aria-label\"?: string | string[];\n  \"aria-labelledby\"?: string | string[];\n};\nfunction Slider({ className, defaultValue, value, min = 0, max = 100, orientation = \"horizontal\", onValueChange, \"aria-label\": ariaLabel, \"aria-labelledby\": ariaLabelledBy, ...props }: SliderProps) {\n  const values = React.useMemo(() => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]), [value, defaultValue, min, max]);\n  const vertical = orientation === \"vertical\";\n  return (\n    <ChakraSlider.Root\n      unstyled\n      data-slot=\"slider\"\n      defaultValue={defaultValue}\n      value={value}\n      orientation={orientation}\n      onValueChange={(details) => onValueChange?.(details.value)}\n      aria-label={ariaLabel === undefined ? undefined : Array.isArray(ariaLabel) ? ariaLabel : [ariaLabel]}\n      aria-labelledby={ariaLabelledBy === undefined ? undefined : Array.isArray(ariaLabelledBy) ? ariaLabelledBy : [ariaLabelledBy]}\n      min={min}\n      max={max}\n      className={cn(\n        \"group/slider relative flex w-full touch-none items-center select-none data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col\",\n        className,\n      )}\n      {...props}\n    >\n      <ChakraSlider.Control data-slot=\"slider-control\" className=\"relative flex grow cursor-pointer items-center data-[orientation=horizontal]:h-4 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-4 data-[orientation=vertical]:flex-col data-disabled:cursor-not-allowed\">\n        <ChakraSlider.Track data-slot=\"slider-track\" className=\"relative grow data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2\">\n          <span aria-hidden className=\"absolute inset-0 group-data-disabled/slider:opacity-50\" style={{ backgroundImage: ticks(\"var(--ds-color-border-default)\", vertical) }} />\n          {values.length > 1 && (\n            // The Forest ticks run under the whole track and show only between the handles, so they stay on the grid.\n            <ChakraSlider.Context>\n              {(api) => {\n                const share = (v: number) => (max > min ? ((v - min) / (max - min)) * 100 : 0);\n                const lo = share(Math.min(...api.value));\n                const hi = share(Math.max(...api.value));\n                return (\n                  <span\n                    aria-hidden\n                    data-slot=\"slider-range\"\n                    className=\"absolute inset-0\"\n                    style={{ backgroundImage: ticks(\"var(--ds-color-border-strong)\", vertical), clipPath: vertical ? `inset(${100 - hi}% 0 ${lo}% 0)` : `inset(0 ${100 - hi}% 0 ${lo}%)` }}\n                  />\n                );\n              }}\n            </ChakraSlider.Context>\n          )}\n        </ChakraSlider.Track>\n        {Array.from({ length: values.length }, (_, index) => (\n          <ChakraSlider.Thumb\n            data-slot=\"slider-thumb\"\n            index={index}\n            key={index}\n            aria-label={Array.isArray(ariaLabel) ? ariaLabel[index] : ariaLabel ?? (values.length > 1 ? (index === 0 ? \"Minimum\" : \"Maximum\") : undefined)}\n            className={cn(\n              \"flex shrink-0 cursor-grab items-center justify-center text-fg outline-none active:cursor-grabbing data-disabled:pointer-events-none data-disabled:text-fg-subtle\",\n              \"data-[orientation=horizontal]:h-4 data-[orientation=horizontal]:w-3 data-[orientation=vertical]:h-3 data-[orientation=vertical]:w-4\",\n              \"focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong\",\n            )}\n          >\n            <span aria-hidden className=\"bg-current in-data-[orientation=horizontal]:h-full in-data-[orientation=horizontal]:w-[1.5px] in-data-[orientation=vertical]:h-[1.5px] in-data-[orientation=vertical]:w-full\" />\n            <ChakraSlider.HiddenInput />\n          </ChakraSlider.Thumb>\n        ))}\n      </ChakraSlider.Control>\n    </ChakraSlider.Root>\n  );\n}\n\nexport { Slider };\n"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "name": "app-shell",
+  "useFor": "Use as the base of every product screen. Pass `nav` groups, the `current` row id, `title`, `breadcrumb`, `meta` and `actions` (one Forest key at most), and the screen as children. It fills the viewport; give it a height class to embed it. Below 768px the rail opens as a sheet.",
+  "constraints": [
+    "A rail wider than 212px",
+    "Two Forest keys in the header",
+    "Icons that move on hover",
+    "Shadows under the header"
+  ],
+  "documentation": "",
+  "source": "brand/reference product UI boards (Figma 442:2) and the library's product parts: sidebar, breadcrumb",
+  "exports": [
+    "ShellNavItem",
+    "ShellNavGroup",
+    "AppShellProps",
+    "AppShell"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/app-shell",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/app-shell.md",
+  "examples": [
+    {
+      "path": "examples/app-shell.tsx",
+      "content": "\"use client\";\n\nimport { AppShell } from \"@/components/blocks/app-shell\";\nimport { Button } from \"@/components/ui/button\";\nimport { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from \"@/components/ui/empty\";\n\n// Embedded at 800px; in an app the shell fills the viewport.\nexport function Preview() {\n  return (\n    <AppShell\n      className=\"h-200\"\n      current=\"reports\"\n      breadcrumb={[\"Workspace\"]}\n      title=\"Reports\"\n      meta=\"0 reports\"\n      actions={<Button size=\"sm\">New report</Button>}\n    >\n      <div className=\"grid h-full place-items-center p-6\">\n        <Empty>\n          <EmptyHeader>\n            <EmptyTitle>No reports yet</EmptyTitle>\n            <EmptyDescription>Open a saved site and choose Open report to write one.</EmptyDescription>\n          </EmptyHeader>\n        </Empty>\n      </div>\n    </AppShell>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "app-shell",
+        "button",
+        "empty"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/app-shell/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "App shell",
+  "description": "The app's frame: the 212px Bone rail (lockup, rows, labelled groups, Help and the workspace), a 56px header with breadcrumb, title, mono meta and actions over a Stone rule, and a scrolling content slot.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "avatar",
+    "breadcrumb",
+    "mireye-mark",
+    "sidebar",
+    "utils"
+  ],
+  "packages": [
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/app-shell.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ChatTextIcon, FileTextIcon, GearSixIcon, MapTrifoldIcon, QuestionIcon, StackIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { Avatar, AvatarFallback } from \"@/components/ui/avatar\";\nimport { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from \"@/components/ui/breadcrumb\";\nimport { MireyeMark } from \"@/components/ui/mireye-mark\";\nimport {\n  Sidebar,\n  SidebarContent,\n  SidebarFooter,\n  SidebarGroup,\n  SidebarGroupContent,\n  SidebarGroupLabel,\n  SidebarHeader,\n  SidebarInset,\n  SidebarMenu,\n  SidebarMenuBadge,\n  SidebarMenuButton,\n  SidebarMenuItem,\n  SidebarProvider,\n  SidebarTrigger,\n} from \"@/components/ui/sidebar\";\nimport { cn } from \"@/lib/utils\";\n\n// The app's frame, the base the other shells use: the 212px Bone rail (the lockup, the main rows, labelled groups,\n// Help and the workspace at the foot), a 56px header with the breadcrumb, the page title and its actions over a 1px\n// Stone rule, and the content slot, which scrolls on its own. Below 768px the rail opens as a sheet from the menu key.\n// Rows fill Fog under the pointer and Mist when current (the sidebar's own 150ms color step); nothing moves.\n\nexport type ShellNavItem = { id: string; label: string; icon?: React.ComponentType<{ className?: string }>; count?: number; mark?: string };\nexport type ShellNavGroup = { label?: string; items: ShellNavItem[] };\n\nconst NAV: ShellNavGroup[] = [\n  {\n    items: [\n      { id: \"ask\", label: \"Ask\", icon: ChatTextIcon },\n      { id: \"map\", label: \"Map\", icon: MapTrifoldIcon },\n      { id: \"sites\", label: \"Saved sites\", icon: StackIcon, count: 12 },\n      { id: \"reports\", label: \"Reports\", icon: FileTextIcon },\n    ],\n  },\n  { label: \"Workspace\", items: [{ id: \"settings\", label: \"Settings\", icon: GearSixIcon }] },\n];\n\nexport type AppShellProps = {\n  nav?: ShellNavGroup[];\n  /** The id of the current row. */\n  current?: string;\n  onNavigate?: (id: string) => void;\n  /** Breadcrumb trail before the title, e.g. [\"Saved sites\"]. */\n  breadcrumb?: string[];\n  title: React.ReactNode;\n  /** Mono text after the title, e.g. a count or an ID. */\n  meta?: React.ReactNode;\n  actions?: React.ReactNode;\n  workspace?: string;\n  name?: string;\n  /** Classes for the frame. It fills the viewport by default; give it a height to embed it. */\n  className?: string;\n  /** Classes for the scrolling content area. */\n  contentClassName?: string;\n  children?: React.ReactNode;\n};\n\nexport function AppShell({ nav = NAV, current, onNavigate, breadcrumb, title, meta, actions, workspace = \"Acme Energy\", name = \"Mireye\", className, contentClassName, children }: AppShellProps) {\n  const [active, setActive] = React.useState(current ?? nav[0]?.items[0]?.id);\n  React.useEffect(() => {\n    if (current) setActive(current);\n  }, [current]);\n  const select = (id: string) => {\n    setActive(id);\n    onNavigate?.(id);\n  };\n  return (\n    <SidebarProvider data-slot=\"app-shell\" className={cn(\"h-dvh min-h-0 overflow-hidden bg-page font-sans text-fg\", className)}>\n      <Sidebar collapsible=\"offcanvas\">\n        <SidebarHeader className=\"px-4\">\n          <div className=\"flex h-6 items-center gap-2 px-1 text-fg\">\n            <MireyeMark aria-hidden role=\"presentation\" className=\"h-4 w-5.5\" />\n            <span className=\"text-body-lg leading-none\">{name}</span>\n          </div>\n        </SidebarHeader>\n        <SidebarContent>\n          {nav.map((group, gi) => (\n            <SidebarGroup key={group.label ?? gi}>\n              {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}\n              <SidebarGroupContent>\n                <SidebarMenu>\n                  {group.items.map(({ id, label, icon: Icon, count, mark }) => (\n                    <SidebarMenuItem key={id}>\n                      <SidebarMenuButton isActive={active === id} tooltip={label} onClick={() => select(id)}>\n                        {Icon && <Icon />}\n                        <span>{label}</span>\n                      </SidebarMenuButton>\n                      {count ? <SidebarMenuBadge variant=\"count\">{count}</SidebarMenuBadge> : null}\n                      {mark ? <SidebarMenuBadge>{mark}</SidebarMenuBadge> : null}\n                    </SidebarMenuItem>\n                  ))}\n                </SidebarMenu>\n              </SidebarGroupContent>\n            </SidebarGroup>\n          ))}\n        </SidebarContent>\n        <SidebarFooter>\n          <SidebarMenu>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip=\"Help\">\n                <QuestionIcon />\n                <span>Help</span>\n              </SidebarMenuButton>\n            </SidebarMenuItem>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip={workspace}>\n                <Avatar size=\"sm\" className=\"data-[size=sm]:size-4\">\n                  <AvatarFallback className=\"text-micro\">{workspace.charAt(0)}</AvatarFallback>\n                </Avatar>\n                <span>{workspace}</span>\n              </SidebarMenuButton>\n            </SidebarMenuItem>\n          </SidebarMenu>\n        </SidebarFooter>\n      </Sidebar>\n      <SidebarInset className=\"min-h-0 min-w-0 bg-page\">\n        <header className=\"flex min-h-14 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 sm:px-6\">\n          <SidebarTrigger className=\"-ml-2 md:hidden\" />\n          <div className=\"flex min-w-0 flex-1 items-center gap-3\">\n            {breadcrumb?.length ? (\n              <Breadcrumb className=\"min-w-0\">\n                <BreadcrumbList className=\"flex-nowrap\">\n                  {breadcrumb.map((b) => (\n                    <React.Fragment key={b}>\n                      <BreadcrumbItem className=\"max-sm:hidden\">\n                        <BreadcrumbLink href=\"#\">{b}</BreadcrumbLink>\n                      </BreadcrumbItem>\n                      <BreadcrumbSeparator className=\"max-sm:hidden\" />\n                    </React.Fragment>\n                  ))}\n                  <BreadcrumbItem className=\"min-w-0\">\n                    <BreadcrumbPage className=\"truncate text-body-lg\">{title}</BreadcrumbPage>\n                  </BreadcrumbItem>\n                </BreadcrumbList>\n              </Breadcrumb>\n            ) : (\n              <h1 className=\"truncate text-body-lg leading-tight font-normal text-fg\">{title}</h1>\n            )}\n            {meta != null && <span className=\"shrink-0 font-mono text-caption text-fg-muted max-sm:hidden\">{meta}</span>}\n          </div>\n          {actions && <div className=\"flex shrink-0 items-center gap-2\">{actions}</div>}\n        </header>\n        <div data-slot=\"app-shell-content\" className={cn(\"min-h-0 flex-1 overflow-y-auto fade-y\", contentClassName)}>\n          {children}\n        </div>\n      </SidebarInset>\n    </SidebarProvider>\n  );\n}\n"
+    }
+  ]
+}

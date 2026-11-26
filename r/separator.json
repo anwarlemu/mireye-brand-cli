@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "separator",
+  "useFor": "Use between groups inside a Bone panel (rows of values, the parts of a card, toolbar groups with orientation=\"vertical\"). Set strong for the rule under a table head or at the edge of a panel. It is decorative unless you set decorative={false}.",
+  "constraints": [
+    "Forest rules between rows",
+    "Double rules",
+    "Dashed rules",
+    "Rules thicker than 1px"
+  ],
+  "documentation": "",
+  "source": "Figma UI · Agent chat (443:433): the Mist rules of Cited fields (443:470)",
+  "exports": [
+    "Separator"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/separator",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/separator.md",
+  "examples": [
+    {
+      "path": "examples/separator.tsx",
+      "content": "import { Separator } from \"@/components/ui/separator\";\n\nexport function Preview() {\n  return (\n    <div className=\"w-full max-w-96\">\n      <p className=\"text-body text-fg\">Ellis County site 14</p>\n      <p className=\"font-mono text-caption text-fg-muted\">32.4113, -96.8302</p>\n      <Separator className=\"my-4\" />\n      <div className=\"flex h-5 items-center gap-4 text-body whitespace-nowrap text-fg\">\n        <span>Parcel</span>\n        <Separator orientation=\"vertical\" />\n        <span>Power</span>\n        <Separator orientation=\"vertical\" />\n        <span>Water</span>\n      </div>\n    </div>\n  );\n}\n\nexport function Strong() {\n  return (\n    <div className=\"grid w-full max-w-96 gap-3 text-body\">\n      <p className=\"text-caption text-fg-secondary\">Requirements</p>\n      <Separator strong />\n      <p className=\"text-fg\">200+ ac within Ellis County</p>\n      <Separator />\n      <p className=\"text-fg\">138 kV substation within 2 mi</p>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Strong"
+      ],
+      "requires": [
+        "separator"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/separator/Preview"
+        },
+        {
+          "name": "Strong",
+          "url": "https://mireye-ds.agencidev.com/preview/separator/Strong"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Separator",
+  "description": "A 1px rule in Mist inside a panel, or Stone at a panel's edge (strong), across or down.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react"
+  ],
+  "files": [
+    {
+      "path": "components/ui/separator.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { Separator as ChakraSeparator } from \"@chakra-ui/react\";\n\nimport { cn } from \"@/lib/utils\";\n\n// Mireye's rules: 1px Mist between parts inside a panel (the Cited fields rules, Figma 443:470), 1px Stone at a panel's\n// edge or under a table head (`strong`). Square, never dashed. Decorative by default.\nfunction Separator({\n  className,\n  orientation = \"horizontal\",\n  decorative = true,\n  strong = false,\n  ...props\n}: Omit<React.ComponentProps<typeof ChakraSeparator>, \"orientation\"> & { orientation?: \"horizontal\" | \"vertical\"; decorative?: boolean; strong?: boolean }) {\n  return (\n    <ChakraSeparator\n      unstyled\n      data-slot=\"separator\"\n      aria-hidden={decorative || undefined}\n      orientation={orientation}\n      className={cn(\n        \"shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px\",\n        strong ? \"bg-line\" : \"bg-line-subtle\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Separator };\n"
+    }
+  ]
+}

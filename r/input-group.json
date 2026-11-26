@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "name": "input-group",
+  "useFor": "Use for a search field (the parcel glyph first, as in Figma), a value with a unit or a fixed prefix (APN), a field with a live check (the Dial, then a check or a brick x) or a copy key, and a question box with a caption above or below.",
+  "constraints": [
+    "A spinner other than the Dial",
+    "Addons that change the field's height",
+    "Two segments on one side"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Inputs\" (442:107): the Search row and the unit slot",
+  "exports": [
+    "InputGroup",
+    "InputGroupAddon",
+    "InputGroupButton",
+    "InputGroupInput",
+    "InputGroupText",
+    "InputGroupTextarea"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/input-group",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/input-group.md",
+  "examples": [
+    {
+      "path": "examples/input-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { CheckIcon as CheckGlyph, CopyIcon, XIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { ParcelIcon } from \"@/components/icons/parcel-icon\";\nimport { Dial } from \"@/components/ui/dial\";\nimport { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from \"@/components/ui/input-group\";\nimport { Kbd } from \"@/components/ui/kbd\";\nimport { Label } from \"@/components/ui/label\";\n\n// The search row from Figma: the parcel glyph 12px before the text.\nexport function Preview() {\n  return (\n    <div className=\"grid w-full max-w-110 gap-2\">\n      <Label htmlFor=\"location-search\">Location</Label>\n      <InputGroup>\n        <InputGroupAddon>\n          <ParcelIcon size={10} className=\"size-2.5 text-fg\" />\n        </InputGroupAddon>\n        <InputGroupInput id=\"location-search\" type=\"search\" placeholder=\"Search any U.S. location\" />\n        <InputGroupAddon align=\"inline-end\">\n          <Kbd>/</Kbd>\n        </InputGroupAddon>\n      </InputGroup>\n    </div>\n  );\n}\n\nexport function Units() {\n  return (\n    <div className=\"grid w-full max-w-110 gap-4\">\n      <InputGroup>\n        <InputGroupInput aria-label=\"Minimum voltage\" defaultValue=\"345\" inputMode=\"numeric\" />\n        <InputGroupAddon align=\"inline-end\">kV</InputGroupAddon>\n      </InputGroup>\n      <InputGroup>\n        <InputGroupAddon variant=\"segment\">APN</InputGroupAddon>\n        <InputGroupInput aria-label=\"Parcel number\" defaultValue=\"041-220-17\" className=\"font-mono\" />\n      </InputGroup>\n      <InputGroup>\n        <InputGroupInput aria-label=\"Distance to the nearest substation\" defaultValue=\"2.4\" inputMode=\"decimal\" />\n        <InputGroupAddon align=\"inline-end\" variant=\"segment\">\n          miles to a substation\n        </InputGroupAddon>\n      </InputGroup>\n    </div>\n  );\n}\n\n// While the parent checks a parcel number, the Dial turns at the end of the field; then a check or a brick x.\nexport function Checking() {\n  const [value, setValue] = React.useState(\"041-220-17\");\n  const [copied, setCopied] = React.useState(false);\n  const valid = /^\\d{3}-\\d{3}-\\d{2}$/.test(value);\n  return (\n    <div className=\"grid w-full max-w-110 gap-4\">\n      <InputGroup>\n        <InputGroupInput aria-label=\"Parcel being checked\" defaultValue=\"041-220-1\" />\n        <InputGroupAddon align=\"inline-end\">\n          <Dial size={24} aria-label=\"Checking the parcel\" />\n        </InputGroupAddon>\n      </InputGroup>\n      <div className=\"grid gap-2\">\n        <InputGroup>\n          <InputGroupInput aria-label=\"Parcel number\" value={value} onChange={(e) => setValue(e.target.value)} aria-invalid={!valid} aria-describedby=\"apn-help\" className=\"font-mono\" />\n          <InputGroupAddon align=\"inline-end\">\n            {valid ? <CheckGlyph className=\"text-success\" aria-label=\"Parcel found\" /> : <XIcon className=\"text-danger\" aria-hidden />}\n            <InputGroupButton size=\"icon-xs\" aria-label={copied ? \"Copied\" : \"Copy the parcel number\"} onClick={() => setCopied(true)}>\n              <CopyIcon />\n            </InputGroupButton>\n          </InputGroupAddon>\n        </InputGroup>\n        <p id=\"apn-help\" className=\"m-0 text-caption leading-line-caption text-fg-muted\">\n          {valid ? \"Parcel 041-220-17, Marion County, OR.\" : \"Use the county's format: 000-000-00.\"}\n        </p>\n      </div>\n    </div>\n  );\n}\n\nexport function WithTextarea() {\n  return (\n    <InputGroup className=\"w-full max-w-110\">\n      <InputGroupAddon align=\"block-start\">Ask about this site</InputGroupAddon>\n      <InputGroupTextarea aria-label=\"Question\" placeholder=\"Is the parcel within 2 miles of a 345 kV line?\" />\n      <InputGroupAddon align=\"block-end\">\n        <InputGroupText className=\"text-caption\">Answers cite county records</InputGroupText>\n      </InputGroupAddon>\n    </InputGroup>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "Units",
+        "Checking",
+        "WithTextarea"
+      ],
+      "requires": [
+        "input-group",
+        "icons",
+        "dial",
+        "kbd",
+        "label"
+      ],
+      "packages": [
+        "@phosphor-icons/react"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/input-group/Preview"
+        },
+        {
+          "name": "Units",
+          "url": "https://mireye-ds.agencidev.com/preview/input-group/Units"
+        },
+        {
+          "name": "Checking",
+          "url": "https://mireye-ds.agencidev.com/preview/input-group/Checking"
+        },
+        {
+          "name": "WithTextarea",
+          "url": "https://mireye-ds.agencidev.com/preview/input-group/WithTextarea"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Input group",
+  "description": "A field with things inside it: the field's frame around a borderless input, with addons 16px in: the parcel glyph, a unit in 13px Forest, a Dial while a check runs, a key hint, an icon key, or a Fog segment behind a Stone rule. Addons can sit above or below a textarea.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "button",
+    "input",
+    "utils"
+  ],
+  "packages": [
+    "class-variance-authority"
+  ],
+  "files": [
+    {
+      "path": "components/ui/input-group.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { fieldFrameClassName } from \"@/components/ui/input\";\nimport { cn } from \"@/lib/utils\";\n\n// A field with things inside it: Input's frame (white, 1px Stone line, the 8px cut; Forest while its control has focus,\n// brick when invalid, Fog read-only, Mist disabled) around a borderless control 16px in, with addons 12px from either\n// end. An addon is a 16px glyph in 72% Forest (the parcel glyph on a search), a unit in 13px Forest (\"ac\", as in\n// Figma), a Dial while a check runs, or a `segment`: a Fog block behind a Stone rule for a fixed prefix or suffix.\n// Addons can also sit above or below a textarea (block-start, block-end).\nfunction InputGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"input-group\"\n      role=\"group\"\n      className={cn(\n        fieldFrameClassName,\n        \"group/input-group relative flex h-9 w-full min-w-0 items-center\",\n        \"has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto\",\n        \"has-[>[data-align=inline-start]]:[&>input]:pl-2 has-[>[data-align=inline-end]]:[&>input]:pr-2 has-[>[data-align=block-start]]:[&>textarea]:pt-1 has-[>[data-align=block-end]]:[&>textarea]:pb-1\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nconst inputGroupAddonVariants = cva(\n  \"flex h-auto shrink-0 cursor-text items-center justify-center gap-2 font-sans text-body leading-tight text-fg select-none group-has-[[data-slot=input-group-control]:disabled]/input-group:cursor-not-allowed group-has-[[data-slot=input-group-control]:disabled]/input-group:text-fg-subtle [&>svg:not([data-slot]):not([class*='size-'])]:size-4 [&>svg:not([data-slot]):not([class*='text-'])]:text-icon-secondary\",\n  {\n    variants: {\n      align: {\n        \"inline-start\": \"order-first pl-4 has-[>button]:pl-1\",\n        \"inline-end\": \"order-last pr-4 has-[>button]:pr-1\",\n        \"block-start\": \"order-first w-full justify-start px-4 pt-2 text-caption text-fg-secondary\",\n        \"block-end\": \"order-last w-full justify-start px-4 pb-2 text-caption text-fg-secondary\",\n      },\n      variant: {\n        plain: \"\",\n        segment: \"my-px self-stretch border-line bg-subtle px-3 text-caption text-fg-secondary\",\n      },\n    },\n    compoundVariants: [\n      { variant: \"segment\", align: \"inline-end\", className: \"mr-px border-l pr-3\" },\n      { variant: \"segment\", align: \"inline-start\", className: \"ml-px border-r pl-3 [clip-path:polygon(calc(var(--ds-cut)_-_0.7929px)_0,100%_0,100%_100%,0_100%,0_calc(var(--ds-cut)_-_0.7929px))]\" },\n    ],\n    defaultVariants: { align: \"inline-start\", variant: \"plain\" },\n  },\n);\n\nfunction InputGroupAddon({ className, align = \"inline-start\", variant = \"plain\", ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof inputGroupAddonVariants>) {\n  return (\n    <div\n      role=\"group\"\n      data-slot=\"input-group-addon\"\n      data-align={align}\n      data-variant={variant}\n      className={cn(inputGroupAddonVariants({ align, variant }), className)}\n      onClick={(e) => {\n        // A click on the addon (not on a button in it) focuses the control, as a click inside a field would.\n        if ((e.target as HTMLElement).closest(\"button\")) return;\n        e.currentTarget.parentElement?.querySelector<HTMLElement>(\"input, textarea\")?.focus();\n      }}\n      {...props}\n    />\n  );\n}\n\nconst inputGroupButtonVariants = cva(\"shadow-none\", {\n  variants: {\n    size: {\n      xs: \"h-6 gap-1 px-2 text-caption\",\n      sm: \"h-7 gap-1.5 px-2.5\",\n      \"icon-xs\": \"size-6 p-0\",\n      \"icon-sm\": \"size-7 p-0\",\n    },\n  },\n  defaultVariants: { size: \"xs\" },\n});\n\nfunction InputGroupButton({ className, type = \"button\", variant = \"ghost\", size = \"xs\", ...props }: Omit<React.ComponentProps<typeof Button>, \"size\"> & VariantProps<typeof inputGroupButtonVariants>) {\n  return <Button type={type} data-size={size} variant={variant} className={cn(inputGroupButtonVariants({ size }), className)} {...props} />;\n}\n\nfunction InputGroupText({ className, ...props }: React.ComponentProps<\"span\">) {\n  return <span className={cn(\"flex items-center gap-2 font-sans text-body leading-tight text-fg-muted [&_svg]:pointer-events-none [&_svg:not([data-slot]):not([class*='size-'])]:size-4\", className)} {...props} />;\n}\n\nfunction InputGroupInput({ className, ...props }: React.ComponentProps<\"input\">) {\n  return (\n    <input\n      data-slot=\"input-group-control\"\n      className={cn(\n        \"h-full min-w-0 flex-1 bg-transparent px-4 font-sans text-body leading-tight text-fg caret-fg outline-none placeholder:text-fg-subtle selection:bg-subtle-hover read-only:text-fg-subtle disabled:cursor-not-allowed disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction InputGroupTextarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <textarea\n      data-slot=\"input-group-control\"\n      className={cn(\n        \"field-sizing-content flex min-h-18 w-full min-w-0 flex-1 resize-none bg-transparent px-4 py-2 font-sans text-body leading-line-body text-fg caret-fg outline-none placeholder:text-fg-subtle selection:bg-subtle-hover read-only:text-fg-subtle disabled:cursor-not-allowed disabled:text-fg-subtle\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea };\n"
+    }
+  ]
+}

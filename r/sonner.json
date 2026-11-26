@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "sonner",
+  "useFor": "Use for a short report on something that just happened (a survey finished, an export failed), with an Undo or Retry action when there is one. Mount Toaster once near the root and call toast() from anywhere.",
+  "constraints": [
+    "Information people must act on (use Alert Dialog)",
+    "A circle or a filled glyph as the status mark",
+    "Rounded corners or a shadow",
+    "More than one action"
+  ],
+  "documentation": "",
+  "source": "Not in Figma. Drawn in Mireye's grammar: the Bone cut frame of Figma UI · Inputs (442:107) and the status diamonds of Figma UI · Status and tags (442:177)",
+  "exports": [
+    "Toaster"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/sonner",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/sonner.md",
+  "examples": [
+    {
+      "path": "examples/sonner.tsx",
+      "content": "\"use client\";\n\nimport { toast } from \"sonner\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Toaster } from \"@/components/ui/sonner\";\n\nexport function Preview() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Toaster />\n      <Button\n        variant=\"outline\"\n        onClick={() =>\n          toast(\"Site 14 removed\", {\n            description: \"Its 6 parcels left the shortlist.\",\n            action: { label: \"Undo\", onClick: () => toast.success(\"Site 14 restored\") },\n          })\n        }\n      >\n        Remove site\n      </Button>\n      <Button variant=\"outline\" onClick={() => toast.success(\"Survey complete\", { description: \"212 acres in Weld County scored 86 against your requirements.\" })}>\n        Success\n      </Button>\n      <Button variant=\"outline\" onClick={() => toast.error(\"Export failed\", { description: \"The shapefile is over 50 MB. Export fewer parcels.\" })}>\n        Error\n      </Button>\n      <Button variant=\"outline\" onClick={() => toast.warning(\"Floodplain overlap\", { description: \"18 acres of parcel 0412-07 sit in the 100-year floodplain.\" })}>\n        Warning\n      </Button>\n      <Button variant=\"outline\" onClick={() => toast.info(\"New county data\", { description: \"Larimer County parcels were updated on Oct 30.\" })}>\n        Info\n      </Button>\n      <Button\n        variant=\"outline\"\n        onClick={() =>\n          // ds-latency: demonstrates a pending notification; no control or input waits for the demo timer.\n          toast.promise(new Promise((resolve) => setTimeout(resolve, 1600)), {\n            loading: \"Scoring 24 sites...\",\n            success: \"24 sites scored\",\n            error: \"Could not score the sites\",\n          })\n        }\n      >\n        Promise\n      </Button>\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "sonner",
+        "button"
+      ],
+      "packages": [
+        "sonner"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/sonner/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Sonner",
+  "description": "A Bone panel with the 8px cut corner and a 1px Stone line, no shadow, a 6px diamond status mark (Fern success, brick error, outlined warning and information, the Dial while loading), a 13px medium title and square keys.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "dial",
+    "diamond"
+  ],
+  "packages": [
+    "@phosphor-icons/react",
+    "sonner"
+  ],
+  "files": [
+    {
+      "path": "components/ui/sonner.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { XIcon } from \"@phosphor-icons/react/ssr\";\nimport { Toaster as Sonner, type ToasterProps } from \"sonner\";\n\nimport { Dial } from \"@/components/ui/dial\";\nimport { Diamond } from \"@/components/ui/diamond\";\n\n// Toasts. Figma has none, so they are drawn in Mireye's grammar: a white panel with the 8px cut corner and a 1px Stone\n// line (Forest while focused), no shadow, 16px of padding. A 6px diamond marks the status before the text: solid Fern\n// for success, solid brick for an error, outlined for a warning (in the warning color) and for information (in Forest),\n// and the Dial turns while something is loading. Then the 13px medium Forest title over a 13px line in the secondary\n// ink (a long one scrolls past 160px and keeps its line breaks), and two square 32px keys for its action (the Forest\n// key) and cancel (the white framed key). The close key is a square 24px key 8px from the top and right edges with a\n// 16px X, Fog under the pointer and Mist while pressed. The stack sits 20px above the bottom and 24px in from the right.\n// Sonner stacks, swipes and times them; its motion (400ms, ease) is kept as Emil Kowalski tuned it.\n//\n// Sonner draws its own pseudo-elements on each toast (the hover bridge between stacked toasts, the swipe area), so the\n// cut frame cannot use ds-cut-frame's ::before and ::after here. The same frame is drawn on the toast itself instead:\n// a 1px line all round, a clip that cuts the corner (and keeps the bridge above the toast), and the corner's 1px\n// diagonal painted as a gradient on the line's side of the clip, so the cut edge carries the line too.\nconst FRAME: React.CSSProperties = {\n  border: \"var(--ds-border-width) solid var(--ds-shape-stroke)\",\n  borderRadius: 0,\n  boxShadow: \"none\",\n  background:\n    \"linear-gradient(to bottom right, transparent 50%, var(--ds-shape-stroke) 50%, var(--ds-shape-stroke) calc(50% + var(--ds-border-width)), transparent calc(50% + var(--ds-border-width))) 0 0 / var(--ds-cut) var(--ds-cut) no-repeat border-box, var(--ds-color-bg-default)\",\n  clipPath: \"polygon(0 calc(-1 * var(--gap) - var(--ds-border-width)), 100% calc(-1 * var(--gap) - var(--ds-border-width)), 100% 100%, 0 100%, 0 var(--ds-cut), var(--ds-cut) 0, 0 0)\",\n};\n\nconst KEY =\n  \"inline-flex h-8! shrink-0 items-center rounded-none! px-3! font-sans text-body! leading-tight font-medium! outline-none transition-[background-color] duration-150 ease-out active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\";\n\nfunction Toaster({ toastOptions, ...props }: ToasterProps) {\n  return (\n    <Sonner\n      data-slot=\"sonner\"\n      className=\"toaster group\"\n      offset={{ bottom: 20, right: 24 }}\n      icons={{\n        success: <Diamond size={10} className=\"text-success\" />,\n        info: <Diamond size={10} variant=\"outline\" className=\"text-fg\" />,\n        warning: <Diamond size={10} variant=\"outline\" className=\"text-warning\" />,\n        error: <Diamond size={10} className=\"text-danger\" />,\n        loading: <Dial />,\n        close: <XIcon className=\"size-4\" />,\n      }}\n      toastOptions={{\n        ...toastOptions,\n        style: { ...FRAME, ...toastOptions?.style },\n        classNames: {\n          toast: \"group/toast flex! w-(--width) items-start! gap-3! p-4! font-sans text-fg [--ds-shape-stroke:var(--ds-color-border-default)] focus-visible:[--ds-shape-stroke:var(--ds-color-border-strong)]\",\n          icon: \"m-0! flex h-4! w-auto! shrink-0 items-center justify-center\",\n          content: \"grid min-w-0 flex-1 gap-1 pr-6\",\n          title: \"text-body! leading-tight font-medium! text-fg\",\n          description: \"max-h-40 overflow-y-auto fade-y text-body! leading-body text-fg-secondary! whitespace-pre-line wrap-anywhere\",\n          actionButton: `${KEY} bg-primary! text-on-primary! hover:bg-primary-hover! active:bg-primary!`,\n          cancelButton: `${KEY} border! border-line! bg-surface! text-fg! hover:bg-subtle! active:bg-subtle-hover!`,\n          closeButton:\n            \"top-2! right-2! left-auto! inline-flex size-6! transform-none! items-center justify-center rounded-none! border-0! bg-transparent! text-fg! shadow-none! outline-none transition-[background-color] duration-150 ease-out hover:bg-subtle! active:bg-subtle-hover! active:duration-0 focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-line-strong motion-reduce:transition-none\",\n          ...toastOptions?.classNames,\n        },\n      }}\n      style={\n        {\n          \"--width\": \"22.25rem\",\n          \"--normal-bg\": \"var(--ds-color-bg-default)\",\n          \"--normal-text\": \"var(--ds-color-text-default)\",\n          \"--normal-border\": \"var(--ds-color-border-default)\",\n          \"--border-radius\": \"0\",\n        } as React.CSSProperties\n      }\n      {...props}\n    />\n  );\n}\n\nexport { Toaster };\n"
+    }
+  ]
+}

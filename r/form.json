@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "name": "form",
+  "useFor": "Use for a form with validation, such as site criteria. Wrap the control in FormControl so it gets the id, aria-describedby and aria-invalid; put FormMessage last. End with one default key with `arrow`, and set its `loading` while the form submits.",
+  "constraints": [
+    "Validating on every keystroke before the first submit",
+    "A message that replaces the label",
+    "More than one default key"
+  ],
+  "documentation": "",
+  "source": "Drawn from Figma \"UI · Inputs\" (442:107)",
+  "exports": [
+    "Form",
+    "FormControl",
+    "FormDescription",
+    "FormField",
+    "FormItem",
+    "FormLabel",
+    "FormMessage",
+    "useFormField"
+  ],
+  "client": true,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/form",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/form.md",
+  "examples": [
+    {
+      "path": "examples/form.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { useForm } from \"react-hook-form\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Checkbox } from \"@/components/ui/checkbox\";\nimport { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from \"@/components/ui/form\";\nimport { Input } from \"@/components/ui/input\";\nimport { RadioGroup, RadioGroupItem } from \"@/components/ui/radio-group\";\nimport { Range } from \"@/components/ui/range\";\nimport { Textarea } from \"@/components/ui/textarea\";\n\ntype Values = { name: string; county: string; size: string; voltage: string; use: \"industrial\" | \"agricultural\"; floodplain: boolean; notes: string };\n\n// Site criteria: what the agent searches for. An empty submit shows each field's message; a valid one saves.\nexport function Preview() {\n  const form = useForm<Values>({\n    mode: \"onSubmit\",\n    reValidateMode: \"onChange\",\n    defaultValues: { name: \"\", county: \"\", size: \"41.2\", voltage: \"\", use: \"industrial\", floodplain: true, notes: \"\" },\n  });\n  const [saved, setSaved] = React.useState<string | null>(null);\n  const size = Number.parseFloat(form.watch(\"size\"));\n\n  async function onSubmit(values: Values) {\n    // A local example: a real form would save the criteria to the API here.\n    setSaved(values.name);\n  }\n\n  return (\n    <Form {...form}>\n      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className=\"mx-auto grid w-full max-w-110 gap-4\">\n        <FormField\n          control={form.control}\n          name=\"name\"\n          rules={{ required: \"Name the site so the team can find it.\" }}\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Site name</FormLabel>\n              <FormControl>\n                <Input placeholder=\"e.g. Acme data center, phase 2\" {...field} />\n              </FormControl>\n              <FormMessage />\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"county\"\n          rules={{ required: \"Choose where to search.\" }}\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>County</FormLabel>\n              <FormControl>\n                <Input placeholder=\"Search any U.S. county\" {...field} />\n              </FormControl>\n              <FormMessage />\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"size\"\n          rules={{\n            required: \"Give a minimum size.\",\n            validate: (v) => (Number.parseFloat(v) >= 40 && Number.parseFloat(v) <= 120) || \"Use a size from 40 to 120 ac.\",\n          }}\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Parcel size</FormLabel>\n              <FormControl>\n                <Input inputMode=\"decimal\" unit=\"ac\" {...field} />\n              </FormControl>\n              <Range\n                min={40}\n                max={120}\n                step={0.1}\n                value={Number.isNaN(size) ? 40 : size}\n                onValueChange={(v) => form.setValue(\"size\", String(v), { shouldValidate: form.formState.isSubmitted })}\n                aria-label=\"Parcel size\"\n                helper=\"Within 40 to 120 ac\"\n              />\n              <FormMessage />\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"voltage\"\n          rules={{ pattern: { value: /^\\d*$/, message: \"Use whole kilovolts.\" } }}\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Minimum line voltage</FormLabel>\n              <FormControl>\n                <Input placeholder=\"e.g. 138\" inputMode=\"numeric\" unit=\"kV\" {...field} />\n              </FormControl>\n              <FormDescription>Leave empty to include every line.</FormDescription>\n              <FormMessage />\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"use\"\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Zoning</FormLabel>\n              <FormControl>\n                <RadioGroup value={field.value} onValueChange={(v) => field.onChange(v)} className=\"grid-cols-2\">\n                  <RadioGroupItem value=\"industrial\">Industrial</RadioGroupItem>\n                  <RadioGroupItem value=\"agricultural\">Agricultural</RadioGroupItem>\n                </RadioGroup>\n              </FormControl>\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"floodplain\"\n          render={({ field }) => (\n            <FormItem>\n              <FormControl>\n                <Checkbox checked={field.value} onCheckedChange={(c) => field.onChange(c === true)}>\n                  Exclude floodplain\n                </Checkbox>\n              </FormControl>\n            </FormItem>\n          )}\n        />\n        <FormField\n          control={form.control}\n          name=\"notes\"\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Notes for the agent</FormLabel>\n              <FormControl>\n                <Textarea placeholder=\"Anything else the site needs\" {...field} />\n              </FormControl>\n            </FormItem>\n          )}\n        />\n        <div className=\"flex flex-wrap items-center gap-4 pt-2\">\n          <Button type=\"submit\" arrow loading={form.formState.isSubmitting}>\n            Save criteria\n          </Button>\n          <Button type=\"button\" variant=\"ghost\" onClick={() => { form.reset(); setSaved(null); }}>\n            Reset\n          </Button>\n          <p role=\"status\" className=\"m-0 text-caption leading-line-caption text-fg-muted\">\n            {saved ? `Saved ${saved}.` : \"\"}\n          </p>\n        </div>\n      </form>\n    </Form>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "form",
+        "button",
+        "checkbox",
+        "input",
+        "radio-group",
+        "range",
+        "textarea"
+      ],
+      "packages": [
+        "react-hook-form"
+      ],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/form/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "ui",
+  "title": "Form",
+  "description": "A react-hook-form form in Mireye's field layout: each FormItem is a 12px label, the control 8px under it, then a 12px description or a brick message. A failing field turns only its control's line and its message brick.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "label",
+    "utils"
+  ],
+  "packages": [
+    "@chakra-ui/react",
+    "react-hook-form"
+  ],
+  "files": [
+    {
+      "path": "components/ui/form.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { chakra } from \"@chakra-ui/react\";\nimport { Controller, FormProvider, useFormContext, useFormState, type ControllerProps, type FieldPath, type FieldValues } from \"react-hook-form\";\n\nimport { Label } from \"@/components/ui/label\";\nimport { cn } from \"@/lib/utils\";\n\n// A react-hook-form form in Mireye's field layout (Figma \"UI · Inputs\", 442:107, at the product scale). Each FormItem is\n// a field: its 12px label in 80% Forest, 8px above the control. A FormDescription is 12px in 72% Forest 8px under the\n// control (\"Within 40 to 120 ac\"); a FormMessage is a 12px brick line 8px under it. A field that fails keeps its label:\n// only the control's line (aria-invalid) and the message turn brick. Stack FormItems 16px apart.\nconst Form = FormProvider;\n\ntype FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = { name: TName };\n\nconst FormFieldContext = React.createContext<FormFieldContextValue | null>(null);\n\nfunction FormField<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>(props: ControllerProps<TFieldValues, TName>) {\n  return (\n    <FormFieldContext.Provider value={{ name: props.name }}>\n      <Controller {...props} />\n    </FormFieldContext.Provider>\n  );\n}\n\ntype FormItemContextValue = { id: string };\n\nconst FormItemContext = React.createContext<FormItemContextValue | null>(null);\n\n/** The state of the field around it: its ids for labels and messages, and react-hook-form's error, dirty and touched state. */\nfunction useFormField() {\n  const fieldContext = React.useContext(FormFieldContext);\n  const itemContext = React.useContext(FormItemContext);\n  const { getFieldState } = useFormContext();\n  if (!fieldContext) throw new Error(\"useFormField should be used within <FormField>\");\n  if (!itemContext) throw new Error(\"useFormField should be used within <FormItem>\");\n  const formState = useFormState({ name: fieldContext.name });\n  const fieldState = getFieldState(fieldContext.name, formState);\n  const { id } = itemContext;\n  return { id, name: fieldContext.name, formItemId: `${id}-form-item`, formDescriptionId: `${id}-form-item-description`, formMessageId: `${id}-form-item-message`, ...fieldState };\n}\n\nfunction FormItem({ className, ...props }: React.ComponentProps<\"div\">) {\n  const id = React.useId();\n  return (\n    <FormItemContext.Provider value={{ id }}>\n      <div data-slot=\"form-item\" className={cn(\"grid min-w-0 gap-2\", className)} {...props} />\n    </FormItemContext.Provider>\n  );\n}\n\nfunction FormLabel({ className, ...props }: React.ComponentProps<typeof Label>) {\n  const { error, formItemId } = useFormField();\n  return <Label data-slot=\"form-label\" data-error={!!error} htmlFor={formItemId} className={cn(\"w-fit\", className)} {...props} />;\n}\n\n/** Hands the field's id, its description and message ids and aria-invalid to the one control inside it. */\nfunction FormControl(props: React.ComponentProps<typeof chakra.div>) {\n  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();\n  return <chakra.div data-slot=\"form-control\" id={formItemId} aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`} aria-invalid={!!error} {...props} />;\n}\n\nfunction FormDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  const { formDescriptionId } = useFormField();\n  return <p data-slot=\"form-description\" id={formDescriptionId} className={cn(\"m-0 font-sans text-caption leading-line-caption text-fg-muted\", className)} {...props} />;\n}\n\nfunction FormMessage({ className, children, ...props }: React.ComponentProps<\"p\">) {\n  const { error, formMessageId } = useFormField();\n  const body = error ? String(error.message ?? \"\") : children;\n  if (!body) return null;\n  return (\n    <p data-slot=\"form-message\" id={formMessageId} role={error ? \"alert\" : undefined} className={cn(\"m-0 font-sans text-caption leading-line-caption text-danger\", className)} {...props}>\n      {body}\n    </p>\n  );\n}\n\nexport { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField };\n"
+    }
+  ]
+}

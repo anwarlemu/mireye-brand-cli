@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "name": "feature-grid",
+  "useFor": "Use for three to six capabilities of equal weight. One column on a phone, two on a tablet, three on wide screens (`columns={2}` keeps two). Keep each description to one sentence and the value to a few mono words.",
+  "constraints": [
+    "Cards with gaps instead of shared rules",
+    "Filled or coloured glyphs",
+    "Hover fills on cells that are not links",
+    "More than nine cells"
+  ],
+  "documentation": "",
+  "source": "Mireye website (mireye-website, read-only): feature-rows.css and coverage-grid (cells on 1px rules, mono labels)",
+  "exports": [
+    "Feature",
+    "FeatureGridProps",
+    "FeatureGrid"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/feature-grid",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/feature-grid.md",
+  "examples": [
+    {
+      "path": "examples/feature-grid.tsx",
+      "content": "import { FeatureGrid } from \"@/components/blocks/feature-grid\";\n\nexport function Preview() {\n  return <FeatureGrid closing />;\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "feature-grid"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/feature-grid/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "block",
+  "title": "Feature grid",
+  "description": "Features on a survey grid: cells share 1px Stone rules, each with a 20px glyph, a mono index, a 16px title, a muted line and a mono value.",
+  "surface": "site",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "page-section",
+    "utils"
+  ],
+  "packages": [
+    "@phosphor-icons/react"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/feature-grid.tsx",
+      "content": "import * as React from \"react\";\nimport { DropIcon, FileTextIcon, LightningIcon, MapTrifoldIcon, MountainsIcon, ShieldCheckIcon } from \"@phosphor-icons/react/ssr\";\n\nimport { PageSection, type PageSectionProps } from \"@/components/blocks/page-section\";\nimport { cn } from \"@/lib/utils\";\n\n// Features on a survey grid: cells share 1px Stone rules, each with a mono index, a 20px glyph, a 16px regular title,\n// a muted line and an optional mono value (a count, a unit). One column on a phone, two on a tablet, three on wide\n// screens. Static: nothing fills or moves on hover, because the cells are not links.\n\nexport type Feature = { title: string; description: string; icon?: React.ReactNode; value?: string };\n\nconst FEATURES: Feature[] = [\n  { title: \"Parcels\", description: \"Boundaries, owners of record, acreage and zoning for any lot.\", icon: <MapTrifoldIcon />, value: \"Owner, zoning, acreage\" },\n  { title: \"Power\", description: \"Substations, transmission lines and voltage within any distance.\", icon: <LightningIcon />, value: \"kV, distance, capacity\" },\n  { title: \"Water\", description: \"Mains, wells, flood zones and the 100-year floodplain.\", icon: <DropIcon />, value: \"Zone, main, depth\" },\n  { title: \"Terrain\", description: \"Elevation, slope and the profile across a site.\", icon: <MountainsIcon />, value: \"ft, %, profile\" },\n  { title: \"Permits\", description: \"Filed and issued permits, with status and dates.\", icon: <FileTextIcon />, value: \"Status, type, date\" },\n  { title: \"Sources\", description: \"Every value cites the record it came from, so an agent can check it.\", icon: <ShieldCheckIcon />, value: \"Cited, dated\" },\n];\n\nexport type FeatureGridProps = Omit<PageSectionProps, \"children\"> & { features?: Feature[]; columns?: 2 | 3 };\n\nexport function FeatureGrid({\n  label = \"Coverage\",\n  title = \"Everything an agent needs to know about a place.\",\n  intro = \"One request returns the facts for a parcel or a point, each with its source.\",\n  features = FEATURES,\n  columns = 3,\n  ...props\n}: FeatureGridProps) {\n  return (\n    <PageSection label={label} title={title} intro={intro} {...props}>\n      <ul className={cn(\"grid border-t border-l border-line sm:grid-cols-2\", columns === 3 && \"lg:grid-cols-3\")}>\n        {features.map((f, i) => (\n          <li key={f.title} className=\"grid content-start gap-4 border-r border-b border-line p-5 sm:p-6\">\n            <div className=\"flex items-center justify-between gap-3\">\n              <span className=\"text-fg [&_svg]:size-5\">{f.icon}</span>\n              <span className=\"font-mono text-caption leading-none text-fg-muted\">{String(i + 1).padStart(2, \"0\")}</span>\n            </div>\n            <div className=\"grid gap-2\">\n              <h3 className=\"text-h3 leading-heading font-normal text-fg\">{f.title}</h3>\n              <p className=\"text-body leading-body text-fg-secondary\">{f.description}</p>\n            </div>\n            {f.value && <p className=\"font-mono text-caption leading-tight text-fg-muted\">{f.value}</p>}\n          </li>\n        ))}\n      </ul>\n    </PageSection>\n  );\n}\n"
+    }
+  ]
+}

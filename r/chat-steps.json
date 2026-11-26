@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "name": "chat-steps",
+  "useFor": "Use under the question once the agent has worked: \"Matched the parcel\", \"Checked the flood zone\". Steps join as they finish; StreamText fades their words in.",
+  "constraints": [
+    "Present tense once a step is done",
+    "A spinner on a step; use AgentSteps for live work"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Agent chat\" (443:433): 443:445 to 443:453",
+  "exports": [
+    "ChatSteps",
+    "ChatStep"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/chat-steps",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/chat-steps.md",
+  "examples": [
+    {
+      "path": "examples/chat-steps.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { ChatSteps, ChatStep } from \"@/components/ui/chat-steps\";\nimport { StreamText } from \"@/lib/stream-text\";\n\n// What the agent did, in the past tense. Each step joins the record as it finishes, its words\n// fading in; the record holds for 2s, then plays again.\nconst DONE = [\"Matched the parcel\", \"Checked the flood zone\", \"Sampled elevation and slope\"];\n\nexport function Preview() {\n  const [count, setCount] = React.useState(0);\n  React.useEffect(() => {\n    // ds-latency: the demo plays a run on a clock; no input waits on this timer.\n    const id = window.setTimeout(() => setCount((c) => (c >= DONE.length ? 0 : c + 1)), count >= DONE.length ? 2000 : 450);\n    return () => window.clearTimeout(id);\n  }, [count]);\n  return (\n    <ChatSteps aria-live=\"polite\" className=\"min-h-15\">\n      {DONE.slice(0, count).map((s) => (\n        <ChatStep key={s}>\n          <StreamText text={s} />\n        </ChatStep>\n      ))}\n    </ChatSteps>\n  );\n}\n",
+      "exports": [
+        "Preview"
+      ],
+      "requires": [
+        "chat-steps",
+        "stream-text"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/chat-steps/Preview"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Chat steps",
+  "description": "What the agent did to answer, in the past tense, each step behind an outlined diamond.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "chat"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/chat-steps.tsx",
+      "content": "// Moved into Chat (chat.tsx) on 29 Oct. This path stays so existing imports keep working.\nexport { ChatSteps, ChatStep } from \"@/components/ui/chat\";\n"
+    }
+  ]
+}

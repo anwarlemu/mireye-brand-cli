@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "map-scale",
+  "useFor": "Put it in the map's bottom-left corner. `label` is the true distance the bar covers at the map's center (\"640 ft\"); a new zoom level changes the label, never the bar. On imagery make it Bone with `text-fg-inverse`.",
+  "constraints": [
+    "Alternating filled segments",
+    "Resizing the bar",
+    "A label that does not change with zoom"
+  ],
+  "documentation": "",
+  "source": "Figma \"UI · Map marker\" (443:395): Scale 443:423",
+  "exports": [
+    "MapScale"
+  ],
+  "client": false,
+  "docsUrl": "https://mireye-ds.agencidev.com/components/map-scale",
+  "markdownUrl": "https://mireye-ds-registry.vercel.app/r/map-scale.md",
+  "examples": [
+    {
+      "path": "examples/map-scale.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { MapScale } from \"@/components/ui/map-scale\";\nimport { MapControls } from \"@/components/ui/map-controls\";\nimport { CONTOURS_INDEX, CONTOURS_MINOR } from \"@/components/ui/parcel-scan\";\n\n/** The system's survey contours (ParcelScan's 240 by 128 artwork), stretched to cover a light map ground. */\nfunction ContourGround() {\n  return (\n    <svg aria-hidden viewBox=\"0 0 240 128\" preserveAspectRatio=\"xMidYMid slice\" className=\"absolute inset-0 block size-full\" fill=\"none\">\n      <path d={CONTOURS_MINOR} vectorEffect=\"non-scaling-stroke\" className=\"stroke-line-subtle\" />\n      <path d={CONTOURS_INDEX} vectorEffect=\"non-scaling-stroke\" className=\"stroke-line\" />\n    </svg>\n  );\n}\n\n/** The viewport's size, so marks can sit at its center. */\nfunction useSize<T extends HTMLElement>() {\n  const ref = React.useRef<T>(null);\n  const [size, setSize] = React.useState({ w: 0, h: 0 });\n  React.useLayoutEffect(() => {\n    const el = ref.current;\n    if (!el) return;\n    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }));\n    ro.observe(el);\n    return () => ro.disconnect();\n  }, []);\n  return [ref, size] as const;\n}\n\n// The scale reads the distance its bar covers; zoom and the label rises in with the new distance.\nconst LABELS = [\"5,000 ft\", \"2,500 ft\", \"1,200 ft\", \"640 ft\", \"320 ft\", \"160 ft\"];\n\nexport function Preview() {\n  const [level, setLevel] = React.useState(3);\n  return (\n    <div className=\"relative h-64 w-full overflow-hidden border border-line-subtle bg-surface\">\n      <ContourGround />\n      <MapScale label={LABELS[level]} className=\"absolute bottom-4 left-5\" />\n      <MapControls\n        className=\"absolute right-5 bottom-4\"\n        onZoomIn={() => setLevel((l) => Math.min(LABELS.length - 1, l + 1))}\n        onZoomOut={() => setLevel((l) => Math.max(0, l - 1))}\n        zoomInDisabled={level === LABELS.length - 1}\n        zoomOutDisabled={level === 0}\n      />\n    </div>\n  );\n}\n\n// On imagery the scale is white, with no plate.\nexport function OnImagery() {\n  return (\n    <div className=\"flex h-32 w-full items-end bg-inverse p-5\">\n      <MapScale label=\"640 ft\" className=\"text-fg-inverse\" />\n    </div>\n  );\n}\n",
+      "exports": [
+        "Preview",
+        "OnImagery"
+      ],
+      "requires": [
+        "map-scale",
+        "map-controls",
+        "parcel-scan"
+      ],
+      "packages": [],
+      "previews": [
+        {
+          "name": "Preview",
+          "url": "https://mireye-ds.agencidev.com/preview/map-scale/Preview"
+        },
+        {
+          "name": "OnImagery",
+          "url": "https://mireye-ds.agencidev.com/preview/map-scale/OnImagery"
+        }
+      ]
+    }
+  ],
+  "type": "product",
+  "title": "Map scale",
+  "description": "The scale bar: a 1px ruler with ticks and the distance its whole length covers.",
+  "surface": "product",
+  "kinds": [],
+  "requires": [
+    "theme",
+    "map"
+  ],
+  "packages": [],
+  "files": [
+    {
+      "path": "components/ui/map-scale.tsx",
+      "content": "// Moved into Map (map.tsx) on 29 Oct. This path stays so existing imports keep working.\nexport { MapScale } from \"@/components/ui/map\";\n"
+    }
+  ]
+}
