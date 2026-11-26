@@ -391,6 +391,8 @@ export function adapter(): Adapter {
 			themes: groundIds(),
 			grounds: hexes(groundIds()),
 			sizes: composeSizes(),
+			// A layout made from scratch stands on the brand's contour field, which fades round the words and the logo.
+			ground: ({ grid }) => ({ blocks: [{ id: 'pattern', type: 'pattern', at: { col: 0, row: 0, cols: grid.cols, rows: grid.rows } }] }),
 			formats: IMAGE_FORMATS,
 			recipe: (template, size, copy) => recipeFor(template, size, copy),
 		},

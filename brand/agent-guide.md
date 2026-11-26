@@ -146,6 +146,26 @@ Follow the returned `do` and `dont` lists. Do not add a rule that is not in the 
 - A carousel is several numbered pictures from one file: `{ "size": "portrait", "theme": "green", "slides": [ { "template": "window", "headline": "..." }, ... ] }`. Every slide is drawn and checked before any file is written.
 - Every image runs the same check as a design (whole words, nothing invented, contrast, logo clear space, overlap, safe areas, cut edges, small text); an error writes nothing. Layouts, grounds and the notes on each value's source are in `brand/assets/image.json`.
 
+## Any layout, never only the templates
+
+The templates are starting points, not limits. When a person asks for an arrangement no template has, make it:
+
+- **Ads and posts from a brief:** `{{cli}} design ad brief.md` lays the brief's parts (headline, supporting line, label,
+  stat, quote, search prompt, plan, offer, features, pictures, button) out on the brand's grid in its own blocks. A
+  `## Layout` section says how in plain words, one row per line from the top, parts side by side split by commas:
+  `headline top left`, `stat left, quote right`, `three photos in a row`, `button bottom right`. Without one it makes
+  stacked, centered and two-column arrangements of every part. Each result passes the brand check and is a design file.
+- **Any graphic at any size:** `{{cli}} design new compose --size <size>`, then
+  `{{cli}} design compose add|move|span|remove|order <file> ...` puts any of the brand's blocks (`{{cli}} design --help`
+  lists them) on any cells. `{{cli}} design revise <file> "stat on the right, bigger headline"` takes plain words.
+- **A template, rearranged:** start from a template and revise or move its parts; nothing stays in the template's
+  arrangement unless the person wants it.
+- **Pages and sections:** `{{cli}} design page compose outline.json` builds a page from the brand's sections in any
+  order, and the library's components combine freely in code.
+
+Only the brand's rules are fixed (its colors, type, logo, contrast and clear space); the arrangement is whatever the
+person asks for.
+
 ## Revising a design
 
 When the person will want changes, make the picture as a design: a small JSON file that holds the template, size, theme, words and layer edits, and draws the PNG beside it.
